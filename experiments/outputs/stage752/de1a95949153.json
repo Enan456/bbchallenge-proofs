@@ -1,0 +1,73 @@
+{
+  "code": "1RB0LC_0LC1RF_1LE1RD_0RC1RC_0LA1LA_---1RA",
+  "distinct_windows": {
+    "(B,1)->F; (F,0)": {
+      "000111001": 2,
+      "000111011": 15,
+      "001111011": 14,
+      "111111001": 5,
+      "111111011": 5438,
+      "111111100": 1,
+      "111111110": 7,
+      "111111111": 5446
+    }
+  },
+  "entry_transitions": [
+    {
+      "direction": "R",
+      "from_state": "B",
+      "label": "(B,1)->F",
+      "read_symbol": 1,
+      "to_state": "F",
+      "write_symbol": 1
+    }
+  ],
+  "halt_event_verification": {
+    "actual_halt_consistent_with_event": true,
+    "n_events_landing_on_undefined_symbol": {
+      "(B,1)->F; (F,0)": 0
+    }
+  },
+  "halt_step": null,
+  "halted": false,
+  "honest_scope": "bounded census+alignment; no unreachability claim",
+  "landing_symbol_histogram": {
+    "(B,1)->F; (F,0)": {
+      "1": 10928
+    }
+  },
+  "macro_details": {
+    "fit_records": 4806,
+    "fit_steps": 20000000,
+    "group_rules": 50,
+    "literal_rules": 6,
+    "n_conflicts": 0,
+    "record_cap": 100000,
+    "replay": {
+      "exact": false,
+      "n_mismatches": 1,
+      "n_transitions_checked": 6172,
+      "n_uncovered": 1
+    },
+    "replay_records": 6172,
+    "startup_prefix": 8,
+    "unassigned_events": 0
+  },
+  "macro_status": "replay_mismatch",
+  "n_events": {
+    "(B,1)->F; (F,0)": 10928
+  },
+  "n_obligations": 0,
+  "obligations": [],
+  "per_rule_window_counts": {},
+  "rule_to_window_census": {},
+  "steps_budget": 100000000,
+  "steps_executed": 100000000,
+  "undefined_pairs": [
+    {
+      "label": "(F,0)",
+      "state": "F",
+      "symbol": 0
+    }
+  ]
+}

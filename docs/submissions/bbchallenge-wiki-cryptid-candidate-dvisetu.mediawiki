@@ -1,0 +1,62 @@
+{{DISPLAYTITLE:Dvisetu candidate}}
+''A candidate [[cryptid]] on the BB(6) frontier. The tape repeatedly collapses to adjacent one-block checkpoints and appears to hide a low-dimensional generalized-Collatz map. Documented, not decided.''
+
+'''Standard TM format:''' <code>1RB0RB_1LB0LC_1RD1LC_1RE0RA_0RF1RA_---1LB</code>
+
+'''Status:''' candidate / empirical. Exact-code searches against the public wiki index on 2026-07-27 did not find an existing named page for this machine. Please check the live registry before naming.
+
+== Behavior ==
+
+From the blank tape, bounded simulation did not halt through <math>2\times10^8</math> raw steps. The only undefined transition is state '''F''' reading '''0'''.
+
+At frontier records, after a short startup, the tape usually has two runs of ones. The dominant observed transfer is
+
+: <math>(a,b)\mapsto(a+4,b-3)</math>
+
+with support <code>294/312 = 0.942</code> in a 700k-step mining pass.
+
+The machine repeatedly collapses to a single run of ones. The observed single-block checkpoint values through the 200M-step focused run are:
+
+: <math>1,1,3,4,7,8,13,14,21,22,31,32,45,46,63,64,87,88,119,120,136,137,185,186,210,211,283,284,381,382,511,512,685,686,917,918,934,935,1249,1250,1669,1670,2229,2230,2975,2976,3310,3311,4417,4418,5893,5894,7861,7862</math>
+
+The adjacent-pair pattern <math>n,n+1</math>, with irregular jumps such as <math>512\mapsto685\mapsto917\mapsto934\mapsto1249</math>, suggests a generalized-Collatz style checkpoint map. The exact macro-rule has not yet been proven.
+
+== Why it may be a cryptid ==
+
+This machine survives the local decider chain at expanded budget:
+
+: bounded halt, exact/translated cycle, backward reasoning, bouncer, CTL radius <math>\le 7</math>, FAR with up to 10 DFA states, and the append-bouncer check all fail to certify it at the tested bounds.
+
+The candidate is interesting because the observed dynamics are low-dimensional rather than featureless: two-block transfer phases feed a recurrent one-block checkpoint sequence. If the checkpoint map can be derived exactly and its halt set is a hard avoid-set, this would place the machine in the same broad family as other Collatz-like BB(6) cryptids.
+
+== Reproduction ==
+
+Run the local mining/reproduction script:
+
+: <code>python3 experiments/stage655_new_cryptid_miner.py</code>
+
+The focused follow-up simulation used <code>simulate_records(code, steps=200000000, cap=20000)</code> and recorded no halt, 54 one-block checkpoint records, and latest checkpoints <math>7861,7862</math>.
+
+== Transition table ==
+
+{| class="wikitable" style="text-align:center"
+! !! read 0 !! read 1
+|-
+! A || 1RB || 0RB
+|-
+! B || 1LB || 0LC
+|-
+! C || 1RD || 1LC
+|-
+! D || 1RE || 0RA
+|-
+! E || 0RF || 1RA
+|-
+! F || '''halt''' || 1LB
+|}
+
+== Status ==
+
+'''Open.''' This page documents reproducible candidate dynamics only. It does not constitute a proof of non-halting or a proof that the machine is a cryptid.
+
+[[Category:BB(6)]]

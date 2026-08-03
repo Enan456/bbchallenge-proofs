@@ -1,0 +1,182 @@
+{
+  "code": "1RB1RA_0LC1LE_1LD1LC_1LA0LB_1LF1RE_---0RA",
+  "distinct_windows": {
+    "(E,0)->F; (F,0)": {
+      "001101110": 1,
+      "011100111": 1,
+      "011101111": 7,
+      "101101111": 10,
+      "111100000": 19,
+      "111100111": 10,
+      "111101011": 7,
+      "111101110": 18,
+      "111101111": 14036
+    }
+  },
+  "entry_transitions": [
+    {
+      "direction": "L",
+      "from_state": "E",
+      "label": "(E,0)->F",
+      "read_symbol": 0,
+      "to_state": "F",
+      "write_symbol": 1
+    }
+  ],
+  "halt_event_verification": {
+    "actual_halt_consistent_with_event": true,
+    "n_events_landing_on_undefined_symbol": {
+      "(E,0)->F; (F,0)": 0
+    }
+  },
+  "halt_step": null,
+  "halted": false,
+  "honest_scope": "bounded census+alignment; no unreachability claim",
+  "landing_symbol_histogram": {
+    "(E,0)->F; (F,0)": {
+      "1": 14109
+    }
+  },
+  "macro_details": {
+    "fit_records": 6330,
+    "fit_steps": 20000000,
+    "group_rules": 19,
+    "literal_rules": 0,
+    "n_conflicts": 0,
+    "record_cap": 100000,
+    "replay": {
+      "exact": true,
+      "n_mismatches": 0,
+      "n_transitions_checked": 7818,
+      "n_uncovered": 0
+    },
+    "replay_records": 7818,
+    "startup_prefix": 8,
+    "unassigned_events": 2
+  },
+  "macro_status": "exact",
+  "n_events": {
+    "(E,0)->F; (F,0)": 14109
+  },
+  "n_obligations": 13,
+  "obligations": [
+    {
+      "count": 1,
+      "rule": "(0, 'L', 2, (2, 4))",
+      "window": "011100111"
+    },
+    {
+      "count": 1,
+      "rule": "(0, 'L', 2, (2, 4))",
+      "window": "111100000"
+    },
+    {
+      "count": 10,
+      "rule": "(0, 'L', 2, (4, 4))",
+      "window": "111100000"
+    },
+    {
+      "count": 10,
+      "rule": "(0, 'L', 2, (4, 4))",
+      "window": "111100111"
+    },
+    {
+      "count": 1,
+      "rule": "(1, 'R', 3, (2, 3, 4))",
+      "window": "101101111"
+    },
+    {
+      "count": 1,
+      "rule": "(1, 'R', 3, (2, 4, 2))",
+      "window": "111101110"
+    },
+    {
+      "count": 1,
+      "rule": "(1, 'R', 3, (2, 4, 4))",
+      "window": "111101111"
+    },
+    {
+      "count": 7,
+      "rule": "(1, 'R', 3, (4, 2, 4))",
+      "window": "111100000"
+    },
+    {
+      "count": 7,
+      "rule": "(1, 'R', 3, (4, 2, 4))",
+      "window": "111101011"
+    },
+    {
+      "count": 9,
+      "rule": "(1, 'R', 3, (4, 3, 4))",
+      "window": "101101111"
+    },
+    {
+      "count": 17,
+      "rule": "(1, 'R', 3, (4, 4, 2))",
+      "window": "111101110"
+    },
+    {
+      "count": 7,
+      "rule": "(1, 'R', 3, (4, 4, 4))",
+      "window": "011101111"
+    },
+    {
+      "count": 14035,
+      "rule": "(1, 'R', 3, (4, 4, 4))",
+      "window": "111101111"
+    }
+  ],
+  "per_rule_window_counts": {
+    "(0, 'L', 2, (2, 4))": 2,
+    "(0, 'L', 2, (4, 4))": 2,
+    "(1, 'R', 3, (2, 3, 4))": 1,
+    "(1, 'R', 3, (2, 4, 2))": 1,
+    "(1, 'R', 3, (2, 4, 4))": 1,
+    "(1, 'R', 3, (4, 2, 4))": 2,
+    "(1, 'R', 3, (4, 3, 4))": 1,
+    "(1, 'R', 3, (4, 4, 2))": 1,
+    "(1, 'R', 3, (4, 4, 4))": 2
+  },
+  "rule_to_window_census": {
+    "(0, 'L', 2, (2, 4))": {
+      "011100111": 1,
+      "111100000": 1
+    },
+    "(0, 'L', 2, (4, 4))": {
+      "111100000": 10,
+      "111100111": 10
+    },
+    "(1, 'R', 3, (2, 3, 4))": {
+      "101101111": 1
+    },
+    "(1, 'R', 3, (2, 4, 2))": {
+      "111101110": 1
+    },
+    "(1, 'R', 3, (2, 4, 4))": {
+      "111101111": 1
+    },
+    "(1, 'R', 3, (4, 2, 4))": {
+      "111100000": 7,
+      "111101011": 7
+    },
+    "(1, 'R', 3, (4, 3, 4))": {
+      "101101111": 9
+    },
+    "(1, 'R', 3, (4, 4, 2))": {
+      "111101110": 17
+    },
+    "(1, 'R', 3, (4, 4, 4))": {
+      "011101111": 7,
+      "111101111": 14035
+    }
+  },
+  "steps_budget": 100000000,
+  "steps_executed": 100000000,
+  "undefined_pairs": [
+    {
+      "label": "(F,0)",
+      "state": "F",
+      "symbol": 0
+    }
+  ]
+}

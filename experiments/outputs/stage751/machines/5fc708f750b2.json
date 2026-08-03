@@ -1,0 +1,93 @@
+{
+  "code": "1RB0RA_0RC0LE_1LD1RF_1LB1RD_1LD1LE_---1RA",
+  "collapse_values": [
+    1,
+    1,
+    2
+  ],
+  "dims_hist": {
+    "1": 3,
+    "2": 16,
+    "3": 56,
+    "8": 1,
+    "9": 2,
+    "12": 2
+  },
+  "dossier_class": "BOUNDED_VARYING",
+  "error": null,
+  "features": {
+    "d_period": 1,
+    "d_period_match": 0.943,
+    "dims_tail": [
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3
+    ],
+    "dmax": 12,
+    "dominant_delta": [
+      1,
+      0,
+      0
+    ],
+    "dominant_delta_frac": 0.754,
+    "growth": 78.0,
+    "score": 194.038,
+    "side_period": 1,
+    "side_period_match": 0.962
+  },
+  "fit_steps": 10000000,
+  "halted": false,
+  "in_sample": {
+    "exact": true,
+    "n_mismatches": 0,
+    "n_transitions_checked": 67,
+    "n_uncovered": 0
+  },
+  "max_dim": 12,
+  "n_collapses": 3,
+  "n_conflicts": 0,
+  "n_group_rules": 14,
+  "n_literal_rules": 11,
+  "out_of_sample": {
+    "exact": true,
+    "n_mismatches": 0,
+    "n_transitions_checked": 3,
+    "n_uncovered": 0
+  },
+  "scope": "bounded exact fitting+replay; PASS is an exact statement about observed records, not a proof",
+  "verdict": "PASS_EXACT_MACRO_SYSTEM",
+  "verify_steps": 30000000
+}

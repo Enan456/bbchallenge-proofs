@@ -1,0 +1,146 @@
+{
+  "code": "1RB0LE_1LB1RC_0RF0RD_1RE0LA_1LA1RE_---0RB",
+  "determinism_conflicts_augmented_state": 0,
+  "in_sample": {
+    "exact": true,
+    "n_transitions_checked": 3832,
+    "n_mismatches": 0,
+    "n_uncovered": 0,
+    "first_mismatches": [],
+    "label": "in-sample"
+  },
+  "out_of_sample": {
+    "exact": true,
+    "n_transitions_checked": 4150,
+    "n_mismatches": 0,
+    "n_uncovered": 0,
+    "first_mismatches": [],
+    "label": "out-of-sample"
+  },
+  "checkpoint_law": {
+    "collapse_values": [
+      1,
+      1,
+      5,
+      11,
+      20,
+      67,
+      104,
+      277,
+      419,
+      632,
+      2070,
+      5378
+    ],
+    "pairs": [
+      {
+        "n": 1,
+        "next": 1,
+        "max_dim_between": 1,
+        "class": "SINGLE_CYCLE"
+      },
+      {
+        "n": 1,
+        "next": 5,
+        "max_dim_between": 3,
+        "class": "SINGLE_CYCLE"
+      },
+      {
+        "n": 5,
+        "next": 11,
+        "max_dim_between": 3,
+        "class": "SINGLE_CYCLE"
+      },
+      {
+        "n": 11,
+        "next": 20,
+        "max_dim_between": 3,
+        "class": "SINGLE_CYCLE"
+      },
+      {
+        "n": 20,
+        "next": 67,
+        "max_dim_between": 5,
+        "class": "MULTI_LEVEL"
+      },
+      {
+        "n": 67,
+        "next": 104,
+        "max_dim_between": 3,
+        "class": "SINGLE_CYCLE"
+      },
+      {
+        "n": 104,
+        "next": 277,
+        "max_dim_between": 5,
+        "class": "MULTI_LEVEL"
+      },
+      {
+        "n": 277,
+        "next": 419,
+        "max_dim_between": 3,
+        "class": "SINGLE_CYCLE"
+      },
+      {
+        "n": 419,
+        "next": 632,
+        "max_dim_between": 3,
+        "class": "SINGLE_CYCLE"
+      },
+      {
+        "n": 632,
+        "next": 2070,
+        "max_dim_between": 5,
+        "class": "MULTI_LEVEL"
+      },
+      {
+        "n": 2070,
+        "next": 5378,
+        "max_dim_between": 4,
+        "class": "MULTI_LEVEL"
+      }
+    ],
+    "single_cycle_law": "n odd -> n' = (3n+7)/2",
+    "n_single_cycle_verified": 5,
+    "n_single_cycle_failures": 0,
+    "single_cycle_failures": [],
+    "multi_level_pairs": [
+      {
+        "n": 20,
+        "next": 67,
+        "max_dim_between": 5,
+        "class": "MULTI_LEVEL"
+      },
+      {
+        "n": 104,
+        "next": 277,
+        "max_dim_between": 5,
+        "class": "MULTI_LEVEL"
+      },
+      {
+        "n": 632,
+        "next": 2070,
+        "max_dim_between": 5,
+        "class": "MULTI_LEVEL"
+      },
+      {
+        "n": 2070,
+        "next": 5378,
+        "max_dim_between": 4,
+        "class": "MULTI_LEVEL"
+      }
+    ],
+    "exact_on_single_cycle": true
+  },
+  "halt_localization": {
+    "halts_iff": "state F reads 0",
+    "state_F_at_records": 0,
+    "state_counts_at_records": {
+      "1": 2,
+      "3": 30,
+      "4": 7949,
+      "0": 11
+    },
+    "raw_no_halt_steps": 100000000
+  }
+}

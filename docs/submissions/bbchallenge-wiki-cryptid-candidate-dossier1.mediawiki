@@ -1,0 +1,87 @@
+{{DISPLAYTITLE:1RB0LE_1LB1RC_0RF0RD_1RE0LA_1LA1RE_---0RB (candidate)}}
+''A candidate [[cryptid]] on the BB(6) frontier with an exactly verified macro system and a recursive generalized-Collatz checkpoint law: odd checkpoints step via <math>n \mapsto (3n+7)/2</math>, even checkpoints spawn a hierarchical sub-epoch of the same dynamics. Documented, not decided.''
+
+'''Standard TM format:''' <code>1RB0LE_1LB1RC_0RF0RD_1RE0LA_1LA1RE_---0RB</code>
+
+'''Status:''' candidate / empirical with exact bounded verification. The machine appears in the community's 1534-holdout annotated list with status blank and bulk classification "Quadratic Mess" (no individual analysis or notes as of 2026-07-29); it is its own tree-normal-form canonical representative (first-entry state order, first-move-R), and wiki full-text search found no page for it in either orientation. Please check the live registry before naming.
+
+== Behavior ==
+
+From the blank tape, bounded simulation did not halt through <math>10^8</math> raw steps. The only undefined transition is state '''F''' reading '''0''', and F is entered only via <code>C0 = 0RF</code> — so the machine halts iff state C ever reads a 0 with a second 0 immediately to its right.
+
+At tape-frontier records the machine locks (97.8% of transitions) into a frozen-prefix sweep over the rightmost three runs of ones:
+
+: <math>(\ldots, a, b, c) \mapsto (\ldots, a+2,\, b-2,\, c+1)</math>
+
+When the middle run is exhausted (reaches 1), the rightmost three runs merge:
+
+: <math>(\ldots, a, 1, c) \mapsto (\ldots, a+c+4)</math>
+
+and after a full collapse to a single run of <math>n</math> ones, the tape re-expands via <math>(n) \to (n,1) \to (1,n,1) \to (2,\,n-2,\,2)</math> and the sweep restarts.
+
+=== Exact macro system ===
+
+Over the augmented frontier-record state (machine state, frontier side, run-length tuple) — the run-length tuple alone is ''not'' deterministic — a fitted system of '''36 generalized rules''' (constant-delta and exact rational affine maps with guards) plus 7 startup literals reproduces the machine's record dynamics '''exactly''':
+
+* in-sample: 3,832/3,832 record transitions (20M-step fit run), zero mismatches;
+* out-of-sample: 4,150/4,150 record transitions beyond the fit horizon in a fresh 100M-step run, zero mismatches, zero uncovered.
+
+=== Recursive checkpoint law ===
+
+Full-collapse (single-run) checkpoint values observed in <math>10^8</math> steps:
+
+: <math>1, 1, 5, 11, 20, 67, 104, 277, 419, 632, 2070, 5378</math>
+
+Consecutive checkpoint pairs whose intervening dynamics stay within three runs satisfy exactly
+
+: <math>n \text{ odd:}\quad n' = \frac{3n+7}{2}</math>
+
+(verified 5/5: <math>5\to11,\ 11\to20,\ 67\to104,\ 277\to419,\ 419\to632</math>; no failures). Even checkpoint values never step directly: each spawns a hierarchical epoch in which a frozen prefix holds while the suffix runs the same sweep/merge dynamics one level down (runs of up to 5 blocks observed); the pairs <math>20\to67,\ 104\to277,\ 632\to2070,\ 2070\to5378</math> are compositions of these sub-epochs. "Odd steps simply, even recurses" distinguishes this machine from flat Collatz iterators such as [[Antihydra]].
+
+== Halt localization ==
+
+A census of every F-entry over <math>10^8</math> steps (7,947 events):
+
+* F read '''1 every time''' (no halt);
+* the local 9-cell window at C's probe takes only '''10 distinct shapes''', the dominant one (99.1%) being <code>1111·0·1111</code> — C probing a single-0 gap between two runs, immediately left of the rightmost run;
+* aligning every F-entry with the macro rule firing in its record interval: 27 of 30 rules produce exactly one window shape, 3 boundary rules produce two, with zero unmatched intervals.
+
+The candidate halt-unreachability invariant — ''every 0-gap that state C probes has length exactly 1'' — therefore reduces to '''33 (rule, window) local obligations''': for each pair, show that the rule's raw micro-trajectory only probes C-reads-0 in that window shape. Note the invariant is not "all gaps have length 1" (length-2 interior gaps do occur at records); it is a claim about which gaps C ''probes''.
+
+All 33 obligations have been mechanically discharged at the empirical level (fail-closed): across every firing of every rule in <math>10^8</math> steps the C-probe sites are uniform relative to the block structure (counts constant or exactly affine in the variable block lengths), and synthetic replays on fresh, never-observed block values (59/59) reproduce both the macro prediction and the probe structure. This establishes the uniform-crossing premise the induction needs; it is not itself a proof.
+
+== Why it may be a cryptid ==
+
+The machine survives the local sound decider chain at expanded budget (bounded halt, exact/translated cycle, backward reasoning, sound bouncer, CTL, FAR/closed-set DFA). Its dynamics are low-dimensional and exactly characterized rather than featureless, and the halting condition reduces to a single non-regular local invariant of the "state X reads s" class — the same class as the known open BB(6) frontier, but here with an exactly verified macro system available to carry the induction.
+
+== Reproduction ==
+
+Local scripts (repository: Quantum_Geometry, experiments/):
+
+: <code>stage747_dossier1_macro_system.py</code> — fits and exactly verifies the macro system (in/out-of-sample);
+: <code>stage748_dossier1_halt_window_census.py</code> — the F-entry window census;
+: <code>stage749_dossier1_rule_window_alignment.py</code> — the rule-to-window alignment and the 33 obligations.
+
+== Transition table ==
+
+{| class="wikitable" style="text-align:center"
+! !! read 0 !! read 1
+|-
+! A || 1RB || 0LE
+|-
+! B || 1LB || 1RC
+|-
+! C || 0RF || 0RD
+|-
+! D || 1RE || 0LA
+|-
+! E || 1LA || 1RE
+|-
+! F || '''halt''' || 0RB
+|}
+
+== Status ==
+
+'''Open.''' This page documents exactly verified bounded dynamics only. The macro system, checkpoint law, and window census are exact statements about observed record traces; none of them constitutes a proof of non-halting.
+
+[[Category:BB(6)]]

@@ -1,0 +1,10 @@
+name = "BBChallenge"
+version = "0.1.0"
+keywords = ["busy-beaver", "bbchallenge"]
+defaultTargets = ["BBChallenge"]
+
+[leanOptions]
+relaxedAutoImplicit = false
+
+[[lean_lib]]
+name = "BBChallenge"

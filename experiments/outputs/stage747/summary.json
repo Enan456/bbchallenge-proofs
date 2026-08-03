@@ -1,0 +1,21 @@
+{
+  "checkpoint_single_cycle_failures": 0,
+  "checkpoint_single_cycle_verified": 5,
+  "code": "1RB0LE_1LB1RC_0RF0RD_1RE0LA_1LA1RE_---0RB",
+  "fit": {
+    "determinism_conflicts": 0,
+    "records": 3841,
+    "steps": 20000000,
+    "transitions": 3832
+  },
+  "in_sample_exact": true,
+  "multi_level_pairs": 4,
+  "out_of_sample_exact": true,
+  "out_of_sample_transitions": 4150,
+  "rules": {
+    "group": 36,
+    "literal": 7
+  },
+  "state_F_at_records": 0,
+  "status": "PASS_EXACT_MACRO_SYSTEM"
+}
