@@ -1,0 +1,4796 @@
+{
+  "code": "1RB0RA_0RC0LE_1LD1RF_1LB1RD_1LD1LE_---1RA",
+  "entry_transitions": [
+    "C1"
+  ],
+  "fit": {
+    "fit_records": 78,
+    "fit_steps": 20000000,
+    "group_rules": 14,
+    "literal_rules": 11,
+    "n_conflicts": 0,
+    "replay": {
+      "exact": true,
+      "n_mismatches": 0,
+      "n_transitions_checked": 4,
+      "n_uncovered": 0
+    }
+  },
+  "honest_scope": "uniformity + fresh-value replay evidence for the induction premise; not itself a proof",
+  "obligations": [
+    {
+      "abstract_input_rle": [
+        3,
+        1,
+        5,
+        1,
+        3,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "000011101|1run_from_right:2": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "(1, 'L', 3, (3, 4, 3))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            3,
+            5,
+            3
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:2": 1
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:2": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (4, 5, 3))",
+          "macro_expected": "(3, 'L', (4, 5, 3))",
+          "macro_ok": true,
+          "name": "no_VAR_components",
+          "passed": true,
+          "steps": 17
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "000011101"
+    },
+    {
+      "abstract_input_rle": [
+        3,
+        1,
+        23,
+        1,
+        12,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "000011101|1run_from_right:2": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "(1, 'L', 3, (3, 4, 4))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            3,
+            23,
+            12
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:2": 1
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:2": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (4, 23, 12))",
+          "macro_expected": "(3, 'L', (4, 23, 12))",
+          "macro_ok": true,
+          "name": "no_VAR_components",
+          "passed": true,
+          "steps": 17
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "000011101"
+    },
+    {
+      "abstract_input_rle": [
+        "VAR",
+        1,
+        23,
+        1,
+        12,
+        0,
+        0
+      ],
+      "first_counterexample": {
+        "fit": {
+          "exact": false,
+          "kind": "no_exact_determined_affine_fit",
+          "observed_counts": [
+            0,
+            0,
+            1,
+            2,
+            4,
+            8,
+            16,
+            32,
+            64,
+            128,
+            256,
+            512,
+            1024,
+            2048,
+            4096,
+            8192,
+            16384,
+            32768,
+            65536,
+            131072
+          ],
+          "var_indices": [
+            0
+          ]
+        },
+        "kind": "non_affine_event_count",
+        "pair": [
+          "000011101",
+          "1run_from_right:2"
+        ]
+      },
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 20,
+      "relative_site_count_fits": {
+        "000011101|1run_from_right:2": {
+          "exact": false,
+          "kind": "no_exact_determined_affine_fit",
+          "observed_counts": [
+            0,
+            0,
+            1,
+            2,
+            4,
+            8,
+            16,
+            32,
+            64,
+            128,
+            256,
+            512,
+            1024,
+            2048,
+            4096,
+            8192,
+            16384,
+            32768,
+            65536,
+            131072
+          ],
+          "var_indices": [
+            0
+          ]
+        }
+      },
+      "rule": "(1, 'L', 3, (4, 4, 4))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            56,
+            23,
+            12
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:2": 1041671,
+            "000011111|1run_from_right:2": 1041679,
+            "011011101|1run_from_right:2": 2083342,
+            "011011111|1run_from_right:2": 2083337,
+            "100011101|1run_from_right:2": 1041671,
+            "100011111|1run_from_right:2": 1041668
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:2": null,
+            "000011111|1run_from_right:2": null,
+            "011011101|1run_from_right:2": null,
+            "011011111|1run_from_right:2": null,
+            "100011101|1run_from_right:2": null,
+            "100011111|1run_from_right:2": null
+          },
+          "event_structure_ok": false,
+          "macro_actual": "None",
+          "macro_expected": "(3, 'L', (57, 23, 12))",
+          "macro_ok": false,
+          "name": "fresh_offset_13",
+          "passed": false,
+          "steps": 200000001
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            69,
+            23,
+            12
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:2": 1041671,
+            "000011111|1run_from_right:2": 1041679,
+            "011011101|1run_from_right:2": 2083342,
+            "011011111|1run_from_right:2": 2083337,
+            "100011101|1run_from_right:2": 1041671,
+            "100011111|1run_from_right:2": 1041668
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:2": null,
+            "000011111|1run_from_right:2": null,
+            "011011101|1run_from_right:2": null,
+            "011011111|1run_from_right:2": null,
+            "100011101|1run_from_right:2": null,
+            "100011111|1run_from_right:2": null
+          },
+          "event_structure_ok": false,
+          "macro_actual": "None",
+          "macro_expected": "(3, 'L', (70, 23, 12))",
+          "macro_ok": false,
+          "name": "fresh_offset_26",
+          "passed": false,
+          "steps": 200000001
+        }
+      ],
+      "uniformity_ok": false,
+      "var_block_indices": [
+        0
+      ],
+      "verdict": "FAILED",
+      "window": "000011101"
+    },
+    {
+      "abstract_input_rle": [
+        "VAR",
+        1,
+        23,
+        1,
+        12,
+        0,
+        0
+      ],
+      "first_counterexample": {
+        "fit": {
+          "exact": false,
+          "kind": "no_exact_determined_affine_fit",
+          "observed_counts": [
+            0,
+            0,
+            1,
+            2,
+            4,
+            8,
+            16,
+            32,
+            64,
+            128,
+            256,
+            512,
+            1024,
+            2048,
+            4096,
+            8192,
+            16384,
+            32768,
+            65536,
+            131072
+          ],
+          "var_indices": [
+            0
+          ]
+        },
+        "kind": "non_affine_event_count",
+        "pair": [
+          "000011101",
+          "1run_from_right:2"
+        ]
+      },
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 20,
+      "relative_site_count_fits": {
+        "000011111|1run_from_right:2": {
+          "exact": false,
+          "kind": "no_exact_determined_affine_fit",
+          "observed_counts": [
+            1,
+            1,
+            1,
+            2,
+            4,
+            8,
+            16,
+            32,
+            64,
+            128,
+            256,
+            512,
+            1024,
+            2048,
+            4096,
+            8192,
+            16384,
+            32768,
+            65536,
+            131072
+          ],
+          "var_indices": [
+            0
+          ]
+        }
+      },
+      "rule": "(1, 'L', 3, (4, 4, 4))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            56,
+            23,
+            12
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:2": 1041671,
+            "000011111|1run_from_right:2": 1041679,
+            "011011101|1run_from_right:2": 2083342,
+            "011011111|1run_from_right:2": 2083337,
+            "100011101|1run_from_right:2": 1041671,
+            "100011111|1run_from_right:2": 1041668
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:2": null,
+            "000011111|1run_from_right:2": null,
+            "011011101|1run_from_right:2": null,
+            "011011111|1run_from_right:2": null,
+            "100011101|1run_from_right:2": null,
+            "100011111|1run_from_right:2": null
+          },
+          "event_structure_ok": false,
+          "macro_actual": "None",
+          "macro_expected": "(3, 'L', (57, 23, 12))",
+          "macro_ok": false,
+          "name": "fresh_offset_13",
+          "passed": false,
+          "steps": 200000001
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            69,
+            23,
+            12
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:2": 1041671,
+            "000011111|1run_from_right:2": 1041679,
+            "011011101|1run_from_right:2": 2083342,
+            "011011111|1run_from_right:2": 2083337,
+            "100011101|1run_from_right:2": 1041671,
+            "100011111|1run_from_right:2": 1041668
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:2": null,
+            "000011111|1run_from_right:2": null,
+            "011011101|1run_from_right:2": null,
+            "011011111|1run_from_right:2": null,
+            "100011101|1run_from_right:2": null,
+            "100011111|1run_from_right:2": null
+          },
+          "event_structure_ok": false,
+          "macro_actual": "None",
+          "macro_expected": "(3, 'L', (70, 23, 12))",
+          "macro_ok": false,
+          "name": "fresh_offset_26",
+          "passed": false,
+          "steps": 200000001
+        }
+      ],
+      "uniformity_ok": false,
+      "var_block_indices": [
+        0
+      ],
+      "verdict": "FAILED",
+      "window": "000011111"
+    },
+    {
+      "abstract_input_rle": [
+        "VAR",
+        1,
+        23,
+        1,
+        12,
+        0,
+        0
+      ],
+      "first_counterexample": {
+        "fit": {
+          "exact": false,
+          "kind": "no_exact_determined_affine_fit",
+          "observed_counts": [
+            0,
+            0,
+            1,
+            2,
+            4,
+            8,
+            16,
+            32,
+            64,
+            128,
+            256,
+            512,
+            1024,
+            2048,
+            4096,
+            8192,
+            16384,
+            32768,
+            65536,
+            131072
+          ],
+          "var_indices": [
+            0
+          ]
+        },
+        "kind": "non_affine_event_count",
+        "pair": [
+          "000011101",
+          "1run_from_right:2"
+        ]
+      },
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 20,
+      "relative_site_count_fits": {
+        "011011101|1run_from_right:2": {
+          "exact": false,
+          "kind": "no_exact_determined_affine_fit",
+          "observed_counts": [
+            1,
+            1,
+            2,
+            4,
+            8,
+            16,
+            32,
+            64,
+            128,
+            256,
+            512,
+            1024,
+            2048,
+            4096,
+            8192,
+            16384,
+            32768,
+            65536,
+            131072,
+            262144
+          ],
+          "var_indices": [
+            0
+          ]
+        }
+      },
+      "rule": "(1, 'L', 3, (4, 4, 4))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            56,
+            23,
+            12
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:2": 1041671,
+            "000011111|1run_from_right:2": 1041679,
+            "011011101|1run_from_right:2": 2083342,
+            "011011111|1run_from_right:2": 2083337,
+            "100011101|1run_from_right:2": 1041671,
+            "100011111|1run_from_right:2": 1041668
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:2": null,
+            "000011111|1run_from_right:2": null,
+            "011011101|1run_from_right:2": null,
+            "011011111|1run_from_right:2": null,
+            "100011101|1run_from_right:2": null,
+            "100011111|1run_from_right:2": null
+          },
+          "event_structure_ok": false,
+          "macro_actual": "None",
+          "macro_expected": "(3, 'L', (57, 23, 12))",
+          "macro_ok": false,
+          "name": "fresh_offset_13",
+          "passed": false,
+          "steps": 200000001
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            69,
+            23,
+            12
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:2": 1041671,
+            "000011111|1run_from_right:2": 1041679,
+            "011011101|1run_from_right:2": 2083342,
+            "011011111|1run_from_right:2": 2083337,
+            "100011101|1run_from_right:2": 1041671,
+            "100011111|1run_from_right:2": 1041668
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:2": null,
+            "000011111|1run_from_right:2": null,
+            "011011101|1run_from_right:2": null,
+            "011011111|1run_from_right:2": null,
+            "100011101|1run_from_right:2": null,
+            "100011111|1run_from_right:2": null
+          },
+          "event_structure_ok": false,
+          "macro_actual": "None",
+          "macro_expected": "(3, 'L', (70, 23, 12))",
+          "macro_ok": false,
+          "name": "fresh_offset_26",
+          "passed": false,
+          "steps": 200000001
+        }
+      ],
+      "uniformity_ok": false,
+      "var_block_indices": [
+        0
+      ],
+      "verdict": "FAILED",
+      "window": "011011101"
+    },
+    {
+      "abstract_input_rle": [
+        "VAR",
+        1,
+        23,
+        1,
+        12,
+        0,
+        0
+      ],
+      "first_counterexample": {
+        "fit": {
+          "exact": false,
+          "kind": "no_exact_determined_affine_fit",
+          "observed_counts": [
+            0,
+            0,
+            1,
+            2,
+            4,
+            8,
+            16,
+            32,
+            64,
+            128,
+            256,
+            512,
+            1024,
+            2048,
+            4096,
+            8192,
+            16384,
+            32768,
+            65536,
+            131072
+          ],
+          "var_indices": [
+            0
+          ]
+        },
+        "kind": "non_affine_event_count",
+        "pair": [
+          "000011101",
+          "1run_from_right:2"
+        ]
+      },
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 20,
+      "relative_site_count_fits": {
+        "011011111|1run_from_right:2": {
+          "exact": false,
+          "kind": "no_exact_determined_affine_fit",
+          "observed_counts": [
+            0,
+            1,
+            2,
+            4,
+            8,
+            16,
+            32,
+            64,
+            128,
+            256,
+            512,
+            1024,
+            2048,
+            4096,
+            8192,
+            16384,
+            32768,
+            65536,
+            131072,
+            262144
+          ],
+          "var_indices": [
+            0
+          ]
+        }
+      },
+      "rule": "(1, 'L', 3, (4, 4, 4))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            56,
+            23,
+            12
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:2": 1041671,
+            "000011111|1run_from_right:2": 1041679,
+            "011011101|1run_from_right:2": 2083342,
+            "011011111|1run_from_right:2": 2083337,
+            "100011101|1run_from_right:2": 1041671,
+            "100011111|1run_from_right:2": 1041668
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:2": null,
+            "000011111|1run_from_right:2": null,
+            "011011101|1run_from_right:2": null,
+            "011011111|1run_from_right:2": null,
+            "100011101|1run_from_right:2": null,
+            "100011111|1run_from_right:2": null
+          },
+          "event_structure_ok": false,
+          "macro_actual": "None",
+          "macro_expected": "(3, 'L', (57, 23, 12))",
+          "macro_ok": false,
+          "name": "fresh_offset_13",
+          "passed": false,
+          "steps": 200000001
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            69,
+            23,
+            12
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:2": 1041671,
+            "000011111|1run_from_right:2": 1041679,
+            "011011101|1run_from_right:2": 2083342,
+            "011011111|1run_from_right:2": 2083337,
+            "100011101|1run_from_right:2": 1041671,
+            "100011111|1run_from_right:2": 1041668
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:2": null,
+            "000011111|1run_from_right:2": null,
+            "011011101|1run_from_right:2": null,
+            "011011111|1run_from_right:2": null,
+            "100011101|1run_from_right:2": null,
+            "100011111|1run_from_right:2": null
+          },
+          "event_structure_ok": false,
+          "macro_actual": "None",
+          "macro_expected": "(3, 'L', (70, 23, 12))",
+          "macro_ok": false,
+          "name": "fresh_offset_26",
+          "passed": false,
+          "steps": 200000001
+        }
+      ],
+      "uniformity_ok": false,
+      "var_block_indices": [
+        0
+      ],
+      "verdict": "FAILED",
+      "window": "011011111"
+    },
+    {
+      "abstract_input_rle": [
+        "VAR",
+        1,
+        23,
+        1,
+        12,
+        0,
+        0
+      ],
+      "first_counterexample": {
+        "fit": {
+          "exact": false,
+          "kind": "no_exact_determined_affine_fit",
+          "observed_counts": [
+            0,
+            0,
+            1,
+            2,
+            4,
+            8,
+            16,
+            32,
+            64,
+            128,
+            256,
+            512,
+            1024,
+            2048,
+            4096,
+            8192,
+            16384,
+            32768,
+            65536,
+            131072
+          ],
+          "var_indices": [
+            0
+          ]
+        },
+        "kind": "non_affine_event_count",
+        "pair": [
+          "000011101",
+          "1run_from_right:2"
+        ]
+      },
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 20,
+      "relative_site_count_fits": {
+        "100011101|1run_from_right:2": {
+          "exact": false,
+          "kind": "no_exact_determined_affine_fit",
+          "observed_counts": [
+            0,
+            1,
+            1,
+            2,
+            4,
+            8,
+            16,
+            32,
+            64,
+            128,
+            256,
+            512,
+            1024,
+            2048,
+            4096,
+            8192,
+            16384,
+            32768,
+            65536,
+            131072
+          ],
+          "var_indices": [
+            0
+          ]
+        }
+      },
+      "rule": "(1, 'L', 3, (4, 4, 4))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            56,
+            23,
+            12
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:2": 1041671,
+            "000011111|1run_from_right:2": 1041679,
+            "011011101|1run_from_right:2": 2083342,
+            "011011111|1run_from_right:2": 2083337,
+            "100011101|1run_from_right:2": 1041671,
+            "100011111|1run_from_right:2": 1041668
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:2": null,
+            "000011111|1run_from_right:2": null,
+            "011011101|1run_from_right:2": null,
+            "011011111|1run_from_right:2": null,
+            "100011101|1run_from_right:2": null,
+            "100011111|1run_from_right:2": null
+          },
+          "event_structure_ok": false,
+          "macro_actual": "None",
+          "macro_expected": "(3, 'L', (57, 23, 12))",
+          "macro_ok": false,
+          "name": "fresh_offset_13",
+          "passed": false,
+          "steps": 200000001
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            69,
+            23,
+            12
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:2": 1041671,
+            "000011111|1run_from_right:2": 1041679,
+            "011011101|1run_from_right:2": 2083342,
+            "011011111|1run_from_right:2": 2083337,
+            "100011101|1run_from_right:2": 1041671,
+            "100011111|1run_from_right:2": 1041668
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:2": null,
+            "000011111|1run_from_right:2": null,
+            "011011101|1run_from_right:2": null,
+            "011011111|1run_from_right:2": null,
+            "100011101|1run_from_right:2": null,
+            "100011111|1run_from_right:2": null
+          },
+          "event_structure_ok": false,
+          "macro_actual": "None",
+          "macro_expected": "(3, 'L', (70, 23, 12))",
+          "macro_ok": false,
+          "name": "fresh_offset_26",
+          "passed": false,
+          "steps": 200000001
+        }
+      ],
+      "uniformity_ok": false,
+      "var_block_indices": [
+        0
+      ],
+      "verdict": "FAILED",
+      "window": "100011101"
+    },
+    {
+      "abstract_input_rle": [
+        "VAR",
+        1,
+        23,
+        1,
+        12,
+        0,
+        0
+      ],
+      "first_counterexample": {
+        "fit": {
+          "exact": false,
+          "kind": "no_exact_determined_affine_fit",
+          "observed_counts": [
+            0,
+            0,
+            1,
+            2,
+            4,
+            8,
+            16,
+            32,
+            64,
+            128,
+            256,
+            512,
+            1024,
+            2048,
+            4096,
+            8192,
+            16384,
+            32768,
+            65536,
+            131072
+          ],
+          "var_indices": [
+            0
+          ]
+        },
+        "kind": "non_affine_event_count",
+        "pair": [
+          "000011101",
+          "1run_from_right:2"
+        ]
+      },
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 20,
+      "relative_site_count_fits": {
+        "100011111|1run_from_right:2": {
+          "exact": false,
+          "kind": "no_exact_determined_affine_fit",
+          "observed_counts": [
+            0,
+            0,
+            1,
+            2,
+            4,
+            8,
+            16,
+            32,
+            64,
+            128,
+            256,
+            512,
+            1024,
+            2048,
+            4096,
+            8192,
+            16384,
+            32768,
+            65536,
+            131072
+          ],
+          "var_indices": [
+            0
+          ]
+        }
+      },
+      "rule": "(1, 'L', 3, (4, 4, 4))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            56,
+            23,
+            12
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:2": 1041671,
+            "000011111|1run_from_right:2": 1041679,
+            "011011101|1run_from_right:2": 2083342,
+            "011011111|1run_from_right:2": 2083337,
+            "100011101|1run_from_right:2": 1041671,
+            "100011111|1run_from_right:2": 1041668
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:2": null,
+            "000011111|1run_from_right:2": null,
+            "011011101|1run_from_right:2": null,
+            "011011111|1run_from_right:2": null,
+            "100011101|1run_from_right:2": null,
+            "100011111|1run_from_right:2": null
+          },
+          "event_structure_ok": false,
+          "macro_actual": "None",
+          "macro_expected": "(3, 'L', (57, 23, 12))",
+          "macro_ok": false,
+          "name": "fresh_offset_13",
+          "passed": false,
+          "steps": 200000001
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            69,
+            23,
+            12
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:2": 1041671,
+            "000011111|1run_from_right:2": 1041679,
+            "011011101|1run_from_right:2": 2083342,
+            "011011111|1run_from_right:2": 2083337,
+            "100011101|1run_from_right:2": 1041671,
+            "100011111|1run_from_right:2": 1041668
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:2": null,
+            "000011111|1run_from_right:2": null,
+            "011011101|1run_from_right:2": null,
+            "011011111|1run_from_right:2": null,
+            "100011101|1run_from_right:2": null,
+            "100011111|1run_from_right:2": null
+          },
+          "event_structure_ok": false,
+          "macro_actual": "None",
+          "macro_expected": "(3, 'L', (70, 23, 12))",
+          "macro_ok": false,
+          "name": "fresh_offset_26",
+          "passed": false,
+          "steps": 200000001
+        }
+      ],
+      "uniformity_ok": false,
+      "var_block_indices": [
+        0
+      ],
+      "verdict": "FAILED",
+      "window": "100011111"
+    },
+    {
+      "abstract_input_rle": [
+        11,
+        1,
+        5,
+        1,
+        3,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "000011101|1run_from_right:2": {
+          "exact": true,
+          "kind": "constant",
+          "value": 2
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (11, 5, 3))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            11,
+            5,
+            3
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:2": 2,
+            "000011111|1run_from_right:2": 2,
+            "011011101|1run_from_right:2": 4,
+            "011011111|1run_from_right:2": 4,
+            "100011101|1run_from_right:2": 2,
+            "100011111|1run_from_right:2": 2
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:2": 2,
+            "000011111|1run_from_right:2": 2,
+            "011011101|1run_from_right:2": 4,
+            "011011111|1run_from_right:2": 4,
+            "100011101|1run_from_right:2": 2,
+            "100011111|1run_from_right:2": 2
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (12, 5, 3))",
+          "macro_expected": "(3, 'L', (12, 5, 3))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 377
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "000011101"
+    },
+    {
+      "abstract_input_rle": [
+        11,
+        1,
+        5,
+        1,
+        3,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "000011111|1run_from_right:2": {
+          "exact": true,
+          "kind": "constant",
+          "value": 2
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (11, 5, 3))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            11,
+            5,
+            3
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:2": 2,
+            "000011111|1run_from_right:2": 2,
+            "011011101|1run_from_right:2": 4,
+            "011011111|1run_from_right:2": 4,
+            "100011101|1run_from_right:2": 2,
+            "100011111|1run_from_right:2": 2
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:2": 2,
+            "000011111|1run_from_right:2": 2,
+            "011011101|1run_from_right:2": 4,
+            "011011111|1run_from_right:2": 4,
+            "100011101|1run_from_right:2": 2,
+            "100011111|1run_from_right:2": 2
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (12, 5, 3))",
+          "macro_expected": "(3, 'L', (12, 5, 3))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 377
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "000011111"
+    },
+    {
+      "abstract_input_rle": [
+        11,
+        1,
+        5,
+        1,
+        3,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "011011101|1run_from_right:2": {
+          "exact": true,
+          "kind": "constant",
+          "value": 4
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (11, 5, 3))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            11,
+            5,
+            3
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:2": 2,
+            "000011111|1run_from_right:2": 2,
+            "011011101|1run_from_right:2": 4,
+            "011011111|1run_from_right:2": 4,
+            "100011101|1run_from_right:2": 2,
+            "100011111|1run_from_right:2": 2
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:2": 2,
+            "000011111|1run_from_right:2": 2,
+            "011011101|1run_from_right:2": 4,
+            "011011111|1run_from_right:2": 4,
+            "100011101|1run_from_right:2": 2,
+            "100011111|1run_from_right:2": 2
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (12, 5, 3))",
+          "macro_expected": "(3, 'L', (12, 5, 3))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 377
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "011011101"
+    },
+    {
+      "abstract_input_rle": [
+        11,
+        1,
+        5,
+        1,
+        3,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "011011111|1run_from_right:2": {
+          "exact": true,
+          "kind": "constant",
+          "value": 4
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (11, 5, 3))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            11,
+            5,
+            3
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:2": 2,
+            "000011111|1run_from_right:2": 2,
+            "011011101|1run_from_right:2": 4,
+            "011011111|1run_from_right:2": 4,
+            "100011101|1run_from_right:2": 2,
+            "100011111|1run_from_right:2": 2
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:2": 2,
+            "000011111|1run_from_right:2": 2,
+            "011011101|1run_from_right:2": 4,
+            "011011111|1run_from_right:2": 4,
+            "100011101|1run_from_right:2": 2,
+            "100011111|1run_from_right:2": 2
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (12, 5, 3))",
+          "macro_expected": "(3, 'L', (12, 5, 3))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 377
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "011011111"
+    },
+    {
+      "abstract_input_rle": [
+        11,
+        1,
+        5,
+        1,
+        3,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "100011101|1run_from_right:2": {
+          "exact": true,
+          "kind": "constant",
+          "value": 2
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (11, 5, 3))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            11,
+            5,
+            3
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:2": 2,
+            "000011111|1run_from_right:2": 2,
+            "011011101|1run_from_right:2": 4,
+            "011011111|1run_from_right:2": 4,
+            "100011101|1run_from_right:2": 2,
+            "100011111|1run_from_right:2": 2
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:2": 2,
+            "000011111|1run_from_right:2": 2,
+            "011011101|1run_from_right:2": 4,
+            "011011111|1run_from_right:2": 4,
+            "100011101|1run_from_right:2": 2,
+            "100011111|1run_from_right:2": 2
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (12, 5, 3))",
+          "macro_expected": "(3, 'L', (12, 5, 3))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 377
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "100011101"
+    },
+    {
+      "abstract_input_rle": [
+        11,
+        1,
+        5,
+        1,
+        3,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "100011111|1run_from_right:2": {
+          "exact": true,
+          "kind": "constant",
+          "value": 2
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (11, 5, 3))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            11,
+            5,
+            3
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:2": 2,
+            "000011111|1run_from_right:2": 2,
+            "011011101|1run_from_right:2": 4,
+            "011011111|1run_from_right:2": 4,
+            "100011101|1run_from_right:2": 2,
+            "100011111|1run_from_right:2": 2
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:2": 2,
+            "000011111|1run_from_right:2": 2,
+            "011011101|1run_from_right:2": 4,
+            "011011111|1run_from_right:2": 4,
+            "100011101|1run_from_right:2": 2,
+            "100011111|1run_from_right:2": 2
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (12, 5, 3))",
+          "macro_expected": "(3, 'L', (12, 5, 3))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 377
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "100011111"
+    },
+    {
+      "abstract_input_rle": [
+        13,
+        1,
+        5,
+        1,
+        3,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "000011101|1run_from_right:2": {
+          "exact": true,
+          "kind": "constant",
+          "value": 4
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (13, 5, 3))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            13,
+            5,
+            3
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:2": 4,
+            "000011111|1run_from_right:2": 4,
+            "011011100|1run_from_right:1": 1,
+            "011011101|1run_from_right:2": 7,
+            "011011111|1run_from_right:2": 8,
+            "100011101|1run_from_right:2": 4,
+            "100011111|1run_from_right:2": 4,
+            "101011100|1run_from_right:0": 1
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:2": 4,
+            "000011111|1run_from_right:2": 4,
+            "011011100|1run_from_right:1": 1,
+            "011011101|1run_from_right:2": 7,
+            "011011111|1run_from_right:2": 8,
+            "100011101|1run_from_right:2": 4,
+            "100011111|1run_from_right:2": 4,
+            "101011100|1run_from_right:0": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(0, 'R', (2, 2, 2, 2, 2, 2, 1, 2))",
+          "macro_expected": "(0, 'R', (2, 2, 2, 2, 2, 2, 1, 2))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 648
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "000011101"
+    },
+    {
+      "abstract_input_rle": [
+        13,
+        1,
+        5,
+        1,
+        3,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "000011111|1run_from_right:2": {
+          "exact": true,
+          "kind": "constant",
+          "value": 4
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (13, 5, 3))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            13,
+            5,
+            3
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:2": 4,
+            "000011111|1run_from_right:2": 4,
+            "011011100|1run_from_right:1": 1,
+            "011011101|1run_from_right:2": 7,
+            "011011111|1run_from_right:2": 8,
+            "100011101|1run_from_right:2": 4,
+            "100011111|1run_from_right:2": 4,
+            "101011100|1run_from_right:0": 1
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:2": 4,
+            "000011111|1run_from_right:2": 4,
+            "011011100|1run_from_right:1": 1,
+            "011011101|1run_from_right:2": 7,
+            "011011111|1run_from_right:2": 8,
+            "100011101|1run_from_right:2": 4,
+            "100011111|1run_from_right:2": 4,
+            "101011100|1run_from_right:0": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(0, 'R', (2, 2, 2, 2, 2, 2, 1, 2))",
+          "macro_expected": "(0, 'R', (2, 2, 2, 2, 2, 2, 1, 2))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 648
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "000011111"
+    },
+    {
+      "abstract_input_rle": [
+        13,
+        1,
+        5,
+        1,
+        3,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "011011100|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (13, 5, 3))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            13,
+            5,
+            3
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:2": 4,
+            "000011111|1run_from_right:2": 4,
+            "011011100|1run_from_right:1": 1,
+            "011011101|1run_from_right:2": 7,
+            "011011111|1run_from_right:2": 8,
+            "100011101|1run_from_right:2": 4,
+            "100011111|1run_from_right:2": 4,
+            "101011100|1run_from_right:0": 1
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:2": 4,
+            "000011111|1run_from_right:2": 4,
+            "011011100|1run_from_right:1": 1,
+            "011011101|1run_from_right:2": 7,
+            "011011111|1run_from_right:2": 8,
+            "100011101|1run_from_right:2": 4,
+            "100011111|1run_from_right:2": 4,
+            "101011100|1run_from_right:0": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(0, 'R', (2, 2, 2, 2, 2, 2, 1, 2))",
+          "macro_expected": "(0, 'R', (2, 2, 2, 2, 2, 2, 1, 2))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 648
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "011011100"
+    },
+    {
+      "abstract_input_rle": [
+        13,
+        1,
+        5,
+        1,
+        3,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "011011101|1run_from_right:2": {
+          "exact": true,
+          "kind": "constant",
+          "value": 7
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (13, 5, 3))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            13,
+            5,
+            3
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:2": 4,
+            "000011111|1run_from_right:2": 4,
+            "011011100|1run_from_right:1": 1,
+            "011011101|1run_from_right:2": 7,
+            "011011111|1run_from_right:2": 8,
+            "100011101|1run_from_right:2": 4,
+            "100011111|1run_from_right:2": 4,
+            "101011100|1run_from_right:0": 1
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:2": 4,
+            "000011111|1run_from_right:2": 4,
+            "011011100|1run_from_right:1": 1,
+            "011011101|1run_from_right:2": 7,
+            "011011111|1run_from_right:2": 8,
+            "100011101|1run_from_right:2": 4,
+            "100011111|1run_from_right:2": 4,
+            "101011100|1run_from_right:0": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(0, 'R', (2, 2, 2, 2, 2, 2, 1, 2))",
+          "macro_expected": "(0, 'R', (2, 2, 2, 2, 2, 2, 1, 2))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 648
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "011011101"
+    },
+    {
+      "abstract_input_rle": [
+        13,
+        1,
+        5,
+        1,
+        3,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "011011111|1run_from_right:2": {
+          "exact": true,
+          "kind": "constant",
+          "value": 8
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (13, 5, 3))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            13,
+            5,
+            3
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:2": 4,
+            "000011111|1run_from_right:2": 4,
+            "011011100|1run_from_right:1": 1,
+            "011011101|1run_from_right:2": 7,
+            "011011111|1run_from_right:2": 8,
+            "100011101|1run_from_right:2": 4,
+            "100011111|1run_from_right:2": 4,
+            "101011100|1run_from_right:0": 1
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:2": 4,
+            "000011111|1run_from_right:2": 4,
+            "011011100|1run_from_right:1": 1,
+            "011011101|1run_from_right:2": 7,
+            "011011111|1run_from_right:2": 8,
+            "100011101|1run_from_right:2": 4,
+            "100011111|1run_from_right:2": 4,
+            "101011100|1run_from_right:0": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(0, 'R', (2, 2, 2, 2, 2, 2, 1, 2))",
+          "macro_expected": "(0, 'R', (2, 2, 2, 2, 2, 2, 1, 2))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 648
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "011011111"
+    },
+    {
+      "abstract_input_rle": [
+        13,
+        1,
+        5,
+        1,
+        3,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "100011101|1run_from_right:2": {
+          "exact": true,
+          "kind": "constant",
+          "value": 4
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (13, 5, 3))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            13,
+            5,
+            3
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:2": 4,
+            "000011111|1run_from_right:2": 4,
+            "011011100|1run_from_right:1": 1,
+            "011011101|1run_from_right:2": 7,
+            "011011111|1run_from_right:2": 8,
+            "100011101|1run_from_right:2": 4,
+            "100011111|1run_from_right:2": 4,
+            "101011100|1run_from_right:0": 1
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:2": 4,
+            "000011111|1run_from_right:2": 4,
+            "011011100|1run_from_right:1": 1,
+            "011011101|1run_from_right:2": 7,
+            "011011111|1run_from_right:2": 8,
+            "100011101|1run_from_right:2": 4,
+            "100011111|1run_from_right:2": 4,
+            "101011100|1run_from_right:0": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(0, 'R', (2, 2, 2, 2, 2, 2, 1, 2))",
+          "macro_expected": "(0, 'R', (2, 2, 2, 2, 2, 2, 1, 2))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 648
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "100011101"
+    },
+    {
+      "abstract_input_rle": [
+        13,
+        1,
+        5,
+        1,
+        3,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "100011111|1run_from_right:2": {
+          "exact": true,
+          "kind": "constant",
+          "value": 4
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (13, 5, 3))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            13,
+            5,
+            3
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:2": 4,
+            "000011111|1run_from_right:2": 4,
+            "011011100|1run_from_right:1": 1,
+            "011011101|1run_from_right:2": 7,
+            "011011111|1run_from_right:2": 8,
+            "100011101|1run_from_right:2": 4,
+            "100011111|1run_from_right:2": 4,
+            "101011100|1run_from_right:0": 1
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:2": 4,
+            "000011111|1run_from_right:2": 4,
+            "011011100|1run_from_right:1": 1,
+            "011011101|1run_from_right:2": 7,
+            "011011111|1run_from_right:2": 8,
+            "100011101|1run_from_right:2": 4,
+            "100011111|1run_from_right:2": 4,
+            "101011100|1run_from_right:0": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(0, 'R', (2, 2, 2, 2, 2, 2, 1, 2))",
+          "macro_expected": "(0, 'R', (2, 2, 2, 2, 2, 2, 1, 2))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 648
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "100011111"
+    },
+    {
+      "abstract_input_rle": [
+        13,
+        1,
+        5,
+        1,
+        3,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "101011100|1run_from_right:0": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (13, 5, 3))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            13,
+            5,
+            3
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:2": 4,
+            "000011111|1run_from_right:2": 4,
+            "011011100|1run_from_right:1": 1,
+            "011011101|1run_from_right:2": 7,
+            "011011111|1run_from_right:2": 8,
+            "100011101|1run_from_right:2": 4,
+            "100011111|1run_from_right:2": 4,
+            "101011100|1run_from_right:0": 1
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:2": 4,
+            "000011111|1run_from_right:2": 4,
+            "011011100|1run_from_right:1": 1,
+            "011011101|1run_from_right:2": 7,
+            "011011111|1run_from_right:2": 8,
+            "100011101|1run_from_right:2": 4,
+            "100011111|1run_from_right:2": 4,
+            "101011100|1run_from_right:0": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(0, 'R', (2, 2, 2, 2, 2, 2, 1, 2))",
+          "macro_expected": "(0, 'R', (2, 2, 2, 2, 2, 2, 1, 2))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 648
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "101011100"
+    },
+    {
+      "abstract_input_rle": [
+        17,
+        1,
+        10,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "000011101|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 16
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (17, 10))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            17,
+            10
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:1": 16,
+            "000011111|1run_from_right:1": 16,
+            "011011101|1run_from_right:1": 32,
+            "011011111|1run_from_right:1": 32,
+            "100011101|1run_from_right:1": 16,
+            "100011111|1run_from_right:1": 16
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:1": 16,
+            "000011111|1run_from_right:1": 16,
+            "011011101|1run_from_right:1": 32,
+            "011011111|1run_from_right:1": 32,
+            "100011101|1run_from_right:1": 16,
+            "100011111|1run_from_right:1": 16
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (18, 10))",
+          "macro_expected": "(3, 'L', (18, 10))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 3065
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "000011101"
+    },
+    {
+      "abstract_input_rle": [
+        17,
+        1,
+        10,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "000011111|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 16
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (17, 10))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            17,
+            10
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:1": 16,
+            "000011111|1run_from_right:1": 16,
+            "011011101|1run_from_right:1": 32,
+            "011011111|1run_from_right:1": 32,
+            "100011101|1run_from_right:1": 16,
+            "100011111|1run_from_right:1": 16
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:1": 16,
+            "000011111|1run_from_right:1": 16,
+            "011011101|1run_from_right:1": 32,
+            "011011111|1run_from_right:1": 32,
+            "100011101|1run_from_right:1": 16,
+            "100011111|1run_from_right:1": 16
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (18, 10))",
+          "macro_expected": "(3, 'L', (18, 10))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 3065
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "000011111"
+    },
+    {
+      "abstract_input_rle": [
+        17,
+        1,
+        10,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "011011101|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 32
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (17, 10))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            17,
+            10
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:1": 16,
+            "000011111|1run_from_right:1": 16,
+            "011011101|1run_from_right:1": 32,
+            "011011111|1run_from_right:1": 32,
+            "100011101|1run_from_right:1": 16,
+            "100011111|1run_from_right:1": 16
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:1": 16,
+            "000011111|1run_from_right:1": 16,
+            "011011101|1run_from_right:1": 32,
+            "011011111|1run_from_right:1": 32,
+            "100011101|1run_from_right:1": 16,
+            "100011111|1run_from_right:1": 16
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (18, 10))",
+          "macro_expected": "(3, 'L', (18, 10))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 3065
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "011011101"
+    },
+    {
+      "abstract_input_rle": [
+        17,
+        1,
+        10,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "011011111|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 32
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (17, 10))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            17,
+            10
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:1": 16,
+            "000011111|1run_from_right:1": 16,
+            "011011101|1run_from_right:1": 32,
+            "011011111|1run_from_right:1": 32,
+            "100011101|1run_from_right:1": 16,
+            "100011111|1run_from_right:1": 16
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:1": 16,
+            "000011111|1run_from_right:1": 16,
+            "011011101|1run_from_right:1": 32,
+            "011011111|1run_from_right:1": 32,
+            "100011101|1run_from_right:1": 16,
+            "100011111|1run_from_right:1": 16
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (18, 10))",
+          "macro_expected": "(3, 'L', (18, 10))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 3065
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "011011111"
+    },
+    {
+      "abstract_input_rle": [
+        17,
+        1,
+        10,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "100011101|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 16
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (17, 10))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            17,
+            10
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:1": 16,
+            "000011111|1run_from_right:1": 16,
+            "011011101|1run_from_right:1": 32,
+            "011011111|1run_from_right:1": 32,
+            "100011101|1run_from_right:1": 16,
+            "100011111|1run_from_right:1": 16
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:1": 16,
+            "000011111|1run_from_right:1": 16,
+            "011011101|1run_from_right:1": 32,
+            "011011111|1run_from_right:1": 32,
+            "100011101|1run_from_right:1": 16,
+            "100011111|1run_from_right:1": 16
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (18, 10))",
+          "macro_expected": "(3, 'L', (18, 10))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 3065
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "100011101"
+    },
+    {
+      "abstract_input_rle": [
+        17,
+        1,
+        10,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "100011111|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 16
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (17, 10))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            17,
+            10
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:1": 16,
+            "000011111|1run_from_right:1": 16,
+            "011011101|1run_from_right:1": 32,
+            "011011111|1run_from_right:1": 32,
+            "100011101|1run_from_right:1": 16,
+            "100011111|1run_from_right:1": 16
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:1": 16,
+            "000011111|1run_from_right:1": 16,
+            "011011101|1run_from_right:1": 32,
+            "011011111|1run_from_right:1": 32,
+            "100011101|1run_from_right:1": 16,
+            "100011111|1run_from_right:1": 16
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (18, 10))",
+          "macro_expected": "(3, 'L', (18, 10))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 3065
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "100011111"
+    },
+    {
+      "abstract_input_rle": [
+        19,
+        1,
+        10,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "000011101|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 32
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (19, 10))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            19,
+            10
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:1": 32,
+            "000011111|1run_from_right:1": 32,
+            "011011101|1run_from_right:1": 64,
+            "011011111|1run_from_right:1": 64,
+            "100011101|1run_from_right:1": 32,
+            "100011111|1run_from_right:1": 32
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:1": 32,
+            "000011111|1run_from_right:1": 32,
+            "011011101|1run_from_right:1": 64,
+            "011011111|1run_from_right:1": 64,
+            "100011101|1run_from_right:1": 32,
+            "100011111|1run_from_right:1": 32
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (20, 10))",
+          "macro_expected": "(3, 'L', (20, 10))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 6137
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "000011101"
+    },
+    {
+      "abstract_input_rle": [
+        19,
+        1,
+        10,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "000011111|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 32
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (19, 10))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            19,
+            10
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:1": 32,
+            "000011111|1run_from_right:1": 32,
+            "011011101|1run_from_right:1": 64,
+            "011011111|1run_from_right:1": 64,
+            "100011101|1run_from_right:1": 32,
+            "100011111|1run_from_right:1": 32
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:1": 32,
+            "000011111|1run_from_right:1": 32,
+            "011011101|1run_from_right:1": 64,
+            "011011111|1run_from_right:1": 64,
+            "100011101|1run_from_right:1": 32,
+            "100011111|1run_from_right:1": 32
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (20, 10))",
+          "macro_expected": "(3, 'L', (20, 10))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 6137
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "000011111"
+    },
+    {
+      "abstract_input_rle": [
+        19,
+        1,
+        10,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "011011101|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 64
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (19, 10))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            19,
+            10
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:1": 32,
+            "000011111|1run_from_right:1": 32,
+            "011011101|1run_from_right:1": 64,
+            "011011111|1run_from_right:1": 64,
+            "100011101|1run_from_right:1": 32,
+            "100011111|1run_from_right:1": 32
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:1": 32,
+            "000011111|1run_from_right:1": 32,
+            "011011101|1run_from_right:1": 64,
+            "011011111|1run_from_right:1": 64,
+            "100011101|1run_from_right:1": 32,
+            "100011111|1run_from_right:1": 32
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (20, 10))",
+          "macro_expected": "(3, 'L', (20, 10))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 6137
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "011011101"
+    },
+    {
+      "abstract_input_rle": [
+        19,
+        1,
+        10,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "011011111|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 64
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (19, 10))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            19,
+            10
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:1": 32,
+            "000011111|1run_from_right:1": 32,
+            "011011101|1run_from_right:1": 64,
+            "011011111|1run_from_right:1": 64,
+            "100011101|1run_from_right:1": 32,
+            "100011111|1run_from_right:1": 32
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:1": 32,
+            "000011111|1run_from_right:1": 32,
+            "011011101|1run_from_right:1": 64,
+            "011011111|1run_from_right:1": 64,
+            "100011101|1run_from_right:1": 32,
+            "100011111|1run_from_right:1": 32
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (20, 10))",
+          "macro_expected": "(3, 'L', (20, 10))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 6137
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "011011111"
+    },
+    {
+      "abstract_input_rle": [
+        19,
+        1,
+        10,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "100011101|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 32
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (19, 10))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            19,
+            10
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:1": 32,
+            "000011111|1run_from_right:1": 32,
+            "011011101|1run_from_right:1": 64,
+            "011011111|1run_from_right:1": 64,
+            "100011101|1run_from_right:1": 32,
+            "100011111|1run_from_right:1": 32
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:1": 32,
+            "000011111|1run_from_right:1": 32,
+            "011011101|1run_from_right:1": 64,
+            "011011111|1run_from_right:1": 64,
+            "100011101|1run_from_right:1": 32,
+            "100011111|1run_from_right:1": 32
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (20, 10))",
+          "macro_expected": "(3, 'L', (20, 10))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 6137
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "100011101"
+    },
+    {
+      "abstract_input_rle": [
+        19,
+        1,
+        10,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "100011111|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 32
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (19, 10))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            19,
+            10
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:1": 32,
+            "000011111|1run_from_right:1": 32,
+            "011011101|1run_from_right:1": 64,
+            "011011111|1run_from_right:1": 64,
+            "100011101|1run_from_right:1": 32,
+            "100011111|1run_from_right:1": 32
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:1": 32,
+            "000011111|1run_from_right:1": 32,
+            "011011101|1run_from_right:1": 64,
+            "011011111|1run_from_right:1": 64,
+            "100011101|1run_from_right:1": 32,
+            "100011111|1run_from_right:1": 32
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (20, 10))",
+          "macro_expected": "(3, 'L', (20, 10))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 6137
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "100011111"
+    },
+    {
+      "abstract_input_rle": [
+        21,
+        1,
+        10,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "000011101|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 64
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (21, 10))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            21,
+            10
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:1": 64,
+            "000011111|1run_from_right:1": 64,
+            "011011101|1run_from_right:1": 128,
+            "011011111|1run_from_right:1": 128,
+            "100011101|1run_from_right:1": 64,
+            "100011111|1run_from_right:1": 64
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:1": 64,
+            "000011111|1run_from_right:1": 64,
+            "011011101|1run_from_right:1": 128,
+            "011011111|1run_from_right:1": 128,
+            "100011101|1run_from_right:1": 64,
+            "100011111|1run_from_right:1": 64
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (22, 10))",
+          "macro_expected": "(3, 'L', (22, 10))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 12281
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "000011101"
+    },
+    {
+      "abstract_input_rle": [
+        21,
+        1,
+        10,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "000011111|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 64
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (21, 10))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            21,
+            10
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:1": 64,
+            "000011111|1run_from_right:1": 64,
+            "011011101|1run_from_right:1": 128,
+            "011011111|1run_from_right:1": 128,
+            "100011101|1run_from_right:1": 64,
+            "100011111|1run_from_right:1": 64
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:1": 64,
+            "000011111|1run_from_right:1": 64,
+            "011011101|1run_from_right:1": 128,
+            "011011111|1run_from_right:1": 128,
+            "100011101|1run_from_right:1": 64,
+            "100011111|1run_from_right:1": 64
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (22, 10))",
+          "macro_expected": "(3, 'L', (22, 10))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 12281
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "000011111"
+    },
+    {
+      "abstract_input_rle": [
+        21,
+        1,
+        10,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "011011101|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 128
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (21, 10))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            21,
+            10
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:1": 64,
+            "000011111|1run_from_right:1": 64,
+            "011011101|1run_from_right:1": 128,
+            "011011111|1run_from_right:1": 128,
+            "100011101|1run_from_right:1": 64,
+            "100011111|1run_from_right:1": 64
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:1": 64,
+            "000011111|1run_from_right:1": 64,
+            "011011101|1run_from_right:1": 128,
+            "011011111|1run_from_right:1": 128,
+            "100011101|1run_from_right:1": 64,
+            "100011111|1run_from_right:1": 64
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (22, 10))",
+          "macro_expected": "(3, 'L', (22, 10))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 12281
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "011011101"
+    },
+    {
+      "abstract_input_rle": [
+        21,
+        1,
+        10,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "011011111|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 128
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (21, 10))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            21,
+            10
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:1": 64,
+            "000011111|1run_from_right:1": 64,
+            "011011101|1run_from_right:1": 128,
+            "011011111|1run_from_right:1": 128,
+            "100011101|1run_from_right:1": 64,
+            "100011111|1run_from_right:1": 64
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:1": 64,
+            "000011111|1run_from_right:1": 64,
+            "011011101|1run_from_right:1": 128,
+            "011011111|1run_from_right:1": 128,
+            "100011101|1run_from_right:1": 64,
+            "100011111|1run_from_right:1": 64
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (22, 10))",
+          "macro_expected": "(3, 'L', (22, 10))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 12281
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "011011111"
+    },
+    {
+      "abstract_input_rle": [
+        21,
+        1,
+        10,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "100011101|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 64
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (21, 10))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            21,
+            10
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:1": 64,
+            "000011111|1run_from_right:1": 64,
+            "011011101|1run_from_right:1": 128,
+            "011011111|1run_from_right:1": 128,
+            "100011101|1run_from_right:1": 64,
+            "100011111|1run_from_right:1": 64
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:1": 64,
+            "000011111|1run_from_right:1": 64,
+            "011011101|1run_from_right:1": 128,
+            "011011111|1run_from_right:1": 128,
+            "100011101|1run_from_right:1": 64,
+            "100011111|1run_from_right:1": 64
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (22, 10))",
+          "macro_expected": "(3, 'L', (22, 10))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 12281
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "100011101"
+    },
+    {
+      "abstract_input_rle": [
+        21,
+        1,
+        10,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "100011111|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 64
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (21, 10))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            21,
+            10
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:1": 64,
+            "000011111|1run_from_right:1": 64,
+            "011011101|1run_from_right:1": 128,
+            "011011111|1run_from_right:1": 128,
+            "100011101|1run_from_right:1": 64,
+            "100011111|1run_from_right:1": 64
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:1": 64,
+            "000011111|1run_from_right:1": 64,
+            "011011101|1run_from_right:1": 128,
+            "011011111|1run_from_right:1": 128,
+            "100011101|1run_from_right:1": 64,
+            "100011111|1run_from_right:1": 64
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (22, 10))",
+          "macro_expected": "(3, 'L', (22, 10))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 12281
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "100011111"
+    },
+    {
+      "abstract_input_rle": [
+        23,
+        1,
+        10,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "000011101|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 128
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (23, 10))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            23,
+            10
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:1": 128,
+            "000011111|1run_from_right:1": 128,
+            "011011100|1run_from_right:0": 1,
+            "011011101|1run_from_right:1": 255,
+            "011011111|1run_from_right:1": 256,
+            "100011101|1run_from_right:1": 128,
+            "100011111|1run_from_right:1": 128
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:1": 128,
+            "000011111|1run_from_right:1": 128,
+            "011011100|1run_from_right:0": 1,
+            "011011101|1run_from_right:1": 255,
+            "011011111|1run_from_right:1": 256,
+            "100011101|1run_from_right:1": 128,
+            "100011111|1run_from_right:1": 128
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(1, 'R', (2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1))",
+          "macro_expected": "(1, 'R', (2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 24247
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "000011101"
+    },
+    {
+      "abstract_input_rle": [
+        23,
+        1,
+        10,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "000011111|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 128
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (23, 10))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            23,
+            10
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:1": 128,
+            "000011111|1run_from_right:1": 128,
+            "011011100|1run_from_right:0": 1,
+            "011011101|1run_from_right:1": 255,
+            "011011111|1run_from_right:1": 256,
+            "100011101|1run_from_right:1": 128,
+            "100011111|1run_from_right:1": 128
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:1": 128,
+            "000011111|1run_from_right:1": 128,
+            "011011100|1run_from_right:0": 1,
+            "011011101|1run_from_right:1": 255,
+            "011011111|1run_from_right:1": 256,
+            "100011101|1run_from_right:1": 128,
+            "100011111|1run_from_right:1": 128
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(1, 'R', (2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1))",
+          "macro_expected": "(1, 'R', (2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 24247
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "000011111"
+    },
+    {
+      "abstract_input_rle": [
+        23,
+        1,
+        10,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "011011100|1run_from_right:0": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (23, 10))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            23,
+            10
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:1": 128,
+            "000011111|1run_from_right:1": 128,
+            "011011100|1run_from_right:0": 1,
+            "011011101|1run_from_right:1": 255,
+            "011011111|1run_from_right:1": 256,
+            "100011101|1run_from_right:1": 128,
+            "100011111|1run_from_right:1": 128
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:1": 128,
+            "000011111|1run_from_right:1": 128,
+            "011011100|1run_from_right:0": 1,
+            "011011101|1run_from_right:1": 255,
+            "011011111|1run_from_right:1": 256,
+            "100011101|1run_from_right:1": 128,
+            "100011111|1run_from_right:1": 128
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(1, 'R', (2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1))",
+          "macro_expected": "(1, 'R', (2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 24247
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "011011100"
+    },
+    {
+      "abstract_input_rle": [
+        23,
+        1,
+        10,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "011011101|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 255
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (23, 10))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            23,
+            10
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:1": 128,
+            "000011111|1run_from_right:1": 128,
+            "011011100|1run_from_right:0": 1,
+            "011011101|1run_from_right:1": 255,
+            "011011111|1run_from_right:1": 256,
+            "100011101|1run_from_right:1": 128,
+            "100011111|1run_from_right:1": 128
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:1": 128,
+            "000011111|1run_from_right:1": 128,
+            "011011100|1run_from_right:0": 1,
+            "011011101|1run_from_right:1": 255,
+            "011011111|1run_from_right:1": 256,
+            "100011101|1run_from_right:1": 128,
+            "100011111|1run_from_right:1": 128
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(1, 'R', (2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1))",
+          "macro_expected": "(1, 'R', (2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 24247
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "011011101"
+    },
+    {
+      "abstract_input_rle": [
+        23,
+        1,
+        10,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "011011111|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 256
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (23, 10))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            23,
+            10
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:1": 128,
+            "000011111|1run_from_right:1": 128,
+            "011011100|1run_from_right:0": 1,
+            "011011101|1run_from_right:1": 255,
+            "011011111|1run_from_right:1": 256,
+            "100011101|1run_from_right:1": 128,
+            "100011111|1run_from_right:1": 128
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:1": 128,
+            "000011111|1run_from_right:1": 128,
+            "011011100|1run_from_right:0": 1,
+            "011011101|1run_from_right:1": 255,
+            "011011111|1run_from_right:1": 256,
+            "100011101|1run_from_right:1": 128,
+            "100011111|1run_from_right:1": 128
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(1, 'R', (2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1))",
+          "macro_expected": "(1, 'R', (2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 24247
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "011011111"
+    },
+    {
+      "abstract_input_rle": [
+        23,
+        1,
+        10,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "100011101|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 128
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (23, 10))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            23,
+            10
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:1": 128,
+            "000011111|1run_from_right:1": 128,
+            "011011100|1run_from_right:0": 1,
+            "011011101|1run_from_right:1": 255,
+            "011011111|1run_from_right:1": 256,
+            "100011101|1run_from_right:1": 128,
+            "100011111|1run_from_right:1": 128
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:1": 128,
+            "000011111|1run_from_right:1": 128,
+            "011011100|1run_from_right:0": 1,
+            "011011101|1run_from_right:1": 255,
+            "011011111|1run_from_right:1": 256,
+            "100011101|1run_from_right:1": 128,
+            "100011111|1run_from_right:1": 128
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(1, 'R', (2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1))",
+          "macro_expected": "(1, 'R', (2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 24247
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "100011101"
+    },
+    {
+      "abstract_input_rle": [
+        23,
+        1,
+        10,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "100011111|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 128
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (23, 10))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            23,
+            10
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:1": 128,
+            "000011111|1run_from_right:1": 128,
+            "011011100|1run_from_right:0": 1,
+            "011011101|1run_from_right:1": 255,
+            "011011111|1run_from_right:1": 256,
+            "100011101|1run_from_right:1": 128,
+            "100011111|1run_from_right:1": 128
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:1": 128,
+            "000011111|1run_from_right:1": 128,
+            "011011100|1run_from_right:0": 1,
+            "011011101|1run_from_right:1": 255,
+            "011011111|1run_from_right:1": 256,
+            "100011101|1run_from_right:1": 128,
+            "100011111|1run_from_right:1": 128
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(1, 'R', (2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1))",
+          "macro_expected": "(1, 'R', (2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 24247
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "100011111"
+    },
+    {
+      "abstract_input_rle": [
+        24,
+        1,
+        13,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "000011101|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 128
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (24, 13))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            24,
+            13
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:1": 128,
+            "000011111|1run_from_right:1": 129,
+            "011011101|1run_from_right:1": 256,
+            "011011111|1run_from_right:1": 255,
+            "100011101|1run_from_right:1": 128,
+            "100011111|1run_from_right:1": 127,
+            "110011111|1run_from_right:1": 1
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:1": 128,
+            "000011111|1run_from_right:1": 129,
+            "011011101|1run_from_right:1": 256,
+            "011011111|1run_from_right:1": 255,
+            "100011101|1run_from_right:1": 128,
+            "100011111|1run_from_right:1": 127,
+            "110011111|1run_from_right:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (2, 23, 12))",
+          "macro_expected": "(3, 'L', (2, 23, 12))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 24525
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "000011101"
+    },
+    {
+      "abstract_input_rle": [
+        24,
+        1,
+        13,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "000011111|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 129
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (24, 13))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            24,
+            13
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:1": 128,
+            "000011111|1run_from_right:1": 129,
+            "011011101|1run_from_right:1": 256,
+            "011011111|1run_from_right:1": 255,
+            "100011101|1run_from_right:1": 128,
+            "100011111|1run_from_right:1": 127,
+            "110011111|1run_from_right:1": 1
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:1": 128,
+            "000011111|1run_from_right:1": 129,
+            "011011101|1run_from_right:1": 256,
+            "011011111|1run_from_right:1": 255,
+            "100011101|1run_from_right:1": 128,
+            "100011111|1run_from_right:1": 127,
+            "110011111|1run_from_right:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (2, 23, 12))",
+          "macro_expected": "(3, 'L', (2, 23, 12))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 24525
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "000011111"
+    },
+    {
+      "abstract_input_rle": [
+        24,
+        1,
+        13,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "011011101|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 256
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (24, 13))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            24,
+            13
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:1": 128,
+            "000011111|1run_from_right:1": 129,
+            "011011101|1run_from_right:1": 256,
+            "011011111|1run_from_right:1": 255,
+            "100011101|1run_from_right:1": 128,
+            "100011111|1run_from_right:1": 127,
+            "110011111|1run_from_right:1": 1
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:1": 128,
+            "000011111|1run_from_right:1": 129,
+            "011011101|1run_from_right:1": 256,
+            "011011111|1run_from_right:1": 255,
+            "100011101|1run_from_right:1": 128,
+            "100011111|1run_from_right:1": 127,
+            "110011111|1run_from_right:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (2, 23, 12))",
+          "macro_expected": "(3, 'L', (2, 23, 12))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 24525
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "011011101"
+    },
+    {
+      "abstract_input_rle": [
+        24,
+        1,
+        13,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "011011111|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 255
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (24, 13))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            24,
+            13
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:1": 128,
+            "000011111|1run_from_right:1": 129,
+            "011011101|1run_from_right:1": 256,
+            "011011111|1run_from_right:1": 255,
+            "100011101|1run_from_right:1": 128,
+            "100011111|1run_from_right:1": 127,
+            "110011111|1run_from_right:1": 1
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:1": 128,
+            "000011111|1run_from_right:1": 129,
+            "011011101|1run_from_right:1": 256,
+            "011011111|1run_from_right:1": 255,
+            "100011101|1run_from_right:1": 128,
+            "100011111|1run_from_right:1": 127,
+            "110011111|1run_from_right:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (2, 23, 12))",
+          "macro_expected": "(3, 'L', (2, 23, 12))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 24525
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "011011111"
+    },
+    {
+      "abstract_input_rle": [
+        24,
+        1,
+        13,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "100011101|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 128
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (24, 13))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            24,
+            13
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:1": 128,
+            "000011111|1run_from_right:1": 129,
+            "011011101|1run_from_right:1": 256,
+            "011011111|1run_from_right:1": 255,
+            "100011101|1run_from_right:1": 128,
+            "100011111|1run_from_right:1": 127,
+            "110011111|1run_from_right:1": 1
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:1": 128,
+            "000011111|1run_from_right:1": 129,
+            "011011101|1run_from_right:1": 256,
+            "011011111|1run_from_right:1": 255,
+            "100011101|1run_from_right:1": 128,
+            "100011111|1run_from_right:1": 127,
+            "110011111|1run_from_right:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (2, 23, 12))",
+          "macro_expected": "(3, 'L', (2, 23, 12))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 24525
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "100011101"
+    },
+    {
+      "abstract_input_rle": [
+        24,
+        1,
+        13,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "100011111|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 127
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (24, 13))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            24,
+            13
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:1": 128,
+            "000011111|1run_from_right:1": 129,
+            "011011101|1run_from_right:1": 256,
+            "011011111|1run_from_right:1": 255,
+            "100011101|1run_from_right:1": 128,
+            "100011111|1run_from_right:1": 127,
+            "110011111|1run_from_right:1": 1
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:1": 128,
+            "000011111|1run_from_right:1": 129,
+            "011011101|1run_from_right:1": 256,
+            "011011111|1run_from_right:1": 255,
+            "100011101|1run_from_right:1": 128,
+            "100011111|1run_from_right:1": 127,
+            "110011111|1run_from_right:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (2, 23, 12))",
+          "macro_expected": "(3, 'L', (2, 23, 12))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 24525
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "100011111"
+    },
+    {
+      "abstract_input_rle": [
+        24,
+        1,
+        13,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "110011111|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (24, 13))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            24,
+            13
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:1": 128,
+            "000011111|1run_from_right:1": 129,
+            "011011101|1run_from_right:1": 256,
+            "011011111|1run_from_right:1": 255,
+            "100011101|1run_from_right:1": 128,
+            "100011111|1run_from_right:1": 127,
+            "110011111|1run_from_right:1": 1
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:1": 128,
+            "000011111|1run_from_right:1": 129,
+            "011011101|1run_from_right:1": 256,
+            "011011111|1run_from_right:1": 255,
+            "100011101|1run_from_right:1": 128,
+            "100011111|1run_from_right:1": 127,
+            "110011111|1run_from_right:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (2, 23, 12))",
+          "macro_expected": "(3, 'L', (2, 23, 12))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 24525
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "110011111"
+    },
+    {
+      "abstract_input_rle": [
+        5,
+        1,
+        5,
+        1,
+        3,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "000011111|1run_from_right:2": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (5, 5, 3))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            5,
+            5,
+            3
+          ],
+          "event_actual_counts": {
+            "000011111|1run_from_right:2": 1,
+            "011011101|1run_from_right:2": 1
+          },
+          "event_expected_counts": {
+            "000011111|1run_from_right:2": 1,
+            "011011101|1run_from_right:2": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (6, 5, 3))",
+          "macro_expected": "(3, 'L', (6, 5, 3))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 41
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "000011111"
+    },
+    {
+      "abstract_input_rle": [
+        5,
+        1,
+        5,
+        1,
+        3,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "011011101|1run_from_right:2": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (5, 5, 3))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            5,
+            5,
+            3
+          ],
+          "event_actual_counts": {
+            "000011111|1run_from_right:2": 1,
+            "011011101|1run_from_right:2": 1
+          },
+          "event_expected_counts": {
+            "000011111|1run_from_right:2": 1,
+            "011011101|1run_from_right:2": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (6, 5, 3))",
+          "macro_expected": "(3, 'L', (6, 5, 3))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 41
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "011011101"
+    },
+    {
+      "abstract_input_rle": [
+        6,
+        1,
+        4,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "000011111|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (6, 4))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            6,
+            4
+          ],
+          "event_actual_counts": {
+            "000011111|1run_from_right:1": 1,
+            "110011101|1run_from_right:1": 1
+          },
+          "event_expected_counts": {
+            "000011111|1run_from_right:1": 1,
+            "110011101|1run_from_right:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (2, 5, 3))",
+          "macro_expected": "(3, 'L', (2, 5, 3))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 33
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "000011111"
+    },
+    {
+      "abstract_input_rle": [
+        6,
+        1,
+        4,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "110011101|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (6, 4))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            6,
+            4
+          ],
+          "event_actual_counts": {
+            "000011111|1run_from_right:1": 1,
+            "110011101|1run_from_right:1": 1
+          },
+          "event_expected_counts": {
+            "000011111|1run_from_right:1": 1,
+            "110011101|1run_from_right:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (2, 5, 3))",
+          "macro_expected": "(3, 'L', (2, 5, 3))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 33
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "110011101"
+    },
+    {
+      "abstract_input_rle": [
+        7,
+        1,
+        5,
+        1,
+        3,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "000011111|1run_from_right:2": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (7, 5, 3))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            7,
+            5,
+            3
+          ],
+          "event_actual_counts": {
+            "000011111|1run_from_right:2": 1,
+            "011011101|1run_from_right:2": 1,
+            "011011111|1run_from_right:2": 1,
+            "100011101|1run_from_right:2": 1
+          },
+          "event_expected_counts": {
+            "000011111|1run_from_right:2": 1,
+            "011011101|1run_from_right:2": 1,
+            "011011111|1run_from_right:2": 1,
+            "100011101|1run_from_right:2": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (8, 5, 3))",
+          "macro_expected": "(3, 'L', (8, 5, 3))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 89
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "000011111"
+    },
+    {
+      "abstract_input_rle": [
+        7,
+        1,
+        5,
+        1,
+        3,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "011011101|1run_from_right:2": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (7, 5, 3))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            7,
+            5,
+            3
+          ],
+          "event_actual_counts": {
+            "000011111|1run_from_right:2": 1,
+            "011011101|1run_from_right:2": 1,
+            "011011111|1run_from_right:2": 1,
+            "100011101|1run_from_right:2": 1
+          },
+          "event_expected_counts": {
+            "000011111|1run_from_right:2": 1,
+            "011011101|1run_from_right:2": 1,
+            "011011111|1run_from_right:2": 1,
+            "100011101|1run_from_right:2": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (8, 5, 3))",
+          "macro_expected": "(3, 'L', (8, 5, 3))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 89
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "011011101"
+    },
+    {
+      "abstract_input_rle": [
+        7,
+        1,
+        5,
+        1,
+        3,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "011011111|1run_from_right:2": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (7, 5, 3))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            7,
+            5,
+            3
+          ],
+          "event_actual_counts": {
+            "000011111|1run_from_right:2": 1,
+            "011011101|1run_from_right:2": 1,
+            "011011111|1run_from_right:2": 1,
+            "100011101|1run_from_right:2": 1
+          },
+          "event_expected_counts": {
+            "000011111|1run_from_right:2": 1,
+            "011011101|1run_from_right:2": 1,
+            "011011111|1run_from_right:2": 1,
+            "100011101|1run_from_right:2": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (8, 5, 3))",
+          "macro_expected": "(3, 'L', (8, 5, 3))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 89
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "011011111"
+    },
+    {
+      "abstract_input_rle": [
+        7,
+        1,
+        5,
+        1,
+        3,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "100011101|1run_from_right:2": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (7, 5, 3))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            7,
+            5,
+            3
+          ],
+          "event_actual_counts": {
+            "000011111|1run_from_right:2": 1,
+            "011011101|1run_from_right:2": 1,
+            "011011111|1run_from_right:2": 1,
+            "100011101|1run_from_right:2": 1
+          },
+          "event_expected_counts": {
+            "000011111|1run_from_right:2": 1,
+            "011011101|1run_from_right:2": 1,
+            "011011111|1run_from_right:2": 1,
+            "100011101|1run_from_right:2": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (8, 5, 3))",
+          "macro_expected": "(3, 'L', (8, 5, 3))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 89
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "100011101"
+    },
+    {
+      "abstract_input_rle": [
+        9,
+        1,
+        5,
+        1,
+        3,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "000011101|1run_from_right:2": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (9, 5, 3))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            9,
+            5,
+            3
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:2": 1,
+            "000011111|1run_from_right:2": 1,
+            "011011101|1run_from_right:2": 2,
+            "011011111|1run_from_right:2": 2,
+            "100011101|1run_from_right:2": 1,
+            "100011111|1run_from_right:2": 1
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:2": 1,
+            "000011111|1run_from_right:2": 1,
+            "011011101|1run_from_right:2": 2,
+            "011011111|1run_from_right:2": 2,
+            "100011101|1run_from_right:2": 1,
+            "100011111|1run_from_right:2": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (10, 5, 3))",
+          "macro_expected": "(3, 'L', (10, 5, 3))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 185
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "000011101"
+    },
+    {
+      "abstract_input_rle": [
+        9,
+        1,
+        5,
+        1,
+        3,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "000011111|1run_from_right:2": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (9, 5, 3))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            9,
+            5,
+            3
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:2": 1,
+            "000011111|1run_from_right:2": 1,
+            "011011101|1run_from_right:2": 2,
+            "011011111|1run_from_right:2": 2,
+            "100011101|1run_from_right:2": 1,
+            "100011111|1run_from_right:2": 1
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:2": 1,
+            "000011111|1run_from_right:2": 1,
+            "011011101|1run_from_right:2": 2,
+            "011011111|1run_from_right:2": 2,
+            "100011101|1run_from_right:2": 1,
+            "100011111|1run_from_right:2": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (10, 5, 3))",
+          "macro_expected": "(3, 'L', (10, 5, 3))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 185
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "000011111"
+    },
+    {
+      "abstract_input_rle": [
+        9,
+        1,
+        5,
+        1,
+        3,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "011011101|1run_from_right:2": {
+          "exact": true,
+          "kind": "constant",
+          "value": 2
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (9, 5, 3))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            9,
+            5,
+            3
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:2": 1,
+            "000011111|1run_from_right:2": 1,
+            "011011101|1run_from_right:2": 2,
+            "011011111|1run_from_right:2": 2,
+            "100011101|1run_from_right:2": 1,
+            "100011111|1run_from_right:2": 1
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:2": 1,
+            "000011111|1run_from_right:2": 1,
+            "011011101|1run_from_right:2": 2,
+            "011011111|1run_from_right:2": 2,
+            "100011101|1run_from_right:2": 1,
+            "100011111|1run_from_right:2": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (10, 5, 3))",
+          "macro_expected": "(3, 'L', (10, 5, 3))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 185
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "011011101"
+    },
+    {
+      "abstract_input_rle": [
+        9,
+        1,
+        5,
+        1,
+        3,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "011011111|1run_from_right:2": {
+          "exact": true,
+          "kind": "constant",
+          "value": 2
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (9, 5, 3))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            9,
+            5,
+            3
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:2": 1,
+            "000011111|1run_from_right:2": 1,
+            "011011101|1run_from_right:2": 2,
+            "011011111|1run_from_right:2": 2,
+            "100011101|1run_from_right:2": 1,
+            "100011111|1run_from_right:2": 1
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:2": 1,
+            "000011111|1run_from_right:2": 1,
+            "011011101|1run_from_right:2": 2,
+            "011011111|1run_from_right:2": 2,
+            "100011101|1run_from_right:2": 1,
+            "100011111|1run_from_right:2": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (10, 5, 3))",
+          "macro_expected": "(3, 'L', (10, 5, 3))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 185
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "011011111"
+    },
+    {
+      "abstract_input_rle": [
+        9,
+        1,
+        5,
+        1,
+        3,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "100011101|1run_from_right:2": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (9, 5, 3))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            9,
+            5,
+            3
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:2": 1,
+            "000011111|1run_from_right:2": 1,
+            "011011101|1run_from_right:2": 2,
+            "011011111|1run_from_right:2": 2,
+            "100011101|1run_from_right:2": 1,
+            "100011111|1run_from_right:2": 1
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:2": 1,
+            "000011111|1run_from_right:2": 1,
+            "011011101|1run_from_right:2": 2,
+            "011011111|1run_from_right:2": 2,
+            "100011101|1run_from_right:2": 1,
+            "100011111|1run_from_right:2": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (10, 5, 3))",
+          "macro_expected": "(3, 'L', (10, 5, 3))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 185
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "100011101"
+    },
+    {
+      "abstract_input_rle": [
+        9,
+        1,
+        5,
+        1,
+        3,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "reason": "literal rule accepts only its exact input; fresh VAR values rejected",
+          "substitution": "replayed the literal observed block values"
+        }
+      ],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "100011111|1run_from_right:2": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "LITERAL:(1, 'L', (9, 5, 3))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            9,
+            5,
+            3
+          ],
+          "event_actual_counts": {
+            "000011101|1run_from_right:2": 1,
+            "000011111|1run_from_right:2": 1,
+            "011011101|1run_from_right:2": 2,
+            "011011111|1run_from_right:2": 2,
+            "100011101|1run_from_right:2": 1,
+            "100011111|1run_from_right:2": 1
+          },
+          "event_expected_counts": {
+            "000011101|1run_from_right:2": 1,
+            "000011111|1run_from_right:2": 1,
+            "011011101|1run_from_right:2": 2,
+            "011011111|1run_from_right:2": 2,
+            "100011101|1run_from_right:2": 1,
+            "100011111|1run_from_right:2": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'L', (10, 5, 3))",
+          "macro_expected": "(3, 'L', (10, 5, 3))",
+          "macro_ok": true,
+          "name": "literal_guard_compatible",
+          "passed": true,
+          "steps": 185
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "100011111"
+    }
+  ],
+  "run": {
+    "entry_events": 4166706,
+    "halted": false,
+    "n_unsafe_events": 0,
+    "records_captured": 82,
+    "steps_executed": 100000000,
+    "unassigned_events": 2066545
+  },
+  "status": "FAILED",
+  "summary": {
+    "n_discharged": 62,
+    "n_failed": 6,
+    "n_obligations": 68,
+    "n_unsafe_events": 0,
+    "status": "FAILED"
+  },
+  "undefined": {
+    "state": "F",
+    "symbol": 0
+  }
+}

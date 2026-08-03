@@ -416,3 +416,83 @@ contract: derive `CProbeSafe blankStart` from the 33 macro obligations via a
 DvisetuRawTM-style raw-to-macro closure induction. Everything else in the
 chain — halt localization and the invariant⇒non-halting implication — is
 machine-checked and unconditional.
+
+---
+
+## Stage753: generalized obligation discharger — Antihydra 13/13 (2026-08-03)
+
+**Script:** `experiments/stage753_generalized_obligation_discharger.py`
+**Outputs:** `experiments/outputs/stage753/` (per-machine JSON + run.log)
+
+Machine-agnostic port of the stage750 dossier-1 discharger onto the
+generalized `qgkit.bb6.vcollatz.macro` fitter, run over all 9
+`PASS_EXACT_MACRO_SYSTEM` machines at 100M steps. Validated by exact
+regression: on dossier-1 it reproduces stage750's 33 obligations and
+discharges all 33 with zero machine-specific branches in the code.
+
+### Headline
+
+**Antihydra (`1RB1RA_0LC1LE_1LD1LC_1LA0LB_1LF1RE_---0RA`) discharges all
+13 of its (rule, window) halt-avoidance obligations**: firing templates
+uniform, every entry-event count constant/affine (or exactly-guarded
+piecewise) in the variable block lengths, and fresh-value synthetic replays
+reproduce both the macro prediction and the safe probe structure. Antihydra
+now stands at the same "structurally complete empirically" tier as
+dossier-1: its non-halting argument is finished except for the raw-to-macro
+closure induction in Lean.
+
+### Full scoreboard (100M steps)
+
+| machine | obligations | discharged | status |
+|---|---|---|---|
+| Antihydra `…_---0RA` | 13 | **13** | ALL_DISCHARGED_UNIFORM |
+| dossier-1 `…_---0RB` | 33 | **33** | ALL_DISCHARGED_UNIFORM |
+| `1RB1RC_…_0RD1RD` | 24 | 6 | FAILED (synthetic replay divergence) |
+| `1RB1RB_…_0LE1LE` | 26 | 13 | FAILED (synthetic replay divergence) |
+| `1RB1RA_…_1LD0LF` | 51 | 47 | FAILED (non-affine counts) |
+| `1RB1RA_…_1LC0LF` | 54 | 48 | FAILED (non-affine counts) |
+| `1RB0RA_…_---1RA` | 68 | 62 | FAILED (non-affine counts) |
+| dossier-2 `1RB0LC_…` | — | — | MACRO_NOT_EXACT (known phase-sensitive) |
+| wiki cryptid `1RB1LA_…` | — | — | MACRO_NOT_EXACT (known phase-sensitive) |
+
+Zero unsafe landings across every machine and every run (the safety
+invariant itself never fails; all failures are discharge-machinery
+obstructions). Total: 176/269 obligations discharged where fitting applies.
+
+### Method discoveries (v2–v4, forced by Antihydra)
+
+1. **Head-side margin**: a frontier record's head is not always adjacent to
+   the nearest interior 1-run; the zero offset is part of the configuration
+   and must be captured and reproduced in replay reconstruction.
+2. **Far-side margin**: zeros between the last 1-run and the opposite
+   frontier are blank-equivalent as tape content but **load-bearing for
+   record timing** — the next frontier-expansion depends on the historical
+   width. A new per-rule literal self-check (replay the first observed
+   firing, demand the exact observed transition and event multiset) caught
+   this; it now passes on every rule of every machine, certifying the
+   reconstruction is faithful.
+3. **Boundary subfamilies**: Antihydra's final obstruction was a window
+   occurring in 6/3,003 firings of one rule — exactly the firings whose
+   middle block sits at the group-cap boundary value 4 (the final sweep step
+   before a merge). The count fitter now supports exactly-guarded boundary
+   splits (the event-count analogue of the affine solver's constant-column
+   folding), and each boundary subfamily receives its own pinned fresh-value
+   synthetic replay.
+
+### Honest scope
+
+`ALL_DISCHARGED_UNIFORM` is uniformity + fresh-value replay evidence for
+the induction premise over bounded (100M-step) runs. It is not a proof of
+non-halting. The remaining burden for Antihydra is the same single Lean
+contract shape as dossier-1's: derive the probe-safety invariant from the
+13 macro obligations via raw-to-macro closure induction.
+
+### Next
+
+- Antihydra Lean layer: halt localization (`into-G-only-from` analogue) +
+  probe-safety ⇒ non-halting, then the closure-induction contract.
+- d7/d6 (24/26): fresh-value divergence — macro state under-determines
+  off-trajectory dynamics; likely needs interior-gap components in the
+  synthetic template.
+- m51/m54/m68: residual non-affine counts — deeper modular/phase structure
+  than mod-2..4 + boundary splits.

@@ -1,0 +1,32 @@
+{
+  "code": "1RB0LC_0LC1RF_1LE1RD_0RC1RC_0LA1LA_---1RA",
+  "entry_transitions": [
+    "B1"
+  ],
+  "fit": {
+    "fit_records": 4806,
+    "fit_steps": 20000000,
+    "group_rules": 50,
+    "literal_rules": 6,
+    "n_conflicts": 0,
+    "replay": {
+      "exact": false,
+      "n_mismatches": 1,
+      "n_transitions_checked": 6172,
+      "n_uncovered": 1
+    }
+  },
+  "honest_scope": "uniformity + fresh-value replay evidence for the induction premise; not itself a proof",
+  "run": {
+    "entry_events": 10928,
+    "halted": false,
+    "n_unsafe_events": 0,
+    "records_captured": 10978,
+    "steps_executed": 100000000
+  },
+  "status": "MACRO_NOT_EXACT",
+  "undefined": {
+    "state": "F",
+    "symbol": 0
+  }
+}

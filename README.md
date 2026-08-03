@@ -15,9 +15,11 @@ proofs of non-halting.
 
 - **Full official open-set classification (1,158 machines, 0 errors):**
   9 `PASS_EXACT_MACRO_SYSTEM` / 35 `PARTIAL` / 1,114 `NOT_FITTABLE_HIGH_DIM`.
-- **Antihydra reduces to 13 halt-avoidance obligations** — the smallest
-  obligation list in the open set (census-level; 14,109 halt-window events,
-  unanimous safe landing symbol).
+- **Antihydra reduces to 13 halt-avoidance obligations — and all 13 are
+  mechanically discharged** (stage753: template uniformity, exact/guarded
+  affine event counts, fresh-value synthetic replays at 100M steps).
+  Antihydra's non-halting argument is structurally complete empirically;
+  the remaining burden is the Lean raw-to-macro closure induction.
 - **Dossier-1** (`1RB0LE_1LB1RC_0RF0RD_1RE0LA_1LA1RE_---0RB`): exact macro
   system (36 rules + 7 literals, 100% replay in/out-of-sample over 100M steps),
   recursive Collatz checkpoint law (odd `n → (3n+7)/2`, even recurses), all 33
@@ -52,6 +54,9 @@ proofs of non-halting.
   - `stage751` full open-set observatory (fit + exact replay, resumable,
     sharded) · `stage752` generalized halt-localization (ranked obligation
     queue: Antihydra 13, then 24, 26, 33, 51, 54, 68)
+  - `stage753` generalized obligation discharger — Antihydra 13/13 and
+    dossier-1 33/33 ALL_DISCHARGED_UNIFORM; 176/269 overall; faithful
+    record reconstruction certified by per-rule literal self-checks
 - `experiments/outputs/` — full outputs for stages 747–750 and 752; stage751
   `summary.json` plus the 9 PASS machine records (the full 30 MB per-machine
   set lives in the parent repo); the official open-set list

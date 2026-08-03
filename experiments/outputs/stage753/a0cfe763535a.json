@@ -1,0 +1,967 @@
+{
+  "code": "1RB1RA_0LC1LE_1LD1LC_1LA0LB_1LF1RE_---0RA",
+  "entry_transitions": [
+    "E0"
+  ],
+  "fit": {
+    "fit_records": 6330,
+    "fit_steps": 20000000,
+    "group_rules": 19,
+    "literal_rules": 0,
+    "n_conflicts": 0,
+    "replay": {
+      "exact": true,
+      "n_mismatches": 0,
+      "n_transitions_checked": 7818,
+      "n_uncovered": 0
+    }
+  },
+  "honest_scope": "uniformity + fresh-value replay evidence for the induction premise; not itself a proof",
+  "obligations": [
+    {
+      "abstract_input_rle": [
+        2,
+        2,
+        6,
+        0,
+        1
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "011100111|1run_from_left:0": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "(0, 'L', 2, (2, 4))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            2,
+            6
+          ],
+          "event_actual_counts": {
+            "011100111|1run_from_left:0": 1,
+            "111100000|1run_from_left:1": 1
+          },
+          "event_expected_counts": {
+            "011100111|1run_from_left:0": 1,
+            "111100000|1run_from_left:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(0, 'R', (2, 7, 1))",
+          "macro_expected": "(0, 'R', (2, 7, 1))",
+          "macro_ok": true,
+          "name": "no_VAR_components",
+          "passed": true,
+          "steps": 20
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "011100111"
+    },
+    {
+      "abstract_input_rle": [
+        2,
+        2,
+        6,
+        0,
+        1
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "111100000|1run_from_left:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "(0, 'L', 2, (2, 4))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            2,
+            6
+          ],
+          "event_actual_counts": {
+            "011100111|1run_from_left:0": 1,
+            "111100000|1run_from_left:1": 1
+          },
+          "event_expected_counts": {
+            "011100111|1run_from_left:0": 1,
+            "111100000|1run_from_left:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(0, 'R', (2, 7, 1))",
+          "macro_expected": "(0, 'R', (2, 7, 1))",
+          "macro_ok": true,
+          "name": "no_VAR_components",
+          "passed": true,
+          "steps": 20
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "111100000"
+    },
+    {
+      "abstract_input_rle": [
+        "VAR",
+        2,
+        "VAR",
+        0,
+        1
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 10,
+      "relative_site_count_fits": {
+        "111100000|1run_from_left:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "(0, 'L', 2, (4, 4))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            29,
+            7756
+          ],
+          "event_actual_counts": {
+            "111100000|1run_from_left:1": 1,
+            "111100111|1run_from_left:0": 1
+          },
+          "event_expected_counts": {
+            "111100000|1run_from_left:1": 1,
+            "111100111|1run_from_left:0": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(0, 'R', (29, 7757, 1))",
+          "macro_expected": "(0, 'R', (29, 7757, 1))",
+          "macro_ok": true,
+          "name": "fresh_offset_13",
+          "passed": true,
+          "steps": 7797
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            42,
+            7769
+          ],
+          "event_actual_counts": {
+            "111100000|1run_from_left:1": 1,
+            "111100111|1run_from_left:0": 1
+          },
+          "event_expected_counts": {
+            "111100000|1run_from_left:1": 1,
+            "111100111|1run_from_left:0": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(0, 'R', (42, 7770, 1))",
+          "macro_expected": "(0, 'R', (42, 7770, 1))",
+          "macro_ok": true,
+          "name": "fresh_offset_26",
+          "passed": true,
+          "steps": 7823
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [
+        0,
+        1
+      ],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "111100000"
+    },
+    {
+      "abstract_input_rle": [
+        "VAR",
+        2,
+        "VAR",
+        0,
+        1
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 10,
+      "relative_site_count_fits": {
+        "111100111|1run_from_left:0": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "(0, 'L', 2, (4, 4))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            29,
+            7756
+          ],
+          "event_actual_counts": {
+            "111100000|1run_from_left:1": 1,
+            "111100111|1run_from_left:0": 1
+          },
+          "event_expected_counts": {
+            "111100000|1run_from_left:1": 1,
+            "111100111|1run_from_left:0": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(0, 'R', (29, 7757, 1))",
+          "macro_expected": "(0, 'R', (29, 7757, 1))",
+          "macro_ok": true,
+          "name": "fresh_offset_13",
+          "passed": true,
+          "steps": 7797
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            42,
+            7769
+          ],
+          "event_actual_counts": {
+            "111100000|1run_from_left:1": 1,
+            "111100111|1run_from_left:0": 1
+          },
+          "event_expected_counts": {
+            "111100000|1run_from_left:1": 1,
+            "111100111|1run_from_left:0": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(0, 'R', (42, 7770, 1))",
+          "macro_expected": "(0, 'R', (42, 7770, 1))",
+          "macro_ok": true,
+          "name": "fresh_offset_26",
+          "passed": true,
+          "steps": 7823
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [
+        0,
+        1
+      ],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "111100111"
+    },
+    {
+      "abstract_input_rle": [
+        2,
+        1,
+        3,
+        1,
+        8,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "101101111|1run_from_left:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "(1, 'R', 3, (2, 3, 4))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            2,
+            3,
+            8
+          ],
+          "event_actual_counts": {
+            "101101111|1run_from_left:1": 1
+          },
+          "event_expected_counts": {
+            "101101111|1run_from_left:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(1, 'R', (2, 1, 11))",
+          "macro_expected": "(1, 'R', (2, 1, 11))",
+          "macro_ok": true,
+          "name": "no_VAR_components",
+          "passed": true,
+          "steps": 27
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "101101111"
+    },
+    {
+      "abstract_input_rle": [
+        2,
+        1,
+        7,
+        1,
+        2,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "111101110|1run_from_left:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "(1, 'R', 3, (2, 4, 2))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            2,
+            7,
+            2
+          ],
+          "event_actual_counts": {
+            "111101110|1run_from_left:1": 1
+          },
+          "event_expected_counts": {
+            "111101110|1run_from_left:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(1, 'R', (2, 5, 5))",
+          "macro_expected": "(1, 'R', (2, 5, 5))",
+          "macro_ok": true,
+          "name": "no_VAR_components",
+          "passed": true,
+          "steps": 15
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "111101110"
+    },
+    {
+      "abstract_input_rle": [
+        2,
+        1,
+        5,
+        1,
+        5,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "111101111|1run_from_left:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "(1, 'R', 3, (2, 4, 4))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            2,
+            5,
+            5
+          ],
+          "event_actual_counts": {
+            "111101111|1run_from_left:1": 1
+          },
+          "event_expected_counts": {
+            "111101111|1run_from_left:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(1, 'R', (2, 3, 8))",
+          "macro_expected": "(1, 'R', (2, 3, 8))",
+          "macro_ok": true,
+          "name": "no_VAR_components",
+          "passed": true,
+          "steps": 21
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "111101111"
+    },
+    {
+      "abstract_input_rle": [
+        "VAR",
+        1,
+        2,
+        1,
+        "VAR",
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 7,
+      "relative_site_count_fits": {
+        "111100000|1run_from_left:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "(1, 'R', 3, (4, 2, 4))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            29,
+            2,
+            11628
+          ],
+          "event_actual_counts": {
+            "111100000|1run_from_left:1": 1,
+            "111101011|1run_from_left:0": 1
+          },
+          "event_expected_counts": {
+            "111100000|1run_from_left:1": 1,
+            "111101011|1run_from_left:0": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(0, 'R', (28, 11631, 1))",
+          "macro_expected": "(0, 'R', (28, 11631, 1))",
+          "macro_ok": true,
+          "name": "fresh_offset_13",
+          "passed": true,
+          "steps": 23271
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            42,
+            2,
+            11641
+          ],
+          "event_actual_counts": {
+            "111100000|1run_from_left:1": 1,
+            "111101011|1run_from_left:0": 1
+          },
+          "event_expected_counts": {
+            "111100000|1run_from_left:1": 1,
+            "111101011|1run_from_left:0": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(0, 'R', (41, 11644, 1))",
+          "macro_expected": "(0, 'R', (41, 11644, 1))",
+          "macro_ok": true,
+          "name": "fresh_offset_26",
+          "passed": true,
+          "steps": 23297
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [
+        0,
+        2
+      ],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "111100000"
+    },
+    {
+      "abstract_input_rle": [
+        "VAR",
+        1,
+        2,
+        1,
+        "VAR",
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 7,
+      "relative_site_count_fits": {
+        "111101011|1run_from_left:0": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "(1, 'R', 3, (4, 2, 4))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            29,
+            2,
+            11628
+          ],
+          "event_actual_counts": {
+            "111100000|1run_from_left:1": 1,
+            "111101011|1run_from_left:0": 1
+          },
+          "event_expected_counts": {
+            "111100000|1run_from_left:1": 1,
+            "111101011|1run_from_left:0": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(0, 'R', (28, 11631, 1))",
+          "macro_expected": "(0, 'R', (28, 11631, 1))",
+          "macro_ok": true,
+          "name": "fresh_offset_13",
+          "passed": true,
+          "steps": 23271
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            42,
+            2,
+            11641
+          ],
+          "event_actual_counts": {
+            "111100000|1run_from_left:1": 1,
+            "111101011|1run_from_left:0": 1
+          },
+          "event_expected_counts": {
+            "111100000|1run_from_left:1": 1,
+            "111101011|1run_from_left:0": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(0, 'R', (41, 11644, 1))",
+          "macro_expected": "(0, 'R', (41, 11644, 1))",
+          "macro_ok": true,
+          "name": "fresh_offset_26",
+          "passed": true,
+          "steps": 23297
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [
+        0,
+        2
+      ],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "111101011"
+    },
+    {
+      "abstract_input_rle": [
+        "VAR",
+        1,
+        3,
+        1,
+        "VAR",
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 9,
+      "relative_site_count_fits": {
+        "101101111|1run_from_left:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "(1, 'R', 3, (4, 3, 4))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            27,
+            3,
+            7752
+          ],
+          "event_actual_counts": {
+            "101101111|1run_from_left:1": 1
+          },
+          "event_expected_counts": {
+            "101101111|1run_from_left:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(1, 'R', (27, 1, 7755))",
+          "macro_expected": "(1, 'R', (27, 1, 7755))",
+          "macro_ok": true,
+          "name": "fresh_offset_13",
+          "passed": true,
+          "steps": 15515
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            40,
+            3,
+            7765
+          ],
+          "event_actual_counts": {
+            "101101111|1run_from_left:1": 1
+          },
+          "event_expected_counts": {
+            "101101111|1run_from_left:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(1, 'R', (40, 1, 7768))",
+          "macro_expected": "(1, 'R', (40, 1, 7768))",
+          "macro_ok": true,
+          "name": "fresh_offset_26",
+          "passed": true,
+          "steps": 15541
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [
+        0,
+        2
+      ],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "101101111"
+    },
+    {
+      "abstract_input_rle": [
+        "VAR",
+        1,
+        "VAR",
+        1,
+        2,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 17,
+      "relative_site_count_fits": {
+        "111101110|1run_from_left:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "(1, 'R', 3, (4, 4, 2))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            29,
+            11631,
+            2
+          ],
+          "event_actual_counts": {
+            "111101110|1run_from_left:1": 1
+          },
+          "event_expected_counts": {
+            "111101110|1run_from_left:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(1, 'R', (29, 11629, 5))",
+          "macro_expected": "(1, 'R', (29, 11629, 5))",
+          "macro_ok": true,
+          "name": "fresh_offset_13",
+          "passed": true,
+          "steps": 15
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            42,
+            11644,
+            2
+          ],
+          "event_actual_counts": {
+            "111101110|1run_from_left:1": 1
+          },
+          "event_expected_counts": {
+            "111101110|1run_from_left:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(1, 'R', (42, 11642, 5))",
+          "macro_expected": "(1, 'R', (42, 11642, 5))",
+          "macro_ok": true,
+          "name": "fresh_offset_26",
+          "passed": true,
+          "steps": 15
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [
+        0,
+        1
+      ],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "111101110"
+    },
+    {
+      "abstract_input_rle": [
+        "VAR",
+        1,
+        "VAR",
+        1,
+        "VAR",
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 14042,
+      "relative_site_count_fits": {
+        "011101111|1run_from_left:1": {
+          "above": {
+            "exact": true,
+            "kind": "constant",
+            "value": 0
+          },
+          "at_boundary": {
+            "exact": true,
+            "kind": "constant",
+            "value": 1
+          },
+          "boundary": 4,
+          "class_sizes": {
+            "above": 14035,
+            "at_boundary": 7
+          },
+          "exact": true,
+          "index": 1,
+          "kind": "boundary_piecewise",
+          "var_indices": [
+            0,
+            1,
+            2
+          ]
+        }
+      },
+      "rule": "(1, 'R', 3, (4, 4, 4))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            29,
+            11629,
+            11625
+          ],
+          "event_actual_counts": {
+            "111101111|1run_from_left:1": 1
+          },
+          "event_expected_counts": {
+            "011101111|1run_from_left:1": 0,
+            "111101111|1run_from_left:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(1, 'R', (29, 11627, 11628))",
+          "macro_expected": "(1, 'R', (29, 11627, 11628))",
+          "macro_ok": true,
+          "name": "fresh_offset_13",
+          "passed": true,
+          "steps": 23261
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            42,
+            11642,
+            11638
+          ],
+          "event_actual_counts": {
+            "111101111|1run_from_left:1": 1
+          },
+          "event_expected_counts": {
+            "011101111|1run_from_left:1": 0,
+            "111101111|1run_from_left:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(1, 'R', (42, 11640, 11641))",
+          "macro_expected": "(1, 'R', (42, 11640, 11641))",
+          "macro_ok": true,
+          "name": "fresh_offset_26",
+          "passed": true,
+          "steps": 23287
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            29,
+            4,
+            11625
+          ],
+          "event_actual_counts": {
+            "011101111|1run_from_left:1": 1
+          },
+          "event_expected_counts": {
+            "011101111|1run_from_left:1": 1,
+            "111101111|1run_from_left:1": 0
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(1, 'R', (29, 2, 11628))",
+          "macro_expected": "(1, 'R', (29, 2, 11628))",
+          "macro_ok": true,
+          "name": "boundary_pin_1_4",
+          "passed": true,
+          "steps": 23261
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [
+        0,
+        1,
+        2
+      ],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "011101111"
+    },
+    {
+      "abstract_input_rle": [
+        "VAR",
+        1,
+        "VAR",
+        1,
+        "VAR",
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 14042,
+      "relative_site_count_fits": {
+        "111101111|1run_from_left:1": {
+          "above": {
+            "exact": true,
+            "kind": "constant",
+            "value": 1
+          },
+          "at_boundary": {
+            "exact": true,
+            "kind": "constant",
+            "value": 0
+          },
+          "boundary": 4,
+          "class_sizes": {
+            "above": 14035,
+            "at_boundary": 7
+          },
+          "exact": true,
+          "index": 1,
+          "kind": "boundary_piecewise",
+          "var_indices": [
+            0,
+            1,
+            2
+          ]
+        }
+      },
+      "rule": "(1, 'R', 3, (4, 4, 4))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            29,
+            11629,
+            11625
+          ],
+          "event_actual_counts": {
+            "111101111|1run_from_left:1": 1
+          },
+          "event_expected_counts": {
+            "011101111|1run_from_left:1": 0,
+            "111101111|1run_from_left:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(1, 'R', (29, 11627, 11628))",
+          "macro_expected": "(1, 'R', (29, 11627, 11628))",
+          "macro_ok": true,
+          "name": "fresh_offset_13",
+          "passed": true,
+          "steps": 23261
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            42,
+            11642,
+            11638
+          ],
+          "event_actual_counts": {
+            "111101111|1run_from_left:1": 1
+          },
+          "event_expected_counts": {
+            "011101111|1run_from_left:1": 0,
+            "111101111|1run_from_left:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(1, 'R', (42, 11640, 11641))",
+          "macro_expected": "(1, 'R', (42, 11640, 11641))",
+          "macro_ok": true,
+          "name": "fresh_offset_26",
+          "passed": true,
+          "steps": 23287
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            29,
+            4,
+            11625
+          ],
+          "event_actual_counts": {
+            "011101111|1run_from_left:1": 1
+          },
+          "event_expected_counts": {
+            "011101111|1run_from_left:1": 1,
+            "111101111|1run_from_left:1": 0
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(1, 'R', (29, 2, 11628))",
+          "macro_expected": "(1, 'R', (29, 2, 11628))",
+          "macro_ok": true,
+          "name": "boundary_pin_1_4",
+          "passed": true,
+          "steps": 23261
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [
+        0,
+        1,
+        2
+      ],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "111101111"
+    }
+  ],
+  "run": {
+    "entry_events": 14109,
+    "halted": false,
+    "n_unsafe_events": 0,
+    "records_captured": 14148,
+    "steps_executed": 100000000,
+    "unassigned_events": 2
+  },
+  "status": "ALL_DISCHARGED_UNIFORM",
+  "summary": {
+    "n_discharged": 13,
+    "n_failed": 0,
+    "n_obligations": 13,
+    "n_unsafe_events": 0,
+    "status": "ALL_DISCHARGED_UNIFORM"
+  },
+  "undefined": {
+    "state": "F",
+    "symbol": 0
+  }
+}

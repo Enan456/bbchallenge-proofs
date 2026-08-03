@@ -1,0 +1,2386 @@
+{
+  "code": "1RB1RC_1LC1LC_1RE0LD_1LB1RF_---1RA_0RD1RD",
+  "entry_transitions": [
+    "C0"
+  ],
+  "fit": {
+    "fit_records": 4499,
+    "fit_steps": 20000000,
+    "group_rules": 27,
+    "literal_rules": 0,
+    "n_conflicts": 0,
+    "replay": {
+      "exact": true,
+      "n_mismatches": 0,
+      "n_transitions_checked": 6022,
+      "n_uncovered": 0
+    }
+  },
+  "honest_scope": "uniformity + fresh-value replay evidence for the induction premise; not itself a proof",
+  "obligations": [
+    {
+      "abstract_input_rle": [
+        2,
+        1,
+        "VAR",
+        0,
+        0
+      ],
+      "first_counterexample": {
+        "all_landings_safe": true,
+        "blocks": [
+          2,
+          29
+        ],
+        "event_actual_counts": {
+          "000001101|1run_from_right:1": 1,
+          "011101111|1run_from_right:0": 1
+        },
+        "event_expected_counts": {
+          "000001101|1run_from_right:1": 1,
+          "011101111|1run_from_right:0": 1
+        },
+        "event_structure_ok": true,
+        "kind": "synthetic_replay_mismatch",
+        "macro_actual": "(3, 'R', (6, 26))",
+        "macro_expected": "(5, 'R', (6, 26))",
+        "macro_ok": false,
+        "name": "fresh_offset_13",
+        "passed": false,
+        "steps": 35
+      },
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 2,
+      "relative_site_count_fits": {
+        "000001101|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "(2, 'L', 2, (2, 4))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            2,
+            29
+          ],
+          "event_actual_counts": {
+            "000001101|1run_from_right:1": 1,
+            "011101111|1run_from_right:0": 1
+          },
+          "event_expected_counts": {
+            "000001101|1run_from_right:1": 1,
+            "011101111|1run_from_right:0": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'R', (6, 26))",
+          "macro_expected": "(5, 'R', (6, 26))",
+          "macro_ok": false,
+          "name": "fresh_offset_13",
+          "passed": false,
+          "steps": 35
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            2,
+            42
+          ],
+          "event_actual_counts": {
+            "000001101|1run_from_right:1": 1,
+            "011101111|1run_from_right:0": 1
+          },
+          "event_expected_counts": {
+            "000001101|1run_from_right:1": 1,
+            "011101111|1run_from_right:0": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(5, 'R', (6, 39))",
+          "macro_expected": "(5, 'R', (6, 39))",
+          "macro_ok": true,
+          "name": "fresh_offset_26",
+          "passed": true,
+          "steps": 48
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [
+        1
+      ],
+      "verdict": "FAILED",
+      "window": "000001101"
+    },
+    {
+      "abstract_input_rle": [
+        2,
+        1,
+        "VAR",
+        0,
+        0
+      ],
+      "first_counterexample": {
+        "all_landings_safe": true,
+        "blocks": [
+          2,
+          29
+        ],
+        "event_actual_counts": {
+          "000001101|1run_from_right:1": 1,
+          "011101111|1run_from_right:0": 1
+        },
+        "event_expected_counts": {
+          "000001101|1run_from_right:1": 1,
+          "011101111|1run_from_right:0": 1
+        },
+        "event_structure_ok": true,
+        "kind": "synthetic_replay_mismatch",
+        "macro_actual": "(3, 'R', (6, 26))",
+        "macro_expected": "(5, 'R', (6, 26))",
+        "macro_ok": false,
+        "name": "fresh_offset_13",
+        "passed": false,
+        "steps": 35
+      },
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 2,
+      "relative_site_count_fits": {
+        "011101111|1run_from_right:0": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "(2, 'L', 2, (2, 4))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            2,
+            29
+          ],
+          "event_actual_counts": {
+            "000001101|1run_from_right:1": 1,
+            "011101111|1run_from_right:0": 1
+          },
+          "event_expected_counts": {
+            "000001101|1run_from_right:1": 1,
+            "011101111|1run_from_right:0": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'R', (6, 26))",
+          "macro_expected": "(5, 'R', (6, 26))",
+          "macro_ok": false,
+          "name": "fresh_offset_13",
+          "passed": false,
+          "steps": 35
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            2,
+            42
+          ],
+          "event_actual_counts": {
+            "000001101|1run_from_right:1": 1,
+            "011101111|1run_from_right:0": 1
+          },
+          "event_expected_counts": {
+            "000001101|1run_from_right:1": 1,
+            "011101111|1run_from_right:0": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(5, 'R', (6, 39))",
+          "macro_expected": "(5, 'R', (6, 39))",
+          "macro_ok": true,
+          "name": "fresh_offset_26",
+          "passed": true,
+          "steps": 48
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [
+        1
+      ],
+      "verdict": "FAILED",
+      "window": "011101111"
+    },
+    {
+      "abstract_input_rle": [
+        2,
+        1,
+        "VAR",
+        1,
+        "VAR",
+        0,
+        0
+      ],
+      "first_counterexample": {
+        "all_landings_safe": true,
+        "blocks": [
+          2,
+          5339,
+          4341
+        ],
+        "event_actual_counts": {
+          "000001101|1run_from_right:2": 1,
+          "011101111|1run_from_right:1": 1
+        },
+        "event_expected_counts": {
+          "000001101|1run_from_right:2": 1,
+          "011101111|1run_from_right:1": 1
+        },
+        "event_structure_ok": true,
+        "kind": "synthetic_replay_mismatch",
+        "macro_actual": "(5, 'R', (6, 5334, 4343))",
+        "macro_expected": "(3, 'R', (6, 5336, 4341))",
+        "macro_ok": false,
+        "name": "fresh_offset_13",
+        "passed": false,
+        "steps": 9693
+      },
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 12,
+      "relative_site_count_fits": {
+        "000001101|1run_from_right:2": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "(2, 'L', 3, (2, 4, 4))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            2,
+            5339,
+            4341
+          ],
+          "event_actual_counts": {
+            "000001101|1run_from_right:2": 1,
+            "011101111|1run_from_right:1": 1
+          },
+          "event_expected_counts": {
+            "000001101|1run_from_right:2": 1,
+            "011101111|1run_from_right:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(5, 'R', (6, 5334, 4343))",
+          "macro_expected": "(3, 'R', (6, 5336, 4341))",
+          "macro_ok": false,
+          "name": "fresh_offset_13",
+          "passed": false,
+          "steps": 9693
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            2,
+            5352,
+            4354
+          ],
+          "event_actual_counts": {
+            "000001101|1run_from_right:2": 1,
+            "011101111|1run_from_right:1": 1
+          },
+          "event_expected_counts": {
+            "000001101|1run_from_right:2": 1,
+            "011101111|1run_from_right:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'R', (6, 5349, 4354))",
+          "macro_expected": "(3, 'R', (6, 5349, 4354))",
+          "macro_ok": true,
+          "name": "fresh_offset_26",
+          "passed": true,
+          "steps": 9713
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [
+        1,
+        2
+      ],
+      "verdict": "FAILED",
+      "window": "000001101"
+    },
+    {
+      "abstract_input_rle": [
+        2,
+        1,
+        "VAR",
+        1,
+        "VAR",
+        0,
+        0
+      ],
+      "first_counterexample": {
+        "all_landings_safe": true,
+        "blocks": [
+          2,
+          5339,
+          4341
+        ],
+        "event_actual_counts": {
+          "000001101|1run_from_right:2": 1,
+          "011101111|1run_from_right:1": 1
+        },
+        "event_expected_counts": {
+          "000001101|1run_from_right:2": 1,
+          "011101111|1run_from_right:1": 1
+        },
+        "event_structure_ok": true,
+        "kind": "synthetic_replay_mismatch",
+        "macro_actual": "(5, 'R', (6, 5334, 4343))",
+        "macro_expected": "(3, 'R', (6, 5336, 4341))",
+        "macro_ok": false,
+        "name": "fresh_offset_13",
+        "passed": false,
+        "steps": 9693
+      },
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 12,
+      "relative_site_count_fits": {
+        "011101111|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "(2, 'L', 3, (2, 4, 4))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            2,
+            5339,
+            4341
+          ],
+          "event_actual_counts": {
+            "000001101|1run_from_right:2": 1,
+            "011101111|1run_from_right:1": 1
+          },
+          "event_expected_counts": {
+            "000001101|1run_from_right:2": 1,
+            "011101111|1run_from_right:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(5, 'R', (6, 5334, 4343))",
+          "macro_expected": "(3, 'R', (6, 5336, 4341))",
+          "macro_ok": false,
+          "name": "fresh_offset_13",
+          "passed": false,
+          "steps": 9693
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            2,
+            5352,
+            4354
+          ],
+          "event_actual_counts": {
+            "000001101|1run_from_right:2": 1,
+            "011101111|1run_from_right:1": 1
+          },
+          "event_expected_counts": {
+            "000001101|1run_from_right:2": 1,
+            "011101111|1run_from_right:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'R', (6, 5349, 4354))",
+          "macro_expected": "(3, 'R', (6, 5349, 4354))",
+          "macro_ok": true,
+          "name": "fresh_offset_26",
+          "passed": true,
+          "steps": 9713
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [
+        1,
+        2
+      ],
+      "verdict": "FAILED",
+      "window": "011101111"
+    },
+    {
+      "abstract_input_rle": [
+        2,
+        1,
+        2,
+        1,
+        "VAR",
+        1,
+        2,
+        0,
+        0
+      ],
+      "first_counterexample": {
+        "all_landings_safe": true,
+        "blocks": [
+          2,
+          2,
+          67,
+          2
+        ],
+        "event_actual_counts": {
+          "000001101|1run_from_right:3": 1,
+          "011101101|1run_from_right:2": 1,
+          "111101111|1run_from_right:1": 1
+        },
+        "event_expected_counts": {
+          "000001101|1run_from_right:3": 1,
+          "011101101|1run_from_right:2": 1,
+          "111101111|1run_from_right:1": 1
+        },
+        "event_structure_ok": true,
+        "kind": "synthetic_replay_mismatch",
+        "macro_actual": "(3, 'R', (9, 62, 4))",
+        "macro_expected": "(3, 'R', (9, 64, 2))",
+        "macro_ok": false,
+        "name": "fresh_offset_13",
+        "passed": false,
+        "steps": 85
+      },
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 2,
+      "relative_site_count_fits": {
+        "000001101|1run_from_right:3": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "(2, 'L', 4, (2, 2, 4, 2))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            2,
+            2,
+            67,
+            2
+          ],
+          "event_actual_counts": {
+            "000001101|1run_from_right:3": 1,
+            "011101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_expected_counts": {
+            "000001101|1run_from_right:3": 1,
+            "011101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'R', (9, 62, 4))",
+          "macro_expected": "(3, 'R', (9, 64, 2))",
+          "macro_ok": false,
+          "name": "fresh_offset_13",
+          "passed": false,
+          "steps": 85
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            2,
+            2,
+            80,
+            2
+          ],
+          "event_actual_counts": {
+            "000001101|1run_from_right:3": 1,
+            "011101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_expected_counts": {
+            "000001101|1run_from_right:3": 1,
+            "011101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'R', (9, 77, 2))",
+          "macro_expected": "(3, 'R', (9, 77, 2))",
+          "macro_ok": true,
+          "name": "fresh_offset_26",
+          "passed": true,
+          "steps": 92
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [
+        2
+      ],
+      "verdict": "FAILED",
+      "window": "000001101"
+    },
+    {
+      "abstract_input_rle": [
+        2,
+        1,
+        2,
+        1,
+        "VAR",
+        1,
+        2,
+        0,
+        0
+      ],
+      "first_counterexample": {
+        "all_landings_safe": true,
+        "blocks": [
+          2,
+          2,
+          67,
+          2
+        ],
+        "event_actual_counts": {
+          "000001101|1run_from_right:3": 1,
+          "011101101|1run_from_right:2": 1,
+          "111101111|1run_from_right:1": 1
+        },
+        "event_expected_counts": {
+          "000001101|1run_from_right:3": 1,
+          "011101101|1run_from_right:2": 1,
+          "111101111|1run_from_right:1": 1
+        },
+        "event_structure_ok": true,
+        "kind": "synthetic_replay_mismatch",
+        "macro_actual": "(3, 'R', (9, 62, 4))",
+        "macro_expected": "(3, 'R', (9, 64, 2))",
+        "macro_ok": false,
+        "name": "fresh_offset_13",
+        "passed": false,
+        "steps": 85
+      },
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 2,
+      "relative_site_count_fits": {
+        "011101101|1run_from_right:2": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "(2, 'L', 4, (2, 2, 4, 2))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            2,
+            2,
+            67,
+            2
+          ],
+          "event_actual_counts": {
+            "000001101|1run_from_right:3": 1,
+            "011101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_expected_counts": {
+            "000001101|1run_from_right:3": 1,
+            "011101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'R', (9, 62, 4))",
+          "macro_expected": "(3, 'R', (9, 64, 2))",
+          "macro_ok": false,
+          "name": "fresh_offset_13",
+          "passed": false,
+          "steps": 85
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            2,
+            2,
+            80,
+            2
+          ],
+          "event_actual_counts": {
+            "000001101|1run_from_right:3": 1,
+            "011101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_expected_counts": {
+            "000001101|1run_from_right:3": 1,
+            "011101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'R', (9, 77, 2))",
+          "macro_expected": "(3, 'R', (9, 77, 2))",
+          "macro_ok": true,
+          "name": "fresh_offset_26",
+          "passed": true,
+          "steps": 92
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [
+        2
+      ],
+      "verdict": "FAILED",
+      "window": "011101101"
+    },
+    {
+      "abstract_input_rle": [
+        2,
+        1,
+        2,
+        1,
+        "VAR",
+        1,
+        2,
+        0,
+        0
+      ],
+      "first_counterexample": {
+        "all_landings_safe": true,
+        "blocks": [
+          2,
+          2,
+          67,
+          2
+        ],
+        "event_actual_counts": {
+          "000001101|1run_from_right:3": 1,
+          "011101101|1run_from_right:2": 1,
+          "111101111|1run_from_right:1": 1
+        },
+        "event_expected_counts": {
+          "000001101|1run_from_right:3": 1,
+          "011101101|1run_from_right:2": 1,
+          "111101111|1run_from_right:1": 1
+        },
+        "event_structure_ok": true,
+        "kind": "synthetic_replay_mismatch",
+        "macro_actual": "(3, 'R', (9, 62, 4))",
+        "macro_expected": "(3, 'R', (9, 64, 2))",
+        "macro_ok": false,
+        "name": "fresh_offset_13",
+        "passed": false,
+        "steps": 85
+      },
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 2,
+      "relative_site_count_fits": {
+        "111101111|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "(2, 'L', 4, (2, 2, 4, 2))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            2,
+            2,
+            67,
+            2
+          ],
+          "event_actual_counts": {
+            "000001101|1run_from_right:3": 1,
+            "011101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_expected_counts": {
+            "000001101|1run_from_right:3": 1,
+            "011101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'R', (9, 62, 4))",
+          "macro_expected": "(3, 'R', (9, 64, 2))",
+          "macro_ok": false,
+          "name": "fresh_offset_13",
+          "passed": false,
+          "steps": 85
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            2,
+            2,
+            80,
+            2
+          ],
+          "event_actual_counts": {
+            "000001101|1run_from_right:3": 1,
+            "011101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_expected_counts": {
+            "000001101|1run_from_right:3": 1,
+            "011101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'R', (9, 77, 2))",
+          "macro_expected": "(3, 'R', (9, 77, 2))",
+          "macro_ok": true,
+          "name": "fresh_offset_26",
+          "passed": true,
+          "steps": 92
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [
+        2
+      ],
+      "verdict": "FAILED",
+      "window": "111101111"
+    },
+    {
+      "abstract_input_rle": [
+        2,
+        1,
+        2,
+        1,
+        "VAR",
+        1,
+        "VAR",
+        0,
+        0
+      ],
+      "first_counterexample": {
+        "all_landings_safe": true,
+        "blocks": [
+          2,
+          2,
+          7675,
+          2783
+        ],
+        "event_actual_counts": {
+          "000001101|1run_from_right:3": 1,
+          "011101101|1run_from_right:2": 1,
+          "111101111|1run_from_right:1": 1
+        },
+        "event_expected_counts": {
+          "000001101|1run_from_right:3": 1,
+          "011101101|1run_from_right:2": 1,
+          "111101111|1run_from_right:1": 1
+        },
+        "event_structure_ok": true,
+        "kind": "synthetic_replay_mismatch",
+        "macro_actual": "(5, 'R', (9, 7670, 2785))",
+        "macro_expected": "(3, 'R', (9, 7672, 2783))",
+        "macro_ok": false,
+        "name": "fresh_offset_13",
+        "passed": false,
+        "steps": 10474
+      },
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 13,
+      "relative_site_count_fits": {
+        "000001101|1run_from_right:3": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "(2, 'L', 4, (2, 2, 4, 4))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            2,
+            2,
+            7675,
+            2783
+          ],
+          "event_actual_counts": {
+            "000001101|1run_from_right:3": 1,
+            "011101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_expected_counts": {
+            "000001101|1run_from_right:3": 1,
+            "011101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(5, 'R', (9, 7670, 2785))",
+          "macro_expected": "(3, 'R', (9, 7672, 2783))",
+          "macro_ok": false,
+          "name": "fresh_offset_13",
+          "passed": false,
+          "steps": 10474
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            2,
+            2,
+            7688,
+            2796
+          ],
+          "event_actual_counts": {
+            "000001101|1run_from_right:3": 1,
+            "011101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_expected_counts": {
+            "000001101|1run_from_right:3": 1,
+            "011101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'R', (9, 7685, 2796))",
+          "macro_expected": "(3, 'R', (9, 7685, 2796))",
+          "macro_ok": true,
+          "name": "fresh_offset_26",
+          "passed": true,
+          "steps": 10494
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [
+        2,
+        3
+      ],
+      "verdict": "FAILED",
+      "window": "000001101"
+    },
+    {
+      "abstract_input_rle": [
+        2,
+        1,
+        2,
+        1,
+        "VAR",
+        1,
+        "VAR",
+        0,
+        0
+      ],
+      "first_counterexample": {
+        "all_landings_safe": true,
+        "blocks": [
+          2,
+          2,
+          7675,
+          2783
+        ],
+        "event_actual_counts": {
+          "000001101|1run_from_right:3": 1,
+          "011101101|1run_from_right:2": 1,
+          "111101111|1run_from_right:1": 1
+        },
+        "event_expected_counts": {
+          "000001101|1run_from_right:3": 1,
+          "011101101|1run_from_right:2": 1,
+          "111101111|1run_from_right:1": 1
+        },
+        "event_structure_ok": true,
+        "kind": "synthetic_replay_mismatch",
+        "macro_actual": "(5, 'R', (9, 7670, 2785))",
+        "macro_expected": "(3, 'R', (9, 7672, 2783))",
+        "macro_ok": false,
+        "name": "fresh_offset_13",
+        "passed": false,
+        "steps": 10474
+      },
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 13,
+      "relative_site_count_fits": {
+        "011101101|1run_from_right:2": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "(2, 'L', 4, (2, 2, 4, 4))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            2,
+            2,
+            7675,
+            2783
+          ],
+          "event_actual_counts": {
+            "000001101|1run_from_right:3": 1,
+            "011101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_expected_counts": {
+            "000001101|1run_from_right:3": 1,
+            "011101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(5, 'R', (9, 7670, 2785))",
+          "macro_expected": "(3, 'R', (9, 7672, 2783))",
+          "macro_ok": false,
+          "name": "fresh_offset_13",
+          "passed": false,
+          "steps": 10474
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            2,
+            2,
+            7688,
+            2796
+          ],
+          "event_actual_counts": {
+            "000001101|1run_from_right:3": 1,
+            "011101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_expected_counts": {
+            "000001101|1run_from_right:3": 1,
+            "011101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'R', (9, 7685, 2796))",
+          "macro_expected": "(3, 'R', (9, 7685, 2796))",
+          "macro_ok": true,
+          "name": "fresh_offset_26",
+          "passed": true,
+          "steps": 10494
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [
+        2,
+        3
+      ],
+      "verdict": "FAILED",
+      "window": "011101101"
+    },
+    {
+      "abstract_input_rle": [
+        2,
+        1,
+        2,
+        1,
+        "VAR",
+        1,
+        "VAR",
+        0,
+        0
+      ],
+      "first_counterexample": {
+        "all_landings_safe": true,
+        "blocks": [
+          2,
+          2,
+          7675,
+          2783
+        ],
+        "event_actual_counts": {
+          "000001101|1run_from_right:3": 1,
+          "011101101|1run_from_right:2": 1,
+          "111101111|1run_from_right:1": 1
+        },
+        "event_expected_counts": {
+          "000001101|1run_from_right:3": 1,
+          "011101101|1run_from_right:2": 1,
+          "111101111|1run_from_right:1": 1
+        },
+        "event_structure_ok": true,
+        "kind": "synthetic_replay_mismatch",
+        "macro_actual": "(5, 'R', (9, 7670, 2785))",
+        "macro_expected": "(3, 'R', (9, 7672, 2783))",
+        "macro_ok": false,
+        "name": "fresh_offset_13",
+        "passed": false,
+        "steps": 10474
+      },
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 13,
+      "relative_site_count_fits": {
+        "111101111|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "(2, 'L', 4, (2, 2, 4, 4))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            2,
+            2,
+            7675,
+            2783
+          ],
+          "event_actual_counts": {
+            "000001101|1run_from_right:3": 1,
+            "011101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_expected_counts": {
+            "000001101|1run_from_right:3": 1,
+            "011101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(5, 'R', (9, 7670, 2785))",
+          "macro_expected": "(3, 'R', (9, 7672, 2783))",
+          "macro_ok": false,
+          "name": "fresh_offset_13",
+          "passed": false,
+          "steps": 10474
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            2,
+            2,
+            7688,
+            2796
+          ],
+          "event_actual_counts": {
+            "000001101|1run_from_right:3": 1,
+            "011101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_expected_counts": {
+            "000001101|1run_from_right:3": 1,
+            "011101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'R', (9, 7685, 2796))",
+          "macro_expected": "(3, 'R', (9, 7685, 2796))",
+          "macro_ok": true,
+          "name": "fresh_offset_26",
+          "passed": true,
+          "steps": 10494
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [
+        2,
+        3
+      ],
+      "verdict": "FAILED",
+      "window": "111101111"
+    },
+    {
+      "abstract_input_rle": [
+        9,
+        1,
+        3,
+        1,
+        2,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "111101101|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "(3, 'R', 3, (4, 3, 2))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            9,
+            3,
+            2
+          ],
+          "event_actual_counts": {
+            "111101101|1run_from_right:1": 1,
+            "111101111|1run_from_right:0": 1
+          },
+          "event_expected_counts": {
+            "111101101|1run_from_right:1": 1,
+            "111101111|1run_from_right:0": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(5, 'R', (15, 1))",
+          "macro_expected": "(5, 'R', (15, 1))",
+          "macro_ok": true,
+          "name": "no_VAR_components",
+          "passed": true,
+          "steps": 25
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "111101101"
+    },
+    {
+      "abstract_input_rle": [
+        9,
+        1,
+        3,
+        1,
+        2,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 1,
+      "relative_site_count_fits": {
+        "111101111|1run_from_right:0": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "(3, 'R', 3, (4, 3, 2))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            9,
+            3,
+            2
+          ],
+          "event_actual_counts": {
+            "111101101|1run_from_right:1": 1,
+            "111101111|1run_from_right:0": 1
+          },
+          "event_expected_counts": {
+            "111101101|1run_from_right:1": 1,
+            "111101111|1run_from_right:0": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(5, 'R', (15, 1))",
+          "macro_expected": "(5, 'R', (15, 1))",
+          "macro_ok": true,
+          "name": "no_VAR_components",
+          "passed": true,
+          "steps": 25
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "111101111"
+    },
+    {
+      "abstract_input_rle": [
+        "VAR",
+        1,
+        "VAR",
+        1,
+        2,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "instance": "fresh_offset_13",
+          "reason": "initial fresh candidate rejected by rule guard",
+          "substitution": [
+            7670,
+            2787,
+            2
+          ]
+        }
+      ],
+      "n_firings": 8,
+      "relative_site_count_fits": {
+        "111101101|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "(3, 'R', 3, (4, 4, 2), (0, 1, 0))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            7670,
+            2787,
+            2
+          ],
+          "event_actual_counts": {
+            "111101101|1run_from_right:1": 1,
+            "111101111|1run_from_right:0": 1
+          },
+          "event_expected_counts": {
+            "111101101|1run_from_right:1": 1,
+            "111101111|1run_from_right:0": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(5, 'R', (7676, 2785))",
+          "macro_expected": "(5, 'R', (7676, 2785))",
+          "macro_ok": true,
+          "name": "fresh_offset_13",
+          "passed": true,
+          "steps": 16729
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            7682,
+            2799,
+            2
+          ],
+          "event_actual_counts": {
+            "111101101|1run_from_right:1": 1,
+            "111101111|1run_from_right:0": 1
+          },
+          "event_expected_counts": {
+            "111101101|1run_from_right:1": 1,
+            "111101111|1run_from_right:0": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(5, 'R', (7688, 2797))",
+          "macro_expected": "(5, 'R', (7688, 2797))",
+          "macro_ok": true,
+          "name": "fresh_offset_26",
+          "passed": true,
+          "steps": 16801
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [
+        0,
+        1
+      ],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "111101101"
+    },
+    {
+      "abstract_input_rle": [
+        "VAR",
+        1,
+        "VAR",
+        1,
+        2,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "instance": "fresh_offset_13",
+          "reason": "initial fresh candidate rejected by rule guard",
+          "substitution": [
+            7670,
+            2787,
+            2
+          ]
+        }
+      ],
+      "n_firings": 8,
+      "relative_site_count_fits": {
+        "111101111|1run_from_right:0": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "(3, 'R', 3, (4, 4, 2), (0, 1, 0))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            7670,
+            2787,
+            2
+          ],
+          "event_actual_counts": {
+            "111101101|1run_from_right:1": 1,
+            "111101111|1run_from_right:0": 1
+          },
+          "event_expected_counts": {
+            "111101101|1run_from_right:1": 1,
+            "111101111|1run_from_right:0": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(5, 'R', (7676, 2785))",
+          "macro_expected": "(5, 'R', (7676, 2785))",
+          "macro_ok": true,
+          "name": "fresh_offset_13",
+          "passed": true,
+          "steps": 16729
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            7682,
+            2799,
+            2
+          ],
+          "event_actual_counts": {
+            "111101101|1run_from_right:1": 1,
+            "111101111|1run_from_right:0": 1
+          },
+          "event_expected_counts": {
+            "111101101|1run_from_right:1": 1,
+            "111101111|1run_from_right:0": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(5, 'R', (7688, 2797))",
+          "macro_expected": "(5, 'R', (7688, 2797))",
+          "macro_ok": true,
+          "name": "fresh_offset_26",
+          "passed": true,
+          "steps": 16801
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [
+        0,
+        1
+      ],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "111101111"
+    },
+    {
+      "abstract_input_rle": [
+        "VAR",
+        1,
+        "VAR",
+        1,
+        2,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "instance": "fresh_offset_13",
+          "reason": "initial fresh candidate rejected by rule guard",
+          "substitution": [
+            2783,
+            4345,
+            2
+          ]
+        }
+      ],
+      "n_firings": 8,
+      "relative_site_count_fits": {
+        "111101101|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "(3, 'R', 3, (4, 4, 2), (1, 1, 0))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            2783,
+            4345,
+            2
+          ],
+          "event_actual_counts": {
+            "111101101|1run_from_right:1": 1,
+            "111101111|1run_from_right:0": 1
+          },
+          "event_expected_counts": {
+            "111101101|1run_from_right:1": 1,
+            "111101111|1run_from_right:0": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(5, 'R', (2789, 4343))",
+          "macro_expected": "(5, 'R', (2789, 4343))",
+          "macro_ok": true,
+          "name": "fresh_offset_13",
+          "passed": true,
+          "steps": 26077
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            2795,
+            4357,
+            2
+          ],
+          "event_actual_counts": {
+            "111101101|1run_from_right:1": 1,
+            "111101111|1run_from_right:0": 1
+          },
+          "event_expected_counts": {
+            "111101101|1run_from_right:1": 1,
+            "111101111|1run_from_right:0": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(5, 'R', (2801, 4355))",
+          "macro_expected": "(5, 'R', (2801, 4355))",
+          "macro_ok": true,
+          "name": "fresh_offset_26",
+          "passed": true,
+          "steps": 26149
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [
+        0,
+        1
+      ],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "111101101"
+    },
+    {
+      "abstract_input_rle": [
+        "VAR",
+        1,
+        "VAR",
+        1,
+        2,
+        0,
+        0
+      ],
+      "first_counterexample": null,
+      "guard_rejections_or_substitutions": [
+        {
+          "instance": "fresh_offset_13",
+          "reason": "initial fresh candidate rejected by rule guard",
+          "substitution": [
+            2783,
+            4345,
+            2
+          ]
+        }
+      ],
+      "n_firings": 8,
+      "relative_site_count_fits": {
+        "111101111|1run_from_right:0": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "(3, 'R', 3, (4, 4, 2), (1, 1, 0))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            2783,
+            4345,
+            2
+          ],
+          "event_actual_counts": {
+            "111101101|1run_from_right:1": 1,
+            "111101111|1run_from_right:0": 1
+          },
+          "event_expected_counts": {
+            "111101101|1run_from_right:1": 1,
+            "111101111|1run_from_right:0": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(5, 'R', (2789, 4343))",
+          "macro_expected": "(5, 'R', (2789, 4343))",
+          "macro_ok": true,
+          "name": "fresh_offset_13",
+          "passed": true,
+          "steps": 26077
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            2795,
+            4357,
+            2
+          ],
+          "event_actual_counts": {
+            "111101101|1run_from_right:1": 1,
+            "111101111|1run_from_right:0": 1
+          },
+          "event_expected_counts": {
+            "111101101|1run_from_right:1": 1,
+            "111101111|1run_from_right:0": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(5, 'R', (2801, 4355))",
+          "macro_expected": "(5, 'R', (2801, 4355))",
+          "macro_ok": true,
+          "name": "fresh_offset_26",
+          "passed": true,
+          "steps": 26149
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [
+        0,
+        1
+      ],
+      "verdict": "DISCHARGED_UNIFORM",
+      "window": "111101111"
+    },
+    {
+      "abstract_input_rle": [
+        "VAR",
+        1,
+        1,
+        1,
+        "VAR",
+        1,
+        2,
+        0,
+        0
+      ],
+      "first_counterexample": {
+        "all_landings_safe": true,
+        "blocks": [
+          5329,
+          1,
+          2569,
+          2
+        ],
+        "event_actual_counts": {
+          "110101101|1run_from_right:1": 1,
+          "111101111|1run_from_right:0": 1
+        },
+        "event_expected_counts": {
+          "111101101|1run_from_right:1": 1,
+          "111101101|1run_from_right:2": 1,
+          "111101111|1run_from_right:0": 1
+        },
+        "event_structure_ok": false,
+        "kind": "synthetic_replay_mismatch",
+        "macro_actual": "(5, 'R', (5329, 7, 2567))",
+        "macro_expected": "(5, 'R', (5338, 2566))",
+        "macro_ok": false,
+        "name": "fresh_offset_13",
+        "passed": false,
+        "steps": 15421
+      },
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 9,
+      "relative_site_count_fits": {
+        "111101101|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        },
+        "111101101|1run_from_right:2": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "(3, 'R', 4, (4, 1, 4, 2))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            5329,
+            1,
+            2569,
+            2
+          ],
+          "event_actual_counts": {
+            "110101101|1run_from_right:1": 1,
+            "111101111|1run_from_right:0": 1
+          },
+          "event_expected_counts": {
+            "111101101|1run_from_right:1": 1,
+            "111101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:0": 1
+          },
+          "event_structure_ok": false,
+          "macro_actual": "(5, 'R', (5329, 7, 2567))",
+          "macro_expected": "(5, 'R', (5338, 2566))",
+          "macro_ok": false,
+          "name": "fresh_offset_13",
+          "passed": false,
+          "steps": 15421
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            5342,
+            1,
+            2582,
+            2
+          ],
+          "event_actual_counts": {
+            "111101101|1run_from_right:1": 1,
+            "111101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:0": 1
+          },
+          "event_expected_counts": {
+            "111101101|1run_from_right:1": 1,
+            "111101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:0": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(5, 'R', (5351, 2579))",
+          "macro_expected": "(5, 'R', (5351, 2579))",
+          "macro_ok": true,
+          "name": "fresh_offset_26",
+          "passed": true,
+          "steps": 15499
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [
+        0,
+        2
+      ],
+      "verdict": "FAILED",
+      "window": "111101101"
+    },
+    {
+      "abstract_input_rle": [
+        "VAR",
+        1,
+        1,
+        1,
+        "VAR",
+        1,
+        2,
+        0,
+        0
+      ],
+      "first_counterexample": {
+        "all_landings_safe": true,
+        "blocks": [
+          5329,
+          1,
+          2569,
+          2
+        ],
+        "event_actual_counts": {
+          "110101101|1run_from_right:1": 1,
+          "111101111|1run_from_right:0": 1
+        },
+        "event_expected_counts": {
+          "111101101|1run_from_right:1": 1,
+          "111101101|1run_from_right:2": 1,
+          "111101111|1run_from_right:0": 1
+        },
+        "event_structure_ok": false,
+        "kind": "synthetic_replay_mismatch",
+        "macro_actual": "(5, 'R', (5329, 7, 2567))",
+        "macro_expected": "(5, 'R', (5338, 2566))",
+        "macro_ok": false,
+        "name": "fresh_offset_13",
+        "passed": false,
+        "steps": 15421
+      },
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 9,
+      "relative_site_count_fits": {
+        "111101111|1run_from_right:0": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "(3, 'R', 4, (4, 1, 4, 2))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            5329,
+            1,
+            2569,
+            2
+          ],
+          "event_actual_counts": {
+            "110101101|1run_from_right:1": 1,
+            "111101111|1run_from_right:0": 1
+          },
+          "event_expected_counts": {
+            "111101101|1run_from_right:1": 1,
+            "111101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:0": 1
+          },
+          "event_structure_ok": false,
+          "macro_actual": "(5, 'R', (5329, 7, 2567))",
+          "macro_expected": "(5, 'R', (5338, 2566))",
+          "macro_ok": false,
+          "name": "fresh_offset_13",
+          "passed": false,
+          "steps": 15421
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            5342,
+            1,
+            2582,
+            2
+          ],
+          "event_actual_counts": {
+            "111101101|1run_from_right:1": 1,
+            "111101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:0": 1
+          },
+          "event_expected_counts": {
+            "111101101|1run_from_right:1": 1,
+            "111101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:0": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(5, 'R', (5351, 2579))",
+          "macro_expected": "(5, 'R', (5351, 2579))",
+          "macro_ok": true,
+          "name": "fresh_offset_26",
+          "passed": true,
+          "steps": 15499
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [
+        0,
+        2
+      ],
+      "verdict": "FAILED",
+      "window": "111101111"
+    },
+    {
+      "abstract_input_rle": [
+        "VAR",
+        1,
+        3,
+        1,
+        "VAR",
+        1,
+        2,
+        0,
+        0
+      ],
+      "first_counterexample": {
+        "all_landings_safe": true,
+        "blocks": [
+          5323,
+          3,
+          2571,
+          2
+        ],
+        "event_actual_counts": {
+          "011101101|1run_from_right:1": 1,
+          "111101111|1run_from_right:0": 1
+        },
+        "event_expected_counts": {
+          "111101101|1run_from_right:2": 1,
+          "111101111|1run_from_right:1": 1
+        },
+        "event_structure_ok": false,
+        "kind": "synthetic_replay_mismatch",
+        "macro_actual": "(5, 'R', (5323, 9, 2569))",
+        "macro_expected": "(3, 'R', (5329, 1, 2571))",
+        "macro_ok": false,
+        "name": "fresh_offset_13",
+        "passed": false,
+        "steps": 15433
+      },
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 9,
+      "relative_site_count_fits": {
+        "111101101|1run_from_right:2": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "(3, 'R', 4, (4, 3, 4, 2))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            5323,
+            3,
+            2571,
+            2
+          ],
+          "event_actual_counts": {
+            "011101101|1run_from_right:1": 1,
+            "111101111|1run_from_right:0": 1
+          },
+          "event_expected_counts": {
+            "111101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_structure_ok": false,
+          "macro_actual": "(5, 'R', (5323, 9, 2569))",
+          "macro_expected": "(3, 'R', (5329, 1, 2571))",
+          "macro_ok": false,
+          "name": "fresh_offset_13",
+          "passed": false,
+          "steps": 15433
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            5336,
+            3,
+            2584,
+            2
+          ],
+          "event_actual_counts": {
+            "111101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_expected_counts": {
+            "111101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'R', (5342, 1, 2584))",
+          "macro_expected": "(3, 'R', (5342, 1, 2584))",
+          "macro_ok": true,
+          "name": "fresh_offset_26",
+          "passed": true,
+          "steps": 15523
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [
+        0,
+        2
+      ],
+      "verdict": "FAILED",
+      "window": "111101101"
+    },
+    {
+      "abstract_input_rle": [
+        "VAR",
+        1,
+        3,
+        1,
+        "VAR",
+        1,
+        2,
+        0,
+        0
+      ],
+      "first_counterexample": {
+        "all_landings_safe": true,
+        "blocks": [
+          5323,
+          3,
+          2571,
+          2
+        ],
+        "event_actual_counts": {
+          "011101101|1run_from_right:1": 1,
+          "111101111|1run_from_right:0": 1
+        },
+        "event_expected_counts": {
+          "111101101|1run_from_right:2": 1,
+          "111101111|1run_from_right:1": 1
+        },
+        "event_structure_ok": false,
+        "kind": "synthetic_replay_mismatch",
+        "macro_actual": "(5, 'R', (5323, 9, 2569))",
+        "macro_expected": "(3, 'R', (5329, 1, 2571))",
+        "macro_ok": false,
+        "name": "fresh_offset_13",
+        "passed": false,
+        "steps": 15433
+      },
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 9,
+      "relative_site_count_fits": {
+        "111101111|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "(3, 'R', 4, (4, 3, 4, 2))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            5323,
+            3,
+            2571,
+            2
+          ],
+          "event_actual_counts": {
+            "011101101|1run_from_right:1": 1,
+            "111101111|1run_from_right:0": 1
+          },
+          "event_expected_counts": {
+            "111101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_structure_ok": false,
+          "macro_actual": "(5, 'R', (5323, 9, 2569))",
+          "macro_expected": "(3, 'R', (5329, 1, 2571))",
+          "macro_ok": false,
+          "name": "fresh_offset_13",
+          "passed": false,
+          "steps": 15433
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            5336,
+            3,
+            2584,
+            2
+          ],
+          "event_actual_counts": {
+            "111101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_expected_counts": {
+            "111101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'R', (5342, 1, 2584))",
+          "macro_expected": "(3, 'R', (5342, 1, 2584))",
+          "macro_ok": true,
+          "name": "fresh_offset_26",
+          "passed": true,
+          "steps": 15523
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [
+        0,
+        2
+      ],
+      "verdict": "FAILED",
+      "window": "111101111"
+    },
+    {
+      "abstract_input_rle": [
+        "VAR",
+        1,
+        "VAR",
+        1,
+        2,
+        1,
+        2,
+        0,
+        0
+      ],
+      "first_counterexample": {
+        "all_landings_safe": true,
+        "blocks": [
+          7663,
+          4346,
+          2,
+          2
+        ],
+        "event_actual_counts": {},
+        "event_expected_counts": {
+          "111101101|1run_from_right:2": 1,
+          "111101111|1run_from_right:1": 1
+        },
+        "event_structure_ok": false,
+        "kind": "synthetic_replay_mismatch",
+        "macro_actual": "(2, 'L', (2, 7664, 4346, 2))",
+        "macro_expected": "(3, 'R', (7669, 4344, 2))",
+        "macro_ok": false,
+        "name": "fresh_offset_13",
+        "passed": false,
+        "steps": 60041
+      },
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 15,
+      "relative_site_count_fits": {
+        "111101101|1run_from_right:2": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "(3, 'R', 4, (4, 4, 2, 2))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            7663,
+            4346,
+            2,
+            2
+          ],
+          "event_actual_counts": {},
+          "event_expected_counts": {
+            "111101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_structure_ok": false,
+          "macro_actual": "(2, 'L', (2, 7664, 4346, 2))",
+          "macro_expected": "(3, 'R', (7669, 4344, 2))",
+          "macro_ok": false,
+          "name": "fresh_offset_13",
+          "passed": false,
+          "steps": 60041
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            7676,
+            4359,
+            2,
+            2
+          ],
+          "event_actual_counts": {
+            "111101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_expected_counts": {
+            "111101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'R', (7682, 4357, 2))",
+          "macro_expected": "(3, 'R', (7682, 4357, 2))",
+          "macro_ok": true,
+          "name": "fresh_offset_26",
+          "passed": true,
+          "steps": 26167
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [
+        0,
+        1
+      ],
+      "verdict": "FAILED",
+      "window": "111101101"
+    },
+    {
+      "abstract_input_rle": [
+        "VAR",
+        1,
+        "VAR",
+        1,
+        2,
+        1,
+        2,
+        0,
+        0
+      ],
+      "first_counterexample": {
+        "all_landings_safe": true,
+        "blocks": [
+          7663,
+          4346,
+          2,
+          2
+        ],
+        "event_actual_counts": {},
+        "event_expected_counts": {
+          "111101101|1run_from_right:2": 1,
+          "111101111|1run_from_right:1": 1
+        },
+        "event_structure_ok": false,
+        "kind": "synthetic_replay_mismatch",
+        "macro_actual": "(2, 'L', (2, 7664, 4346, 2))",
+        "macro_expected": "(3, 'R', (7669, 4344, 2))",
+        "macro_ok": false,
+        "name": "fresh_offset_13",
+        "passed": false,
+        "steps": 60041
+      },
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 15,
+      "relative_site_count_fits": {
+        "111101111|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "(3, 'R', 4, (4, 4, 2, 2))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            7663,
+            4346,
+            2,
+            2
+          ],
+          "event_actual_counts": {},
+          "event_expected_counts": {
+            "111101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_structure_ok": false,
+          "macro_actual": "(2, 'L', (2, 7664, 4346, 2))",
+          "macro_expected": "(3, 'R', (7669, 4344, 2))",
+          "macro_ok": false,
+          "name": "fresh_offset_13",
+          "passed": false,
+          "steps": 60041
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            7676,
+            4359,
+            2,
+            2
+          ],
+          "event_actual_counts": {
+            "111101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_expected_counts": {
+            "111101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'R', (7682, 4357, 2))",
+          "macro_expected": "(3, 'R', (7682, 4357, 2))",
+          "macro_ok": true,
+          "name": "fresh_offset_26",
+          "passed": true,
+          "steps": 26167
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [
+        0,
+        1
+      ],
+      "verdict": "FAILED",
+      "window": "111101111"
+    },
+    {
+      "abstract_input_rle": [
+        "VAR",
+        1,
+        "VAR",
+        1,
+        "VAR",
+        1,
+        2,
+        0,
+        0
+      ],
+      "first_counterexample": {
+        "all_landings_safe": true,
+        "blocks": [
+          7657,
+          7672,
+          4339,
+          2
+        ],
+        "event_actual_counts": {
+          "111101101|1run_from_right:1": 1,
+          "111101111|1run_from_right:0": 1
+        },
+        "event_expected_counts": {
+          "111101101|1run_from_right:2": 1,
+          "111101111|1run_from_right:1": 1
+        },
+        "event_structure_ok": false,
+        "kind": "synthetic_replay_mismatch",
+        "macro_actual": "(5, 'R', (7657, 7678, 4337))",
+        "macro_expected": "(3, 'R', (7663, 7670, 4339))",
+        "macro_ok": false,
+        "name": "fresh_offset_13",
+        "passed": false,
+        "steps": 26041
+      },
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 5143,
+      "relative_site_count_fits": {
+        "111101101|1run_from_right:2": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "(3, 'R', 4, (4, 4, 4, 2))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            7657,
+            7672,
+            4339,
+            2
+          ],
+          "event_actual_counts": {
+            "111101101|1run_from_right:1": 1,
+            "111101111|1run_from_right:0": 1
+          },
+          "event_expected_counts": {
+            "111101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_structure_ok": false,
+          "macro_actual": "(5, 'R', (7657, 7678, 4337))",
+          "macro_expected": "(3, 'R', (7663, 7670, 4339))",
+          "macro_ok": false,
+          "name": "fresh_offset_13",
+          "passed": false,
+          "steps": 26041
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            7670,
+            7685,
+            4352,
+            2
+          ],
+          "event_actual_counts": {
+            "111101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_expected_counts": {
+            "111101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'R', (7676, 7683, 4352))",
+          "macro_expected": "(3, 'R', (7676, 7683, 4352))",
+          "macro_ok": true,
+          "name": "fresh_offset_26",
+          "passed": true,
+          "steps": 72223
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [
+        0,
+        1,
+        2
+      ],
+      "verdict": "FAILED",
+      "window": "111101101"
+    },
+    {
+      "abstract_input_rle": [
+        "VAR",
+        1,
+        "VAR",
+        1,
+        "VAR",
+        1,
+        2,
+        0,
+        0
+      ],
+      "first_counterexample": {
+        "all_landings_safe": true,
+        "blocks": [
+          7657,
+          7672,
+          4339,
+          2
+        ],
+        "event_actual_counts": {
+          "111101101|1run_from_right:1": 1,
+          "111101111|1run_from_right:0": 1
+        },
+        "event_expected_counts": {
+          "111101101|1run_from_right:2": 1,
+          "111101111|1run_from_right:1": 1
+        },
+        "event_structure_ok": false,
+        "kind": "synthetic_replay_mismatch",
+        "macro_actual": "(5, 'R', (7657, 7678, 4337))",
+        "macro_expected": "(3, 'R', (7663, 7670, 4339))",
+        "macro_ok": false,
+        "name": "fresh_offset_13",
+        "passed": false,
+        "steps": 26041
+      },
+      "guard_rejections_or_substitutions": [],
+      "n_firings": 5143,
+      "relative_site_count_fits": {
+        "111101111|1run_from_right:1": {
+          "exact": true,
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "rule": "(3, 'R', 4, (4, 4, 4, 2))",
+      "synthetic_replays": [
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            7657,
+            7672,
+            4339,
+            2
+          ],
+          "event_actual_counts": {
+            "111101101|1run_from_right:1": 1,
+            "111101111|1run_from_right:0": 1
+          },
+          "event_expected_counts": {
+            "111101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_structure_ok": false,
+          "macro_actual": "(5, 'R', (7657, 7678, 4337))",
+          "macro_expected": "(3, 'R', (7663, 7670, 4339))",
+          "macro_ok": false,
+          "name": "fresh_offset_13",
+          "passed": false,
+          "steps": 26041
+        },
+        {
+          "all_landings_safe": true,
+          "blocks": [
+            7670,
+            7685,
+            4352,
+            2
+          ],
+          "event_actual_counts": {
+            "111101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_expected_counts": {
+            "111101101|1run_from_right:2": 1,
+            "111101111|1run_from_right:1": 1
+          },
+          "event_structure_ok": true,
+          "macro_actual": "(3, 'R', (7676, 7683, 4352))",
+          "macro_expected": "(3, 'R', (7676, 7683, 4352))",
+          "macro_ok": true,
+          "name": "fresh_offset_26",
+          "passed": true,
+          "steps": 72223
+        }
+      ],
+      "uniformity_ok": true,
+      "var_block_indices": [
+        0,
+        1,
+        2
+      ],
+      "verdict": "FAILED",
+      "window": "111101111"
+    }
+  ],
+  "run": {
+    "entry_events": 10470,
+    "halted": false,
+    "n_unsafe_events": 0,
+    "records_captured": 10521,
+    "steps_executed": 100000000,
+    "unassigned_events": 2
+  },
+  "status": "FAILED",
+  "summary": {
+    "n_discharged": 6,
+    "n_failed": 18,
+    "n_obligations": 24,
+    "n_unsafe_events": 0,
+    "status": "FAILED"
+  },
+  "undefined": {
+    "state": "E",
+    "symbol": 0
+  }
+}
