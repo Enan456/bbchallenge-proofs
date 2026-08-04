@@ -3442,6 +3442,145 @@ theorem startTape_2 : startTape 2 = true := by rfl
 theorem startTape_3 : startTape 3 = false := by rfl
 theorem startTape_4 : startTape 4 = false := by rfl
 
+/-!
+## The record-shape grammar and the abstract orbit
+
+`AState` is the abstract macro state: the frozen level list `L` (each
+entry a 1-block separated by 2-gaps), the active block `b`, and the
+companion `c` — plus the prefix-free `top` shape `(n, 1, 1)`.  `astep` is
+the pure arithmetic transition derived from the proven rule lemmas.  The
+single unproven ingredient of the whole development is `SafeOrbit`: the
+iterated `astep` from the startup state never visits the halting value
+pattern (`b = 2` with `c < 4`, or an exhausted level list).
+-/
+
+/-- Abstract record state. -/
+inductive AState where
+  | top (n : Nat)
+  | lvl (L : List Nat) (b : Nat) (c : Nat)
+deriving Repr, DecidableEq
+
+/-- Increase the last level by 2. -/
+def lastInc2 : List Nat → List Nat
+  | [] => []
+  | [a] => [a + 2]
+  | a :: rest => a :: lastInc2 rest
+
+/-- The abstract transition, mirroring the proven rule lemmas.  `none`
+marks the value patterns whose safety is exactly the orbit conjecture. -/
+def astep : AState → Option AState
+  | AState.top n =>
+      if n ≥ 4 then some (AState.lvl [2] (n - 2) 2) else none
+  | AState.lvl L b c =>
+      if L = [] then none
+      else if b ≥ 3 then some (AState.lvl (lastInc2 L) (b - 2) (c + 1))
+      else if b = 2 then
+        if c ≥ 4 then some (AState.lvl (lastInc2 L ++ [1]) (c - 2) 1)
+        else none
+      else -- b = 1 or b = 0; b = 0 never occurs, b = 1 collapses
+        if b = 1 then
+          match L.reverse with
+          | [] => none
+          | a :: L'rev =>
+              match L'rev.reverse with
+              | [] => some (AState.top (a + c + 4))
+              | L' => some (AState.lvl L' (a + c + 4) 1)
+        else none
+
+/-- Iterated abstract orbit from the startup handoff. -/
+def aorbit : Nat → Option AState
+  | 0 => some (AState.top 5)
+  | k + 1 =>
+      match aorbit k with
+      | none => none
+      | some s => astep s
+
+/-- **The orbit conjecture** — the sole unproven ingredient: the abstract
+orbit never dies.  Equivalently: at every level, whenever `b` reaches 2
+the companion satisfies `c ≥ 4`, and collapses always find a level. -/
+def SafeOrbit : Prop := ∀ k : Nat, aorbit k ≠ none
+
+/-- `ChainAt t lo L q`: from `lo`, alternating `1^a 0 0` for each `a` in
+`L`, ending at `q`. -/
+def ChainAt (t : Int → Bool) : Int → List Nat → Int → Prop
+  | lo, [], q => lo = q
+  | lo, a :: rest, q =>
+      1 ≤ a ∧
+      (∀ i : Nat, i < a → t (lo + i) = true) ∧
+      t (lo + a) = false ∧ t (lo + a + 1) = false ∧
+      ChainAt t (lo + a + 2) rest q
+
+/-- A chain's end lies at or right of its start. -/
+theorem chainAt_le :
+    ∀ (L : List Nat) (t : Int → Bool) (lo q : Int),
+      ChainAt t lo L q → lo ≤ q := by
+  intro L
+  induction L with
+  | nil =>
+      intro t lo q h
+      have hq : lo = q := h
+      omega
+  | cons a rest ih =>
+      intro t lo q h
+      obtain ⟨ha, _, _, _, hrest⟩ := h
+      have := ih t (lo + a + 2) q hrest
+      omega
+
+/-- Frame: a chain only depends on the cells of `[lo, q)`. -/
+theorem chainAt_frame :
+    ∀ (L : List Nat) (t t' : Int → Bool) (lo q : Int),
+      ChainAt t lo L q →
+      (∀ x : Int, lo ≤ x → x < q → t' x = t x) →
+      ChainAt t' lo L q := by
+  intro L
+  induction L with
+  | nil =>
+      intro t t' lo q h _
+      exact h
+  | cons a rest ih =>
+      intro t t' lo q h hagree
+      obtain ⟨ha, hones, hg0, hg1, hrest⟩ := h
+      have hbound : lo + a + 2 ≤ q := chainAt_le rest t (lo + a + 2) q hrest
+      refine ⟨ha, ?_, ?_, ?_, ?_⟩
+      · intro i hi
+        rw [hagree (lo + i) (by omega) (by omega)]
+        exact hones i hi
+      · rw [hagree (lo + a) (by omega) (by omega)]
+        exact hg0
+      · rw [hagree (lo + a + 1) (by omega) (by omega)]
+        exact hg1
+      · exact ih t t' (lo + a + 2) q hrest
+          (fun x hx1 hx2 => hagree x (by omega) hx2)
+
+/-- Concrete realization of an abstract state as a machine configuration:
+blank left, the level chain, the active suffix, the head on the fresh
+right frontier, blank from the frontier rightward. -/
+def Realizes : AState → Config → Prop
+  | AState.top n, cfg =>
+      4 ≤ n ∧ cfg.state = State.E ∧
+      ∃ lo : Int,
+        (∀ x : Int, x < lo → cfg.tape x = false) ∧
+        (∀ i : Nat, i < n → cfg.tape (lo + i) = true) ∧
+        cfg.tape (lo + n) = false ∧
+        cfg.tape (lo + n + 1) = true ∧
+        (∀ x : Int, lo + n + 2 ≤ x → cfg.tape x = false) ∧
+        cfg.head = lo + n + 2
+  | AState.lvl L b c, cfg =>
+      L ≠ [] ∧ 1 ≤ b ∧ 1 ≤ c ∧ cfg.state = State.E ∧
+      ∃ lo q : Int,
+        (∀ x : Int, x < lo → cfg.tape x = false) ∧
+        ChainAt cfg.tape lo L q ∧
+        (∀ i : Nat, i < b → cfg.tape (q + i) = true) ∧
+        cfg.tape (q + b) = false ∧
+        (∀ i : Nat, i < c → cfg.tape (q + b + 1 + i) = true) ∧
+        (∀ x : Int, q + b + 1 + c ≤ x → cfg.tape x = false) ∧
+        cfg.head = q + b + 1 + c
+
+/-- The keystone invariant: the configuration realizes some live state of
+the abstract orbit. -/
+def OrbitInv (cfg : Config) : Prop :=
+  ∃ (k : Nat) (s : AState), aorbit k = some s ∧ Realizes s cfg
+
 end QIG.Dossier1RawTM
 
 #print axioms QIG.Dossier1RawTM.halt_requires_c_probe_00
