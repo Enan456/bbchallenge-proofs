@@ -496,3 +496,32 @@ contract shape as dossier-1's: derive the probe-safety invariant from the
   synthetic template.
 - m51/m54/m68: residual non-affine counts — deeper modular/phase structure
   than mod-2..4 + boundary splits.
+
+---
+
+## Antihydra Lean halt-localization layer (2026-08-04)
+
+**File:** `lean/QIG/AntihydraRawTM.lean` (Lean 4, bare core, no sorry;
+axioms = `propext` + `Quot.sound` only). Mirror of `Dossier1RawTM.lean`
+for `1RB1RA_0LC1LE_1LD1LC_1LA0LB_1LF1RE_---0RA`.
+
+Machine-checked, unconditional:
+
+- `step_eq_none_iff` — halts in one step iff F reads 0;
+- `into_F_only_from_E0` — F is entered only via E reading 0 (`E0 = 1LF`,
+  write 1, move left);
+- `halt_requires_e_probe_00` — **any raw halt passes through a reachable
+  configuration where E reads a 0 whose left neighbour is also 0**;
+- `blank_nonhalting_of_e_probe_safe` — `EProbeSafe blankStart → ¬RawHalts
+  blankStart`.
+
+`EProbeSafe blankStart` is exactly the invariant stage753 discharged
+(13/13 obligations, 14,109 events, zero unsafe landings). Antihydra's
+undecidedness is now formally reduced to that single contract.
+
+Also proven (Layer-2 start): the three **sweep lemmas** `sweep_A`,
+`sweep_C`, `sweep_E` — Antihydra's self-looping transitions rewrite 1 over
+1, so a head crossing a block of n ones leaves the tape literally unchanged;
+each is a clean symbolic induction over n. Every stage753 macro-rule
+micro-trajectory decomposes into these sweeps plus bounded boundary steps,
+so these are the atoms of the closure induction.

@@ -34,13 +34,19 @@ proofs of non-halting.
 ## Layout
 
 - `lean/` — standalone Lake package (`lake build` inside `lean/`; core-only,
-  no mathlib). `BBChallenge/Dossier1RawTM.lean` proves, axiom-clean
-  (`propext`, `Quot.sound`):
-  halt ⟺ F reads 0; F entered only via `C0`; any halt passes through a
-  reachable C-probe of a `00` pattern; and
-  `CProbeSafe blankStart → ¬RawHalts blankStart`.
-  The remaining proof burden is deriving `CProbeSafe blankStart` from the 33
-  macro obligations (raw-to-macro closure induction, DvisetuRawTM-style).
+  no mathlib), all axiom-clean (`propext`, `Quot.sound`), no sorry.
+  - `BBChallenge/Dossier1RawTM.lean`: halt ⟺ F reads 0; F entered only via
+    `C0`; any halt passes through a reachable C-probe of a `00` pattern;
+    `CProbeSafe blankStart → ¬RawHalts blankStart`.
+  - `BBChallenge/AntihydraRawTM.lean`: the Antihydra mirror — halt ⟺ F
+    reads 0; F entered only via `E0` (write 1, move left); any halt passes
+    through a reachable E-probe of `00` on the left;
+    `EProbeSafe blankStart → ¬RawHalts blankStart` — precisely the contract
+    stage753 discharged. Plus `sweep_A`/`sweep_C`/`sweep_E`, the symbolic
+    block-crossing lemmas that are the atoms of the closure induction.
+  The remaining proof burden per machine is the raw-to-macro closure
+  induction deriving the probe-safety contract from the discharged macro
+  obligations (DvisetuRawTM-style).
 - `qgkit/bb6/vcollatz/` — `classify.py` (sound decider chain + abstraction
   classes; demotes the 2026-07-18-falsified `certify_bouncer` verdicts) and
   `macro.py` (machine-agnostic exact macro-system fitter: constant-delta →
