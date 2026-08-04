@@ -3845,6 +3845,123 @@ theorem transport_wh3 {cfg : Config} {L : List Nat} {c : Nat}
         = q + 2 + ((1 : Nat) : Int) + 1 + ((c + 1 : Nat) : Int)
     omega
 
+
+/-- Safety of a prefix plus safety after it gives safety of the whole run. -/
+theorem cprobe_safe_prefix {c d : Config} {M : Nat} (hM : stepN M c = some d)
+    (hpre : CSafeSeg c M) (hpost : CProbeSafe d) : CProbeSafe c := by
+  intro e hreach hC hread
+  obtain ⟨n, hn⟩ := hreach
+  by_cases h : n < M
+  · exact hpre n e h hn hC hread
+  · have hsplit : n = M + (n - M) := by omega
+    rw [hsplit, stepN_add, hM] at hn
+    exact hpost e ⟨n - M, hn⟩ hC hread
+
+theorem startTape_blank_left : ∀ x : Int, x < -2 → startTape x = false := by
+  intro x hx
+  unfold startTape
+  rw [writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega)]
+  rfl
+
+theorem startTape_blank_right : ∀ x : Int, 5 ≤ x → startTape x = false := by
+  intro x hx
+  unfold startTape
+  rw [writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega)]
+  rfl
+
+/-- After 35 raw steps the machine sits in the first abstract state. -/
+theorem step35 :
+    stepN 35 blankStart = some ⟨State.E, 5, writeAt startTape 4 true⟩ := by
+  have hd := dstep_run (c := ⟨State.D, 4, startTape⟩) (q := 4) rfl rfl startTape_4
+  rw [show (35 : Nat) = 34 + 1 from rfl, stepN_add, startup_run]
+  rw [show ((some (⟨State.D, 4, startTape⟩ : Config) : Option Config).bind
+        (stepN 1)) = stepN 1 ⟨State.D, 4, startTape⟩ from rfl]
+  exact hd.1
+
+theorem step35_safe : CSafeSeg blankStart 35 := by
+  have hd := dstep_run (c := ⟨State.D, 4, startTape⟩) (q := 4) rfl rfl startTape_4
+  exact csafe_compose startup_run startup_safe hd.2
+
+/-- The 35-step configuration realizes the abstract start state `top 5`. -/
+theorem realizes_start :
+    Realizes (AState.top 5) ⟨State.E, 5, writeAt startTape 4 true⟩ := by
+  refine ⟨by omega, rfl, -2, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  · intro x hx
+    show writeAt startTape 4 true x = false
+    rw [writeAt_other _ _ x _ (by omega)]
+    exact startTape_blank_left x hx
+  · intro i hi
+    show writeAt startTape 4 true (-2 + (i : Int)) = true
+    rw [writeAt_other _ _ _ _ (by omega)]
+    have h4 : i = 0 ∨ i = 1 ∨ i = 2 ∨ i = 3 ∨ i = 4 := by omega
+    rcases h4 with rfl | rfl | rfl | rfl | rfl
+    · exact startTape_m2
+    · exact startTape_m1
+    · exact startTape_0
+    · exact startTape_1
+    · exact startTape_2
+  · show writeAt startTape 4 true (-2 + ((5 : Nat) : Int)) = false
+    rw [writeAt_other _ _ _ _ (by omega),
+        show (-2 : Int) + ((5 : Nat) : Int) = 3 by omega]
+    exact startTape_3
+  · show writeAt startTape 4 true (-2 + ((5 : Nat) : Int) + 1) = true
+    rw [show (-2 : Int) + ((5 : Nat) : Int) + 1 = 4 by omega]
+    exact writeAt_same _ 4 true
+  · intro x hx
+    show writeAt startTape 4 true x = false
+    rw [writeAt_other _ _ x _ (by omega)]
+    exact startTape_blank_right x (by omega)
+  · show (5 : Int) = -2 + ((5 : Nat) : Int) + 2
+    omega
+
+theorem orbitInv_start : OrbitInv ⟨State.E, 5, writeAt startTape 4 true⟩ :=
+  ⟨0, AState.top 5, rfl, realizes_start⟩
+
+/-- **The assembly theorem.**  Given the segment property for `OrbitInv`
+(i.e. every realized abstract state advances safely to another realized
+abstract state), dossier-1 never halts from the blank tape. -/
+theorem nonhalting_of_orbit_segments
+    (hseg : ∀ cfg, OrbitInv cfg → ∃ k, 0 < k ∧ ∃ cfg', stepN k cfg = some cfg' ∧
+      OrbitInv cfg' ∧ CSafeSeg cfg k) :
+    ¬ RawHalts blankStart := by
+  have hpost : CProbeSafe ⟨State.E, 5, writeAt startTape 4 true⟩ :=
+    cprobe_safe_of_segments orbitInv_start hseg
+  have hall : CProbeSafe blankStart :=
+    cprobe_safe_prefix step35 step35_safe hpost
+  exact blank_nonhalting_of_c_probe_safe hall
+
 end QIG.Dossier1RawTM
 
 #print axioms QIG.Dossier1RawTM.halt_requires_c_probe_00
@@ -3861,5 +3978,8 @@ end QIG.Dossier1RawTM
 #print axioms QIG.Dossier1RawTM.spawn2_run
 #print axioms QIG.Dossier1RawTM.collapse1_run
 #print axioms QIG.Dossier1RawTM.leftcross_run
+#print axioms QIG.Dossier1RawTM.transport_wh3
+#print axioms QIG.Dossier1RawTM.realizes_start
+#print axioms QIG.Dossier1RawTM.nonhalting_of_orbit_segments
 #print axioms QIG.Dossier1RawTM.crawl_run
 #print axioms QIG.Dossier1RawTM.exit_run

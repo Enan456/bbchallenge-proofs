@@ -781,3 +781,33 @@ hardness did not evaporate, but it has been cornered into one named,
 checkable, number-theoretic statement about the `(3N+7)/2` orbit — the
 same class of statement as Antihydra's famous conjecture, but derived
 here bottom-up from a complete formal reduction.
+
+---
+
+## Closure phase 7: THE ASSEMBLY THEOREM (2026-08-04)
+
+```lean
+theorem nonhalting_of_orbit_segments
+    (hseg : ∀ cfg, OrbitInv cfg → ∃ k, 0 < k ∧ ∃ cfg',
+       stepN k cfg = some cfg' ∧ OrbitInv cfg' ∧ CSafeSeg cfg k) :
+    ¬ RawHalts blankStart
+```
+
+Machine-checked, axiom-clean. The **entire** non-halting proof of
+dossier-1 now rests on one hypothesis: that a configuration realizing a
+live abstract orbit state advances, safely, to another one.
+
+Supporting (all proven): `cprobe_safe_prefix` (prefix-safety + tail-safety
+⇒ whole-run safety), `startTape_blank_left/right`, `step35`
+(`stepN 35 blankStart = ⟨E, 5, …⟩`, kernel-verified), `step35_safe`,
+`realizes_start` (that configuration realizes `AState.top 5 = aorbit 0`),
+`orbitInv_start`.
+
+So the proof is now a closed circuit with exactly one open link:
+
+```
+SafeOrbit  ──(transports + dispatcher)──▶  hseg  ──(proven)──▶  ¬RawHalts blankStart
+```
+
+`transport_wh3` is the first of six transports proven. The dispatcher is
+a case split on `astep` where `SafeOrbit` excludes the `none` branches.
