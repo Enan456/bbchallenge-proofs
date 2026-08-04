@@ -1,0 +1,27 @@
+{
+  "abstain_at": 5203,
+  "abstract_state_at_abstain": "(0, 'L', (2603, 2608))",
+  "code": "1RB1LA_0LC0RC_1LE1RD_1RE1RC_1LF0LA_---1LE",
+  "dim_range": [
+    2,
+    2
+  ],
+  "growth": {
+    "ones_end": 5192,
+    "ones_mid": 2632,
+    "ratio": 1.972644376899696
+  },
+  "honest_scope": "heuristic triage of proof difficulty for the abstract-orbit safety condition; not a halting claim",
+  "n_abstract_steps": 5203,
+  "n_distinct_rules_fired": 7,
+  "n_rules_in_table": 25,
+  "period": null,
+  "small_component_hits": {
+    "dim2[0]=2": 13,
+    "dim2[0]=4": 1,
+    "dim2[1]=1": 23,
+    "dim2[1]=2": 22,
+    "dim2[1]=4": 21
+  },
+  "status": "ABSTAINS"
+}

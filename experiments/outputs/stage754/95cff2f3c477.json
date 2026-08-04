@@ -1,0 +1,34 @@
+{
+  "abstain_at": null,
+  "abstract_state_at_abstain": null,
+  "code": "1RB1RC_1LC1LC_1RE0LD_1LB1RF_---1RA_0RD1RD",
+  "dim_range": [
+    2,
+    4
+  ],
+  "growth": {
+    "ones_end": 99974,
+    "ones_mid": 49990,
+    "ratio": 1.999879975995199
+  },
+  "honest_scope": "heuristic triage of proof difficulty for the abstract-orbit safety condition; not a halting claim",
+  "n_abstract_steps": 100000,
+  "n_distinct_rules_fired": 27,
+  "n_rules_in_table": 27,
+  "period": null,
+  "small_component_hits": {
+    "dim3[0]=2": 37,
+    "dim3[1]=1": 13,
+    "dim3[1]=3": 14,
+    "dim3[2]=2": 62,
+    "dim3[2]=4": 22,
+    "dim4[0]=1": 21,
+    "dim4[0]=2": 21,
+    "dim4[1]=2": 42,
+    "dim4[1]=3": 13,
+    "dim4[2]=2": 21,
+    "dim4[2]=4": 20,
+    "dim4[3]=2": 49895
+  },
+  "status": "ORBIT_DEPENDENT"
+}

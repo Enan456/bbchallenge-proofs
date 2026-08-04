@@ -1,0 +1,12 @@
+{
+  "code": "1RB1RA_1RC1LE_1RD1LC_0LB0RA_---1LF_1LD0LF",
+  "first_mismatch": null,
+  "long_steps": 1000000000,
+  "n_mismatches": 0,
+  "n_records_fit_run": 105,
+  "n_records_long_run": 120,
+  "n_transitions_checked": 15,
+  "n_uncovered": 0,
+  "status": "EXACT_EXTENDED",
+  "steps_executed": 1000000000
+}

@@ -856,3 +856,51 @@ Dossier-1's non-halting is therefore now *formally equivalent* to a
 generalized-Collatz orbit property — the same shape of statement as
 Antihydra's famous conjecture, but here derived bottom-up through a
 complete, machine-checked reduction.
+
+---
+
+## CORRECTION + triage: no finite certificate among the nine (2026-08-04)
+
+**Scripts:** `experiments/stage754_orbit_triage.py`,
+`experiments/stage755_extrapolation_check.py`.
+
+The triage asked, per PASS machine, whether the abstract-orbit safety
+condition looks provable by a finite certificate (an eventually periodic
+rule sequence) rather than orbit-dependent. Three machines reported
+period-2/2/3 cycles — which would have meant decidable outright. **They
+were extrapolation artifacts, and finding that out corrected an earlier
+claim of ours.**
+
+**The gate flaw.** stage751's `PASS_EXACT_MACRO_SYSTEM` required exact
+out-of-sample replay but set no *minimum* on how many transitions were
+checked. Machines whose records are exponentially sparse (~80 records in
+1e8 steps) passed on **2–3 out-of-sample transitions** — nearly vacuous.
+stage754 then extrapolated their orbits 100,000 abstract steps.
+
+**stage755 (10x longer raw runs) settles it:**
+
+| machine | verdict | evidence |
+|---|---|---|
+| `1RB0RA_0RC0LE_…_---1RA` (was "period 2") | **RULES_BREAK** | 53/61 mismatches; first break at step 201,398,607 — real machine jumps from dim-3 `(49,23,12)` to a dim-26 `2,2,…,2,1,2` tape while the rules predicted a dim-3 increment |
+| `1RB1RA_1RC1LB_…_1LC0LF` (was "period 2") | **RULES_BREAK** | 52/60 mismatches; first break at step 201,366,420, same dim-3 → dim-26 explosion |
+| `1RB1RA_1RC1LE_…_1LD0LF` (was "period 3") | unbroken but **weak** | only 15 transitions validated vs 100,000 extrapolated; 5e9-step check in flight |
+| **Antihydra** (control) | **EXACT_EXTENDED** | **37,968** out-of-sample transitions at 1e9 steps, **zero** mismatches (was 2,902) |
+
+**Corrections to earlier claims in this document:**
+
+1. The count of exactly-verified macro systems is **not 9**. Two are
+   refuted outright; one is weakly validated. The defensible count is
+   **6 solid + 1 weak**.
+2. No machine among the nine admits a finite periodic certificate, so
+   **there is no cheap unconditional decision available** — the triage's
+   purpose was to find one, and it found none.
+3. stage751 now emits `PASS_WEAK_VALIDATION` when fewer than
+   `MIN_OOS = 50` out-of-sample transitions were checked.
+
+**What survives, and is stronger than before:** Antihydra's macro system
+is now the most heavily validated of the set (38k transitions, 10x the
+budget, zero mismatches), and its safety condition is confirmed
+orbit-dependent (Collatz-class, no certificate). With its records
+bounded at **dimension 3** — a fixed triple, no level hierarchy — it is
+both the best-justified and the cheapest target for the next conditional
+result.

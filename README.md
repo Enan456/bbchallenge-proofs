@@ -14,7 +14,13 @@ proofs of non-halting.
 ## Headline results
 
 - **Full official open-set classification (1,158 machines, 0 errors):**
-  9 `PASS_EXACT_MACRO_SYSTEM` / 35 `PARTIAL` / 1,114 `NOT_FITTABLE_HIGH_DIM`.
+  9 initially gated as `PASS_EXACT_MACRO_SYSTEM` / 35 `PARTIAL` / 1,114
+  `NOT_FITTABLE_HIGH_DIM`. **Corrected 2026-08-04:** two of those nine are
+  refuted (their rules break at ~2e8 steps) and one is weakly validated —
+  the original gate did not require a minimum number of out-of-sample
+  transitions, which slow-record machines could pass vacuously. The
+  defensible count is **6 solid + 1 weak**; the gate now enforces
+  `MIN_OOS = 50`. See the correction section in `docs/results/`.
 - **Antihydra reduces to 13 halt-avoidance obligations — and all 13 are
   mechanically discharged** (stage753: template uniformity, exact/guarded
   affine event counts, fresh-value synthetic replays at 100M steps).

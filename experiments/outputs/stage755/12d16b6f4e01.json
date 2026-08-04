@@ -1,0 +1,18 @@
+{
+  "code": "1RB1RA_1RC1LB_0LD0RA_1RA1LE_---1LF_1LC0LF",
+  "first_mismatch": {
+    "actual": "(5, 'L', (2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2))",
+    "from": "(2, 'R', (10, 23, 49))",
+    "predicted": "(1, 'R', (10, 23, 50))",
+    "record_index": 83,
+    "step": 201366420
+  },
+  "long_steps": 1000000000,
+  "n_mismatches": 52,
+  "n_records_fit_run": 76,
+  "n_records_long_run": 136,
+  "n_transitions_checked": 60,
+  "n_uncovered": 51,
+  "status": "RULES_BREAK",
+  "steps_executed": 1000000000
+}

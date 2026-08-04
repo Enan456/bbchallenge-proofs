@@ -33,6 +33,8 @@ VERIFY_STEPS, VERIFY_CAP = 100_000_000, 100_000
 # Parent-side grace period.  A worker is one task only; a timed-out result is
 # recorded and never used, even though ProcessPoolExecutor cannot kill it.
 TASK_TIMEOUT_SECONDS = 900
+# Minimum out-of-sample record transitions for a PASS to mean anything.
+MIN_OOS = 50
 SCOPE = "bounded exact fitting+replay; PASS is an exact statement about observed records, not a proof"
 
 
@@ -98,9 +100,16 @@ def observe_machine(code: str, fit_steps: int = FIT_STEPS,
                 "n_group_rules": len(rules["group_rules"]),
                 "n_literal_rules": len(rules["literal_rules"]),
             })
+            # A PASS needs real out-of-sample evidence.  Slow-record
+            # machines can otherwise "pass" on a handful of transitions,
+            # which stage755 showed to be vacuous: two such machines'
+            # rules break catastrophically at ~2e8 steps.
+            row["validation_strength"] = out_sample["n_transitions_checked"]
             if (rules["n_conflicts"] == 0 and in_sample["exact"]
                     and out_sample["exact"]):
-                row["verdict"] = "PASS_EXACT_MACRO_SYSTEM"
+                row["verdict"] = ("PASS_EXACT_MACRO_SYSTEM"
+                                  if out_sample["n_transitions_checked"] >= MIN_OOS
+                                  else "PASS_WEAK_VALIDATION")
         return row
     except Exception as exc:  # persisted so a resume does not silently retry forever
         return _base(code, "ERROR", error=repr(exc))
