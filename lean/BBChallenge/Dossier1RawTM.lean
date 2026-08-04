@@ -2236,6 +2236,153 @@ theorem workhorse3_run {c : Config} {p : Int} (mc : Nat)
   · rw [show 19 + 4 * mc = (5 + 3 * 2 + 3 * mc) + (7 + (mc + 1)) by omega]
     exact csafe_compose sD' (csafe_of_noC safeD) safeP
 
+/-- A `(D, R)` record steps once: `D` reads the fresh frontier `0`, writes
+`1`, and the next record fires immediately.  No `C`. -/
+theorem dstep_run {c : Config} {q : Int}
+    (hs : c.state = State.D) (hh : c.head = q) (t0 : c.tape q = false) :
+    stepN 1 c = some ⟨State.E, q + 1, writeAt c.tape q true⟩ ∧
+      CSafeSeg c 1 := by
+  obtain ⟨s, hd, t⟩ := c
+  simp only at hs hh t0
+  subst hs hd
+  refine ⟨?_, ?_⟩
+  · simp [stepN, step, instr, t0, move]
+  · apply csafe_of_noC
+    intro k d hk hkd
+    have hk0 : k = 0 := by omega
+    subst hk0
+    have hd : (⟨State.D, q, t⟩ : Config) = d := by simpa [stepN] using hkd
+    rw [← hd]; simp
+
+/-- An `(E, L)` record steps once: `E` reads the fresh left-frontier `0`,
+writes `1`, and the next record fires immediately.  No `C`. -/
+theorem estep_run {c : Config} {q : Int}
+    (hs : c.state = State.E) (hh : c.head = q) (t0 : c.tape q = false) :
+    stepN 1 c = some ⟨State.A, q - 1, writeAt c.tape q true⟩ ∧
+      CSafeSeg c 1 := by
+  obtain ⟨s, hd, t⟩ := c
+  simp only at hs hh t0
+  subst hs hd
+  refine ⟨?_, ?_⟩
+  · simp [stepN, step, instr, t0, move]
+  · apply csafe_of_noC
+    intro k d hk hkd
+    have hk0 : k = 0 := by omega
+    subst hk0
+    have hd : (⟨State.E, q, t⟩ : Config) = d := by simpa [stepN] using hkd
+    rw [← hd]; simp
+
+/-- The top-level left crossing: from an `(E, R, (n,1,1))` record the
+machine writes the frontier `1`, consumes the isolated `1`, bridges the
+gap, crawls left across the whole `n`-block, and exits at the left
+frontier.  `3n + 1` steps (`n = m + 1`), states `A`/`E` only — no `C`. -/
+theorem leftcross_run {c : Config} {q : Int} (m : Nat)
+    (hs : c.state = State.E) (hh : c.head = q)
+    (t0 : c.tape q = false) (t1 : c.tape (q - 1) = true)
+    (t2 : c.tape (q - 2) = false)
+    (tn : ∀ i : Nat, i < m + 1 → c.tape (q - 3 - i) = true)
+    (tlo : c.tape (q - 4 - m) = false) :
+    stepN (3 * m + 4) c = some ⟨State.E, q - 4 - m,
+        writeAt (writeAt (writeAt (writeAt c.tape q true) (q - 1) false)
+          (q - 2) true) (q - 3 - m) false⟩ ∧
+      (∀ k d, k < 3 * m + 4 → stepN k c = some d → d.state ≠ State.C) := by
+  obtain ⟨s, hd, t⟩ := c
+  simp only at hs hh t0 t1 t2 tn tlo
+  subst hs hd
+  have s1 : step ⟨State.E, q, t⟩ =
+      some ⟨State.A, q - 1, writeAt t q true⟩ := by
+    simp [step, instr, t0, move]
+  have r1 : writeAt t q true (q - 1) = true := by
+    rw [writeAt_other t q (q - 1) true (by omega)]; exact t1
+  have s2 : step ⟨State.A, q - 1, writeAt t q true⟩ =
+      some ⟨State.E, q - 2, writeAt (writeAt t q true) (q - 1) false⟩ := by
+    simp [step, instr, r1, move]
+    try omega
+  have r2 : writeAt (writeAt t q true) (q - 1) false (q - 2) = false := by
+    rw [writeAt_other _ (q - 1) (q - 2) false (by omega),
+        writeAt_other t q (q - 2) true (by omega)]
+    exact t2
+  have s3 : step ⟨State.E, q - 2, writeAt (writeAt t q true) (q - 1) false⟩ =
+      some ⟨State.A, q - 3,
+        writeAt (writeAt (writeAt t q true) (q - 1) false) (q - 2) true⟩ := by
+    simp [step, instr, r2, move]
+    try omega
+  obtain ⟨sC, safeC⟩ := crawl_run m
+    ⟨State.A, q - 3,
+      writeAt (writeAt (writeAt t q true) (q - 1) false) (q - 2) true⟩
+    (q - 3) rfl rfl
+    (fun i hi => by
+      show writeAt (writeAt (writeAt t q true) (q - 1) false) (q - 2) true
+        (q - 3 - i) = true
+      rw [writeAt_other _ (q - 2) _ true (by omega),
+          writeAt_other _ (q - 1) _ false (by omega),
+          writeAt_other t q _ true (by omega)]
+      have := tn i (by omega)
+      exact this)
+  have sC' : stepN (3 * m)
+      ⟨State.A, q - 3,
+        writeAt (writeAt (writeAt t q true) (q - 1) false) (q - 2) true⟩ =
+      some ⟨State.A, q - 3 - m,
+        writeAt (writeAt (writeAt t q true) (q - 1) false) (q - 2) true⟩ := sC
+  have rlast : writeAt (writeAt (writeAt t q true) (q - 1) false) (q - 2) true
+      (q - 3 - m) = true := by
+    rw [writeAt_other _ (q - 2) _ true (by omega),
+        writeAt_other _ (q - 1) _ false (by omega),
+        writeAt_other t q _ true (by omega)]
+    have := tn m (by omega)
+    rw [show q - 3 - (m : Int) = q - 3 - (m : Int) from rfl]
+    exact this
+  have s4 : step ⟨State.A, q - 3 - m,
+      writeAt (writeAt (writeAt t q true) (q - 1) false) (q - 2) true⟩ =
+      some ⟨State.E, q - 4 - m,
+        writeAt (writeAt (writeAt (writeAt t q true) (q - 1) false)
+          (q - 2) true) (q - 3 - m) false⟩ := by
+    simp [step, instr, rlast, move]
+    try omega
+  have p1 : stepN 1 ⟨State.E, q, t⟩ =
+      some ⟨State.A, q - 1, writeAt t q true⟩ := by simp [stepN, s1]
+  have p2 : stepN 2 ⟨State.E, q, t⟩ =
+      some ⟨State.E, q - 2, writeAt (writeAt t q true) (q - 1) false⟩ := by
+    simp [stepN, s1, s2]
+  have p3 : stepN 3 ⟨State.E, q, t⟩ =
+      some ⟨State.A, q - 3,
+        writeAt (writeAt (writeAt t q true) (q - 1) false) (q - 2) true⟩ := by
+    simp [stepN, s1, s2, s3]
+  have acc1 : stepN (3 + 3 * m) ⟨State.E, q, t⟩ =
+      some ⟨State.A, q - 3 - m,
+        writeAt (writeAt (writeAt t q true) (q - 1) false) (q - 2) true⟩ := by
+    rw [stepN_add, p3]; exact sC'
+  have acc2 : stepN ((3 + 3 * m) + 1) ⟨State.E, q, t⟩ =
+      some ⟨State.E, q - 4 - m,
+        writeAt (writeAt (writeAt (writeAt t q true) (q - 1) false)
+          (q - 2) true) (q - 3 - m) false⟩ := by
+    rw [stepN_add, acc1]
+    simp [stepN, s4]
+  refine ⟨?_, ?_⟩
+  · rw [show 3 * m + 4 = (3 + 3 * m) + 1 by omega]
+    exact acc2
+  · intro k d hk hkd
+    by_cases hk3 : k < 3
+    · have hcase : k = 0 ∨ k = 1 ∨ k = 2 := by omega
+      rcases hcase with rfl | rfl | rfl
+      · have hd : (⟨State.E, q, t⟩ : Config) = d := by simpa [stepN] using hkd
+        rw [← hd]; simp
+      · rw [p1] at hkd; rw [← Option.some_inj.mp hkd]; simp
+      · rw [p2] at hkd; rw [← Option.some_inj.mp hkd]; simp
+    · by_cases hkm : k < 3 + 3 * m
+      · have hkeq : k = 3 + (k - 3) := by omega
+        rw [hkeq, stepN_add, p3] at hkd
+        exact safeC (k - 3) d (by omega) hkd
+      · have hkeq : k = (3 + 3 * m) + (k - (3 + 3 * m)) := by omega
+        rw [hkeq, stepN_add, acc1] at hkd
+        have hk0 : k - (3 + 3 * m) = 0 := by omega
+        rw [hk0] at hkd
+        have hd : (⟨State.A, q - 3 - m,
+            writeAt (writeAt (writeAt t q true) (q - 1) false)
+              (q - 2) true⟩ : Config) = d := by
+          simpa [stepN] using hkd
+        rw [← hd]; simp
+
 /-!
 ## The segment-induction keystone
 
