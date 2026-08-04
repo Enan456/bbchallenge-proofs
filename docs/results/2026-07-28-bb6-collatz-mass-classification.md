@@ -556,3 +556,32 @@ boundary steps, which are fixed finite step sequences — the next phase.
 Remaining for `CProbeSafe blankStart`: boundary-step lemmas for the
 dominant rule (bounded, computational), the same treatment for the
 merge/expansion rules, and the top-level shape-family closure induction.
+
+---
+
+## Dossier-1 closure induction, phase 2: the dominant rule end-to-end (2026-08-04)
+
+**Theorem `dominant_rule_run`** (`lean/QIG/Dossier1RawTM.lean`, core-only,
+axiom-clean, no sorry): for every middle-block length `b = m + 4`, from an
+L-record of shape `(1, b, 1)` with single-0 gaps, the machine runs exactly
+`13 + 5m` raw steps, ends in state `E` at the new right frontier — and
+**every C-probe of a 0 during the entire rule has a 1 immediately to its
+right** (`CSafeSeg`), for all `m`.
+
+Proof decomposition, all machine-checked:
+- `prefix_run` — the 7 boundary steps containing **the rule's single C0
+  probe** (the `1111·0·1111` window from the stage748 census), proven safe
+  because the probed gap's right neighbour is the first 1 of the middle
+  block;
+- `cat_run` — the C0-free caterpillar (phase 1);
+- `suffix_run` — the 6 exit steps across the right block (no C0 probe);
+- glue: `stepN_add`, `CSafeSeg` composition (`csafe_compose`,
+  `csafe_of_strong`), and pointwise `catTape` lemmas
+  (`catTape_outside` / `catTape_trail` / `catTape_end`).
+
+This is the first macro rule of any machine in this program whose safety
+is *proven for all block values* rather than discharged empirically — the
+stage750 obligation for this rule is now a theorem. Remaining for
+`CProbeSafe blankStart`: the same treatment for the merge and expansion
+rules (same technique, different bounded segments), R-side records, and
+the top-level shape-family closure induction gluing records together.
