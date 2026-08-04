@@ -1318,6 +1318,758 @@ theorem merge_chain {cfg : Config} {p : Int} (n k : Nat) (hn : 1 ≤ n)
               simp [stepN, s14, s15, s16]] at hjd
         rw [← Option.some_inj.mp hjd] at hE; simp at hE
 
+/-!
+## The abstract orbit, the grammar, and the main theorem
+
+Antihydra's records stay at dimension three, so the abstract state is a
+plain triple `(a, m, c)` — no level hierarchy, no chain induction.  `a`
+is the counter: frozen by the hydra rule, decremented by the drop,
+incremented by two by the merge.
+-/
+
+structure AState where
+  a : Nat
+  m : Nat
+  c : Nat
+deriving Repr, DecidableEq
+
+/-- The abstract transition.  `none` marks exactly the value patterns
+whose absence from the orbit is the Antihydra conjecture. -/
+def astep : AState → Option AState
+  | ⟨a, m, c⟩ =>
+      if 3 ≤ m then some ⟨a, m - 2, c + 3⟩
+      else if m = 2 then (if 2 ≤ a then some ⟨a - 1, c + 3, 2⟩ else none)
+      else if m = 1 then some ⟨a + 2, c + 2, 2⟩
+      else none
+
+def aorbit : Nat → Option AState
+  | 0 => some ⟨2, 7, 2⟩
+  | k + 1 => match aorbit k with
+      | none => none
+      | some s => astep s
+
+/-- **The Antihydra conjecture**, in the exact form the machine needs:
+the abstract orbit never dies.  Equivalently, the counter never runs out
+when the drop rule fires. -/
+def SafeOrbitA : Prop := ∀ k : Nat, aorbit k ≠ none
+
+/-- A configuration realizing an abstract state: blank, the counter
+block ending at `p`, a `0`, the `m`-block, a `0`, the `c`-block, then the
+head on the fresh frontier and blank beyond. -/
+def Realizes : AState → Config → Prop
+  | ⟨a, m, c⟩, cfg =>
+      1 ≤ a ∧ 1 ≤ m ∧ 1 ≤ c ∧ cfg.state = State.B ∧
+      ∃ p : Int,
+        (∀ x : Int, x < p - a + 1 → cfg.tape x = false) ∧
+        (∀ i : Nat, i < a → cfg.tape (p - i) = true) ∧
+        cfg.tape (p + 1) = false ∧
+        (∀ i : Nat, i < m → cfg.tape (p + 2 + i) = true) ∧
+        cfg.tape (p + 2 + m) = false ∧
+        (∀ i : Nat, i < c → cfg.tape (p + 3 + m + i) = true) ∧
+        (∀ x : Int, p + 3 + m + c ≤ x → cfg.tape x = false) ∧
+        cfg.head = p + 3 + m + c
+
+def OrbitInv (cfg : Config) : Prop :=
+  ∃ (k : Nat) (s : AState), aorbit k = some s ∧ Realizes s cfg
+
+/-- The concrete 62-step startup tape, in execution order. -/
+def startTape : Int → Bool :=
+  writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (blankTape) 0 true) 1 false) 0 true) (-1 : Int) true) (-2 : Int) true) (-3 : Int) true) (-2 : Int) true) (-3 : Int) true) (-2 : Int) true) (-1 : Int) true) 0 true) 1 true) 0 false) 1 true) 2 true) 3 false) 2 true) 1 true) 0 true) (-1 : Int) false) (-2 : Int) true) (-3 : Int) true) (-2 : Int) true) (-1 : Int) true) (-2 : Int) false) (-1 : Int) true) 0 true) 1 true) 2 true) 3 true) 4 false) 3 true) 2 true) 1 true) 0 true) (-1 : Int) true) (-2 : Int) true) (-3 : Int) false) (-4 : Int) false) (-5 : Int) true) (-6 : Int) true) (-7 : Int) true) (-6 : Int) true) (-7 : Int) true) (-6 : Int) true) (-5 : Int) true) (-4 : Int) true) (-5 : Int) false) (-4 : Int) true) (-3 : Int) true) (-2 : Int) true) (-3 : Int) true) (-2 : Int) true) (-1 : Int) true) 0 true) 1 true) 2 true) 3 true) 4 true) 3 false) 4 true) 5 true
+
+def safeCfg (c : Config) : Bool :=
+  match c.state with
+  | State.E => c.tape c.head || c.tape (c.head - 1)
+  | _ => true
+
+def checkSafe : Nat → Config → Bool
+  | 0, _ => true
+  | k + 1, c =>
+      safeCfg c &&
+        (match step c with
+         | none => true
+         | some c' => checkSafe k c')
+
+theorem safeCfg_spec {c : Config} (hE : c.state = State.E)
+    (h : safeCfg c = true) (hr : c.tape c.head = false) :
+    c.tape (c.head - 1) = true := by
+  obtain ⟨s, hd, t⟩ := c
+  simp only at hE hr ⊢
+  subst hE
+  simp only [safeCfg] at h
+  simp [hr] at h
+  exact h
+
+theorem esafe_of_checkSafe :
+    ∀ (N : Nat) (c : Config), checkSafe N c = true → ESafeSeg c N := by
+  intro N
+  induction N with
+  | zero =>
+      intro c _ k d hk _ _ _
+      exact absurd hk (by omega)
+  | succ N ih =>
+      intro c h k d hk hkd hE hread
+      rw [show checkSafe (N + 1) c
+            = (safeCfg c &&
+                (match step c with
+                 | none => true
+                 | some c' => checkSafe N c')) from rfl] at h
+      have h1 : safeCfg c = true := by
+        cases hsc : safeCfg c
+        · rw [hsc] at h; simp at h
+        · rfl
+      have h2 : (match step c with
+                 | none => true
+                 | some c' => checkSafe N c') = true := by
+        rw [h1] at h; simpa using h
+      cases k with
+      | zero =>
+          have hdd : c = d := by simpa [stepN] using hkd
+          subst hdd
+          exact safeCfg_spec hE h1 hread
+      | succ j =>
+          cases hstep : step c with
+          | none =>
+              rw [show stepN (j + 1) c = (step c).bind (stepN j) from rfl,
+                  hstep] at hkd
+              simp at hkd
+          | some c1 =>
+              rw [hstep] at h2
+              rw [show stepN (j + 1) c = (step c).bind (stepN j) from rfl,
+                  hstep] at hkd
+              exact ih c1 h2 j d (by omega) hkd hE hread
+
+set_option maxRecDepth 100000 in
+theorem startup_run :
+    stepN 62 blankStart = some ⟨State.B, 6, startTape⟩ := by
+  rfl
+
+set_option maxRecDepth 100000 in
+theorem startup_safe : ESafeSeg blankStart 62 := by
+  apply esafe_of_checkSafe
+  rfl
+
+theorem startTape_blank_left : ∀ x : Int, x < -7 → startTape x = false := by
+  intro x hx
+  unfold startTape
+  rw [writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega)]
+  rfl
+
+theorem startTape_blank_right : ∀ x : Int, 6 ≤ x → startTape x = false := by
+  intro x hx
+  unfold startTape
+  rw [writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+          writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega)]
+  rfl
+
+/-- Transport for the hydra rule: `(a, m+3, c) → (a, m+1, c+3)`. -/
+theorem transport_hydra {cfg : Config} {a m c : Nat}
+    (h : Realizes ⟨a, m + 3, c⟩ cfg) :
+    ∃ (N : Nat) (cfg' : Config), 0 < N ∧ stepN N cfg = some cfg' ∧
+      Realizes ⟨a, m + 1, c + 3⟩ cfg' ∧ ESafeSeg cfg N := by
+  obtain ⟨ha1, _hm1, hc1, hsB, p, hbl, ha, hg1, hm, hg2, hc, hbr, hhead⟩ := h
+  obtain ⟨hrun, hsafe⟩ := hydra_step (cfg := cfg) (p := p + m + 4) c hsB
+    (by rw [hhead]; omega)
+    (by rw [show p + (m : Int) + 4 - 2 = p + 2 + ((m : Nat) : Int) by omega]
+        exact hm m (by omega))
+    (by rw [show p + (m : Int) + 4 - 1 = p + 2 + ((m + 1 : Nat) : Int) by omega]
+        exact hm (m + 1) (by omega))
+    (by rw [show p + (m : Int) + 4 = p + 2 + ((m + 2 : Nat) : Int) by omega]
+        exact hm (m + 2) (by omega))
+    (by rw [show p + (m : Int) + 4 + 1 = p + 2 + ((m + 3 : Nat) : Int) by omega]
+        exact hg2)
+    (fun i hi => by
+      rw [show p + (m : Int) + 4 + 2 + (i : Int)
+            = p + 3 + ((m + 3 : Nat) : Int) + (i : Int) by omega]
+      exact hc i hi)
+    (by rw [show p + (m : Int) + 4 + 2 + (c : Int)
+              = p + 3 + ((m + 3 : Nat) : Int) + (c : Int) by omega]
+        exact hbr _ (by omega))
+  rw [show p + (m : Int) + 4 + 1 = p + (m : Int) + 5 by omega,
+      show p + (m : Int) + 4 - 1 = p + (m : Int) + 3 by omega,
+      show p + (m : Int) + 4 + 2 + (c : Int)
+        = p + (m : Int) + 6 + (c : Int) by omega,
+      show p + (m : Int) + 4 + 3 + (c : Int)
+        = p + (m : Int) + 7 + (c : Int) by omega] at hrun
+  refine ⟨2 * c + 11, ⟨State.B, p + m + 7 + c, writeAt (writeAt (writeAt cfg.tape (p + (m : Int) + 5) true)
+      (p + (m : Int) + 3) false) (p + (m : Int) + 6 + (c : Int)) true⟩, by omega, hrun, ?_, hsafe⟩
+  refine ⟨ha1, by omega, by omega, rfl, p, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  · intro x hx
+    show (writeAt (writeAt (writeAt cfg.tape (p + (m : Int) + 5) true)
+      (p + (m : Int) + 3) false) (p + (m : Int) + 6 + (c : Int)) true) x = false
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+    exact hbl x hx
+  · intro i hi
+    show (writeAt (writeAt (writeAt cfg.tape (p + (m : Int) + 5) true)
+      (p + (m : Int) + 3) false) (p + (m : Int) + 6 + (c : Int)) true) (p - i) = true
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+    exact ha i hi
+  · show (writeAt (writeAt (writeAt cfg.tape (p + (m : Int) + 5) true)
+      (p + (m : Int) + 3) false) (p + (m : Int) + 6 + (c : Int)) true) (p + 1) = false
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+    exact hg1
+  · intro i hi
+    show (writeAt (writeAt (writeAt cfg.tape (p + (m : Int) + 5) true)
+      (p + (m : Int) + 3) false) (p + (m : Int) + 6 + (c : Int)) true) (p + 2 + i) = true
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+    exact hm i (by omega)
+  · show (writeAt (writeAt (writeAt cfg.tape (p + (m : Int) + 5) true)
+      (p + (m : Int) + 3) false) (p + (m : Int) + 6 + (c : Int)) true) (p + 2 + ((m + 1 : Nat) : Int)) = false
+    rw [show p + 2 + ((m + 1 : Nat) : Int) = p + (m : Int) + 3 by omega]
+    rw [writeAt_other _ _ _ _ (by omega)]
+    exact writeAt_same _ (p + (m : Int) + 3) false
+  · intro i hi
+    by_cases hi0 : i = 0
+    · rw [hi0]
+      show (writeAt (writeAt (writeAt cfg.tape (p + (m : Int) + 5) true)
+      (p + (m : Int) + 3) false) (p + (m : Int) + 6 + (c : Int)) true) (p + 3 + ((m + 1 : Nat) : Int) + ((0 : Nat) : Int)) = true
+      rw [show p + 3 + ((m + 1 : Nat) : Int) + ((0 : Nat) : Int)
+            = p + 2 + ((m + 2 : Nat) : Int) by omega]
+      rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+      exact hm (m + 2) (by omega)
+    · by_cases hi1 : i = 1
+      · rw [hi1]
+        show (writeAt (writeAt (writeAt cfg.tape (p + (m : Int) + 5) true)
+      (p + (m : Int) + 3) false) (p + (m : Int) + 6 + (c : Int)) true) (p + 3 + ((m + 1 : Nat) : Int) + ((1 : Nat) : Int)) = true
+        rw [show p + 3 + ((m + 1 : Nat) : Int) + ((1 : Nat) : Int)
+              = p + (m : Int) + 5 by omega]
+        rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+        exact writeAt_same _ (p + (m : Int) + 5) true
+      · by_cases hilast : i = c + 2
+        · rw [hilast]
+          show (writeAt (writeAt (writeAt cfg.tape (p + (m : Int) + 5) true)
+      (p + (m : Int) + 3) false) (p + (m : Int) + 6 + (c : Int)) true) (p + 3 + ((m + 1 : Nat) : Int) + ((c + 2 : Nat) : Int)) = true
+          rw [show p + 3 + ((m + 1 : Nat) : Int) + ((c + 2 : Nat) : Int)
+                = p + (m : Int) + 6 + (c : Int) by omega]
+          exact writeAt_same _ (p + (m : Int) + 6 + (c : Int)) true
+        · show (writeAt (writeAt (writeAt cfg.tape (p + (m : Int) + 5) true)
+      (p + (m : Int) + 3) false) (p + (m : Int) + 6 + (c : Int)) true) (p + 3 + ((m + 1 : Nat) : Int) + (i : Int)) = true
+          rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+          have := hc (i - 2) (by omega)
+          rw [show p + 3 + ((m + 3 : Nat) : Int) + ((i - 2 : Nat) : Int)
+                = p + 3 + ((m + 1 : Nat) : Int) + (i : Int) by omega] at this
+          exact this
+  · intro x hx
+    show (writeAt (writeAt (writeAt cfg.tape (p + (m : Int) + 5) true)
+      (p + (m : Int) + 3) false) (p + (m : Int) + 6 + (c : Int)) true) x = false
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+    exact hbr x (by omega)
+  · show p + (m : Int) + 7 + (c : Int)
+        = p + 3 + ((m + 1 : Nat) : Int) + ((c + 3 : Nat) : Int)
+    omega
+
+/-- Transport for the drop rule: `(a+2, 2, c) → (a+1, c+3, 2)`. -/
+theorem transport_drop {cfg : Config} {a c : Nat}
+    (h : Realizes ⟨a + 2, 2, c⟩ cfg) :
+    ∃ (N : Nat) (cfg' : Config), 0 < N ∧ stepN N cfg = some cfg' ∧
+      Realizes ⟨a + 1, c + 3, 2⟩ cfg' ∧ ESafeSeg cfg N := by
+  obtain ⟨ha1, _hm1, hc1, hsB, p, hbl, ha, hg1, hm, hg2, hc, hbr, hhead⟩ := h
+  obtain ⟨hrun, hsafe⟩ := drop_step (cfg := cfg) (q := p) c hsB
+    (by rw [hhead]; omega)
+    (by have := ha 0 (by omega)
+        rw [show p - ((0 : Nat) : Int) = p by omega] at this; exact this)
+    hg1
+    (by have := hm 0 (by omega)
+        rw [show p + 2 + ((0 : Nat) : Int) = p + 2 by omega] at this; exact this)
+    (by have := hm 1 (by omega)
+        rw [show p + 2 + ((1 : Nat) : Int) = p + 3 by omega] at this; exact this)
+    (by rw [show p + 4 = p + 2 + ((2 : Nat) : Int) by omega]; exact hg2)
+    (fun i hi => by
+      rw [show p + 5 + (i : Int) = p + 3 + ((2 : Nat) : Int) + (i : Int)
+            by omega]
+      exact hc i hi)
+    (by rw [show p + 5 + (c : Int) = p + 3 + ((2 : Nat) : Int) + (c : Int)
+              by omega]
+        exact hbr _ (by omega))
+  have hfresh : (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+        (p + 4) true) (p + 3) false) (p + 1) true) p false) (p + 3) true)
+        (p + 5 + (c : Int)) true) (p + 4 + (c : Int)) false) (p + 6 + (c : Int)) = false := by
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+    exact hbr _ (by omega)
+  have hbump : step ⟨State.A, p + 6 + (c : Int), writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+        (p + 4) true) (p + 3) false) (p + 1) true) p false) (p + 3) true)
+        (p + 5 + (c : Int)) true) (p + 4 + (c : Int)) false⟩ =
+      some ⟨State.B, p + 7 + (c : Int), writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+        (p + 4) true) (p + 3) false) (p + 1) true) p false) (p + 3) true)
+        (p + 5 + (c : Int)) true) (p + 4 + (c : Int)) false) (p + 6 + (c : Int)) true⟩ := by
+    simp [step, instr, hfresh, move]
+    try omega
+  refine ⟨2 * c + 15 + 1, ⟨State.B, p + 7 + (c : Int), writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+        (p + 4) true) (p + 3) false) (p + 1) true) p false) (p + 3) true)
+        (p + 5 + (c : Int)) true) (p + 4 + (c : Int)) false) (p + 6 + (c : Int)) true⟩, by omega, ?_,
+    ?_, ?_⟩
+  · rw [stepN_add, hrun]
+    show stepN 1 ⟨State.A, p + 6 + (c : Int), writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+        (p + 4) true) (p + 3) false) (p + 1) true) p false) (p + 3) true)
+        (p + 5 + (c : Int)) true) (p + 4 + (c : Int)) false⟩ = _
+    simp [stepN, hbump]
+  · refine ⟨by omega, by omega, by omega, rfl, p - 1, ?_, ?_, ?_, ?_, ?_, ?_,
+      ?_, ?_⟩
+    · intro x hx
+      show (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+        (p + 4) true) (p + 3) false) (p + 1) true) p false) (p + 3) true)
+        (p + 5 + (c : Int)) true) (p + 4 + (c : Int)) false) (p + 6 + (c : Int)) true) x = false
+      rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+      exact hbl x (by omega)
+    · intro i hi
+      show (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+        (p + 4) true) (p + 3) false) (p + 1) true) p false) (p + 3) true)
+        (p + 5 + (c : Int)) true) (p + 4 + (c : Int)) false) (p + 6 + (c : Int)) true) (p - 1 - i) = true
+      rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+      have := ha (i + 1) (by omega)
+      rw [show p - ((i + 1 : Nat) : Int) = p - 1 - (i : Int) by omega] at this
+      exact this
+    · show (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+        (p + 4) true) (p + 3) false) (p + 1) true) p false) (p + 3) true)
+        (p + 5 + (c : Int)) true) (p + 4 + (c : Int)) false) (p + 6 + (c : Int)) true) (p - 1 + 1) = false
+      rw [show p - 1 + 1 = p by omega]
+      rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+      exact writeAt_same _ p false
+    · intro i hi
+      by_cases hi0 : i = 0
+      · rw [hi0]
+        show (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+        (p + 4) true) (p + 3) false) (p + 1) true) p false) (p + 3) true)
+        (p + 5 + (c : Int)) true) (p + 4 + (c : Int)) false) (p + 6 + (c : Int)) true) (p - 1 + 2 + ((0 : Nat) : Int)) = true
+        rw [show p - 1 + 2 + ((0 : Nat) : Int) = p + 1 by omega]
+        rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+        exact writeAt_same _ (p + 1) true
+      · by_cases hi1 : i = 1
+        · rw [hi1]
+          show (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+        (p + 4) true) (p + 3) false) (p + 1) true) p false) (p + 3) true)
+        (p + 5 + (c : Int)) true) (p + 4 + (c : Int)) false) (p + 6 + (c : Int)) true) (p - 1 + 2 + ((1 : Nat) : Int)) = true
+          rw [show p - 1 + 2 + ((1 : Nat) : Int) = p + 2 by omega]
+          rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+          have := hm 0 (by omega)
+          rw [show p + 2 + ((0 : Nat) : Int) = p + 2 by omega] at this
+          exact this
+        · by_cases hi2 : i = 2
+          · rw [hi2]
+            show (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+        (p + 4) true) (p + 3) false) (p + 1) true) p false) (p + 3) true)
+        (p + 5 + (c : Int)) true) (p + 4 + (c : Int)) false) (p + 6 + (c : Int)) true) (p - 1 + 2 + ((2 : Nat) : Int)) = true
+            rw [show p - 1 + 2 + ((2 : Nat) : Int) = p + 3 by omega]
+            rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+            exact writeAt_same _ (p + 3) true
+          · by_cases hi3 : i = 3
+            · rw [hi3]
+              show (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+        (p + 4) true) (p + 3) false) (p + 1) true) p false) (p + 3) true)
+        (p + 5 + (c : Int)) true) (p + 4 + (c : Int)) false) (p + 6 + (c : Int)) true) (p - 1 + 2 + ((3 : Nat) : Int)) = true
+              rw [show p - 1 + 2 + ((3 : Nat) : Int) = p + 4 by omega]
+              rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+              exact writeAt_same _ (p + 4) true
+            · show (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+        (p + 4) true) (p + 3) false) (p + 1) true) p false) (p + 3) true)
+        (p + 5 + (c : Int)) true) (p + 4 + (c : Int)) false) (p + 6 + (c : Int)) true) (p - 1 + 2 + (i : Int)) = true
+              rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+              have := hc (i - 4) (by omega)
+              rw [show p + 3 + ((2 : Nat) : Int) + ((i - 4 : Nat) : Int)
+                    = p - 1 + 2 + (i : Int) by omega] at this
+              exact this
+    · show (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+        (p + 4) true) (p + 3) false) (p + 1) true) p false) (p + 3) true)
+        (p + 5 + (c : Int)) true) (p + 4 + (c : Int)) false) (p + 6 + (c : Int)) true) (p - 1 + 2 + ((c + 3 : Nat) : Int)) = false
+      rw [show p - 1 + 2 + ((c + 3 : Nat) : Int) = p + 4 + (c : Int) by omega]
+      rw [writeAt_other _ _ _ _ (by omega)]
+      exact writeAt_same _ (p + 4 + (c : Int)) false
+    · intro i hi
+      by_cases hi0 : i = 0
+      · rw [hi0]
+        show (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+        (p + 4) true) (p + 3) false) (p + 1) true) p false) (p + 3) true)
+        (p + 5 + (c : Int)) true) (p + 4 + (c : Int)) false) (p + 6 + (c : Int)) true) (p - 1 + 3 + ((c + 3 : Nat) : Int) + ((0 : Nat) : Int)) = true
+        rw [show p - 1 + 3 + ((c + 3 : Nat) : Int) + ((0 : Nat) : Int)
+              = p + 5 + (c : Int) by omega]
+        rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+        exact writeAt_same _ (p + 5 + (c : Int)) true
+      · have hi1 : i = 1 := by omega
+        rw [hi1]
+        show (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+        (p + 4) true) (p + 3) false) (p + 1) true) p false) (p + 3) true)
+        (p + 5 + (c : Int)) true) (p + 4 + (c : Int)) false) (p + 6 + (c : Int)) true) (p - 1 + 3 + ((c + 3 : Nat) : Int) + ((1 : Nat) : Int)) = true
+        rw [show p - 1 + 3 + ((c + 3 : Nat) : Int) + ((1 : Nat) : Int)
+              = p + 6 + (c : Int) by omega]
+        exact writeAt_same _ (p + 6 + (c : Int)) true
+    · intro x hx
+      show (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+        (p + 4) true) (p + 3) false) (p + 1) true) p false) (p + 3) true)
+        (p + 5 + (c : Int)) true) (p + 4 + (c : Int)) false) (p + 6 + (c : Int)) true) x = false
+      rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+      exact hbr x (by omega)
+    · show p + 7 + (c : Int)
+          = p - 1 + 3 + ((c + 3 : Nat) : Int) + ((2 : Nat) : Int)
+      omega
+  · rw [show 2 * c + 15 + 1 = (2 * c + 15) + 1 from rfl]
+    refine esafe_compose hrun hsafe (esafe_of_noE ?_)
+    intro j d hj hjd
+    have hj0 : j = 0 := by omega
+    subst hj0
+    have hdd : (⟨State.A, p + 6 + (c : Int), writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+        (p + 4) true) (p + 3) false) (p + 1) true) p false) (p + 3) true)
+        (p + 5 + (c : Int)) true) (p + 4 + (c : Int)) false⟩ : Config) = d := by
+      simpa [stepN] using hjd
+    rw [← hdd]; simp
+
+/-- Transport for the merge chain: `(a, 1, c) → (a+2, c+2, 2)`. -/
+theorem transport_merge {cfg : Config} {a c : Nat}
+    (h : Realizes ⟨a, 1, c⟩ cfg) :
+    ∃ (N : Nat) (cfg' : Config), 0 < N ∧ stepN N cfg = some cfg' ∧
+      Realizes ⟨a + 2, c + 2, 2⟩ cfg' ∧ ESafeSeg cfg N := by
+  obtain ⟨ha1, _hm1, hc1, hsB, p, hbl, ha, hg1, hm, hg2, hc, hbr, hhead⟩ := h
+  obtain ⟨hrun, hsafe⟩ := merge_chain (cfg := cfg) (p := p) a c ha1 hsB
+    (by rw [hhead]; omega)
+    ha
+    (hbl _ (by omega)) (hbl _ (by omega)) (hbl _ (by omega))
+    hg1
+    (by have := hm 0 (by omega)
+        rw [show p + 2 + ((0 : Nat) : Int) = p + 2 by omega] at this; exact this)
+    (by rw [show p + 3 = p + 2 + ((1 : Nat) : Int) by omega]; exact hg2)
+    (fun i hi => by
+      rw [show p + 4 + (i : Int) = p + 3 + ((1 : Nat) : Int) + (i : Int)
+            by omega]
+      exact hc i hi)
+    (by rw [show p + 4 + (c : Int) = p + 3 + ((1 : Nat) : Int) + (c : Int)
+              by omega]
+        exact hbr _ (by omega))
+    (by rw [show p + 5 + (c : Int) = p + 3 + ((1 : Nat) : Int) + (c : Int) + 1
+              by omega]
+        exact hbr _ (by omega))
+  refine ⟨2 * a + 2 * c + 22, ⟨State.B, p + 6 + (c : Int), writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+        (writeAt (writeAt (writeAt cfg.tape (p + 3) true) (p + 2) false)
+        (p - (a : Int)) true) (p - (a : Int) - 1) true) (p - (a : Int) - 2) true)
+        (p + 1) true) p false) (p + 2) true) (p + 4 + (c : Int)) true)
+        (p + 3 + (c : Int)) false) (p + 5 + (c : Int)) true⟩, by omega,
+    hrun, ?_, hsafe⟩
+  refine ⟨by omega, by omega, by omega, rfl, p - 1, ?_, ?_, ?_, ?_, ?_, ?_,
+    ?_, ?_⟩
+  · intro x hx
+    show (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+        (writeAt (writeAt (writeAt cfg.tape (p + 3) true) (p + 2) false)
+        (p - (a : Int)) true) (p - (a : Int) - 1) true) (p - (a : Int) - 2) true)
+        (p + 1) true) p false) (p + 2) true) (p + 4 + (c : Int)) true)
+        (p + 3 + (c : Int)) false) (p + 5 + (c : Int)) true) x = false
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+    exact hbl x (by omega)
+  · intro i hi
+    by_cases hlo : i = a + 1
+    · rw [hlo]
+      show (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+        (writeAt (writeAt (writeAt cfg.tape (p + 3) true) (p + 2) false)
+        (p - (a : Int)) true) (p - (a : Int) - 1) true) (p - (a : Int) - 2) true)
+        (p + 1) true) p false) (p + 2) true) (p + 4 + (c : Int)) true)
+        (p + 3 + (c : Int)) false) (p + 5 + (c : Int)) true) (p - 1 - ((a + 1 : Nat) : Int)) = true
+      rw [show p - 1 - ((a + 1 : Nat) : Int) = p - (a : Int) - 2 by omega]
+      rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+      exact writeAt_same _ (p - (a : Int) - 2) true
+    · by_cases hlo1 : i = a
+      · rw [hlo1]
+        show (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+        (writeAt (writeAt (writeAt cfg.tape (p + 3) true) (p + 2) false)
+        (p - (a : Int)) true) (p - (a : Int) - 1) true) (p - (a : Int) - 2) true)
+        (p + 1) true) p false) (p + 2) true) (p + 4 + (c : Int)) true)
+        (p + 3 + (c : Int)) false) (p + 5 + (c : Int)) true) (p - 1 - (a : Int)) = true
+        rw [show p - 1 - (a : Int) = p - (a : Int) - 1 by omega]
+        rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+        exact writeAt_same _ (p - (a : Int) - 1) true
+      · by_cases hlo2 : i = a - 1
+        · rw [hlo2]
+          show (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+        (writeAt (writeAt (writeAt cfg.tape (p + 3) true) (p + 2) false)
+        (p - (a : Int)) true) (p - (a : Int) - 1) true) (p - (a : Int) - 2) true)
+        (p + 1) true) p false) (p + 2) true) (p + 4 + (c : Int)) true)
+        (p + 3 + (c : Int)) false) (p + 5 + (c : Int)) true) (p - 1 - ((a - 1 : Nat) : Int)) = true
+          rw [show p - 1 - ((a - 1 : Nat) : Int) = p - (a : Int) by omega]
+          rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+          exact writeAt_same _ (p - (a : Int)) true
+        · show (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+        (writeAt (writeAt (writeAt cfg.tape (p + 3) true) (p + 2) false)
+        (p - (a : Int)) true) (p - (a : Int) - 1) true) (p - (a : Int) - 2) true)
+        (p + 1) true) p false) (p + 2) true) (p + 4 + (c : Int)) true)
+        (p + 3 + (c : Int)) false) (p + 5 + (c : Int)) true) (p - 1 - (i : Int)) = true
+          rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+          have := ha (i + 1) (by omega)
+          rw [show p - ((i + 1 : Nat) : Int) = p - 1 - (i : Int) by omega] at this
+          exact this
+  · show (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+        (writeAt (writeAt (writeAt cfg.tape (p + 3) true) (p + 2) false)
+        (p - (a : Int)) true) (p - (a : Int) - 1) true) (p - (a : Int) - 2) true)
+        (p + 1) true) p false) (p + 2) true) (p + 4 + (c : Int)) true)
+        (p + 3 + (c : Int)) false) (p + 5 + (c : Int)) true) (p - 1 + 1) = false
+    rw [show p - 1 + 1 = p by omega]
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+    exact writeAt_same _ p false
+  · intro i hi
+    by_cases hi0 : i = 0
+    · rw [hi0]
+      show (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+        (writeAt (writeAt (writeAt cfg.tape (p + 3) true) (p + 2) false)
+        (p - (a : Int)) true) (p - (a : Int) - 1) true) (p - (a : Int) - 2) true)
+        (p + 1) true) p false) (p + 2) true) (p + 4 + (c : Int)) true)
+        (p + 3 + (c : Int)) false) (p + 5 + (c : Int)) true) (p - 1 + 2 + ((0 : Nat) : Int)) = true
+      rw [show p - 1 + 2 + ((0 : Nat) : Int) = p + 1 by omega]
+      rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+      exact writeAt_same _ (p + 1) true
+    · by_cases hi1 : i = 1
+      · rw [hi1]
+        show (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+        (writeAt (writeAt (writeAt cfg.tape (p + 3) true) (p + 2) false)
+        (p - (a : Int)) true) (p - (a : Int) - 1) true) (p - (a : Int) - 2) true)
+        (p + 1) true) p false) (p + 2) true) (p + 4 + (c : Int)) true)
+        (p + 3 + (c : Int)) false) (p + 5 + (c : Int)) true) (p - 1 + 2 + ((1 : Nat) : Int)) = true
+        rw [show p - 1 + 2 + ((1 : Nat) : Int) = p + 2 by omega]
+        rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+        exact writeAt_same _ (p + 2) true
+      · by_cases hi2 : i = 2
+        · rw [hi2]
+          show (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+        (writeAt (writeAt (writeAt cfg.tape (p + 3) true) (p + 2) false)
+        (p - (a : Int)) true) (p - (a : Int) - 1) true) (p - (a : Int) - 2) true)
+        (p + 1) true) p false) (p + 2) true) (p + 4 + (c : Int)) true)
+        (p + 3 + (c : Int)) false) (p + 5 + (c : Int)) true) (p - 1 + 2 + ((2 : Nat) : Int)) = true
+          rw [show p - 1 + 2 + ((2 : Nat) : Int) = p + 3 by omega]
+          rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+          exact writeAt_same _ (p + 3) true
+        · show (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+        (writeAt (writeAt (writeAt cfg.tape (p + 3) true) (p + 2) false)
+        (p - (a : Int)) true) (p - (a : Int) - 1) true) (p - (a : Int) - 2) true)
+        (p + 1) true) p false) (p + 2) true) (p + 4 + (c : Int)) true)
+        (p + 3 + (c : Int)) false) (p + 5 + (c : Int)) true) (p - 1 + 2 + (i : Int)) = true
+          rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+          have := hc (i - 3) (by omega)
+          rw [show p + 3 + ((1 : Nat) : Int) + ((i - 3 : Nat) : Int)
+                = p - 1 + 2 + (i : Int) by omega] at this
+          exact this
+  · show (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+        (writeAt (writeAt (writeAt cfg.tape (p + 3) true) (p + 2) false)
+        (p - (a : Int)) true) (p - (a : Int) - 1) true) (p - (a : Int) - 2) true)
+        (p + 1) true) p false) (p + 2) true) (p + 4 + (c : Int)) true)
+        (p + 3 + (c : Int)) false) (p + 5 + (c : Int)) true) (p - 1 + 2 + ((c + 2 : Nat) : Int)) = false
+    rw [show p - 1 + 2 + ((c + 2 : Nat) : Int) = p + 3 + (c : Int) by omega]
+    rw [writeAt_other _ _ _ _ (by omega)]
+    exact writeAt_same _ (p + 3 + (c : Int)) false
+  · intro i hi
+    by_cases hi0 : i = 0
+    · rw [hi0]
+      show (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+        (writeAt (writeAt (writeAt cfg.tape (p + 3) true) (p + 2) false)
+        (p - (a : Int)) true) (p - (a : Int) - 1) true) (p - (a : Int) - 2) true)
+        (p + 1) true) p false) (p + 2) true) (p + 4 + (c : Int)) true)
+        (p + 3 + (c : Int)) false) (p + 5 + (c : Int)) true) (p - 1 + 3 + ((c + 2 : Nat) : Int) + ((0 : Nat) : Int)) = true
+      rw [show p - 1 + 3 + ((c + 2 : Nat) : Int) + ((0 : Nat) : Int)
+            = p + 4 + (c : Int) by omega]
+      rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+      exact writeAt_same _ (p + 4 + (c : Int)) true
+    · have hi1 : i = 1 := by omega
+      rw [hi1]
+      show (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+        (writeAt (writeAt (writeAt cfg.tape (p + 3) true) (p + 2) false)
+        (p - (a : Int)) true) (p - (a : Int) - 1) true) (p - (a : Int) - 2) true)
+        (p + 1) true) p false) (p + 2) true) (p + 4 + (c : Int)) true)
+        (p + 3 + (c : Int)) false) (p + 5 + (c : Int)) true) (p - 1 + 3 + ((c + 2 : Nat) : Int) + ((1 : Nat) : Int)) = true
+      rw [show p - 1 + 3 + ((c + 2 : Nat) : Int) + ((1 : Nat) : Int)
+            = p + 5 + (c : Int) by omega]
+      exact writeAt_same _ (p + 5 + (c : Int)) true
+  · intro x hx
+    show (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+        (writeAt (writeAt (writeAt cfg.tape (p + 3) true) (p + 2) false)
+        (p - (a : Int)) true) (p - (a : Int) - 1) true) (p - (a : Int) - 2) true)
+        (p + 1) true) p false) (p + 2) true) (p + 4 + (c : Int)) true)
+        (p + 3 + (c : Int)) false) (p + 5 + (c : Int)) true) x = false
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+    exact hbr x (by omega)
+  · show p + 6 + (c : Int)
+        = p - 1 + 3 + ((c + 2 : Nat) : Int) + ((2 : Nat) : Int)
+    omega
+
+theorem realizes_start : Realizes ⟨2, 7, 2⟩ ⟨State.B, 6, startTape⟩ := by
+  refine ⟨by omega, by omega, by omega, rfl, -6, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  · intro x hx
+    exact startTape_blank_left x (by omega)
+  · intro i hi
+    have hcase : i = 0 ∨ i = 1 := by omega
+    rcases hcase with rfl | rfl
+    · show startTape (-6 - ((0 : Nat) : Int)) = true
+      rw [show (-6 : Int) - ((0 : Nat) : Int) = -6 by omega]; rfl
+    · show startTape (-6 - ((1 : Nat) : Int)) = true
+      rw [show (-6 : Int) - ((1 : Nat) : Int) = -7 by omega]; rfl
+  · show startTape (-6 + 1) = false
+    rw [show (-6 : Int) + 1 = -5 by omega]; rfl
+  · intro i hi
+    have hcase : i = 0 ∨ i = 1 ∨ i = 2 ∨ i = 3 ∨ i = 4 ∨ i = 5 ∨ i = 6 := by
+      omega
+    rcases hcase with rfl | rfl | rfl | rfl | rfl | rfl | rfl
+    · show startTape (-6 + 2 + ((0 : Nat) : Int)) = true
+      rw [show (-6 : Int) + 2 + ((0 : Nat) : Int) = -4 by omega]; rfl
+    · show startTape (-6 + 2 + ((1 : Nat) : Int)) = true
+      rw [show (-6 : Int) + 2 + ((1 : Nat) : Int) = -3 by omega]; rfl
+    · show startTape (-6 + 2 + ((2 : Nat) : Int)) = true
+      rw [show (-6 : Int) + 2 + ((2 : Nat) : Int) = -2 by omega]; rfl
+    · show startTape (-6 + 2 + ((3 : Nat) : Int)) = true
+      rw [show (-6 : Int) + 2 + ((3 : Nat) : Int) = -1 by omega]; rfl
+    · show startTape (-6 + 2 + ((4 : Nat) : Int)) = true
+      rw [show (-6 : Int) + 2 + ((4 : Nat) : Int) = 0 by omega]; rfl
+    · show startTape (-6 + 2 + ((5 : Nat) : Int)) = true
+      rw [show (-6 : Int) + 2 + ((5 : Nat) : Int) = 1 by omega]; rfl
+    · show startTape (-6 + 2 + ((6 : Nat) : Int)) = true
+      rw [show (-6 : Int) + 2 + ((6 : Nat) : Int) = 2 by omega]; rfl
+  · show startTape (-6 + 2 + ((7 : Nat) : Int)) = false
+    rw [show (-6 : Int) + 2 + ((7 : Nat) : Int) = 3 by omega]; rfl
+  · intro i hi
+    have hcase : i = 0 ∨ i = 1 := by omega
+    rcases hcase with rfl | rfl
+    · show startTape (-6 + 3 + ((7 : Nat) : Int) + ((0 : Nat) : Int)) = true
+      rw [show (-6 : Int) + 3 + ((7 : Nat) : Int) + ((0 : Nat) : Int) = 4
+            by omega]; rfl
+    · show startTape (-6 + 3 + ((7 : Nat) : Int) + ((1 : Nat) : Int)) = true
+      rw [show (-6 : Int) + 3 + ((7 : Nat) : Int) + ((1 : Nat) : Int) = 5
+            by omega]; rfl
+  · intro x hx
+    exact startTape_blank_right x (by omega)
+  · show (6 : Int) = -6 + 3 + ((7 : Nat) : Int) + ((2 : Nat) : Int)
+    omega
+
+theorem orbitInv_start : OrbitInv ⟨State.B, 6, startTape⟩ :=
+  ⟨0, ⟨2, 7, 2⟩, rfl, realizes_start⟩
+
+theorem aorbit_succ {n : Nat} {s : AState} (horb : aorbit n = some s) :
+    aorbit (n + 1) = astep s := by
+  show (match aorbit n with
+        | none => none
+        | some s => astep s) = astep s
+  rw [horb]
+
+/-- **The dispatcher.**  Under the Antihydra conjecture, every realized
+live abstract state advances safely to another one. -/
+theorem orbit_segment (hso : SafeOrbitA) (cfg : Config) (hinv : OrbitInv cfg) :
+    ∃ k, 0 < k ∧ ∃ cfg', stepN k cfg = some cfg' ∧ OrbitInv cfg' ∧
+      ESafeSeg cfg k := by
+  obtain ⟨n, s, horb, hreal⟩ := hinv
+  have hsucc : aorbit (n + 1) = astep s := aorbit_succ horb
+  have hlive : astep s ≠ none := by rw [← hsucc]; exact hso (n + 1)
+  obtain ⟨sa, sm, sc⟩ := s
+  have hm1 : 1 ≤ sm := hreal.2.1
+  have ha1 : 1 ≤ sa := hreal.1
+  have hmcase : sm = 1 ∨ sm = 2 ∨ 3 ≤ sm := by omega
+  rcases hmcase with rfl | rfl | hge
+  · -- merge: counter +2
+    obtain ⟨K, cfg', hK, hst, hreal', hsf⟩ := transport_merge hreal
+    refine ⟨K, hK, cfg', hst, ⟨n + 1, ⟨sa + 2, sc + 2, 2⟩, ?_, hreal'⟩, hsf⟩
+    rw [hsucc]
+    show (if 3 ≤ 1 then some (AState.mk sa (1 - 2) (sc + 3))
+          else if (1 : Nat) = 2 then
+            (if 2 ≤ sa then some (AState.mk (sa - 1) (sc + 3) 2) else none)
+          else if (1 : Nat) = 1 then some (AState.mk (sa + 2) (sc + 2) 2)
+          else none) = _
+    rw [if_neg (show ¬(3 ≤ 1) by omega), if_neg (show ¬((1 : Nat) = 2) by omega),
+        if_pos (show (1 : Nat) = 1 from rfl)]
+  · -- drop: counter -1, needs a non-empty counter after the step
+    have ha2 : 2 ≤ sa := by
+      cases Nat.lt_or_ge sa 2 with
+      | inr hge => exact hge
+      | inl hlt =>
+          refine absurd ?_ hlive
+          show (if 3 ≤ 2 then some (AState.mk sa (2 - 2) (sc + 3))
+                else if (2 : Nat) = 2 then
+                  (if 2 ≤ sa then some (AState.mk (sa - 1) (sc + 3) 2) else none)
+                else if (2 : Nat) = 1 then some (AState.mk (sa + 2) (sc + 2) 2)
+                else none) = none
+          rw [if_neg (show ¬(3 ≤ 2) by omega),
+              if_pos (show (2 : Nat) = 2 from rfl),
+              if_neg (show ¬(2 ≤ sa) by omega)]
+    obtain ⟨a', rfl⟩ : ∃ a', sa = a' + 2 := ⟨sa - 2, by omega⟩
+    obtain ⟨K, cfg', hK, hst, hreal', hsf⟩ := transport_drop hreal
+    refine ⟨K, hK, cfg', hst, ⟨n + 1, ⟨a' + 1, sc + 3, 2⟩, ?_, hreal'⟩, hsf⟩
+    rw [hsucc]
+    show (if 3 ≤ 2 then some (AState.mk (a' + 2) (2 - 2) (sc + 3))
+          else if (2 : Nat) = 2 then
+            (if 2 ≤ a' + 2 then some (AState.mk (a' + 2 - 1) (sc + 3) 2)
+             else none)
+          else if (2 : Nat) = 1 then some (AState.mk (a' + 2 + 2) (sc + 2) 2)
+          else none) = _
+    rw [if_neg (show ¬(3 ≤ 2) by omega), if_pos (show (2 : Nat) = 2 from rfl),
+        if_pos (show 2 ≤ a' + 2 by omega), show a' + 2 - 1 = a' + 1 by omega]
+  · -- hydra: counter frozen
+    obtain ⟨m', rfl⟩ : ∃ m', sm = m' + 3 := ⟨sm - 3, by omega⟩
+    obtain ⟨K, cfg', hK, hst, hreal', hsf⟩ := transport_hydra hreal
+    refine ⟨K, hK, cfg', hst, ⟨n + 1, ⟨sa, m' + 1, sc + 3⟩, ?_, hreal'⟩, hsf⟩
+    rw [hsucc]
+    show (if 3 ≤ m' + 3 then some (AState.mk sa (m' + 3 - 2) (sc + 3))
+          else if (m' + 3 : Nat) = 2 then
+            (if 2 ≤ sa then some (AState.mk (sa - 1) (sc + 3) 2) else none)
+          else if (m' + 3 : Nat) = 1 then
+            some (AState.mk (sa + 2) (sc + 2) 2)
+          else none) = _
+    rw [if_pos (show 3 ≤ m' + 3 by omega), show m' + 3 - 2 = m' + 1 by omega]
+
+/-- **THE MAIN THEOREM.**  Under the Antihydra conjecture `SafeOrbitA`,
+Antihydra never halts from the blank tape. -/
+theorem safeOrbitA_nonhalting (hso : SafeOrbitA) : ¬ RawHalts blankStart := by
+  have hpost : EProbeSafe ⟨State.B, 6, startTape⟩ :=
+    eprobe_safe_of_segments orbitInv_start (orbit_segment hso)
+  have hall : EProbeSafe blankStart :=
+    eprobe_safe_prefix startup_run startup_safe hpost
+  exact blank_nonhalting_of_e_probe_safe hall
+
 end QIG.AntihydraRawTM
 
 #print axioms QIG.AntihydraRawTM.halt_requires_e_probe_00
@@ -1328,3 +2080,9 @@ end QIG.AntihydraRawTM
 #print axioms QIG.AntihydraRawTM.hydra_step
 #print axioms QIG.AntihydraRawTM.drop_step
 #print axioms QIG.AntihydraRawTM.merge_chain
+#print axioms QIG.AntihydraRawTM.transport_hydra
+#print axioms QIG.AntihydraRawTM.transport_drop
+#print axioms QIG.AntihydraRawTM.transport_merge
+#print axioms QIG.AntihydraRawTM.realizes_start
+#print axioms QIG.AntihydraRawTM.orbit_segment
+#print axioms QIG.AntihydraRawTM.safeOrbitA_nonhalting

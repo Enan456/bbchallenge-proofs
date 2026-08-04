@@ -943,3 +943,52 @@ The counter block is provably untouched by this rule, which is what makes
 the eventual abstract state a plain triple (no level hierarchy, unlike
 dossier-1). Remaining: the four rare rules, the fixed-triple `Realizes`,
 transports, startup, dispatcher.
+
+---
+
+## ANTIHYDRA CLOSURE COMPLETE: `SafeOrbitA → ¬RawHalts blankStart` (2026-08-04)
+
+```lean
+theorem safeOrbitA_nonhalting (hso : SafeOrbitA) : ¬ RawHalts blankStart
+```
+
+**Machine-checked, axiom-clean (`propext`, `Quot.sound`), zero sorries,
+~2,100 lines of core-only Lean 4.** Antihydra — the most famous open
+BB(6) machine — now has a complete formal raw-to-macro reduction, the
+second one in this program after dossier-1.
+
+**All three of Antihydra's transitions proven for all block values:**
+
+| rule | effect on `(a, m, c)` | steps |
+|---|---|---|
+| `hydra_step` (`m ≥ 3`) | `(a, m−2, c+3)` — counter **frozen** | `2c + 11` |
+| `drop_step` (`m = 2`) | `(a−1, c+3, 2)` — counter **−1** | `2c + 15` (+1 bump) |
+| `merge_chain` (`m = 1`) | `(a+2, c+2, 2)` — counter **+2** | `2a + 2c + 22` |
+
+Each carries its exact step count, exact output tape, and `ESafeSeg` —
+every `E`-probe of a `0` proven safe. The merge's first probe is safe
+*precisely because the counter block is non-empty*, which is where
+halting would occur.
+
+**The rest of the chain:** `ESafeSeg` algebra and the
+`eprobe_safe_of_segments` keystone; a fixed-triple `Realizes` (no chain
+grammar — Antihydra never exceeds dimension 3); three `transport_*`
+theorems; a 62-step kernel-verified startup (`stepN 62 blankStart` lands
+on `⟨2, 7, 2⟩`, safety by the computable `checkSafe`); and the
+`orbit_segment` dispatcher.
+
+**The sole remaining hypothesis is `SafeOrbitA`** — a statement about
+the abstract triple orbit alone, with no Turing machine in it:
+
+> the orbit never reaches `m = 2` with a counter below 2.
+
+That is the Antihydra conjecture, **derived** from the transition table
+rather than assumed. Antihydra's non-halting is now formally equivalent
+to it, with every intermediate step machine-checked.
+
+### Program status
+
+Two complete formal reductions now exist — dossier-1 and Antihydra —
+totalling ~7,800 lines of axiom-clean, sorry-free Lean 4. Neither
+decides its machine; both convert an opaque 6-state machine into a
+single precisely-stated arithmetic conjecture.

@@ -21,6 +21,11 @@ proofs of non-halting.
   transitions, which slow-record machines could pass vacuously. The
   defensible count is **6 solid + 1 weak**; the gate now enforces
   `MIN_OOS = 50`. See the correction section in `docs/results/`.
+- **Antihydra's non-halting is formally reduced to the Antihydra
+  conjecture.** `safeOrbitA_nonhalting : SafeOrbitA → ¬ RawHalts blankStart`
+  is machine-checked and axiom-clean; all three of its transitions
+  (counter frozen / −1 / +2) are proven for all block values, and
+  `SafeOrbitA` is a statement about the abstract triple orbit alone.
 - **Antihydra reduces to 13 halt-avoidance obligations — and all 13 are
   mechanically discharged** (stage753: template uniformity, exact/guarded
   affine event counts, fresh-value synthetic replays at 100M steps).
