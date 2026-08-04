@@ -2806,6 +2806,508 @@ theorem collapsehead_run {c : Config} {p : Int}
       exact absurd hread (by simp)
     · rw [p9] at hkd; rw [← Option.some_inj.mp hkd] at hC; simp at hC
 
+/-- **The `b = 2` spawn, end to end** (`c = mc + 4 ≥ 4`): descent, the
+double-probe head, a caterpillar over the remaining `c`-interior, and the
+shared tail.  `31 + 8mc` steps to a `D`-record at the new frontier; every
+C-probe safe. -/
+theorem spawn2_run {c : Config} {p : Int} (mc : Nat)
+    (hs : c.state = State.E) (hh : c.head = p + 9 + mc)
+    (tg0 : c.tape p = false) (tg1 : c.tape (p + 1) = false)
+    (tb : ∀ i : Nat, i < 2 → c.tape (p + 2 + i) = true)
+    (tg2 : c.tape (p + 4) = false)
+    (tc : ∀ i : Nat, i < mc + 4 → c.tape (p + 5 + i) = true)
+    (tF : c.tape (p + 9 + mc) = false) :
+    (∃ tf : Int → Bool,
+        stepN (31 + 8 * mc) c = some ⟨State.D, p + 10 + mc, tf⟩) ∧
+      CSafeSeg c (31 + 8 * mc) := by
+  obtain ⟨s, hd, t⟩ := c
+  simp only at hs hh tg0 tg1 tb tg2 tc tF
+  subst hs hd
+  have hhead : (p : Int) + 9 + mc = p + 5 + ((1 : Nat) : Int) + ((mc + 3 : Nat) : Int) := by
+    omega
+  obtain ⟨sD, safeD⟩ := descent_run (c := ⟨State.E, p + 9 + mc, t⟩) 1 (mc + 3)
+    rfl hhead tg1
+    (fun i hi => tb i (by omega))
+    (by show t (p + 3 + ((1 : Nat) : Int)) = false
+        rw [show p + 3 + ((1 : Nat) : Int) = p + 4 by omega]; exact tg2)
+    (fun i hi => by
+      show t (p + 4 + ((1 : Nat) : Int) + i) = true
+      rw [show p + 4 + ((1 : Nat) : Int) + (i : Int) = p + 5 + (i : Int)
+            by omega]
+      exact tc i (by omega))
+    (by show t (p + 5 + ((1 : Nat) : Int) + ((mc + 3 : Nat) : Int)) = false
+        rw [show p + 5 + ((1 : Nat) : Int) + ((mc + 3 : Nat) : Int)
+              = p + 9 + (mc : Int) by omega]
+        exact tF)
+  rw [show (p : Int) + 5 + ((1 : Nat) : Int) + ((mc + 3 : Nat) : Int)
+        = p + 9 + (mc : Int) by omega,
+      show (p : Int) + 4 + ((1 : Nat) : Int) = p + 5 by omega,
+      show (p : Int) + 3 + ((1 : Nat) : Int) = p + 4 by omega] at sD
+  have sD' : stepN (5 + 3 * 1 + 3 * (mc + 3)) ⟨State.E, p + 9 + mc, t⟩ =
+      some ⟨State.A, p,
+        writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mc) true)
+          (p + 5) false) (p + 4) true) (p + 2) false) (p + 1) true⟩ := sD
+  obtain ⟨sH, safeH⟩ := spawnhead_run
+    (c := ⟨State.A, p,
+      writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mc) true)
+        (p + 5) false) (p + 4) true) (p + 2) false) (p + 1) true⟩)
+    (p := p) rfl rfl
+    (by
+      show writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mc) true)
+        (p + 5) false) (p + 4) true) (p + 2) false) (p + 1) true p = false
+      rw [writeAt_other _ (p + 1) _ true (by omega),
+          writeAt_other _ (p + 2) _ false (by omega),
+          writeAt_other _ (p + 4) _ true (by omega),
+          writeAt_other _ (p + 5) _ false (by omega),
+          writeAt_other t _ _ true (by omega)]
+      exact tg0)
+    (writeAt_same _ (p + 1) true)
+    (by
+      show writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mc) true)
+        (p + 5) false) (p + 4) true) (p + 2) false) (p + 1) true (p + 2) = false
+      rw [writeAt_other _ (p + 1) _ true (by omega)]
+      exact writeAt_same _ (p + 2) false)
+    (by
+      show writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mc) true)
+        (p + 5) false) (p + 4) true) (p + 2) false) (p + 1) true (p + 3) = true
+      rw [writeAt_other _ (p + 1) _ true (by omega),
+          writeAt_other _ (p + 2) _ false (by omega),
+          writeAt_other _ (p + 4) _ true (by omega),
+          writeAt_other _ (p + 5) _ false (by omega),
+          writeAt_other t _ _ true (by omega)]
+      have := tb 1 (by omega)
+      rw [show p + 3 = p + 2 + ((1 : Nat) : Int) by omega]
+      exact this)
+    (by
+      show writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mc) true)
+        (p + 5) false) (p + 4) true) (p + 2) false) (p + 1) true (p + 4) = true
+      rw [writeAt_other _ (p + 1) _ true (by omega),
+          writeAt_other _ (p + 2) _ false (by omega)]
+      exact writeAt_same _ (p + 4) true)
+    (by
+      show writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mc) true)
+        (p + 5) false) (p + 4) true) (p + 2) false) (p + 1) true (p + 5) = false
+      rw [writeAt_other _ (p + 1) _ true (by omega),
+          writeAt_other _ (p + 2) _ false (by omega),
+          writeAt_other _ (p + 4) _ true (by omega)]
+      exact writeAt_same _ (p + 5) false)
+    (by
+      show writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mc) true)
+        (p + 5) false) (p + 4) true) (p + 2) false) (p + 1) true (p + 6) = true
+      rw [writeAt_other _ (p + 1) _ true (by omega),
+          writeAt_other _ (p + 2) _ false (by omega),
+          writeAt_other _ (p + 4) _ true (by omega),
+          writeAt_other _ (p + 5) _ false (by omega),
+          writeAt_other t _ _ true (by omega)]
+      have := tc 1 (by omega)
+      rw [show p + 6 = p + 5 + ((1 : Nat) : Int) by omega]
+      exact this)
+    (by
+      show writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mc) true)
+        (p + 5) false) (p + 4) true) (p + 2) false) (p + 1) true (p + 7) = true
+      rw [writeAt_other _ (p + 1) _ true (by omega),
+          writeAt_other _ (p + 2) _ false (by omega),
+          writeAt_other _ (p + 4) _ true (by omega),
+          writeAt_other _ (p + 5) _ false (by omega),
+          writeAt_other t _ _ true (by omega)]
+      have := tc 2 (by omega)
+      rw [show p + 7 = p + 5 + ((2 : Nat) : Int) by omega]
+      exact this)
+    (by
+      show writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mc) true)
+        (p + 5) false) (p + 4) true) (p + 2) false) (p + 1) true (p + 8) = true
+      rw [writeAt_other _ (p + 1) _ true (by omega),
+          writeAt_other _ (p + 2) _ false (by omega),
+          writeAt_other _ (p + 4) _ true (by omega),
+          writeAt_other _ (p + 5) _ false (by omega),
+          writeAt_other t _ _ true (by omega)]
+      have := tc 3 (by omega)
+      rw [show p + 8 = p + 5 + ((3 : Nat) : Int) by omega]
+      exact this)
+    (by
+      show writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mc) true)
+        (p + 5) false) (p + 4) true) (p + 2) false) (p + 1) true (p + 9) = true
+      rw [writeAt_other _ (p + 1) _ true (by omega),
+          writeAt_other _ (p + 2) _ false (by omega),
+          writeAt_other _ (p + 4) _ true (by omega),
+          writeAt_other _ (p + 5) _ false (by omega)]
+      by_cases hmc : mc = 0
+      · subst hmc
+        rw [show p + 9 + ((0 : Nat) : Int) = p + 9 by omega]
+        exact writeAt_same t (p + 9) true
+      · rw [writeAt_other t _ _ true (by omega)]
+        have := tc 4 (by omega)
+        rw [show p + 9 = p + 5 + ((4 : Nat) : Int) by omega]
+        exact this)
+  have sH' : stepN 10
+      ⟨State.A, p,
+        writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mc) true)
+          (p + 5) false) (p + 4) true) (p + 2) false) (p + 1) true⟩ =
+      some ⟨State.A, p + 8,
+        writeAt (writeAt (writeAt (writeAt (writeAt
+          (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mc) true)
+            (p + 5) false) (p + 4) true) (p + 2) false) (p + 1) true)
+          p true) (p + 3) false) (p + 6) false) (p + 8) false) (p + 9) false⟩ := sH
+  have hT8 : writeAt (writeAt (writeAt (writeAt (writeAt
+      (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mc) true)
+        (p + 5) false) (p + 4) true) (p + 2) false) (p + 1) true)
+      p true) (p + 3) false) (p + 6) false) (p + 8) false) (p + 9) false
+      (p + 8) = false := by
+    rw [writeAt_other _ (p + 9) _ false (by omega)]
+    exact writeAt_same _ (p + 8) false
+  have hT9 : writeAt (writeAt (writeAt (writeAt (writeAt
+      (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mc) true)
+        (p + 5) false) (p + 4) true) (p + 2) false) (p + 1) true)
+      p true) (p + 3) false) (p + 6) false) (p + 8) false) (p + 9) false
+      (p + 8 + 1) = false := by
+    rw [show p + 8 + 1 = p + 9 by omega]
+    exact writeAt_same _ (p + 9) false
+  obtain ⟨sCat, safeCat⟩ := cat_run mc
+    ⟨State.A, p + 8,
+      writeAt (writeAt (writeAt (writeAt (writeAt
+        (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mc) true)
+          (p + 5) false) (p + 4) true) (p + 2) false) (p + 1) true)
+        p true) (p + 3) false) (p + 6) false) (p + 8) false) (p + 9) false⟩
+    (p + 8) rfl rfl hT8 hT9
+    (fun i hi => by
+      show writeAt (writeAt (writeAt (writeAt (writeAt
+        (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mc) true)
+          (p + 5) false) (p + 4) true) (p + 2) false) (p + 1) true)
+        p true) (p + 3) false) (p + 6) false) (p + 8) false) (p + 9) false
+        (p + 8 + 2 + (i : Int)) = true
+      rw [writeAt_other _ (p + 9) _ false (by omega),
+          writeAt_other _ (p + 8) _ false (by omega),
+          writeAt_other _ (p + 6) _ false (by omega),
+          writeAt_other _ (p + 3) _ false (by omega),
+          writeAt_other _ p _ true (by omega),
+          writeAt_other _ (p + 1) _ true (by omega),
+          writeAt_other _ (p + 2) _ false (by omega),
+          writeAt_other _ (p + 4) _ true (by omega),
+          writeAt_other _ (p + 5) _ false (by omega)]
+      by_cases him : i = mc - 1
+      · have hmc1 : 1 ≤ mc := by omega
+        rw [him]
+        rw [show p + 8 + 2 + ((mc - 1 : Nat) : Int) = p + 9 + (mc : Int)
+              by omega]
+        exact writeAt_same t _ true
+      · rw [writeAt_other t _ _ true (by omega)]
+        have := tc (i + 5) (by omega)
+        rw [show p + 8 + 2 + (i : Int) = p + 5 + ((i + 5 : Nat) : Int)
+              by omega]
+        exact this)
+  rw [show p + 8 + (mc : Int) = p + 8 + (mc : Int) from rfl] at sCat
+  have sCat' : stepN (5 * mc)
+      ⟨State.A, p + 8,
+        writeAt (writeAt (writeAt (writeAt (writeAt
+          (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mc) true)
+            (p + 5) false) (p + 4) true) (p + 2) false) (p + 1) true)
+          p true) (p + 3) false) (p + 6) false) (p + 8) false) (p + 9) false⟩ =
+      some ⟨State.A, p + 8 + mc,
+        catTape (writeAt (writeAt (writeAt (writeAt (writeAt
+          (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mc) true)
+            (p + 5) false) (p + 4) true) (p + 2) false) (p + 1) true)
+          p true) (p + 3) false) (p + 6) false) (p + 8) false) (p + 9) false)
+          (p + 8) mc⟩ := sCat
+  obtain ⟨e0, e1⟩ := catTape_end mc
+    (writeAt (writeAt (writeAt (writeAt (writeAt
+      (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mc) true)
+        (p + 5) false) (p + 4) true) (p + 2) false) (p + 1) true)
+      p true) (p + 3) false) (p + 6) false) (p + 8) false) (p + 9) false)
+    (p + 8) hT8 hT9
+  obtain ⟨sT, safeT⟩ := partial4_run
+    (c := ⟨State.A, p + 8 + mc,
+      catTape (writeAt (writeAt (writeAt (writeAt (writeAt
+        (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mc) true)
+          (p + 5) false) (p + 4) true) (p + 2) false) (p + 1) true)
+        p true) (p + 3) false) (p + 6) false) (p + 8) false) (p + 9) false)
+        (p + 8) mc⟩)
+    (q := p + 8 + mc) rfl rfl e0 e1
+  rw [show p + 8 + (mc : Int) + 2 = p + 10 + (mc : Int) by omega] at sT
+  have sT' : stepN 4
+      ⟨State.A, p + 8 + mc,
+        catTape (writeAt (writeAt (writeAt (writeAt (writeAt
+          (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mc) true)
+            (p + 5) false) (p + 4) true) (p + 2) false) (p + 1) true)
+          p true) (p + 3) false) (p + 6) false) (p + 8) false) (p + 9) false)
+          (p + 8) mc⟩ =
+      some ⟨State.D, p + 10 + mc,
+        writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt
+          (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mc) true)
+            (p + 5) false) (p + 4) true) (p + 2) false) (p + 1) true)
+          p true) (p + 3) false) (p + 6) false) (p + 8) false) (p + 9) false)
+          (p + 8) mc) (p + 8 + mc) true) (p + 8 + mc + 1) false⟩ := sT
+  have acc1 : stepN ((5 + 3 * 1 + 3 * (mc + 3)) + 10)
+      ⟨State.E, p + 9 + mc, t⟩ =
+      some ⟨State.A, p + 8,
+        writeAt (writeAt (writeAt (writeAt (writeAt
+          (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mc) true)
+            (p + 5) false) (p + 4) true) (p + 2) false) (p + 1) true)
+          p true) (p + 3) false) (p + 6) false) (p + 8) false) (p + 9) false⟩ := by
+    rw [stepN_add, sD']; exact sH'
+  have acc2 : stepN (((5 + 3 * 1 + 3 * (mc + 3)) + 10) + 5 * mc)
+      ⟨State.E, p + 9 + mc, t⟩ =
+      some ⟨State.A, p + 8 + mc,
+        catTape (writeAt (writeAt (writeAt (writeAt (writeAt
+          (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mc) true)
+            (p + 5) false) (p + 4) true) (p + 2) false) (p + 1) true)
+          p true) (p + 3) false) (p + 6) false) (p + 8) false) (p + 9) false)
+          (p + 8) mc⟩ := by
+    rw [stepN_add, acc1]; exact sCat'
+  have acc3 : stepN ((((5 + 3 * 1 + 3 * (mc + 3)) + 10) + 5 * mc) + 4)
+      ⟨State.E, p + 9 + mc, t⟩ =
+      some ⟨State.D, p + 10 + mc,
+        writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt
+          (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mc) true)
+            (p + 5) false) (p + 4) true) (p + 2) false) (p + 1) true)
+          p true) (p + 3) false) (p + 6) false) (p + 8) false) (p + 9) false)
+          (p + 8) mc) (p + 8 + mc) true) (p + 8 + mc + 1) false⟩ := by
+    rw [stepN_add, acc2]; exact sT'
+  refine ⟨⟨writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt
+      (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mc) true)
+        (p + 5) false) (p + 4) true) (p + 2) false) (p + 1) true)
+      p true) (p + 3) false) (p + 6) false) (p + 8) false) (p + 9) false)
+      (p + 8) mc) (p + 8 + mc) true) (p + 8 + mc + 1) false, ?_⟩, ?_⟩
+  · rw [show 31 + 8 * mc = (((5 + 3 * 1 + 3 * (mc + 3)) + 10) + 5 * mc) + 4
+          by omega]
+    exact acc3
+  · rw [show 31 + 8 * mc = (5 + 3 * 1 + 3 * (mc + 3)) + (10 + (5 * mc + 4))
+          by omega]
+    exact csafe_compose sD' (csafe_of_noC safeD)
+      (csafe_compose sH' safeH
+        (csafe_compose sCat' (csafe_of_strong safeCat) safeT))
+
+/-- **The `b = 1` collapse, end to end** (`c = mc + 1`): descent, the
+fill head that fuses the levels, a caterpillar across the fused region,
+and the shared tail.  `29 + 8mc` steps to a `D`-record at the new
+frontier; the single C0 probe safe. -/
+theorem collapse1_run {c : Config} {p : Int} (mc : Nat)
+    (hs : c.state = State.E) (hh : c.head = p + 5 + mc)
+    (tg0 : c.tape p = false) (tg1 : c.tape (p + 1) = false)
+    (tb : c.tape (p + 2) = true)
+    (tg2 : c.tape (p + 3) = false)
+    (tc : ∀ i : Nat, i < mc + 1 → c.tape (p + 4 + i) = true)
+    (tF : c.tape (p + 5 + mc) = false) :
+    (∃ tf : Int → Bool,
+        stepN (29 + 8 * mc) c = some ⟨State.D, p + 6 + mc, tf⟩) ∧
+      CSafeSeg c (29 + 8 * mc) := by
+  obtain ⟨s, hd, t⟩ := c
+  simp only at hs hh tg0 tg1 tb tg2 tc tF
+  subst hs hd
+  have hhead : (p : Int) + 5 + mc
+      = p + 5 + ((0 : Nat) : Int) + (mc : Int) := by omega
+  obtain ⟨sD, safeD⟩ := descent_run (c := ⟨State.E, p + 5 + mc, t⟩) 0 mc
+    rfl hhead tg1
+    (fun i hi => by
+      have hi0 : i = 0 := by omega
+      subst hi0
+      show t (p + 2 + ((0 : Nat) : Int)) = true
+      rw [show p + 2 + ((0 : Nat) : Int) = p + 2 by omega]
+      exact tb)
+    (by show t (p + 3 + ((0 : Nat) : Int)) = false
+        rw [show p + 3 + ((0 : Nat) : Int) = p + 3 by omega]; exact tg2)
+    (fun i hi => by
+      show t (p + 4 + ((0 : Nat) : Int) + i) = true
+      rw [show p + 4 + ((0 : Nat) : Int) + (i : Int) = p + 4 + (i : Int)
+            by omega]
+      exact tc i hi)
+    (by show t (p + 5 + ((0 : Nat) : Int) + mc) = false
+        rw [show p + 5 + ((0 : Nat) : Int) + (mc : Int) = p + 5 + (mc : Int)
+              by omega]
+        exact tF)
+  rw [show (p : Int) + 5 + ((0 : Nat) : Int) + (mc : Int)
+        = p + 5 + (mc : Int) by omega,
+      show (p : Int) + 4 + ((0 : Nat) : Int) = p + 4 by omega,
+      show (p : Int) + 3 + ((0 : Nat) : Int) = p + 3 by omega] at sD
+  have sD' : stepN (5 + 3 * 0 + 3 * mc) ⟨State.E, p + 5 + mc, t⟩ =
+      some ⟨State.A, p,
+        writeAt (writeAt (writeAt (writeAt (writeAt t (p + 5 + mc) true)
+          (p + 4) false) (p + 3) true) (p + 2) false) (p + 1) true⟩ := sD
+  obtain ⟨sH, safeH⟩ := collapsehead_run
+    (c := ⟨State.A, p,
+      writeAt (writeAt (writeAt (writeAt (writeAt t (p + 5 + mc) true)
+        (p + 4) false) (p + 3) true) (p + 2) false) (p + 1) true⟩)
+    (p := p) rfl rfl
+    (by
+      show writeAt (writeAt (writeAt (writeAt (writeAt t (p + 5 + mc) true)
+        (p + 4) false) (p + 3) true) (p + 2) false) (p + 1) true p = false
+      rw [writeAt_other _ (p + 1) _ true (by omega),
+          writeAt_other _ (p + 2) _ false (by omega),
+          writeAt_other _ (p + 3) _ true (by omega),
+          writeAt_other _ (p + 4) _ false (by omega),
+          writeAt_other t _ _ true (by omega)]
+      exact tg0)
+    (writeAt_same _ (p + 1) true)
+    (by
+      show writeAt (writeAt (writeAt (writeAt (writeAt t (p + 5 + mc) true)
+        (p + 4) false) (p + 3) true) (p + 2) false) (p + 1) true (p + 2) = false
+      rw [writeAt_other _ (p + 1) _ true (by omega)]
+      exact writeAt_same _ (p + 2) false)
+    (by
+      show writeAt (writeAt (writeAt (writeAt (writeAt t (p + 5 + mc) true)
+        (p + 4) false) (p + 3) true) (p + 2) false) (p + 1) true (p + 3) = true
+      rw [writeAt_other _ (p + 1) _ true (by omega),
+          writeAt_other _ (p + 2) _ false (by omega)]
+      exact writeAt_same _ (p + 3) true)
+    (by
+      show writeAt (writeAt (writeAt (writeAt (writeAt t (p + 5 + mc) true)
+        (p + 4) false) (p + 3) true) (p + 2) false) (p + 1) true (p + 4) = false
+      rw [writeAt_other _ (p + 1) _ true (by omega),
+          writeAt_other _ (p + 2) _ false (by omega),
+          writeAt_other _ (p + 3) _ true (by omega)]
+      exact writeAt_same _ (p + 4) false)
+  have sH' : stepN 10
+      ⟨State.A, p,
+        writeAt (writeAt (writeAt (writeAt (writeAt t (p + 5 + mc) true)
+          (p + 4) false) (p + 3) true) (p + 2) false) (p + 1) true⟩ =
+      some ⟨State.A, p + 2,
+        writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+          (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 5 + mc) true)
+            (p + 4) false) (p + 3) true) (p + 2) false) (p + 1) true)
+          p true) (p + 3) false) (p + 4) true) (p + 3) true) (p + 2) true)
+          (p + 2) false) (p + 3) false⟩ := sH
+  have hT2 : writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+      (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 5 + mc) true)
+        (p + 4) false) (p + 3) true) (p + 2) false) (p + 1) true)
+      p true) (p + 3) false) (p + 4) true) (p + 3) true) (p + 2) true)
+      (p + 2) false) (p + 3) false (p + 2) = false := by
+    rw [writeAt_other _ (p + 3) _ false (by omega)]
+    exact writeAt_same _ (p + 2) false
+  have hT3 : writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+      (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 5 + mc) true)
+        (p + 4) false) (p + 3) true) (p + 2) false) (p + 1) true)
+      p true) (p + 3) false) (p + 4) true) (p + 3) true) (p + 2) true)
+      (p + 2) false) (p + 3) false (p + 2 + 1) = false := by
+    rw [show p + 2 + 1 = p + 3 by omega]
+    exact writeAt_same _ (p + 3) false
+  obtain ⟨sCat, safeCat⟩ := cat_run (mc + 2)
+    ⟨State.A, p + 2,
+      writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+        (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 5 + mc) true)
+          (p + 4) false) (p + 3) true) (p + 2) false) (p + 1) true)
+        p true) (p + 3) false) (p + 4) true) (p + 3) true) (p + 2) true)
+        (p + 2) false) (p + 3) false⟩
+    (p + 2) rfl rfl hT2 hT3
+    (fun i hi => by
+      show writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+        (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 5 + mc) true)
+          (p + 4) false) (p + 3) true) (p + 2) false) (p + 1) true)
+        p true) (p + 3) false) (p + 4) true) (p + 3) true) (p + 2) true)
+        (p + 2) false) (p + 3) false (p + 2 + 2 + (i : Int)) = true
+      rw [writeAt_other _ (p + 3) _ false (by omega),
+          writeAt_other _ (p + 2) _ false (by omega),
+          writeAt_other _ (p + 2) _ true (by omega),
+          writeAt_other _ (p + 3) _ true (by omega)]
+      by_cases hi0 : i = 0
+      · subst hi0
+        rw [show p + 2 + 2 + ((0 : Nat) : Int) = p + 4 by omega]
+        exact writeAt_same _ (p + 4) true
+      · rw [writeAt_other _ (p + 4) _ true (by omega),
+            writeAt_other _ (p + 3) _ false (by omega),
+            writeAt_other _ p _ true (by omega),
+            writeAt_other _ (p + 1) _ true (by omega),
+            writeAt_other _ (p + 2) _ false (by omega),
+            writeAt_other _ (p + 3) _ true (by omega),
+            writeAt_other _ (p + 4) _ false (by omega)]
+        by_cases him : i = mc + 1
+        · subst him
+          rw [show p + 2 + 2 + ((mc + 1 : Nat) : Int) = p + 5 + (mc : Int)
+                by omega]
+          exact writeAt_same t _ true
+        · rw [writeAt_other t _ _ true (by omega)]
+          have := tc i (by omega)
+          rw [show p + 2 + 2 + (i : Int) = p + 4 + (i : Int) by omega]
+          exact this)
+  have sCat' : stepN (5 * (mc + 2))
+      ⟨State.A, p + 2,
+        writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+          (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 5 + mc) true)
+            (p + 4) false) (p + 3) true) (p + 2) false) (p + 1) true)
+          p true) (p + 3) false) (p + 4) true) (p + 3) true) (p + 2) true)
+          (p + 2) false) (p + 3) false⟩ =
+      some ⟨State.A, p + 2 + (mc + 2 : Nat),
+        catTape (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+          (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 5 + mc) true)
+            (p + 4) false) (p + 3) true) (p + 2) false) (p + 1) true)
+          p true) (p + 3) false) (p + 4) true) (p + 3) true) (p + 2) true)
+          (p + 2) false) (p + 3) false) (p + 2) (mc + 2)⟩ := sCat
+  rw [show (p : Int) + 2 + ((mc + 2 : Nat) : Int) = p + 4 + (mc : Int)
+        by omega] at sCat'
+  obtain ⟨e0, e1⟩ := catTape_end (mc + 2)
+    (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+      (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 5 + mc) true)
+        (p + 4) false) (p + 3) true) (p + 2) false) (p + 1) true)
+      p true) (p + 3) false) (p + 4) true) (p + 3) true) (p + 2) true)
+      (p + 2) false) (p + 3) false)
+    (p + 2) hT2 hT3
+  rw [show (p : Int) + 2 + ((mc + 2 : Nat) : Int) = p + 4 + (mc : Int)
+        by omega] at e0
+  rw [show (p : Int) + 2 + ((mc + 2 : Nat) : Int) + 1 = p + 4 + (mc : Int) + 1
+        by omega] at e1
+  obtain ⟨sT, safeT⟩ := partial4_run
+    (c := ⟨State.A, p + 4 + mc,
+      catTape (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+        (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 5 + mc) true)
+          (p + 4) false) (p + 3) true) (p + 2) false) (p + 1) true)
+        p true) (p + 3) false) (p + 4) true) (p + 3) true) (p + 2) true)
+        (p + 2) false) (p + 3) false) (p + 2) (mc + 2)⟩)
+    (q := p + 4 + mc) rfl rfl e0 e1
+  rw [show p + 4 + (mc : Int) + 2 = p + 6 + (mc : Int) by omega] at sT
+  have sT' : stepN 4
+      ⟨State.A, p + 4 + mc,
+        catTape (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+          (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 5 + mc) true)
+            (p + 4) false) (p + 3) true) (p + 2) false) (p + 1) true)
+          p true) (p + 3) false) (p + 4) true) (p + 3) true) (p + 2) true)
+          (p + 2) false) (p + 3) false) (p + 2) (mc + 2)⟩ =
+      some ⟨State.D, p + 6 + mc,
+        writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt
+          (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t
+            (p + 5 + mc) true) (p + 4) false) (p + 3) true) (p + 2) false)
+            (p + 1) true) p true) (p + 3) false) (p + 4) true) (p + 3) true)
+            (p + 2) true) (p + 2) false) (p + 3) false) (p + 2) (mc + 2))
+          (p + 4 + mc) true) (p + 4 + mc + 1) false⟩ := sT
+  have acc1 : stepN ((5 + 3 * 0 + 3 * mc) + 10) ⟨State.E, p + 5 + mc, t⟩ =
+      some ⟨State.A, p + 2,
+        writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+          (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 5 + mc) true)
+            (p + 4) false) (p + 3) true) (p + 2) false) (p + 1) true)
+          p true) (p + 3) false) (p + 4) true) (p + 3) true) (p + 2) true)
+          (p + 2) false) (p + 3) false⟩ := by
+    rw [stepN_add, sD']; exact sH'
+  have acc2 : stepN (((5 + 3 * 0 + 3 * mc) + 10) + 5 * (mc + 2))
+      ⟨State.E, p + 5 + mc, t⟩ =
+      some ⟨State.A, p + 4 + mc,
+        catTape (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+          (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 5 + mc) true)
+            (p + 4) false) (p + 3) true) (p + 2) false) (p + 1) true)
+          p true) (p + 3) false) (p + 4) true) (p + 3) true) (p + 2) true)
+          (p + 2) false) (p + 3) false) (p + 2) (mc + 2)⟩ := by
+    rw [stepN_add, acc1]; exact sCat'
+  have acc3 : stepN ((((5 + 3 * 0 + 3 * mc) + 10) + 5 * (mc + 2)) + 4)
+      ⟨State.E, p + 5 + mc, t⟩ =
+      some ⟨State.D, p + 6 + mc,
+        writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt
+          (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t
+            (p + 5 + mc) true) (p + 4) false) (p + 3) true) (p + 2) false)
+            (p + 1) true) p true) (p + 3) false) (p + 4) true) (p + 3) true)
+            (p + 2) true) (p + 2) false) (p + 3) false) (p + 2) (mc + 2))
+          (p + 4 + mc) true) (p + 4 + mc + 1) false⟩ := by
+    rw [stepN_add, acc2]; exact sT'
+  refine ⟨⟨writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt
+      (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t
+        (p + 5 + mc) true) (p + 4) false) (p + 3) true) (p + 2) false)
+        (p + 1) true) p true) (p + 3) false) (p + 4) true) (p + 3) true)
+        (p + 2) true) (p + 2) false) (p + 3) false) (p + 2) (mc + 2))
+      (p + 4 + mc) true) (p + 4 + mc + 1) false, ?_⟩, ?_⟩
+  · rw [show 29 + 8 * mc = (((5 + 3 * 0 + 3 * mc) + 10) + 5 * (mc + 2)) + 4
+          by omega]
+    exact acc3
+  · rw [show 29 + 8 * mc
+        = (5 + 3 * 0 + 3 * mc) + (10 + (5 * (mc + 2) + 4)) by omega]
+    exact csafe_compose sD' (csafe_of_noC safeD)
+      (csafe_compose sH' safeH
+        (csafe_compose sCat' (csafe_of_strong safeCat) safeT))
+
 /-!
 ## The segment-induction keystone
 
@@ -2854,5 +3356,10 @@ end QIG.Dossier1RawTM
 #print axioms QIG.Dossier1RawTM.dominant_rule_run
 #print axioms QIG.Dossier1RawTM.cprobe_safe_of_segments
 #print axioms QIG.Dossier1RawTM.workhorse_run
+#print axioms QIG.Dossier1RawTM.workhorse3_run
+#print axioms QIG.Dossier1RawTM.workhorse4_run
+#print axioms QIG.Dossier1RawTM.spawn2_run
+#print axioms QIG.Dossier1RawTM.collapse1_run
+#print axioms QIG.Dossier1RawTM.leftcross_run
 #print axioms QIG.Dossier1RawTM.crawl_run
 #print axioms QIG.Dossier1RawTM.exit_run

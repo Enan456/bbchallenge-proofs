@@ -617,3 +617,106 @@ checklist for `CProbeSafe blankStart`: the refill family
 cross the frozen prefix (need a `(N,2)*` prefix grammar — the genuinely
 recursive part), the startup records, and the top-level invariant
 instantiation of the keystone.
+
+---
+
+## Closure phase 4 scoping: ALL transitions are local — no recursive grammar (2026-08-04)
+
+Exact traces of the four remaining R-side cases, from `(a, 2, b, 1, c)`
+with `a`-block frozen (verified head never goes left of the 2-gap's left
+cell `p` in ANY case — the a-block is never entered; blocks fuse by gap
+filling):
+
+- **b=4** (47 steps for c=6): descent → `prefix_run` (D reads the
+  boundary-written 1-gap cell) → cat m=0 → exit. Output `(a+2,2,2,1,c+1)`.
+  Total `4c + 23`.
+- **b=3** (39 steps): descent → 6-step prefix variant `A,B,C(probe),F,B,C`
+  then D reads 0 (the boundary-zeroed c-edge) → `D0=1RE` exit + E-sweep.
+  Output `(a+2,2,1,1,c+1)`.
+- **b=2 spawn** (47 steps): descent → turnaround with **two** C0 probes
+  (`A,B,C(probe),F,B,C(probe),F,B,C,D`) → short caterpillar → output
+  `(a+2, 2, 1, 2, c-2, …)`-family D-record: a NEW level is born.
+- **b=1 collapse** (69 steps): descent → one C0 probe → `B0=1LB` fills the
+  gap leftward (3 cells) → full caterpillar across the fused region →
+  output `(a+b+c+3)`-style fusion (one level dies). LOCAL.
+
+Remaining Lean checklist (all shapes finite, all parametric lemmas local):
+1. `descent_run` (factor: entry+crawl(c−1)+gapcross+crawl(b−1)+gapcross,
+   `3b+3c−1` steps, C-free, works for all b,c ≥ 1);
+2. `workhorse4_run`, `workhorse3_run` (+ 6-step prefix variant);
+3. `spawn2_run` (two safe C0 probes), `collapse1_run` (B-fill + cat);
+4. small-dim collapse cycle: `(D,R,(n)) → (E,R,(n,1,1)) → (E,L,(n,1,1))
+   → (A,L,(1,1,n,1,1))` (the E,L step crosses the whole tape; dim-3
+   parametric), plus D-record right-edge expansions `(D,R,P++(n)) →
+   (E,R,P++(n,1,1))` and the spawn-product shapes `P++(1,2,c)`;
+5. startup records 0..8 (concrete);
+6. the invariant `Inv` = finite union of the above shapes + keystone
+   instantiation ⇒ `CProbeSafe blankStart` ⇒ **dossier-1 never halts**.
+
+### Phase-4 progress + exact remaining decompositions (2026-08-04, cont.)
+
+Proven since the scoping note (all axiom-clean): `descent_run` (common
+C-free descent, all b,c ≥ 1), `prefix3_run`, `workhorse3_run` (19+4mc),
+`workhorse4_run` (27+4mc), `dstep_run` (D-record, 1 step),
+`estep_run` (E,L-record, 1 step), `leftcross_run` (E,R,(n,1,1) → left
+frontier, 3n+1 steps, C-free).
+
+Remaining two rule lemmas, decompositions verified by trace:
+- `spawn2_run` (b=2, c=mc+4 ≥ 4): descent(mb=1) + 10-step double-probe
+  head `A,B,C(probe@p+2 safe p+3),F,B,C(probe@p+5 safe p+6),F,B,C,D` +
+  `cat_run mc` + 4-step partial `A,B,B,C` → D-record at F+1.
+  Total `31+8mc`. NOTE: c=2 would HALT (C reads blank at F+1, F0) and c=3
+  exits early — the invariant must carry `c ≥ 4` when b=2 (maintained
+  monotonically: c grows +1 per sweep while b shrinks −2, so by the time
+  b reaches 2, c is large).
+- `collapse1_run` (b=1, c=mc+1): descent(mb=0) + 10-step fill head
+  `A,B,C(probe safe via boundary-written p+3),F,B,B,B,B,C,D` (the B0=1LB
+  fill converts the 3 zeroed cells to 1s, fusing the levels) +
+  `cat_run (mc+2)` + partial4 → D-record at F+1. Total `29+8mc`.
+- `partial4_run` (shared tail): A,B,B,C from t(q)=0,t(q+1)=0: net
+  q:=1, q+1:=0, ends state D at q+2, one safe C-read.
+
+Then: startup (concrete ~50 steps from blankStart into the small cycle),
+and the invariant = union of {workhorse-form (a,2,…,2,b,1,c) with value
+constraints, D-records (head_gap 1), (E,R,(n,1,1)), (E,L,(n,1,1)),
+(A,L,(1,1,n,1,1))} + keystone instantiation.
+
+---
+
+## Closure phase 5: THE COMPLETE RULE LAYER IS PROVEN (2026-08-04)
+
+All axiom-clean (`propext`, `Quot.sound`), no sorry, in
+`lean/QIG/Dossier1RawTM.lean` (~3,300 lines). Every record-to-record
+transition type dossier-1 ever executes now has a machine-checked lemma
+giving its exact step count, exact output configuration, and C-probe
+safety for ALL block values:
+
+| lemma | transition | steps |
+|---|---|---|
+| `dominant_rule_run` | L-record `(1,b,1)` sweep | `13+5m` |
+| `workhorse_run` | R-sweep, `b ≥ 5`, every depth | `35+8mb+4mc` |
+| `workhorse4_run` | `b = 4` | `27+4mc` |
+| `workhorse3_run` | `b = 3` | `19+4mc` |
+| `spawn2_run` | `b = 2` level-birth (2 safe probes) | `31+8mc` |
+| `collapse1_run` | `b = 1` level-death (B-fill fusion) | `29+8mc` |
+| `dstep_run` / `estep_run` | D- / E,L-records | 1 |
+| `leftcross_run` | `(E,R,(n,1,1))` whole-tape crossing | `3n+1` |
+
+Supporting: `descent_run`, `spawnhead_run`, `collapsehead_run`,
+`prefix_run`/`prefix3_run`, `cat_run`, `crawl_run`, `gapcross_run`,
+`exit_run`, `partial4_run`, `sweep_E`, keystone
+`cprobe_safe_of_segments`, and `CSafeSeg` composition algebra.
+
+Every C0 probe in the machine's entire dynamics occurs in one of FOUR
+proven-safe positions (dominant/workhorse prefix, prefix3, spawn's double
+probe, collapse's fill probe) — each safe because the probed single-0 gap
+has a 1 to its right by construction, for all block values.
+
+**Remaining for `CProbeSafe blankStart` ⇒ non-halting:** (1) the concrete
+startup segment from `blankStart` into the shape family (~50 explicit
+steps); (2) the invariant `Inv` (union of the parameterized record shapes
+with the monotone value constraints, e.g. `c ≥ 4` when `b = 2`) and the
+case-by-case keystone instantiation — checking each lemma's output tape
+satisfies the successor shape's preconditions (pointwise `writeAt`/
+`catTape` evaluations, no new dynamics). This is pure assembly:
+every dynamical fact needed is now a compiled theorem.
