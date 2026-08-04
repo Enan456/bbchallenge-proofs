@@ -904,3 +904,42 @@ orbit-dependent (Collatz-class, no certificate). With its records
 bounded at **dimension 3** — a fixed triple, no level hierarchy — it is
 both the best-justified and the cheapest target for the next conditional
 result.
+
+---
+
+## Antihydra conditional, phase 1–2 (2026-08-04)
+
+**Trace analysis (`stage754` follow-up).** Antihydra's record dynamics
+decompose completely, and the structure is the hydra itself:
+
+| rule | effect | steps |
+|---|---|---|
+| **dominant (96%)** | `(a, m, c) → (a, m−2, c+3)`, `m ≥ 3` | `2c + 11` |
+| merge (`m = 1`) | `(a, 1, c) → (a, c+1)` at dim 2 | `a + c + 4` |
+| counter `+1`, `+1` | dim-2 `C→D→A`, each grows `a` | 1 each |
+| re-expand | dim 2 → `(a, c′, 1)` at dim 3 | ~`2c + 18` |
+| drop (`m = 2`) | `(a, 2, c) → (a−1, c+3, 1)` | data-dependent |
+
+**The counter `a` is frozen in the dominant rule and moves only in the
+rare paths: `+2` via the merge/re-expand cycle, `−1` via the `m = 2`
+drop.** So the abstract state is a triple with a counter doing `+2`/`−1`
+that must never reach zero — i.e. Antihydra's safety condition is
+literally the Antihydra conjecture, now derived from the machine rather
+than assumed.
+
+**Lean progress (`lean/QIG/AntihydraRawTM.lean`, axiom-clean, no sorry):**
+
+- infrastructure ported: `writeAt_overwrite`, `stepN_add`, `ESafeSeg`
+  (E-probe form), `esafe_compose`, `esafe_of_strong`, `esafe_of_noE`,
+  `eprobe_safe_of_segments` (keystone), `eprobe_safe_prefix`;
+- **`hydra_step`** — the dominant rule proven end to end for **all**
+  block values: from `(a, m, c)` with `m ≥ 3`, exactly `2c + 11` raw
+  steps to `(a, m−2, c+3)`, with the exact output tape (three cells
+  change: `p−1 ↦ 0`, `p+1 ↦ 1`, `p+2+c ↦ 1`) and `ESafeSeg` — the single
+  E-probe of a `0`, at the top of the `m`-block, is safe because its left
+  neighbour still holds a `1`.
+
+The counter block is provably untouched by this rule, which is what makes
+the eventual abstract state a plain triple (no level hierarchy, unlike
+dossier-1). Remaining: the four rare rules, the fixed-triple `Realizes`,
+transports, startup, dispatcher.

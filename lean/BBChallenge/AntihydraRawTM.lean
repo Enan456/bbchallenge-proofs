@@ -345,9 +345,310 @@ theorem sweep_C :
             = stepN n ⟨State.C, c.head - 1, c.tape⟩ from rfl]
       rw [hnext, harith]
 
+/-!
+## Segment algebra and the E-probe keystone
+
+Mirror of the dossier-1 development, with `E` in place of `C` as the
+danger state (Antihydra enters `F` only via `E0`, moving *left*).
+-/
+
+theorem writeAt_overwrite (tape : Int → Bool) (pos : Int) (v w : Bool) :
+    writeAt (writeAt tape pos v) pos w = writeAt tape pos w := by
+  funext x
+  by_cases hx : x = pos <;> simp [writeAt, hx]
+
+theorem stepN_add :
+    ∀ (m n : Nat) (c : Config),
+      stepN (m + n) c = (stepN m c).bind (stepN n) := by
+  intro m
+  induction m with
+  | zero => intro n c; simp [stepN, Nat.zero_add]
+  | succ m ih =>
+      intro n c
+      rw [Nat.succ_add]
+      cases hstep : step c with
+      | none => simp [stepN, hstep]
+      | some c1 => simp [stepN, hstep, ih]
+
+/-- Conditional E-probe safety over the first `N` steps of a run. -/
+def ESafeSeg (c : Config) (N : Nat) : Prop :=
+  ∀ k d, k < N → stepN k c = some d → d.state = State.E →
+    d.tape d.head = false → d.tape (d.head - 1) = true
+
+theorem esafe_compose {c c' : Config} {m n : Nat}
+    (hm : stepN m c = some c') (h1 : ESafeSeg c m) (h2 : ESafeSeg c' n) :
+    ESafeSeg c (m + n) := by
+  intro k d hk hkd hE hread
+  by_cases hkm : k < m
+  · exact h1 k d hkm hkd hE hread
+  · have hkeq : k = m + (k - m) := by omega
+    rw [hkeq, stepN_add, hm] at hkd
+    exact h2 (k - m) d (by omega) hkd hE hread
+
+/-- A segment in which every `E` configuration reads a `1` is safe. -/
+theorem esafe_of_strong {c : Config} {N : Nat}
+    (h : ∀ k d, k < N → stepN k c = some d → d.state = State.E →
+      d.tape d.head = true) : ESafeSeg c N := by
+  intro k d hk hkd hE hread
+  rw [h k d hk hkd hE] at hread
+  exact absurd hread (by simp)
+
+/-- A segment with no `E` configuration at all is safe. -/
+theorem esafe_of_noE {c : Config} {N : Nat}
+    (h : ∀ k d, k < N → stepN k c = some d → d.state ≠ State.E) :
+    ESafeSeg c N := by
+  intro k d hk hkd hE _
+  exact absurd hE (h k d hk hkd)
+
+/-- The segment-induction keystone: an invariant maintained by positive
+safe segments gives `EProbeSafe` for the whole infinite run. -/
+theorem eprobe_safe_of_segments {Inv : Config → Prop} {c0 : Config}
+    (h0 : Inv c0)
+    (hseg : ∀ c, Inv c → ∃ k, 0 < k ∧ ∃ c', stepN k c = some c' ∧
+      Inv c' ∧ ESafeSeg c k) :
+    EProbeSafe c0 := by
+  have main : ∀ (N n : Nat) (c : Config), n ≤ N → Inv c →
+      ∀ d, stepN n c = some d → d.state = State.E →
+        d.tape d.head = false → d.tape (d.head - 1) = true := by
+    intro N
+    induction N with
+    | zero =>
+        intro n c hn hInv d hd hE hread
+        obtain ⟨k, hk, c', _hs, _hInv', hsafe⟩ := hseg c hInv
+        exact hsafe n d (by omega) hd hE hread
+    | succ N ihN =>
+        intro n c hn hInv d hd hE hread
+        obtain ⟨k, hk, c', hs, hInv', hsafe⟩ := hseg c hInv
+        by_cases hlt : n < k
+        · exact hsafe n d hlt hd hE hread
+        · have hneq : n = k + (n - k) := by omega
+          rw [hneq, stepN_add, hs] at hd
+          exact ihN (n - k) c' (by omega) hInv' d hd hE hread
+  intro d hreach hE hread
+  obtain ⟨n, hn⟩ := hreach
+  exact main n n c0 (Nat.le_refl n) h0 d hn hE hread
+
+/-- Prefix safety plus tail safety gives whole-run safety. -/
+theorem eprobe_safe_prefix {c d : Config} {M : Nat} (hM : stepN M c = some d)
+    (hpre : ESafeSeg c M) (hpost : EProbeSafe d) : EProbeSafe c := by
+  intro e hreach hE hread
+  obtain ⟨n, hn⟩ := hreach
+  by_cases h : n < M
+  · exact hpre n e h hn hE hread
+  · have hsplit : n = M + (n - M) := by omega
+    rw [hsplit, stepN_add, hM] at hn
+    exact hpost e ⟨n - M, hn⟩ hE hread
+
+/-!
+## The hydra rule — 96% of Antihydra's record dynamics
+
+From a record `(a, m, c)` (blocks separated by single-`0` gaps, head on
+the fresh right frontier, `m ≥ 3`), the machine runs exactly `2c + 11`
+raw steps to the next record `(a, m - 2, c + 3)`.  The trajectory reads
+only the top three cells of the `m`-block and everything right of it, so
+the counter block `a` is untouched — the counter moves only in the rare
+merge and drop rules.
+
+Anchoring at `p`, the right end of the `m`-block: cells `p-2, p-1, p` are
+`1`, `p+1` is the gap, `p+2 .. p+1+c` is the `c`-block, `p+2+c` is the
+frontier.  Net effect: `p-1 ↦ 0`, `p+1 ↦ 1`, `p+2+c ↦ 1`, head to
+`p+3+c`.  The single `E`-probe of a `0` occurs at `p`, and is safe
+because `p-1` still holds a `1` at that moment. -/
+theorem hydra_step {cfg : Config} {p : Int} (k : Nat)
+    (hs : cfg.state = State.B) (hh : cfg.head = p + 2 + k)
+    (tm2 : cfg.tape (p - 2) = true) (tm1 : cfg.tape (p - 1) = true)
+    (tm0 : cfg.tape p = true) (tg : cfg.tape (p + 1) = false)
+    (tc : ∀ i : Nat, i < k → cfg.tape (p + 2 + i) = true)
+    (tf : cfg.tape (p + 2 + k) = false) :
+    stepN (2 * k + 11) cfg = some ⟨State.B, p + 3 + k,
+        writeAt (writeAt (writeAt cfg.tape (p + 1) true) (p - 1) false)
+          (p + 2 + k) true⟩ ∧
+      ESafeSeg cfg (2 * k + 11) := by
+  obtain ⟨s, hd, t⟩ := cfg
+  simp only at hs hh tm2 tm1 tm0 tg tc tf
+  subst hs hd
+  have hw2p : (writeAt t (p + 1) true) p = true := by
+    rw [writeAt_other t (p + 1) p true (by omega)]; exact tm0
+  have hw2m1 : (writeAt t (p + 1) true) (p - 1) = true := by
+    rw [writeAt_other t (p + 1) _ true (by omega)]; exact tm1
+  have hw2m2 : (writeAt t (p + 1) true) (p - 2) = true := by
+    rw [writeAt_other t (p + 1) _ true (by omega)]; exact tm2
+  have hw3p : (writeAt (writeAt t (p + 1) true) p false) p = false := writeAt_same _ p false
+  have hw3m1 : (writeAt (writeAt t (p + 1) true) p false) (p - 1) = true := by
+    rw [writeAt_other _ p _ false (by omega)]; exact hw2m1
+  have hw3m2 : (writeAt (writeAt t (p + 1) true) p false) (p - 2) = true := by
+    rw [writeAt_other _ p _ false (by omega)]; exact hw2m2
+  have s1 : step ⟨State.B, p + 2 + k, t⟩ = some ⟨State.C, p + 1 + k, t⟩ := by
+    have hself : writeAt t (p + 2 + (k : Int)) false = t := writeAt_self t _ tf
+    simp [step, instr, tf, move, hself]
+    try omega
+  have sC : stepN k ⟨State.C, p + 1 + k, t⟩ = some ⟨State.C, p + 1, t⟩ := by
+    have h := sweep_C k ⟨State.C, p + 1 + k, t⟩ rfl
+      (fun i hi => by
+        show t (p + 1 + (k : Int) - (i : Int)) = true
+        have := tc (k - 1 - i) (by omega)
+        rw [show p + 1 + (k : Int) - (i : Int)
+              = p + 2 + ((k - 1 - i : Nat) : Int) by omega]
+        exact this)
+    rw [show p + 1 + (k : Int) - (k : Int) = p + 1 by omega] at h
+    exact h
+  have s2 : step ⟨State.C, p + 1, t⟩ = some ⟨State.D, p, (writeAt t (p + 1) true)⟩ := by
+    simp [step, instr, tg, move]
+    try omega
+  have s3 : step ⟨State.D, p, (writeAt t (p + 1) true)⟩ = some ⟨State.B, p - 1, (writeAt (writeAt t (p + 1) true) p false)⟩ := by
+    simp [step, instr, hw2p, move]
+    try omega
+  have s4 : step ⟨State.B, p - 1, (writeAt (writeAt t (p + 1) true) p false)⟩ = some ⟨State.E, p - 2, (writeAt (writeAt t (p + 1) true) p false)⟩ := by
+    have hself : writeAt (writeAt (writeAt t (p + 1) true) p false) (p - 1) true = (writeAt (writeAt t (p + 1) true) p false) := writeAt_self _ _ hw3m1
+    simp [step, instr, hw3m1, move, hself]
+    try omega
+  have s5 : step ⟨State.E, p - 2, (writeAt (writeAt t (p + 1) true) p false)⟩ = some ⟨State.E, p - 1, (writeAt (writeAt t (p + 1) true) p false)⟩ := by
+    have hself : writeAt (writeAt (writeAt t (p + 1) true) p false) (p - 2) true = (writeAt (writeAt t (p + 1) true) p false) := writeAt_self _ _ hw3m2
+    simp [step, instr, hw3m2, move, hself]
+    try omega
+  have s6 : step ⟨State.E, p - 1, (writeAt (writeAt t (p + 1) true) p false)⟩ = some ⟨State.E, p, (writeAt (writeAt t (p + 1) true) p false)⟩ := by
+    have hself : writeAt (writeAt (writeAt t (p + 1) true) p false) (p - 1) true = (writeAt (writeAt t (p + 1) true) p false) := writeAt_self _ _ hw3m1
+    simp [step, instr, hw3m1, move, hself]
+    try omega
+  have s7 : step ⟨State.E, p, (writeAt (writeAt t (p + 1) true) p false)⟩ = some ⟨State.F, p - 1, (writeAt t (p + 1) true)⟩ := by
+    have hover : writeAt (writeAt (writeAt t (p + 1) true) p false) p true = (writeAt t (p + 1) true) := by
+      rw [writeAt_overwrite]
+      exact writeAt_self _ p hw2p
+    simp [step, instr, hw3p, move, hover]
+    try omega
+  have s8 : step ⟨State.F, p - 1, (writeAt t (p + 1) true)⟩ = some ⟨State.A, p, (writeAt (writeAt t (p + 1) true) (p - 1) false)⟩ := by
+    simp [step, instr, hw2m1, move]
+    try omega
+  have hw6c : ∀ i : Nat, i < k + 2 → (writeAt (writeAt t (p + 1) true) (p - 1) false) (p + i) = true := by
+    intro i hi
+    rw [writeAt_other _ (p - 1) _ false (by omega)]
+    by_cases hi0 : i = 0
+    · rw [hi0, show p + ((0 : Nat) : Int) = p by omega]; exact hw2p
+    · by_cases hi1 : i = 1
+      · rw [hi1, show p + ((1 : Nat) : Int) = p + 1 by omega]
+        exact writeAt_same t (p + 1) true
+      · rw [writeAt_other t (p + 1) _ true (by omega)]
+        have := tc (i - 2) (by omega)
+        rw [show p + (i : Int) = p + 2 + ((i - 2 : Nat) : Int) by omega]
+        exact this
+  have sA : stepN (k + 2) ⟨State.A, p, (writeAt (writeAt t (p + 1) true) (p - 1) false)⟩ =
+      some ⟨State.A, p + 2 + k, (writeAt (writeAt t (p + 1) true) (p - 1) false)⟩ := by
+    have h := sweep_A (k + 2) ⟨State.A, p, (writeAt (writeAt t (p + 1) true) (p - 1) false)⟩ rfl (fun i hi => hw6c i hi)
+    rw [show p + ((k + 2 : Nat) : Int) = p + 2 + (k : Int) by omega] at h
+    exact h
+  have hw6f : (writeAt (writeAt t (p + 1) true) (p - 1) false) (p + 2 + k) = false := by
+    rw [writeAt_other _ (p - 1) _ false (by omega),
+        writeAt_other t (p + 1) _ true (by omega)]
+    exact tf
+  have s9 : step ⟨State.A, p + 2 + k, (writeAt (writeAt t (p + 1) true) (p - 1) false)⟩ =
+      some ⟨State.B, p + 3 + k, writeAt (writeAt (writeAt t (p + 1) true) (p - 1) false) (p + 2 + k) true⟩ := by
+    simp [step, instr, hw6f, move]
+    try omega
+  have a1 : stepN 1 ⟨State.B, p + 2 + k, t⟩ = some ⟨State.C, p + 1 + k, t⟩ := by
+    simp [stepN, s1]
+  have a2 : stepN (1 + k) ⟨State.B, p + 2 + k, t⟩ =
+      some ⟨State.C, p + 1, t⟩ := by rw [stepN_add, a1]; exact sC
+  have hmid : stepN 6 ⟨State.C, p + 1, t⟩ = some ⟨State.F, p - 1, (writeAt t (p + 1) true)⟩ := by
+    simp [stepN, s2, s3, s4, s5, s6, s7]
+  have a3 : stepN (1 + k + 6) ⟨State.B, p + 2 + k, t⟩ =
+      some ⟨State.F, p - 1, (writeAt t (p + 1) true)⟩ := by rw [stepN_add, a2]; exact hmid
+  have hF1 : stepN 1 ⟨State.F, p - 1, (writeAt t (p + 1) true)⟩ = some ⟨State.A, p, (writeAt (writeAt t (p + 1) true) (p - 1) false)⟩ := by
+    simp [stepN, s8]
+  have a4 : stepN (1 + k + 6 + 1) ⟨State.B, p + 2 + k, t⟩ =
+      some ⟨State.A, p, (writeAt (writeAt t (p + 1) true) (p - 1) false)⟩ := by rw [stepN_add, a3]; exact hF1
+  have a5 : stepN (1 + k + 6 + 1 + (k + 2)) ⟨State.B, p + 2 + k, t⟩ =
+      some ⟨State.A, p + 2 + k, (writeAt (writeAt t (p + 1) true) (p - 1) false)⟩ := by rw [stepN_add, a4]; exact sA
+  have hA1 : stepN 1 ⟨State.A, p + 2 + k, (writeAt (writeAt t (p + 1) true) (p - 1) false)⟩ =
+      some ⟨State.B, p + 3 + k, writeAt (writeAt (writeAt t (p + 1) true) (p - 1) false) (p + 2 + k) true⟩ := by
+    simp [stepN, s9]
+  have a6 : stepN (1 + k + 6 + 1 + (k + 2) + 1) ⟨State.B, p + 2 + k, t⟩ =
+      some ⟨State.B, p + 3 + k, writeAt (writeAt (writeAt t (p + 1) true) (p - 1) false) (p + 2 + k) true⟩ := by
+    rw [stepN_add, a5]; exact hA1
+  refine ⟨?_, ?_⟩
+  · rw [show 2 * k + 11 = 1 + k + 6 + 1 + (k + 2) + 1 by omega]
+    exact a6
+  · rw [show 2 * k + 11 = 1 + (k + (6 + (1 + ((k + 2) + 1)))) by omega]
+    refine esafe_compose a1 (esafe_of_noE ?_) (esafe_compose sC
+      (esafe_of_noE ?_) (esafe_compose hmid ?_ (esafe_compose hF1
+        (esafe_of_noE ?_) (esafe_compose sA (esafe_of_noE ?_)
+          (esafe_of_noE ?_)))))
+    · intro j d hj hjd
+      have hj0 : j = 0 := by omega
+      subst hj0
+      have hdd : (⟨State.B, p + 2 + k, t⟩ : Config) = d := by
+        simpa [stepN] using hjd
+      rw [← hdd]; simp
+    · intro j d hj hjd
+      have hpart := sweep_C j ⟨State.C, p + 1 + k, t⟩ rfl
+        (fun i hi => by
+          show t (p + 1 + (k : Int) - (i : Int)) = true
+          have := tc (k - 1 - i) (by omega)
+          rw [show p + 1 + (k : Int) - (i : Int)
+                = p + 2 + ((k - 1 - i : Nat) : Int) by omega]
+          exact this)
+      rw [hpart] at hjd
+      rw [← Option.some_inj.mp hjd]; simp
+    · intro j d hj hjd hE hread
+      have hcase : j = 0 ∨ j = 1 ∨ j = 2 ∨ j = 3 ∨ j = 4 ∨ j = 5 := by omega
+      rcases hcase with rfl | rfl | rfl | rfl | rfl | rfl
+      · have hdd : (⟨State.C, p + 1, t⟩ : Config) = d := by
+          simpa [stepN] using hjd
+        rw [← hdd] at hE; simp at hE
+      · rw [show stepN 1 ⟨State.C, p + 1, t⟩ = some ⟨State.D, p, (writeAt t (p + 1) true)⟩ from by
+              simp [stepN, s2]] at hjd
+        rw [← Option.some_inj.mp hjd] at hE; simp at hE
+      · rw [show stepN 2 ⟨State.C, p + 1, t⟩
+              = some ⟨State.B, p - 1, (writeAt (writeAt t (p + 1) true) p false)⟩ from by
+              simp [stepN, s2, s3]] at hjd
+        rw [← Option.some_inj.mp hjd] at hE; simp at hE
+      · rw [show stepN 3 ⟨State.C, p + 1, t⟩
+              = some ⟨State.E, p - 2, (writeAt (writeAt t (p + 1) true) p false)⟩ from by
+              simp [stepN, s2, s3, s4]] at hjd
+        rw [← Option.some_inj.mp hjd] at hread
+        rw [show (⟨State.E, p - 2, (writeAt (writeAt t (p + 1) true) p false)⟩ : Config).tape
+              (⟨State.E, p - 2, (writeAt (writeAt t (p + 1) true) p false)⟩ : Config).head
+            = (writeAt (writeAt t (p + 1) true) p false) (p - 2) from rfl] at hread
+        rw [hw3m2] at hread
+        exact absurd hread (by simp)
+      · rw [show stepN 4 ⟨State.C, p + 1, t⟩
+              = some ⟨State.E, p - 1, (writeAt (writeAt t (p + 1) true) p false)⟩ from by
+              simp [stepN, s2, s3, s4, s5]] at hjd
+        rw [← Option.some_inj.mp hjd] at hread
+        rw [show (⟨State.E, p - 1, (writeAt (writeAt t (p + 1) true) p false)⟩ : Config).tape
+              (⟨State.E, p - 1, (writeAt (writeAt t (p + 1) true) p false)⟩ : Config).head
+            = (writeAt (writeAt t (p + 1) true) p false) (p - 1) from rfl] at hread
+        rw [hw3m1] at hread
+        exact absurd hread (by simp)
+      · -- THE probe: E reads the 0 at p; its left neighbour still holds a 1
+        rw [show stepN 5 ⟨State.C, p + 1, t⟩
+              = some ⟨State.E, p, (writeAt (writeAt t (p + 1) true) p false)⟩ from by
+              simp [stepN, s2, s3, s4, s5, s6]] at hjd
+        rw [← Option.some_inj.mp hjd]
+        show (writeAt (writeAt t (p + 1) true) p false) (p - 1) = true
+        exact hw3m1
+    · intro j d hj hjd
+      have hj0 : j = 0 := by omega
+      subst hj0
+      have hdd : (⟨State.F, p - 1, (writeAt t (p + 1) true)⟩ : Config) = d := by
+        simpa [stepN] using hjd
+      rw [← hdd]; simp
+    · intro j d hj hjd
+      have hpart := sweep_A j ⟨State.A, p, (writeAt (writeAt t (p + 1) true) (p - 1) false)⟩ rfl
+        (fun i hi => hw6c i (by omega))
+      rw [hpart] at hjd
+      rw [← Option.some_inj.mp hjd]; simp
+    · intro j d hj hjd
+      have hj0 : j = 0 := by omega
+      subst hj0
+      have hdd : (⟨State.A, p + 2 + k, (writeAt (writeAt t (p + 1) true) (p - 1) false)⟩ : Config) = d := by
+        simpa [stepN] using hjd
+      rw [← hdd]; simp
+
 end QIG.AntihydraRawTM
 
 #print axioms QIG.AntihydraRawTM.halt_requires_e_probe_00
 #print axioms QIG.AntihydraRawTM.blank_nonhalting_of_e_probe_safe
 #print axioms QIG.AntihydraRawTM.sweep_E
 #print axioms QIG.AntihydraRawTM.sweep_C
+#print axioms QIG.AntihydraRawTM.eprobe_safe_of_segments
+#print axioms QIG.AntihydraRawTM.hydra_step
