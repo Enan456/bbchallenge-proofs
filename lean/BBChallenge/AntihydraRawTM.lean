@@ -915,6 +915,409 @@ theorem drop_step {cfg : Config} {q : Int} (k : Nat)
               simp [stepN, s9, s10]] at hjd
         rw [← Option.some_inj.mp hjd] at hE; simp at hE
 
+/-- **The merge chain** (`m = 1`): the counter gains two cells.  From a
+record `(a, 1, c)` anchored at `p`, the right end of the counter block
+(`a = n ≥ 1`), exactly `2n + 2k + 22` raw steps land on the next
+`B`-record with shape `(a+2, c+2, 2)`.  Both `E`-probes are safe; the
+first one is safe precisely because the counter is non-empty. -/
+theorem merge_chain {cfg : Config} {p : Int} (n k : Nat) (hn : 1 ≤ n)
+    (hs : cfg.state = State.B) (hh : cfg.head = p + 4 + k)
+    (ta : ∀ i : Nat, i < n → cfg.tape (p - i) = true)
+    (tb0 : cfg.tape (p - n) = false) (tb1 : cfg.tape (p - n - 1) = false)
+    (tb2 : cfg.tape (p - n - 2) = false)
+    (tg1 : cfg.tape (p + 1) = false) (tm : cfg.tape (p + 2) = true)
+    (tg2 : cfg.tape (p + 3) = false)
+    (tc : ∀ i : Nat, i < k → cfg.tape (p + 4 + i) = true)
+    (tf : cfg.tape (p + 4 + k) = false) (tf2 : cfg.tape (p + 5 + k) = false) :
+    stepN (2 * n + 2 * k + 22) cfg = some ⟨State.B, p + 6 + k, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true) (p + 4 + k) true) (p + 3 + k) false) (p + 5 + k) true)⟩ ∧
+      ESafeSeg cfg (2 * n + 2 * k + 22) := by
+  obtain ⟨s, hd, t⟩ := cfg
+  simp only at hs hh ta tb0 tb1 tb2 tg1 tm tg2 tc tf tf2
+  subst hs hd
+  have hp : t p = true := by
+    have := ta 0 (by omega); rw [show p - ((0 : Nat) : Int) = p by omega] at this
+    exact this
+  -- pointwise values
+  have v1_2 : (writeAt t (p + 3) true) (p + 2) = true := by
+    rw [writeAt_other t (p + 3) _ true (by omega)]; exact tm
+  have v2_1 : (writeAt (writeAt t (p + 3) true) (p + 2) false) (p + 1) = false := by
+    rw [writeAt_other _ (p + 2) _ false (by omega),
+        writeAt_other t (p + 3) _ true (by omega)]; exact tg1
+  have v2_a : ∀ i : Nat, i < n → (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - i) = true := by
+    intro i hi
+    rw [writeAt_other _ (p + 2) _ false (by omega),
+        writeAt_other t (p + 3) _ true (by omega)]
+    exact ta i hi
+  have v2_b0 : (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) = false := by
+    rw [writeAt_other _ (p + 2) _ false (by omega),
+        writeAt_other t (p + 3) _ true (by omega)]; exact tb0
+  have v3_b1 : (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) = false := by
+    rw [writeAt_other _ (p - n) _ true (by omega),
+        writeAt_other _ (p + 2) _ false (by omega),
+        writeAt_other t (p + 3) _ true (by omega)]; exact tb1
+  have v4_b2 : (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) = false := by
+    rw [writeAt_other _ (p - n - 1) _ true (by omega),
+        writeAt_other _ (p - n) _ true (by omega),
+        writeAt_other _ (p + 2) _ false (by omega),
+        writeAt_other t (p + 3) _ true (by omega)]; exact tb2
+  have v5_b1 : (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p - n - 1) = true := by
+    rw [writeAt_other _ (p - n - 2) _ true (by omega)]
+    exact writeAt_same _ (p - n - 1) true
+  have v5_seq : ∀ i : Nat, i < n + 3 → (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p - n - 2 + i) = true := by
+    intro i hi
+    by_cases hi0 : i = 0
+    · rw [hi0, show p - (n : Int) - 2 + ((0 : Nat) : Int) = p - n - 2 by omega]
+      exact writeAt_same _ (p - n - 2) true
+    · by_cases hi1 : i = 1
+      · rw [hi1, show p - (n : Int) - 2 + ((1 : Nat) : Int) = p - n - 1 by omega]
+        exact v5_b1
+      · by_cases hi2 : i = 2
+        · rw [hi2, show p - (n : Int) - 2 + ((2 : Nat) : Int) = p - n by omega,
+              writeAt_other _ (p - n - 2) _ true (by omega),
+              writeAt_other _ (p - n - 1) _ true (by omega)]
+          exact writeAt_same _ (p - n) true
+        · rw [writeAt_other _ (p - n - 2) _ true (by omega),
+              writeAt_other _ (p - n - 1) _ true (by omega),
+              writeAt_other _ (p - n) _ true (by omega)]
+          have := v2_a (n + 2 - i) (by omega)
+          rw [show p - (n : Int) - 2 + (i : Int)
+                = p - ((n + 2 - i : Nat) : Int) by omega]
+          exact this
+  have v5_p : (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) p = true := by
+    rw [writeAt_other _ (p - n - 2) _ true (by omega),
+        writeAt_other _ (p - n - 1) _ true (by omega),
+        writeAt_other _ (p - n) _ true (by omega)]
+    have h0 := v2_a 0 (by omega)
+    rw [show (p : Int) - ((0 : Nat) : Int) = p by omega] at h0
+    exact h0
+  have v5_1 : (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) = false := by
+    rw [writeAt_other _ (p - n - 2) _ true (by omega),
+        writeAt_other _ (p - n - 1) _ true (by omega),
+        writeAt_other _ (p - n) _ true (by omega)]
+    exact v2_1
+  have v6_p : (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p = true := by
+    rw [writeAt_other _ (p + 1) _ true (by omega)]; exact v5_p
+  have v7_1 : (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 1) = true := by
+    rw [writeAt_other _ p _ false (by omega)]
+    exact writeAt_same _ (p + 1) true
+  have v7_2 : (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) = false := by
+    rw [writeAt_other _ p _ false (by omega),
+        writeAt_other _ (p + 1) _ true (by omega),
+        writeAt_other _ (p - n - 2) _ true (by omega),
+        writeAt_other _ (p - n - 1) _ true (by omega),
+        writeAt_other _ (p - n) _ true (by omega)]
+    exact writeAt_same _ (p + 2) false
+  have v8_3 : (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true) (p + 3) = true := by
+    rw [writeAt_other _ (p + 2) _ true (by omega),
+        writeAt_other _ p _ false (by omega),
+        writeAt_other _ (p + 1) _ true (by omega),
+        writeAt_other _ (p - n - 2) _ true (by omega),
+        writeAt_other _ (p - n - 1) _ true (by omega),
+        writeAt_other _ (p - n) _ true (by omega),
+        writeAt_other _ (p + 2) _ false (by omega)]
+    exact writeAt_same t (p + 3) true
+  have v8_seq : ∀ i : Nat, i < k + 2 → (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true) (p + 2 + i) = true := by
+    intro i hi
+    by_cases hi0 : i = 0
+    · rw [hi0, show (p : Int) + 2 + ((0 : Nat) : Int) = p + 2 by omega]
+      exact writeAt_same _ (p + 2) true
+    · by_cases hi1 : i = 1
+      · rw [hi1, show (p : Int) + 2 + ((1 : Nat) : Int) = p + 3 by omega]
+        exact v8_3
+      · rw [writeAt_other _ (p + 2) _ true (by omega),
+            writeAt_other _ p _ false (by omega),
+            writeAt_other _ (p + 1) _ true (by omega),
+            writeAt_other _ (p - n - 2) _ true (by omega),
+            writeAt_other _ (p - n - 1) _ true (by omega),
+            writeAt_other _ (p - n) _ true (by omega),
+            writeAt_other _ (p + 2) _ false (by omega),
+            writeAt_other t (p + 3) _ true (by omega)]
+        have := tc (i - 2) (by omega)
+        rw [show (p : Int) + 2 + (i : Int) = p + 4 + ((i - 2 : Nat) : Int)
+              by omega]
+        exact this
+  have v8_top : (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true) (p + 3 + k) = true := by
+    by_cases hk0 : k = 0
+    · rw [hk0, show (p : Int) + 3 + ((0 : Nat) : Int) = p + 3 by omega]
+      exact v8_3
+    · have := v8_seq (k + 1) (by omega)
+      rw [show (p : Int) + 2 + ((k + 1 : Nat) : Int) = p + 3 + (k : Int)
+            by omega] at this
+      exact this
+  have v8_f : (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true) (p + 4 + k) = false := by
+    rw [writeAt_other _ (p + 2) _ true (by omega),
+        writeAt_other _ p _ false (by omega),
+        writeAt_other _ (p + 1) _ true (by omega),
+        writeAt_other _ (p - n - 2) _ true (by omega),
+        writeAt_other _ (p - n - 1) _ true (by omega),
+        writeAt_other _ (p - n) _ true (by omega),
+        writeAt_other _ (p + 2) _ false (by omega),
+        writeAt_other t (p + 3) _ true (by omega)]
+    exact tf
+  have v9_top : (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true) (p + 4 + k) true) (p + 3 + k) = true := by
+    rw [writeAt_other _ (p + 4 + k) _ true (by omega)]; exact v8_top
+  have v10_f : (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true) (p + 4 + k) true) (p + 3 + k) false) (p + 4 + k) = true := by
+    rw [writeAt_other _ (p + 3 + k) _ false (by omega)]
+    exact writeAt_same _ (p + 4 + k) true
+  have v10_f2 : (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true) (p + 4 + k) true) (p + 3 + k) false) (p + 5 + k) = false := by
+    rw [writeAt_other _ (p + 3 + k) _ false (by omega),
+        writeAt_other _ (p + 4 + k) _ true (by omega),
+        writeAt_other _ (p + 2) _ true (by omega),
+        writeAt_other _ p _ false (by omega),
+        writeAt_other _ (p + 1) _ true (by omega),
+        writeAt_other _ (p - n - 2) _ true (by omega),
+        writeAt_other _ (p - n - 1) _ true (by omega),
+        writeAt_other _ (p - n) _ true (by omega),
+        writeAt_other _ (p + 2) _ false (by omega),
+        writeAt_other t (p + 3) _ true (by omega)]
+    exact tf2
+  -- the trajectory
+  have s1 : step ⟨State.B, p + 4 + k, t⟩ = some ⟨State.C, p + 3 + k, t⟩ := by
+    have hself : writeAt t (p + 4 + (k : Int)) false = t := writeAt_self t _ tf
+    simp [step, instr, tf, move, hself]
+    try omega
+  have sC1 : stepN k ⟨State.C, p + 3 + k, t⟩ = some ⟨State.C, p + 3, t⟩ := by
+    have h := sweep_C k ⟨State.C, p + 3 + k, t⟩ rfl
+      (fun i hi => by
+        show t (p + 3 + (k : Int) - (i : Int)) = true
+        have := tc (k - 1 - i) (by omega)
+        rw [show p + 3 + (k : Int) - (i : Int)
+              = p + 4 + ((k - 1 - i : Nat) : Int) by omega]
+        exact this)
+    rw [show p + 3 + (k : Int) - (k : Int) = p + 3 by omega] at h
+    exact h
+  have s2 : step ⟨State.C, p + 3, t⟩ = some ⟨State.D, p + 2, (writeAt t (p + 3) true)⟩ := by
+    simp [step, instr, tg2, move]
+    try omega
+  have s3 : step ⟨State.D, p + 2, (writeAt t (p + 3) true)⟩ = some ⟨State.B, p + 1, (writeAt (writeAt t (p + 3) true) (p + 2) false)⟩ := by
+    simp [step, instr, v1_2, move]
+    try omega
+  have s4 : step ⟨State.B, p + 1, (writeAt (writeAt t (p + 3) true) (p + 2) false)⟩ = some ⟨State.C, p, (writeAt (writeAt t (p + 3) true) (p + 2) false)⟩ := by
+    have hself : writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p + 1) false = (writeAt (writeAt t (p + 3) true) (p + 2) false) :=
+      writeAt_self _ _ v2_1
+    simp [step, instr, v2_1, move, hself]
+    try omega
+  have sC2 : stepN n ⟨State.C, p, (writeAt (writeAt t (p + 3) true) (p + 2) false)⟩ = some ⟨State.C, p - n, (writeAt (writeAt t (p + 3) true) (p + 2) false)⟩ := by
+    have h := sweep_C n ⟨State.C, p, (writeAt (writeAt t (p + 3) true) (p + 2) false)⟩ rfl (fun i hi => v2_a i hi)
+    exact h
+  have s5 : step ⟨State.C, p - n, (writeAt (writeAt t (p + 3) true) (p + 2) false)⟩ = some ⟨State.D, p - n - 1, (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true)⟩ := by
+    simp [step, instr, v2_b0, move]
+    try omega
+  have s6 : step ⟨State.D, p - n - 1, (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true)⟩ =
+      some ⟨State.A, p - n - 2, (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true)⟩ := by
+    simp [step, instr, v3_b1, move]
+    try omega
+  have s7 : step ⟨State.A, p - n - 2, (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true)⟩ =
+      some ⟨State.B, p - n - 1, (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true)⟩ := by
+    simp [step, instr, v4_b2, move]
+    try omega
+  have s8 : step ⟨State.B, p - n - 1, (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true)⟩ =
+      some ⟨State.E, p - n - 2, (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true)⟩ := by
+    have hself : writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p - n - 1) true = (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) :=
+      writeAt_self _ _ v5_b1
+    simp [step, instr, v5_b1, move, hself]
+    try omega
+  have sE1 : stepN (n + 3) ⟨State.E, p - n - 2, (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true)⟩ =
+      some ⟨State.E, p + 1, (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true)⟩ := by
+    have h := sweep_E (n + 3) ⟨State.E, p - n - 2, (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true)⟩ rfl
+      (fun i hi => v5_seq i hi)
+    rw [show p - (n : Int) - 2 + ((n + 3 : Nat) : Int) = p + 1 by omega] at h
+    exact h
+  have s9 : step ⟨State.E, p + 1, (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true)⟩ = some ⟨State.F, p, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true)⟩ := by
+    simp [step, instr, v5_1, move]
+    try omega
+  have s10 : step ⟨State.F, p, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true)⟩ = some ⟨State.A, p + 1, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false)⟩ := by
+    simp [step, instr, v6_p, move]
+    try omega
+  have s11 : step ⟨State.A, p + 1, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false)⟩ = some ⟨State.A, p + 2, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false)⟩ := by
+    have hself : writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 1) true = (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) := writeAt_self _ _ v7_1
+    simp [step, instr, v7_1, move, hself]
+    try omega
+  have s12 : step ⟨State.A, p + 2, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false)⟩ = some ⟨State.B, p + 3, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true)⟩ := by
+    simp [step, instr, v7_2, move]
+    try omega
+  have s13 : step ⟨State.B, p + 3, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true)⟩ = some ⟨State.E, p + 2, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true)⟩ := by
+    have hself : writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true) (p + 3) true = (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true) := writeAt_self _ _ v8_3
+    simp [step, instr, v8_3, move, hself]
+    try omega
+  have sE2 : stepN (k + 2) ⟨State.E, p + 2, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true)⟩ =
+      some ⟨State.E, p + 4 + k, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true)⟩ := by
+    have h := sweep_E (k + 2) ⟨State.E, p + 2, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true)⟩ rfl
+      (fun i hi => v8_seq i hi)
+    rw [show (p : Int) + 2 + ((k + 2 : Nat) : Int) = p + 4 + (k : Int)
+          by omega] at h
+    exact h
+  have s14 : step ⟨State.E, p + 4 + k, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true)⟩ =
+      some ⟨State.F, p + 3 + k, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true) (p + 4 + k) true)⟩ := by
+    simp [step, instr, v8_f, move]
+    try omega
+  have s15 : step ⟨State.F, p + 3 + k, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true) (p + 4 + k) true)⟩ =
+      some ⟨State.A, p + 4 + k, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true) (p + 4 + k) true) (p + 3 + k) false)⟩ := by
+    simp [step, instr, v9_top, move]
+    try omega
+  have s16 : step ⟨State.A, p + 4 + k, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true) (p + 4 + k) true) (p + 3 + k) false)⟩ =
+      some ⟨State.A, p + 5 + k, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true) (p + 4 + k) true) (p + 3 + k) false)⟩ := by
+    have hself : writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true) (p + 4 + k) true) (p + 3 + k) false) (p + 4 + (k : Int)) true = (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true) (p + 4 + k) true) (p + 3 + k) false) :=
+      writeAt_self _ _ v10_f
+    simp [step, instr, v10_f, move, hself]
+    try omega
+  have s17 : step ⟨State.A, p + 5 + k, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true) (p + 4 + k) true) (p + 3 + k) false)⟩ =
+      some ⟨State.B, p + 6 + k, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true) (p + 4 + k) true) (p + 3 + k) false) (p + 5 + k) true)⟩ := by
+    simp [step, instr, v10_f2, move]
+    try omega
+  -- assemble
+  have a1 : stepN 1 ⟨State.B, p + 4 + k, t⟩ =
+      some ⟨State.C, p + 3 + k, t⟩ := by simp [stepN, s1]
+  have a2 : stepN (1 + k) ⟨State.B, p + 4 + k, t⟩ =
+      some ⟨State.C, p + 3, t⟩ := by rw [stepN_add, a1]; exact sC1
+  have m1 : stepN 3 ⟨State.C, p + 3, t⟩ = some ⟨State.C, p, (writeAt (writeAt t (p + 3) true) (p + 2) false)⟩ := by
+    simp [stepN, s2, s3, s4]
+  have a3 : stepN (1 + k + 3) ⟨State.B, p + 4 + k, t⟩ =
+      some ⟨State.C, p, (writeAt (writeAt t (p + 3) true) (p + 2) false)⟩ := by rw [stepN_add, a2]; exact m1
+  have a4 : stepN (1 + k + 3 + n) ⟨State.B, p + 4 + k, t⟩ =
+      some ⟨State.C, p - n, (writeAt (writeAt t (p + 3) true) (p + 2) false)⟩ := by rw [stepN_add, a3]; exact sC2
+  have m2 : stepN 4 ⟨State.C, p - n, (writeAt (writeAt t (p + 3) true) (p + 2) false)⟩ =
+      some ⟨State.E, p - n - 2, (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true)⟩ := by simp [stepN, s5, s6, s7, s8]
+  have a5 : stepN (1 + k + 3 + n + 4) ⟨State.B, p + 4 + k, t⟩ =
+      some ⟨State.E, p - n - 2, (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true)⟩ := by rw [stepN_add, a4]; exact m2
+  have a6 : stepN (1 + k + 3 + n + 4 + (n + 3)) ⟨State.B, p + 4 + k, t⟩ =
+      some ⟨State.E, p + 1, (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true)⟩ := by rw [stepN_add, a5]; exact sE1
+  have m3 : stepN 5 ⟨State.E, p + 1, (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true)⟩ =
+      some ⟨State.E, p + 2, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true)⟩ := by simp [stepN, s9, s10, s11, s12, s13]
+  have a7 : stepN (1 + k + 3 + n + 4 + (n + 3) + 5) ⟨State.B, p + 4 + k, t⟩ =
+      some ⟨State.E, p + 2, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true)⟩ := by rw [stepN_add, a6]; exact m3
+  have a8 : stepN (1 + k + 3 + n + 4 + (n + 3) + 5 + (k + 2))
+      ⟨State.B, p + 4 + k, t⟩ = some ⟨State.E, p + 4 + k, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true)⟩ := by
+    rw [stepN_add, a7]; exact sE2
+  have m4 : stepN 4 ⟨State.E, p + 4 + k, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true)⟩ =
+      some ⟨State.B, p + 6 + k, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true) (p + 4 + k) true) (p + 3 + k) false) (p + 5 + k) true)⟩ := by simp [stepN, s14, s15, s16, s17]
+  have a9 : stepN (1 + k + 3 + n + 4 + (n + 3) + 5 + (k + 2) + 4)
+      ⟨State.B, p + 4 + k, t⟩ = some ⟨State.B, p + 6 + k, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true) (p + 4 + k) true) (p + 3 + k) false) (p + 5 + k) true)⟩ := by
+    rw [stepN_add, a8]; exact m4
+  refine ⟨?_, ?_⟩
+  · rw [show 2 * n + 2 * k + 22
+          = 1 + k + 3 + n + 4 + (n + 3) + 5 + (k + 2) + 4 by omega]
+    exact a9
+  · rw [show 2 * n + 2 * k + 22
+        = 1 + (k + (3 + (n + (4 + ((n + 3) + (5 + ((k + 2) + 4))))))) by omega]
+    refine esafe_compose a1 (esafe_of_noE ?_) (esafe_compose sC1
+      (esafe_of_noE ?_) (esafe_compose m1 (esafe_of_noE ?_) (esafe_compose sC2
+        (esafe_of_noE ?_) (esafe_compose m2 (esafe_of_noE ?_) (esafe_compose sE1
+          (esafe_of_strong ?_) (esafe_compose m3 ?_ (esafe_compose sE2
+            (esafe_of_strong ?_) ?_)))))))
+    · intro j d hj hjd
+      have hj0 : j = 0 := by omega
+      subst hj0
+      have hdd : (⟨State.B, p + 4 + k, t⟩ : Config) = d := by
+        simpa [stepN] using hjd
+      rw [← hdd]; simp
+    · intro j d hj hjd
+      have hpart := sweep_C j ⟨State.C, p + 3 + k, t⟩ rfl
+        (fun i hi => by
+          show t (p + 3 + (k : Int) - (i : Int)) = true
+          have := tc (k - 1 - i) (by omega)
+          rw [show p + 3 + (k : Int) - (i : Int)
+                = p + 4 + ((k - 1 - i : Nat) : Int) by omega]
+          exact this)
+      rw [hpart] at hjd
+      rw [← Option.some_inj.mp hjd]; simp
+    · intro j d hj hjd
+      have hcase : j = 0 ∨ j = 1 ∨ j = 2 := by omega
+      rcases hcase with rfl | rfl | rfl
+      · have hdd : (⟨State.C, p + 3, t⟩ : Config) = d := by
+          simpa [stepN] using hjd
+        rw [← hdd]; simp
+      · rw [show stepN 1 ⟨State.C, p + 3, t⟩
+              = some ⟨State.D, p + 2, (writeAt t (p + 3) true)⟩ from by simp [stepN, s2]] at hjd
+        rw [← Option.some_inj.mp hjd]; simp
+      · rw [show stepN 2 ⟨State.C, p + 3, t⟩
+              = some ⟨State.B, p + 1, (writeAt (writeAt t (p + 3) true) (p + 2) false)⟩ from by
+              simp [stepN, s2, s3]] at hjd
+        rw [← Option.some_inj.mp hjd]; simp
+    · intro j d hj hjd
+      have hpart := sweep_C j ⟨State.C, p, (writeAt (writeAt t (p + 3) true) (p + 2) false)⟩ rfl
+        (fun i hi => v2_a i (by omega))
+      rw [hpart] at hjd
+      rw [← Option.some_inj.mp hjd]; simp
+    · intro j d hj hjd
+      have hcase : j = 0 ∨ j = 1 ∨ j = 2 ∨ j = 3 := by omega
+      rcases hcase with rfl | rfl | rfl | rfl
+      · have hdd : (⟨State.C, p - n, (writeAt (writeAt t (p + 3) true) (p + 2) false)⟩ : Config) = d := by
+          simpa [stepN] using hjd
+        rw [← hdd]; simp
+      · rw [show stepN 1 ⟨State.C, p - n, (writeAt (writeAt t (p + 3) true) (p + 2) false)⟩
+              = some ⟨State.D, p - n - 1, (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true)⟩ from by
+              simp [stepN, s5]] at hjd
+        rw [← Option.some_inj.mp hjd]; simp
+      · rw [show stepN 2 ⟨State.C, p - n, (writeAt (writeAt t (p + 3) true) (p + 2) false)⟩
+              = some ⟨State.A, p - n - 2, (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true)⟩ from by
+              simp [stepN, s5, s6]] at hjd
+        rw [← Option.some_inj.mp hjd]; simp
+      · rw [show stepN 3 ⟨State.C, p - n, (writeAt (writeAt t (p + 3) true) (p + 2) false)⟩
+              = some ⟨State.B, p - n - 1, (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true)⟩ from by
+              simp [stepN, s5, s6, s7]] at hjd
+        rw [← Option.some_inj.mp hjd]; simp
+    · intro j d hj hjd hE
+      have hpart := sweep_E j ⟨State.E, p - n - 2, (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true)⟩ rfl
+        (fun i hi => v5_seq i (by omega))
+      rw [hpart] at hjd
+      rw [← Option.some_inj.mp hjd]
+      show (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p - n - 2 + (j : Int)) = true
+      exact v5_seq j (by omega)
+    · intro j d hj hjd hE hread
+      have hcase : j = 0 ∨ j = 1 ∨ j = 2 ∨ j = 3 ∨ j = 4 := by omega
+      rcases hcase with rfl | rfl | rfl | rfl | rfl
+      · -- PROBE 1: safe exactly because the counter block is non-empty
+        have hdd : (⟨State.E, p + 1, (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true)⟩ : Config) = d := by
+          simpa [stepN] using hjd
+        rw [← hdd]
+        show (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1 - 1) = true
+        rw [show (p : Int) + 1 - 1 = p by omega]; exact v5_p
+      · rw [show stepN 1 ⟨State.E, p + 1, (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true)⟩
+              = some ⟨State.F, p, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true)⟩ from by simp [stepN, s9]] at hjd
+        rw [← Option.some_inj.mp hjd] at hE; simp at hE
+      · rw [show stepN 2 ⟨State.E, p + 1, (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true)⟩
+              = some ⟨State.A, p + 1, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false)⟩ from by
+              simp [stepN, s9, s10]] at hjd
+        rw [← Option.some_inj.mp hjd] at hE; simp at hE
+      · rw [show stepN 3 ⟨State.E, p + 1, (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true)⟩
+              = some ⟨State.A, p + 2, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false)⟩ from by
+              simp [stepN, s9, s10, s11]] at hjd
+        rw [← Option.some_inj.mp hjd] at hE; simp at hE
+      · rw [show stepN 4 ⟨State.E, p + 1, (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true)⟩
+              = some ⟨State.B, p + 3, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true)⟩ from by
+              simp [stepN, s9, s10, s11, s12]] at hjd
+        rw [← Option.some_inj.mp hjd] at hE; simp at hE
+    · intro j d hj hjd hE
+      have hpart := sweep_E j ⟨State.E, p + 2, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true)⟩ rfl
+        (fun i hi => v8_seq i (by omega))
+      rw [hpart] at hjd
+      rw [← Option.some_inj.mp hjd]
+      show (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true) (p + 2 + (j : Int)) = true
+      exact v8_seq j (by omega)
+    · intro j d hj hjd hE hread
+      have hcase : j = 0 ∨ j = 1 ∨ j = 2 ∨ j = 3 := by omega
+      rcases hcase with rfl | rfl | rfl | rfl
+      · -- PROBE 2: the c-block top still holds a 1
+        have hdd : (⟨State.E, p + 4 + k, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true)⟩ : Config) = d := by
+          simpa [stepN] using hjd
+        rw [← hdd]
+        show (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true) (p + 4 + (k : Int) - 1) = true
+        rw [show (p : Int) + 4 + (k : Int) - 1 = p + 3 + (k : Int) by omega]
+        exact v8_top
+      · rw [show stepN 1 ⟨State.E, p + 4 + k, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true)⟩
+              = some ⟨State.F, p + 3 + k, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true) (p + 4 + k) true)⟩ from by
+              simp [stepN, s14]] at hjd
+        rw [← Option.some_inj.mp hjd] at hE; simp at hE
+      · rw [show stepN 2 ⟨State.E, p + 4 + k, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true)⟩
+              = some ⟨State.A, p + 4 + k, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true) (p + 4 + k) true) (p + 3 + k) false)⟩ from by
+              simp [stepN, s14, s15]] at hjd
+        rw [← Option.some_inj.mp hjd] at hE; simp at hE
+      · rw [show stepN 3 ⟨State.E, p + 4 + k, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true)⟩
+              = some ⟨State.A, p + 5 + k, (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 3) true) (p + 2) false) (p - n) true) (p - n - 1) true) (p - n - 2) true) (p + 1) true) p false) (p + 2) true) (p + 4 + k) true) (p + 3 + k) false)⟩ from by
+              simp [stepN, s14, s15, s16]] at hjd
+        rw [← Option.some_inj.mp hjd] at hE; simp at hE
+
 end QIG.AntihydraRawTM
 
 #print axioms QIG.AntihydraRawTM.halt_requires_e_probe_00
@@ -924,3 +1327,4 @@ end QIG.AntihydraRawTM
 #print axioms QIG.AntihydraRawTM.eprobe_safe_of_segments
 #print axioms QIG.AntihydraRawTM.hydra_step
 #print axioms QIG.AntihydraRawTM.drop_step
+#print axioms QIG.AntihydraRawTM.merge_chain
