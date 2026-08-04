@@ -525,3 +525,34 @@ Also proven (Layer-2 start): the three **sweep lemmas** `sweep_A`,
 each is a clean symbolic induction over n. Every stage753 macro-rule
 micro-trajectory decomposes into these sweeps plus bounded boundary steps,
 so these are the atoms of the closure induction.
+
+---
+
+## Dossier-1 closure induction, phase 1: the caterpillar lemma (2026-08-04)
+
+**File:** `lean/QIG/Dossier1RawTM.lean` (additions; still core-only,
+axiom-clean, no sorry).
+
+Micro-trajectory tracing showed dossier-1's dominant macro rule (97.8% of
+record transitions, the `(…,a,b,c) → (a+2,b−2,c+1)` sweep) is a five-step
+**caterpillar cycle** `A@h → B@(h+1) → B@h → C@(h+1) → D@(h+2) → A@(h+1)`
+crawling right across the middle block — and inside the cycle, state C
+reads only the 1 that B just wrote. Now proven symbolically:
+
+- `cat_cycle` — one cycle: exact 5-step computation, explicit output tape,
+  and the only intermediate C-configuration reads 1;
+- `cat_run` — for **all** block lengths n: the caterpillar runs exactly 5n
+  steps, ends in A at h+n with the exact predicted tape (`catTape`), and
+  **no intermediate configuration has C reading a 0**;
+- supporting: `stepN_add` (sequential composition), `writeAt_self`,
+  `writeAt_overwrite`.
+
+Consequence: the unbounded core of the dominant rule is now *proven*
+C0-probe-free for every block value — the safety of 97.8% of dossier-1's
+steps no longer rests on empirical evidence. The C0 probes (the actual
+danger points, window `1111·0·1111`) are confined to the rule's bounded
+boundary steps, which are fixed finite step sequences — the next phase.
+
+Remaining for `CProbeSafe blankStart`: boundary-step lemmas for the
+dominant rule (bounded, computational), the same treatment for the
+merge/expansion rules, and the top-level shape-family closure induction.

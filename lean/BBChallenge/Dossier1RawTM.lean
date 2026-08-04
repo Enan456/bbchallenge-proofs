@@ -214,7 +214,209 @@ theorem blank_nonhalting_of_c_probe_safe
     simp [blankStart]
   exact nonhalting_of_c_probe_safe hne hsafe
 
+/-!
+## The caterpillar lemma — the unbounded core of the dominant macro rule
+
+Empirically (stage747/749), 97.8% of dossier-1's record transitions are the
+frozen-prefix sweep `(…, a, b, c) ↦ (…, a+2, b−2, c+1)`, and its raw
+micro-trajectory is a five-step cycle crawling right across the middle
+block:
+
+`A@h → B@(h+1) → B@h → C@(h+1) → D@(h+2) → A@(h+1)`
+
+with cycle preconditions `tape h = 0`, `tape (h+1) = 0`, `tape (h+2) = 1`
+and net writes `h ↦ 1, (h+1) ↦ 0, (h+2) ↦ 0`.  Inside the cycle, state `C`
+reads only the `1` that `B` just wrote — the unbounded part of the dominant
+rule contains **no C-probe of a 0 at all**.  The only C0 probes live in the
+rule's bounded boundary steps.  `cat_run` proves both facts symbolically
+for every block length `n`.
+-/
+
+theorem writeAt_self (tape : Int → Bool) (pos : Int) {value : Bool}
+    (h : tape pos = value) : writeAt tape pos value = tape := by
+  funext x
+  by_cases hx : x = pos
+  · subst hx; simp [writeAt, h]
+  · simp [writeAt, hx]
+
+theorem writeAt_overwrite (tape : Int → Bool) (pos : Int) (v w : Bool) :
+    writeAt (writeAt tape pos v) pos w = writeAt tape pos w := by
+  funext x
+  by_cases hx : x = pos <;> simp [writeAt, hx]
+
+/-- Sequential-composition law for `stepN`. -/
+theorem stepN_add :
+    ∀ (m n : Nat) (c : Config),
+      stepN (m + n) c = (stepN m c).bind (stepN n) := by
+  intro m
+  induction m with
+  | zero =>
+      intro n c
+      simp [stepN, Nat.zero_add]
+  | succ m ih =>
+      intro n c
+      rw [Nat.succ_add]
+      cases hstep : step c with
+      | none => simp [stepN, hstep]
+      | some c1 => simp [stepN, hstep, ih]
+
+/-- One caterpillar cycle: five raw steps, explicit output tape, and the
+only intermediate `C` configuration reads `1`. -/
+theorem cat_cycle {c : Config} {h : Int}
+    (hs : c.state = State.A) (hh : c.head = h)
+    (h0 : c.tape h = false) (h1 : c.tape (h + 1) = false)
+    (h2 : c.tape (h + 2) = true) :
+    stepN 5 c = some ⟨State.A, h + 1,
+        writeAt (writeAt (writeAt c.tape h true) (h + 1) false) (h + 2) false⟩ ∧
+      (∀ k d, k < 5 → stepN k c = some d → d.state = State.C →
+        d.tape d.head = true) := by
+  obtain ⟨s, hd, t⟩ := c
+  simp only at hs hh h0 h1 h2
+  subst hs hd
+  -- the five configurations
+  have r1 : writeAt t h true (h + 1) = false := by
+    rw [writeAt_other t h (h + 1) true (by omega)]; exact h1
+  have r2 : writeAt (writeAt t h true) (h + 1) true h = true := by
+    rw [writeAt_other (writeAt t h true) (h + 1) h true (by omega)]
+    exact writeAt_same t h true
+  have r3 : writeAt (writeAt t h true) (h + 1) true (h + 1) = true :=
+    writeAt_same (writeAt t h true) (h + 1) true
+  have r4 : writeAt (writeAt t h true) (h + 1) false (h + 2) = true := by
+    rw [writeAt_other _ (h + 1) (h + 2) false (by omega)]
+    rw [writeAt_other t h (h + 2) true (by omega)]
+    exact h2
+  have s1 : step ⟨State.A, h, t⟩ = some ⟨State.B, h + 1, writeAt t h true⟩ := by
+    simp [step, instr, h0, move]
+  have s2 : step ⟨State.B, h + 1, writeAt t h true⟩ =
+      some ⟨State.B, h, writeAt (writeAt t h true) (h + 1) true⟩ := by
+    simp [step, instr, r1, move]
+  have s3 : step ⟨State.B, h, writeAt (writeAt t h true) (h + 1) true⟩ =
+      some ⟨State.C, h + 1, writeAt (writeAt t h true) (h + 1) true⟩ := by
+    have hself := writeAt_self (writeAt (writeAt t h true) (h + 1) true) h r2
+    simp [step, instr, r2, move, hself]
+  have s4 : step ⟨State.C, h + 1, writeAt (writeAt t h true) (h + 1) true⟩ =
+      some ⟨State.D, h + 2, writeAt (writeAt t h true) (h + 1) false⟩ := by
+    have hover := writeAt_overwrite (writeAt t h true) (h + 1) true false
+    simp [step, instr, r3, move, hover]
+    try omega
+  have s5 : step ⟨State.D, h + 2, writeAt (writeAt t h true) (h + 1) false⟩ =
+      some ⟨State.A, h + 1,
+        writeAt (writeAt (writeAt t h true) (h + 1) false) (h + 2) false⟩ := by
+    simp [step, instr, r4, move]
+    try omega
+  have p1 : stepN 1 ⟨State.A, h, t⟩ =
+      some ⟨State.B, h + 1, writeAt t h true⟩ := by
+    simp [stepN, s1]
+  have p2 : stepN 2 ⟨State.A, h, t⟩ =
+      some ⟨State.B, h, writeAt (writeAt t h true) (h + 1) true⟩ := by
+    simp [stepN, s1, s2]
+  have p3 : stepN 3 ⟨State.A, h, t⟩ =
+      some ⟨State.C, h + 1, writeAt (writeAt t h true) (h + 1) true⟩ := by
+    simp [stepN, s1, s2, s3]
+  have p4 : stepN 4 ⟨State.A, h, t⟩ =
+      some ⟨State.D, h + 2, writeAt (writeAt t h true) (h + 1) false⟩ := by
+    simp [stepN, s1, s2, s3, s4]
+  refine ⟨?_, ?_⟩
+  · show stepN 5 ⟨State.A, h, t⟩ = _
+    simp [stepN, s1, s2, s3, s4, s5]
+  · intro k d hk hkd hC
+    have hcase : k = 0 ∨ k = 1 ∨ k = 2 ∨ k = 3 ∨ k = 4 := by omega
+    rcases hcase with rfl | rfl | rfl | rfl | rfl
+    · have hd : (⟨State.A, h, t⟩ : Config) = d := by
+        simpa [stepN] using hkd
+      rw [← hd] at hC
+      simp at hC
+    · rw [p1] at hkd
+      rw [← Option.some_inj.mp hkd] at hC
+      simp at hC
+    · rw [p2] at hkd
+      rw [← Option.some_inj.mp hkd] at hC
+      simp at hC
+    · rw [p3] at hkd
+      rw [← Option.some_inj.mp hkd]
+      exact r3
+    · rw [p4] at hkd
+      rw [← Option.some_inj.mp hkd] at hC
+      simp at hC
+
+/-- The tape after `n` caterpillar cycles starting at `h`. -/
+def catTape (t : Int → Bool) (h : Int) : Nat → (Int → Bool)
+  | 0 => t
+  | n + 1 =>
+      catTape (writeAt (writeAt (writeAt t h true) (h + 1) false) (h + 2) false)
+        (h + 1) n
+
+/-- The caterpillar runs `5n` steps across a middle block of `n` ones,
+ends in `A` at `h + n`, and **no intermediate configuration has `C`
+reading a `0`** — the unbounded core of the dominant rule is C0-free. -/
+theorem cat_run :
+    ∀ (n : Nat) (c : Config) (h : Int), c.state = State.A → c.head = h →
+      c.tape h = false → c.tape (h + 1) = false →
+      (∀ i : Nat, i < n → c.tape (h + 2 + i) = true) →
+      stepN (5 * n) c = some ⟨State.A, h + n, catTape c.tape h n⟩ ∧
+        (∀ k d, k < 5 * n → stepN k c = some d → d.state = State.C →
+          d.tape d.head = true) := by
+  intro n
+  induction n with
+  | zero =>
+      intro c h hs hh h0 h1 _
+      obtain ⟨s, hd, t⟩ := c
+      simp only at hs hh
+      subst hs hd
+      refine ⟨?_, ?_⟩
+      · simp [stepN, catTape]
+      · intro k d hk
+        exact absurd hk (by omega)
+  | succ n ih =>
+      intro c h hs hh h0 h1 hones
+      have h2 : c.tape (h + 2) = true := by
+        have := hones 0 (Nat.succ_pos n)
+        simpa using this
+      obtain ⟨s5, safe5⟩ := cat_cycle hs hh h0 h1 h2
+      have h0' : writeAt (writeAt (writeAt c.tape h true) (h + 1) false)
+          (h + 2) false (h + 1) = false := by
+        rw [writeAt_other _ (h + 2) (h + 1) false (by omega)]
+        exact writeAt_same (writeAt c.tape h true) (h + 1) false
+      have h1' : writeAt (writeAt (writeAt c.tape h true) (h + 1) false)
+          (h + 2) false (h + 1 + 1) = false := by
+        rw [show h + 1 + 1 = h + 2 by omega]
+        exact writeAt_same _ (h + 2) false
+      have hones' : ∀ i : Nat, i < n →
+          writeAt (writeAt (writeAt c.tape h true) (h + 1) false)
+            (h + 2) false (h + 1 + 2 + i) = true := by
+        intro i hi
+        rw [writeAt_other _ (h + 2) _ false (by omega),
+            writeAt_other _ (h + 1) _ false (by omega),
+            writeAt_other _ h _ true (by omega)]
+        have := hones (i + 1) (by omega)
+        rw [show h + 1 + 2 + (i : Int) = h + 2 + ((i + 1 : Nat) : Int) by omega]
+        exact this
+      obtain ⟨srun, saferun⟩ :=
+        ih ⟨State.A, h + 1,
+            writeAt (writeAt (writeAt c.tape h true) (h + 1) false) (h + 2) false⟩
+          (h + 1) rfl rfl h0' h1' hones'
+      have hsplit : 5 * (n + 1) = 5 + 5 * n := by omega
+      refine ⟨?_, ?_⟩
+      · rw [hsplit, stepN_add, s5]
+        rw [show ((some (⟨State.A, h + 1,
+              writeAt (writeAt (writeAt c.tape h true) (h + 1) false)
+                (h + 2) false⟩ : Config) : Option Config).bind (stepN (5 * n)))
+              = stepN (5 * n) ⟨State.A, h + 1,
+                  writeAt (writeAt (writeAt c.tape h true) (h + 1) false)
+                    (h + 2) false⟩ from rfl]
+        rw [srun]
+        rw [show h + 1 + (n : Int) = h + ((n + 1 : Nat) : Int) by omega]
+        rfl
+      · intro k d hk hkd hC
+        by_cases hk5 : k < 5
+        · exact safe5 k d hk5 hkd hC
+        · have hkeq : k = 5 + (k - 5) := by omega
+          rw [hkeq, stepN_add, s5] at hkd
+          exact saferun (k - 5) d (by omega) hkd hC
+
 end QIG.Dossier1RawTM
 
 #print axioms QIG.Dossier1RawTM.halt_requires_c_probe_00
 #print axioms QIG.Dossier1RawTM.blank_nonhalting_of_c_probe_safe
+#print axioms QIG.Dossier1RawTM.cat_cycle
+#print axioms QIG.Dossier1RawTM.cat_run
