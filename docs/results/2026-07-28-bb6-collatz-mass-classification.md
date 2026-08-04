@@ -720,3 +720,26 @@ case-by-case keystone instantiation — checking each lemma's output tape
 satisfies the successor shape's preconditions (pointwise `writeAt`/
 `catTape` evaluations, no new dynamics). This is pure assembly:
 every dynamical fact needed is now a compiled theorem.
+
+### Closure phase 6: startup layer done (2026-08-04, cont.)
+
+- `safeCfg` / `checkSafe` — a computable per-step safety checker with a
+  once-and-for-all correctness theorem `csafe_of_checkSafe`
+  (checker-true ⇒ `CSafeSeg`), so concrete runs certify safety by kernel
+  evaluation alone;
+- `startup_run` — `stepN 34 blankStart` lands exactly on the first
+  parametric handoff, a `(D,R,(5))` record (proved by `rfl`);
+- `startup_safe` — `CSafeSeg blankStart 34` by `checkSafe ... = true := rfl`;
+- pointwise handoff facts `startTape_*`.
+
+The parametric loop from the handoff is fully covered by the proven rule
+lemmas, including the checkpoint law now visible *inside the proofs*: the
+top-level loop composes to exactly `N ↦ (3N+7)/2` for odd `N` (dominant →
+workhorse^k → workhorse3 → collapse1), and even `N` routes through
+workhorse4 → spawn2 into a sub-level — the empirical stage747 law,
+re-derived from machine-checked lemmas.
+
+**Sole remaining item:** the invariant `Inv` (multi-level tape grammar
+with the value-flow side conditions) + the keystone case instantiation.
+All dynamics are proven; this last chapter is shape/arithmetic
+bookkeeping connecting lemma outputs to successor preconditions.

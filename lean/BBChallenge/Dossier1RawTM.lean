@@ -3345,6 +3345,103 @@ theorem cprobe_safe_of_segments {Inv : Config → Prop} {c0 : Config}
   obtain ⟨n, hn⟩ := hreach
   exact main n n c0 (Nat.le_refl n) h0 d hn hC hread
 
+
+/-!
+## The computable safety checker and the concrete startup
+-/
+
+/-- `true` unless the configuration is an unsafe C-probe. -/
+def safeCfg (c : Config) : Bool :=
+  match c.state with
+  | State.C => c.tape c.head || c.tape (c.head + 1)
+  | _ => true
+
+/-- Check `safeCfg` along the first `N` steps of a run. -/
+def checkSafe : Nat → Config → Bool
+  | 0, _ => true
+  | k + 1, c =>
+      safeCfg c &&
+        (match step c with
+         | none => true
+         | some c' => checkSafe k c')
+
+theorem safeCfg_spec {c : Config} (hC : c.state = State.C)
+    (h : safeCfg c = true) (hr : c.tape c.head = false) :
+    c.tape (c.head + 1) = true := by
+  obtain ⟨s, hd, t⟩ := c
+  simp only at hC hr ⊢
+  subst hC
+  simp only [safeCfg] at h
+  simp [hr] at h
+  exact h
+
+/-- Once-and-for-all correctness of the checker: a `true` run certifies
+`CSafeSeg`. -/
+theorem csafe_of_checkSafe :
+    ∀ (N : Nat) (c : Config), checkSafe N c = true → CSafeSeg c N := by
+  intro N
+  induction N with
+  | zero =>
+      intro c _ k d hk _ _ _
+      exact absurd hk (by omega)
+  | succ N ih =>
+      intro c h k d hk hkd hC hread
+      rw [show checkSafe (N + 1) c
+            = (safeCfg c &&
+                (match step c with
+                 | none => true
+                 | some c' => checkSafe N c')) from rfl] at h
+      have h1 : safeCfg c = true := by
+        cases hs : safeCfg c
+        · rw [hs] at h; simp at h
+        · rfl
+      have h2 : (match step c with
+                 | none => true
+                 | some c' => checkSafe N c') = true := by
+        rw [h1] at h; simpa using h
+      cases k with
+      | zero =>
+          have hd : c = d := by simpa [stepN] using hkd
+          subst hd
+          exact safeCfg_spec hC h1 hread
+      | succ j =>
+          cases hstep : step c with
+          | none =>
+              rw [show stepN (j + 1) c = (step c).bind (stepN j) from rfl,
+                  hstep] at hkd
+              simp at hkd
+          | some c1 =>
+              rw [hstep] at h2
+              have h2' : checkSafe N c1 = true := h2
+              rw [show stepN (j + 1) c = (step c).bind (stepN j) from rfl,
+                  hstep] at hkd
+              exact ih c1 h2' j d (by omega) hkd hC hread
+
+/-- The concrete 34-step startup tape, in execution order. -/
+def startTape : Int → Bool :=
+  writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (blankTape) 0 true) 1 true) 0 true) 1 false) 2 true) 3 true) 2 false) 1 true) 0 false) (-1 : Int) true) (-2 : Int) true) (-1 : Int) true) 0 false) 1 false) 2 true) 1 true) 0 true) (-1 : Int) true) 0 false) 1 false) 0 true) 1 true) 0 true) 1 false) 2 false) 1 true) 2 true) 1 true) 2 false) 3 false) 2 true) 3 true) 2 true) 3 false
+
+set_option maxRecDepth 40000 in
+/-- 34 concrete raw steps from the blank tape reach the first parametric
+handoff configuration: a `(D, R, (5))` record (`1`s on `[-2, 2]`, `0` at
+`3`, head on the fresh frontier cell `4`). -/
+theorem startup_run :
+    stepN 34 blankStart = some ⟨State.D, 4, startTape⟩ := by
+  rfl
+
+set_option maxRecDepth 40000 in
+theorem startup_safe : CSafeSeg blankStart 34 := by
+  apply csafe_of_checkSafe
+  rfl
+
+theorem startTape_m2 : startTape (-2) = true := by rfl
+theorem startTape_m1 : startTape (-1) = true := by rfl
+theorem startTape_0 : startTape 0 = true := by rfl
+theorem startTape_1 : startTape 1 = true := by rfl
+theorem startTape_2 : startTape 2 = true := by rfl
+theorem startTape_3 : startTape 3 = false := by rfl
+theorem startTape_4 : startTape 4 = false := by rfl
+
 end QIG.Dossier1RawTM
 
 #print axioms QIG.Dossier1RawTM.halt_requires_c_probe_00
