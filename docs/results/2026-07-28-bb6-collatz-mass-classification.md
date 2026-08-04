@@ -743,3 +743,41 @@ re-derived from machine-checked lemmas.
 with the value-flow side conditions) + the keystone case instantiation.
 All dynamics are proven; this last chapter is shape/arithmetic
 bookkeeping connecting lemma outputs to successor preconditions.
+
+---
+
+## THE HARDNESS LOCALIZATION (2026-08-04, final)
+
+Assembling the invariant surfaced the precise mathematical content of
+dossier-1's undecidedness. The shape closure is fully proven; the value
+flow is not closable by local reasoning — and now we know exactly why:
+
+**The machine really can halt.** If a record of shape `(…, 2, 2, 1, c)`
+with `c = 2` ever occurs, the spawn head walks off the frontier into
+blank tape and hits `F0` — the undefined transition. This is not an
+artifact: it is a genuine halting path, reachable in configuration space.
+
+**Whether it is reachable from the blank tape is orbit arithmetic.** At
+the top level, `b = 2` arrives with `c = (N−2)/2` where `N` is the
+current odd→`(3N+7)/2` checkpoint value; the dangerous combinations
+correspond to checkpoint values `N ∈ {14, 18, 22}` (and recursive analogs
+inside spawned sub-levels, e.g. a sub-level born with `b_new ∈ {4,6,8}`,
+i.e. parent `c_spawn ∈ {6,8,10}`). The empirical orbit
+`5 → 11 → 20 → 67 → 104 → 277 → 419 → 632 → 2070 → 5378 → …` avoids all
+of them — but proving it always does is a property of the
+generalized-Collatz orbit itself.
+
+**Consequence:** dossier-1's non-halting is now formally equivalent
+(modulo the remaining mechanical grammar assembly) to a single, exactly
+stated arithmetic conjecture:
+
+> *At every level of the epoch hierarchy, whenever the active block pair
+> reaches `b = 2`, the companion block satisfies `c ≥ 4`.*
+
+Everything else — halt localization, all rule dynamics, all probe
+safety, the startup, the keystone — is machine-checked and
+unconditional. This is the "hard branch" of the original forecast: the
+hardness did not evaporate, but it has been cornered into one named,
+checkable, number-theoretic statement about the `(3N+7)/2` orbit — the
+same class of statement as Antihydra's famous conjecture, but derived
+here bottom-up from a complete formal reduction.
