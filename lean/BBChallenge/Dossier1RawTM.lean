@@ -3460,26 +3460,72 @@ def lastInc2 : List Nat → List Nat
   | [a] => [a + 2]
   | a :: rest => a :: lastInc2 rest
 
+/-- Split a list at its last element. -/
+def unsnoc : List Nat → Option (List Nat × Nat)
+  | [] => none
+  | [a] => some ([], a)
+  | x :: y :: rest =>
+      match unsnoc (y :: rest) with
+      | none => none
+      | some (L', a) => some (x :: L', a)
+
+theorem unsnoc_eq : ∀ (L L₀ : List Nat) (a : Nat),
+    unsnoc L = some (L₀, a) → L = L₀ ++ [a] := by
+  intro L
+  induction L with
+  | nil => intro L₀ a h; simp [unsnoc] at h
+  | cons x rest ih =>
+      cases rest with
+      | nil =>
+          intro L₀ a h
+          rw [show unsnoc [x] = some ([], x) from rfl] at h
+          simp only [Option.some.injEq, Prod.mk.injEq] at h
+          obtain ⟨h1, h2⟩ := h
+          subst h1
+          subst h2
+          rfl
+      | cons y ys =>
+          intro L₀ a h
+          cases hu : unsnoc (y :: ys) with
+          | none =>
+              rw [show unsnoc (x :: y :: ys)
+                    = (match unsnoc (y :: ys) with
+                       | none => none
+                       | some (L', a) => some (x :: L', a)) from rfl, hu] at h
+              simp at h
+          | some pr =>
+              obtain ⟨L', bb⟩ := pr
+              rw [show unsnoc (x :: y :: ys)
+                    = (match unsnoc (y :: ys) with
+                       | none => none
+                       | some (L', a) => some (x :: L', a)) from rfl, hu] at h
+              simp only [Option.some.injEq, Prod.mk.injEq] at h
+              obtain ⟨h1, h2⟩ := h
+              subst h1
+              subst h2
+              rw [ih L' bb hu]
+              rfl
+
+/-- The state a level-death produces: a top record when no levels remain. -/
+def collapseTarget : List Nat → Nat → AState
+  | [], n => AState.top n
+  | x :: xs, n => AState.lvl (x :: xs) n 1
+
 /-- The abstract transition, mirroring the proven rule lemmas.  `none`
 marks the value patterns whose safety is exactly the orbit conjecture. -/
 def astep : AState → Option AState
   | AState.top n =>
-      if n ≥ 4 then some (AState.lvl [2] (n - 2) 2) else none
+      if 4 ≤ n then some (AState.lvl [2] (n - 2) 2) else none
   | AState.lvl L b c =>
-      if L = [] then none
-      else if b ≥ 3 then some (AState.lvl (lastInc2 L) (b - 2) (c + 1))
-      else if b = 2 then
-        if c ≥ 4 then some (AState.lvl (lastInc2 L ++ [1]) (c - 2) 1)
-        else none
-      else -- b = 1 or b = 0; b = 0 never occurs, b = 1 collapses
-        if b = 1 then
-          match L.reverse with
-          | [] => none
-          | a :: L'rev =>
-              match L'rev.reverse with
-              | [] => some (AState.top (a + c + 4))
-              | L' => some (AState.lvl L' (a + c + 4) 1)
-        else none
+      match unsnoc L with
+      | none => none
+      | some (L₀, a) =>
+          if 3 ≤ b then some (AState.lvl (lastInc2 L) (b - 2) (c + 1))
+          else if b = 2 then
+            (if 4 ≤ c then some (AState.lvl (lastInc2 L ++ [1]) (c - 2) 1)
+             else none)
+          else if b = 1 then some (collapseTarget L₀ (a + c + 4))
+          else none
 
 /-- Iterated abstract orbit from the startup handoff. -/
 def aorbit : Nat → Option AState
@@ -3612,6 +3658,31 @@ theorem lastInc2_append (L₀ : List Nat) (a : Nat) :
       | cons y ys =>
           show x :: lastInc2 ((y :: ys) ++ [a]) = x :: ((y :: ys) ++ [a + 2])
           rw [ih]
+
+
+/-- Appending a fresh level to the right end of a chain. -/
+theorem chainAt_snoc :
+    ∀ (L : List Nat) (a : Nat) (t : Int → Bool) (lo q : Int),
+      ChainAt t lo L q → 1 ≤ a →
+      (∀ i : Nat, i < a → t (q + i) = true) →
+      t (q + a) = false → t (q + a + 1) = false →
+      ChainAt t lo (L ++ [a]) (q + a + 2) := by
+  intro L
+  induction L with
+  | nil =>
+      intro a t lo q hchain ha hones hg0 hg1
+      have hq : lo = q := hchain
+      refine ⟨ha, ?_, ?_, ?_, ?_⟩
+      · intro i hi; rw [hq]; exact hones i hi
+      · rw [hq]; exact hg0
+      · rw [hq]; exact hg1
+      · show lo + (a : Int) + 2 = q + (a : Int) + 2
+        omega
+  | cons x rest ih =>
+      intro a t lo q hchain ha hones hg0 hg1
+      obtain ⟨hx, hxones, hxg0, hxg1, hrest⟩ := hchain
+      exact ⟨hx, hxones, hxg0, hxg1,
+        ih a t (lo + x + 2) q hrest ha hones hg0 hg1⟩
 
 /-- Concrete realization of an abstract state as a machine configuration:
 blank left, the level chain, the active suffix, the head on the fresh
@@ -4467,6 +4538,1181 @@ theorem transport_wh5 {cfg : Config} {L : List Nat} {mb c : Nat}
         = q + 2 + ((mb + 3 : Nat) : Int) + 1 + ((c + 1 : Nat) : Int)
     omega
 
+/-- Transport for the `b = 2` level-birth (needs `c ≥ 4`): `spawn2_run`
+composed with the `D`-record step realizes `lvl (lastInc2 L ++ [1]) (c-2) 1`. -/
+theorem transport_spawn {cfg : Config} {L : List Nat} {mc : Nat}
+    (h : Realizes (AState.lvl L 2 (mc + 4)) cfg) :
+    ∃ (N : Nat) (cfg' : Config), 0 < N ∧ stepN N cfg = some cfg' ∧
+      Realizes (AState.lvl (lastInc2 L ++ [1]) (mc + 2) 1) cfg' ∧ CSafeSeg cfg N := by
+  obtain ⟨hL, _hb, hc, hsE, lo, q, hblankL, hchain, hbones, hgap, hcones,
+    hblankR, hhead⟩ := h
+  obtain ⟨L₀, a, rfl⟩ := exists_last hL
+  obtain ⟨ha, haones, hg0, hg1, hchain0⟩ :=
+    chainAt_split_last L₀ a cfg.tape lo q hchain
+  have hloq : lo ≤ q - 2 - (a : Int) := chainAt_le L₀ cfg.tape lo _ hchain0
+  obtain ⟨hrun, hsafe⟩ := spawn2_run (c := cfg) (p := q - 2) mc
+    hsE
+    (by rw [hhead]; omega)
+    hg0
+    (by rw [show q - 2 + 1 = q - 1 by omega]; exact hg1)
+    (fun i hi => by
+      rw [show q - 2 + 2 + (i : Int) = q + (i : Int) by omega]
+      exact hbones i hi)
+    (by rw [show q - 2 + 4 = q + ((2 : Nat) : Int) by omega]; exact hgap)
+    (fun i hi => by
+      rw [show q - 2 + 5 + (i : Int) = q + ((2 : Nat) : Int) + 1 + (i : Int)
+            by omega]
+      exact hcones i hi)
+    (by rw [show q - 2 + 9 + (mc : Int)
+              = q + ((2 : Nat) : Int) + 1 + ((mc + 4 : Nat) : Int) by omega]
+        exact hblankR _ (by omega))
+  have hfresh : (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt
+            (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+              (q - 2 + 9 + mc) true) (q - 2 + 5) false) (q - 2 + 4) true)
+              (q - 2 + 2) false) (q - 2 + 1) true) (q - 2) true)
+            (q - 2 + 3) false) (q - 2 + 6) false) (q - 2 + 8) false)
+            (q - 2 + 9) false) (q - 2 + 8) mc)
+        (q - 2 + 8 + mc) true) (q - 2 + 8 + mc + 1) false) (q - 2 + 10 + mc) = false := by
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+    rw [catTape_outside mc _ (q - 2 + 8) _ (by omega)]
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+    exact hblankR _ (by omega)
+  have hd := dstep_run (c := ⟨State.D, q - 2 + 10 + mc, writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt
+            (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+              (q - 2 + 9 + mc) true) (q - 2 + 5) false) (q - 2 + 4) true)
+              (q - 2 + 2) false) (q - 2 + 1) true) (q - 2) true)
+            (q - 2 + 3) false) (q - 2 + 6) false) (q - 2 + 8) false)
+            (q - 2 + 9) false) (q - 2 + 8) mc)
+        (q - 2 + 8 + mc) true) (q - 2 + 8 + mc + 1) false⟩)
+    (q := q - 2 + 10 + mc) rfl rfl hfresh
+  refine ⟨31 + 8 * mc + 1, ⟨State.E, q - 2 + 10 + mc + 1, writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt
+            (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+              (q - 2 + 9 + mc) true) (q - 2 + 5) false) (q - 2 + 4) true)
+              (q - 2 + 2) false) (q - 2 + 1) true) (q - 2) true)
+            (q - 2 + 3) false) (q - 2 + 6) false) (q - 2 + 8) false)
+            (q - 2 + 9) false) (q - 2 + 8) mc)
+        (q - 2 + 8 + mc) true) (q - 2 + 8 + mc + 1) false) (q - 2 + 10 + mc) true⟩,
+    by omega, ?_, ?_, csafe_compose hrun hsafe hd.2⟩
+  · rw [stepN_add, hrun]; exact hd.1
+  refine ⟨by simp, by omega, by omega, rfl, lo, q + 5, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  · intro x hx
+    show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt
+            (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+              (q - 2 + 9 + mc) true) (q - 2 + 5) false) (q - 2 + 4) true)
+              (q - 2 + 2) false) (q - 2 + 1) true) (q - 2) true)
+            (q - 2 + 3) false) (q - 2 + 6) false) (q - 2 + 8) false)
+            (q - 2 + 9) false) (q - 2 + 8) mc)
+        (q - 2 + 8 + mc) true) (q - 2 + 8 + mc + 1) false) (q - 2 + 10 + mc) true) x = false
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega)]
+    rw [catTape_outside mc _ (q - 2 + 8) _ (by omega)]
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+    exact hblankL x hx
+  · rw [lastInc2_append]
+    have hgrown : ChainAt (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt
+            (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+              (q - 2 + 9 + mc) true) (q - 2 + 5) false) (q - 2 + 4) true)
+              (q - 2 + 2) false) (q - 2 + 1) true) (q - 2) true)
+            (q - 2 + 3) false) (q - 2 + 6) false) (q - 2 + 8) false)
+            (q - 2 + 9) false) (q - 2 + 8) mc)
+        (q - 2 + 8 + mc) true) (q - 2 + 8 + mc + 1) false) (q - 2 + 10 + mc) true) lo (L₀ ++ [a + 2]) (q + 2) := by
+      apply chainAt_grow_last L₀ a _ lo q ha
+      · intro i hi
+        by_cases hia : i < a
+        · show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt
+            (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+              (q - 2 + 9 + mc) true) (q - 2 + 5) false) (q - 2 + 4) true)
+              (q - 2 + 2) false) (q - 2 + 1) true) (q - 2) true)
+            (q - 2 + 3) false) (q - 2 + 6) false) (q - 2 + 8) false)
+            (q - 2 + 9) false) (q - 2 + 8) mc)
+        (q - 2 + 8 + mc) true) (q - 2 + 8 + mc + 1) false) (q - 2 + 10 + mc) true) (q - 2 - a + i) = true
+          rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+              writeAt_other _ _ _ _ (by omega)]
+          rw [catTape_outside mc _ (q - 2 + 8) _ (by omega)]
+          rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+              writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+              writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+              writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+              writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+          exact haones i hia
+        · by_cases hia2 : i = a
+          · show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt
+            (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+              (q - 2 + 9 + mc) true) (q - 2 + 5) false) (q - 2 + 4) true)
+              (q - 2 + 2) false) (q - 2 + 1) true) (q - 2) true)
+            (q - 2 + 3) false) (q - 2 + 6) false) (q - 2 + 8) false)
+            (q - 2 + 9) false) (q - 2 + 8) mc)
+        (q - 2 + 8 + mc) true) (q - 2 + 8 + mc + 1) false) (q - 2 + 10 + mc) true) (q - 2 - a + i) = true
+            rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+                writeAt_other _ _ _ _ (by omega)]
+            rw [catTape_outside mc _ (q - 2 + 8) _ (by omega)]
+            rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+                writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+            rw [show q - 2 - (a : Int) + (i : Int) = q - 2 by omega]
+            exact writeAt_same _ (q - 2) true
+          · show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt
+            (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+              (q - 2 + 9 + mc) true) (q - 2 + 5) false) (q - 2 + 4) true)
+              (q - 2 + 2) false) (q - 2 + 1) true) (q - 2) true)
+            (q - 2 + 3) false) (q - 2 + 6) false) (q - 2 + 8) false)
+            (q - 2 + 9) false) (q - 2 + 8) mc)
+        (q - 2 + 8 + mc) true) (q - 2 + 8 + mc + 1) false) (q - 2 + 10 + mc) true) (q - 2 - a + i) = true
+            rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+                writeAt_other _ _ _ _ (by omega)]
+            rw [catTape_outside mc _ (q - 2 + 8) _ (by omega)]
+            rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+                writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+                writeAt_other _ _ _ _ (by omega)]
+            rw [show q - 2 - (a : Int) + (i : Int) = q - 2 + 1 by omega]
+            exact writeAt_same _ (q - 2 + 1) true
+      · show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt
+            (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+              (q - 2 + 9 + mc) true) (q - 2 + 5) false) (q - 2 + 4) true)
+              (q - 2 + 2) false) (q - 2 + 1) true) (q - 2) true)
+            (q - 2 + 3) false) (q - 2 + 6) false) (q - 2 + 8) false)
+            (q - 2 + 9) false) (q - 2 + 8) mc)
+        (q - 2 + 8 + mc) true) (q - 2 + 8 + mc + 1) false) (q - 2 + 10 + mc) true) (q + 0) = false
+        rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega)]
+        rw [catTape_outside mc _ (q - 2 + 8) _ (by omega)]
+        rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+        rw [show (q : Int) + 0 = q - 2 + 2 by omega]
+        exact writeAt_same _ (q - 2 + 2) false
+      · show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt
+            (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+              (q - 2 + 9 + mc) true) (q - 2 + 5) false) (q - 2 + 4) true)
+              (q - 2 + 2) false) (q - 2 + 1) true) (q - 2) true)
+            (q - 2 + 3) false) (q - 2 + 6) false) (q - 2 + 8) false)
+            (q - 2 + 9) false) (q - 2 + 8) mc)
+        (q - 2 + 8 + mc) true) (q - 2 + 8 + mc + 1) false) (q - 2 + 10 + mc) true) (q + 1) = false
+        rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega)]
+        rw [catTape_outside mc _ (q - 2 + 8) _ (by omega)]
+        rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega)]
+        rw [show (q : Int) + 1 = q - 2 + 3 by omega]
+        exact writeAt_same _ (q - 2 + 3) false
+      · exact chainAt_frame L₀ cfg.tape _ lo (q - 2 - a) hchain0
+          (fun x hx1 hx2 => by
+            rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+                writeAt_other _ _ _ _ (by omega)]
+            rw [catTape_outside mc _ (q - 2 + 8) _ (by omega)]
+            rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+                writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+                writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+                writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+                writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)])
+    have hsnoc := chainAt_snoc (L₀ ++ [a + 2]) 1 (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt
+            (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+              (q - 2 + 9 + mc) true) (q - 2 + 5) false) (q - 2 + 4) true)
+              (q - 2 + 2) false) (q - 2 + 1) true) (q - 2) true)
+            (q - 2 + 3) false) (q - 2 + 6) false) (q - 2 + 8) false)
+            (q - 2 + 9) false) (q - 2 + 8) mc)
+        (q - 2 + 8 + mc) true) (q - 2 + 8 + mc + 1) false) (q - 2 + 10 + mc) true) lo (q + 2) hgrown
+      (by omega)
+      (fun i hi => by
+        show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt
+            (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+              (q - 2 + 9 + mc) true) (q - 2 + 5) false) (q - 2 + 4) true)
+              (q - 2 + 2) false) (q - 2 + 1) true) (q - 2) true)
+            (q - 2 + 3) false) (q - 2 + 6) false) (q - 2 + 8) false)
+            (q - 2 + 9) false) (q - 2 + 8) mc)
+        (q - 2 + 8 + mc) true) (q - 2 + 8 + mc + 1) false) (q - 2 + 10 + mc) true) (q + 2 + i) = true
+        rw [show (q : Int) + 2 + (i : Int) = q - 2 + 4 by omega]
+        rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega)]
+        rw [catTape_outside mc _ (q - 2 + 8) _ (by omega)]
+        rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega)]
+        exact writeAt_same _ (q - 2 + 4) true)
+      (by
+        show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt
+            (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+              (q - 2 + 9 + mc) true) (q - 2 + 5) false) (q - 2 + 4) true)
+              (q - 2 + 2) false) (q - 2 + 1) true) (q - 2) true)
+            (q - 2 + 3) false) (q - 2 + 6) false) (q - 2 + 8) false)
+            (q - 2 + 9) false) (q - 2 + 8) mc)
+        (q - 2 + 8 + mc) true) (q - 2 + 8 + mc + 1) false) (q - 2 + 10 + mc) true) (q + 2 + ((1 : Nat) : Int)) = false
+        rw [show (q : Int) + 2 + ((1 : Nat) : Int) = q - 2 + 5 by omega]
+        rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega)]
+        rw [catTape_outside mc _ (q - 2 + 8) _ (by omega)]
+        rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+        exact writeAt_same _ (q - 2 + 5) false)
+      (by
+        show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt
+            (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+              (q - 2 + 9 + mc) true) (q - 2 + 5) false) (q - 2 + 4) true)
+              (q - 2 + 2) false) (q - 2 + 1) true) (q - 2) true)
+            (q - 2 + 3) false) (q - 2 + 6) false) (q - 2 + 8) false)
+            (q - 2 + 9) false) (q - 2 + 8) mc)
+        (q - 2 + 8 + mc) true) (q - 2 + 8 + mc + 1) false) (q - 2 + 10 + mc) true) (q + 2 + ((1 : Nat) : Int) + 1) = false
+        rw [show (q : Int) + 2 + ((1 : Nat) : Int) + 1 = q - 2 + 6 by omega]
+        rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega)]
+        rw [catTape_outside mc _ (q - 2 + 8) _ (by omega)]
+        rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+        exact writeAt_same _ (q - 2 + 6) false)
+    rw [show (q : Int) + 2 + ((1 : Nat) : Int) + 2 = q + 5 by omega] at hsnoc
+    exact hsnoc
+  · intro i hi
+    by_cases hi0 : i = 0
+    · rw [hi0]
+      show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt
+            (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+              (q - 2 + 9 + mc) true) (q - 2 + 5) false) (q - 2 + 4) true)
+              (q - 2 + 2) false) (q - 2 + 1) true) (q - 2) true)
+            (q - 2 + 3) false) (q - 2 + 6) false) (q - 2 + 8) false)
+            (q - 2 + 9) false) (q - 2 + 8) mc)
+        (q - 2 + 8 + mc) true) (q - 2 + 8 + mc + 1) false) (q - 2 + 10 + mc) true) (q + 5 + ((0 : Nat) : Int)) = true
+      rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega)]
+      rw [catTape_outside mc _ (q - 2 + 8) _ (by omega)]
+      rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+      have := hcones 2 (by omega)
+      rw [show (q : Int) + ((2 : Nat) : Int) + 1 + ((2 : Nat) : Int)
+            = q + 5 + ((0 : Nat) : Int) by omega] at this
+      exact this
+    · by_cases hilast : i = mc + 1
+      · rw [hilast]
+        show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt
+            (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+              (q - 2 + 9 + mc) true) (q - 2 + 5) false) (q - 2 + 4) true)
+              (q - 2 + 2) false) (q - 2 + 1) true) (q - 2) true)
+            (q - 2 + 3) false) (q - 2 + 6) false) (q - 2 + 8) false)
+            (q - 2 + 9) false) (q - 2 + 8) mc)
+        (q - 2 + 8 + mc) true) (q - 2 + 8 + mc + 1) false) (q - 2 + 10 + mc) true) (q + 5 + ((mc + 1 : Nat) : Int)) = true
+        rw [show (q : Int) + 5 + ((mc + 1 : Nat) : Int) = q - 2 + 8 + (mc : Int)
+              by omega]
+        rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+        exact writeAt_same _ (q - 2 + 8 + mc) true
+      · show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt
+            (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+              (q - 2 + 9 + mc) true) (q - 2 + 5) false) (q - 2 + 4) true)
+              (q - 2 + 2) false) (q - 2 + 1) true) (q - 2) true)
+            (q - 2 + 3) false) (q - 2 + 6) false) (q - 2 + 8) false)
+            (q - 2 + 9) false) (q - 2 + 8) mc)
+        (q - 2 + 8 + mc) true) (q - 2 + 8 + mc + 1) false) (q - 2 + 10 + mc) true) (q + 5 + (i : Int)) = true
+        rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega)]
+        exact catTape_trail mc _ (q - 2 + 8) _ (by omega) (by omega)
+  · show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt
+            (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+              (q - 2 + 9 + mc) true) (q - 2 + 5) false) (q - 2 + 4) true)
+              (q - 2 + 2) false) (q - 2 + 1) true) (q - 2) true)
+            (q - 2 + 3) false) (q - 2 + 6) false) (q - 2 + 8) false)
+            (q - 2 + 9) false) (q - 2 + 8) mc)
+        (q - 2 + 8 + mc) true) (q - 2 + 8 + mc + 1) false) (q - 2 + 10 + mc) true) (q + 5 + ((mc + 2 : Nat) : Int)) = false
+    rw [show (q : Int) + 5 + ((mc + 2 : Nat) : Int) = q - 2 + 8 + (mc : Int) + 1
+          by omega]
+    rw [writeAt_other _ _ _ _ (by omega)]
+    exact writeAt_same _ (q - 2 + 8 + mc + 1) false
+  · intro i hi
+    have hi0 : i = 0 := by omega
+    rw [hi0]
+    show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt
+            (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+              (q - 2 + 9 + mc) true) (q - 2 + 5) false) (q - 2 + 4) true)
+              (q - 2 + 2) false) (q - 2 + 1) true) (q - 2) true)
+            (q - 2 + 3) false) (q - 2 + 6) false) (q - 2 + 8) false)
+            (q - 2 + 9) false) (q - 2 + 8) mc)
+        (q - 2 + 8 + mc) true) (q - 2 + 8 + mc + 1) false) (q - 2 + 10 + mc) true) (q + 5 + ((mc + 2 : Nat) : Int) + 1 + ((0 : Nat) : Int)) = true
+    rw [show (q : Int) + 5 + ((mc + 2 : Nat) : Int) + 1 + ((0 : Nat) : Int)
+          = q - 2 + 10 + (mc : Int) by omega]
+    exact writeAt_same _ (q - 2 + 10 + mc) true
+  · intro x hx
+    show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt
+            (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape
+              (q - 2 + 9 + mc) true) (q - 2 + 5) false) (q - 2 + 4) true)
+              (q - 2 + 2) false) (q - 2 + 1) true) (q - 2) true)
+            (q - 2 + 3) false) (q - 2 + 6) false) (q - 2 + 8) false)
+            (q - 2 + 9) false) (q - 2 + 8) mc)
+        (q - 2 + 8 + mc) true) (q - 2 + 8 + mc + 1) false) (q - 2 + 10 + mc) true) x = false
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega)]
+    rw [catTape_outside mc _ (q - 2 + 8) _ (by omega)]
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+    exact hblankR x (by omega)
+  · show q - 2 + 10 + (mc : Int) + 1
+        = q + 5 + ((mc + 2 : Nat) : Int) + 1 + ((1 : Nat) : Int)
+    omega
+
+/-- Transport for the `b = 1` level-death when the chain is exhausted. -/
+theorem transport_collapse_top {cfg : Config} {a mc : Nat}
+    (h : Realizes (AState.lvl ([] ++ [a]) 1 (mc + 1)) cfg) :
+    ∃ (N : Nat) (cfg' : Config), 0 < N ∧ stepN N cfg = some cfg' ∧
+      Realizes (AState.top (a + mc + 5)) cfg' ∧ CSafeSeg cfg N := by
+  obtain ⟨hL, _hb, hc, hsE, lo, q, hblankL, hchain, hbones, hgap, hcones,
+    hblankR, hhead⟩ := h
+  obtain ⟨ha, haones, hg0, hg1, hchain0⟩ :=
+    chainAt_split_last [] a cfg.tape lo q hchain
+  have hloq : lo ≤ q - 2 - (a : Int) :=
+    chainAt_le [] cfg.tape lo _ hchain0
+  obtain ⟨hrun, hsafe⟩ := collapse1_run (c := cfg) (p := q - 2) mc
+    hsE
+    (by rw [hhead]; omega)
+    hg0
+    (by rw [show q - 2 + 1 = q - 1 by omega]; exact hg1)
+    (by rw [show q - 2 + 2 = q + ((0 : Nat) : Int) by omega]
+        exact hbones 0 (by omega))
+    (by rw [show q - 2 + 3 = q + ((1 : Nat) : Int) by omega]; exact hgap)
+    (fun i hi => by
+      rw [show q - 2 + 4 + (i : Int) = q + ((1 : Nat) : Int) + 1 + (i : Int)
+            by omega]
+      exact hcones i hi)
+    (by rw [show q - 2 + 5 + (mc : Int)
+              = q + ((1 : Nat) : Int) + 1 + ((mc + 1 : Nat) : Int) by omega]
+        exact hblankR _ (by omega))
+  have hfresh : (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt
+              (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+                cfg.tape (q - 2 + 5 + mc) true) (q - 2 + 4) false)
+                (q - 2 + 3) true) (q - 2 + 2) false) (q - 2 + 1) true)
+                (q - 2) true) (q - 2 + 3) false) (q - 2 + 4) true)
+                (q - 2 + 3) true) (q - 2 + 2) true) (q - 2 + 2) false)
+                (q - 2 + 3) false) (q - 2 + 2) (mc + 2))
+          (q - 2 + 4 + mc) true) (q - 2 + 4 + mc + 1) false) (q - 2 + 6 + mc) = false := by
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+    rw [catTape_outside (mc + 2) _ (q - 2 + 2) _ (by omega)]
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+    exact hblankR _ (by omega)
+  have hd := dstep_run (c := ⟨State.D, q - 2 + 6 + mc, writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt
+              (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+                cfg.tape (q - 2 + 5 + mc) true) (q - 2 + 4) false)
+                (q - 2 + 3) true) (q - 2 + 2) false) (q - 2 + 1) true)
+                (q - 2) true) (q - 2 + 3) false) (q - 2 + 4) true)
+                (q - 2 + 3) true) (q - 2 + 2) true) (q - 2 + 2) false)
+                (q - 2 + 3) false) (q - 2 + 2) (mc + 2))
+          (q - 2 + 4 + mc) true) (q - 2 + 4 + mc + 1) false⟩)
+    (q := q - 2 + 6 + mc) rfl rfl hfresh
+  refine ⟨29 + 8 * mc + 1, ⟨State.E, q - 2 + 6 + mc + 1, writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt
+              (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+                cfg.tape (q - 2 + 5 + mc) true) (q - 2 + 4) false)
+                (q - 2 + 3) true) (q - 2 + 2) false) (q - 2 + 1) true)
+                (q - 2) true) (q - 2 + 3) false) (q - 2 + 4) true)
+                (q - 2 + 3) true) (q - 2 + 2) true) (q - 2 + 2) false)
+                (q - 2 + 3) false) (q - 2 + 2) (mc + 2))
+          (q - 2 + 4 + mc) true) (q - 2 + 4 + mc + 1) false) (q - 2 + 6 + mc) true⟩,
+    by omega, ?_, ?_, csafe_compose hrun hsafe hd.2⟩
+  · rw [stepN_add, hrun]; exact hd.1
+  have hlo : lo = q - 2 - (a : Int) := hchain0
+  refine ⟨by omega, rfl, q - 2 - a, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  · intro y hy
+    show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt
+              (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+                cfg.tape (q - 2 + 5 + mc) true) (q - 2 + 4) false)
+                (q - 2 + 3) true) (q - 2 + 2) false) (q - 2 + 1) true)
+                (q - 2) true) (q - 2 + 3) false) (q - 2 + 4) true)
+                (q - 2 + 3) true) (q - 2 + 2) true) (q - 2 + 2) false)
+                (q - 2 + 3) false) (q - 2 + 2) (mc + 2))
+          (q - 2 + 4 + mc) true) (q - 2 + 4 + mc + 1) false) (q - 2 + 6 + mc) true) y = false
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega)]
+    rw [catTape_outside (mc + 2) _ (q - 2 + 2) _ (by omega)]
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+    exact hblankL y (by omega)
+  · intro i hi
+    by_cases h1 : i < a
+    · show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt
+              (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+                cfg.tape (q - 2 + 5 + mc) true) (q - 2 + 4) false)
+                (q - 2 + 3) true) (q - 2 + 2) false) (q - 2 + 1) true)
+                (q - 2) true) (q - 2 + 3) false) (q - 2 + 4) true)
+                (q - 2 + 3) true) (q - 2 + 2) true) (q - 2 + 2) false)
+                (q - 2 + 3) false) (q - 2 + 2) (mc + 2))
+          (q - 2 + 4 + mc) true) (q - 2 + 4 + mc + 1) false) (q - 2 + 6 + mc) true) (q - 2 - a + i) = true
+      rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega)]
+      rw [catTape_outside (mc + 2) _ (q - 2 + 2) _ (by omega)]
+      rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+      exact haones i h1
+    · by_cases h2 : i = a
+      · show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt
+              (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+                cfg.tape (q - 2 + 5 + mc) true) (q - 2 + 4) false)
+                (q - 2 + 3) true) (q - 2 + 2) false) (q - 2 + 1) true)
+                (q - 2) true) (q - 2 + 3) false) (q - 2 + 4) true)
+                (q - 2 + 3) true) (q - 2 + 2) true) (q - 2 + 2) false)
+                (q - 2 + 3) false) (q - 2 + 2) (mc + 2))
+          (q - 2 + 4 + mc) true) (q - 2 + 4 + mc + 1) false) (q - 2 + 6 + mc) true) (q - 2 - a + i) = true
+        rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega)]
+        rw [catTape_outside (mc + 2) _ (q - 2 + 2) _ (by omega)]
+        rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+        rw [show q - 2 - (a : Int) + (i : Int) = q - 2 by omega]
+        exact writeAt_same _ (q - 2) true
+      · by_cases h3 : i = a + 1
+        · show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt
+              (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+                cfg.tape (q - 2 + 5 + mc) true) (q - 2 + 4) false)
+                (q - 2 + 3) true) (q - 2 + 2) false) (q - 2 + 1) true)
+                (q - 2) true) (q - 2 + 3) false) (q - 2 + 4) true)
+                (q - 2 + 3) true) (q - 2 + 2) true) (q - 2 + 2) false)
+                (q - 2 + 3) false) (q - 2 + 2) (mc + 2))
+          (q - 2 + 4 + mc) true) (q - 2 + 4 + mc + 1) false) (q - 2 + 6 + mc) true) (q - 2 - a + i) = true
+          rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+              writeAt_other _ _ _ _ (by omega)]
+          rw [catTape_outside (mc + 2) _ (q - 2 + 2) _ (by omega)]
+          rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+              writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+              writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+              writeAt_other _ _ _ _ (by omega)]
+          rw [show q - 2 - (a : Int) + (i : Int) = q - 2 + 1 by omega]
+          exact writeAt_same _ (q - 2 + 1) true
+        · by_cases h4 : i = a + mc + 4
+          · show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt
+              (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+                cfg.tape (q - 2 + 5 + mc) true) (q - 2 + 4) false)
+                (q - 2 + 3) true) (q - 2 + 2) false) (q - 2 + 1) true)
+                (q - 2) true) (q - 2 + 3) false) (q - 2 + 4) true)
+                (q - 2 + 3) true) (q - 2 + 2) true) (q - 2 + 2) false)
+                (q - 2 + 3) false) (q - 2 + 2) (mc + 2))
+          (q - 2 + 4 + mc) true) (q - 2 + 4 + mc + 1) false) (q - 2 + 6 + mc) true) (q - 2 - a + i) = true
+            rw [show q - 2 - (a : Int) + (i : Int) = q - 2 + 4 + (mc : Int)
+                  by omega]
+            rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+            exact writeAt_same _ (q - 2 + 4 + mc) true
+          · show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt
+              (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+                cfg.tape (q - 2 + 5 + mc) true) (q - 2 + 4) false)
+                (q - 2 + 3) true) (q - 2 + 2) false) (q - 2 + 1) true)
+                (q - 2) true) (q - 2 + 3) false) (q - 2 + 4) true)
+                (q - 2 + 3) true) (q - 2 + 2) true) (q - 2 + 2) false)
+                (q - 2 + 3) false) (q - 2 + 2) (mc + 2))
+          (q - 2 + 4 + mc) true) (q - 2 + 4 + mc + 1) false) (q - 2 + 6 + mc) true) (q - 2 - a + i) = true
+            rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+                writeAt_other _ _ _ _ (by omega)]
+            exact catTape_trail (mc + 2) _ (q - 2 + 2) _ (by omega) (by omega)
+  · show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt
+              (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+                cfg.tape (q - 2 + 5 + mc) true) (q - 2 + 4) false)
+                (q - 2 + 3) true) (q - 2 + 2) false) (q - 2 + 1) true)
+                (q - 2) true) (q - 2 + 3) false) (q - 2 + 4) true)
+                (q - 2 + 3) true) (q - 2 + 2) true) (q - 2 + 2) false)
+                (q - 2 + 3) false) (q - 2 + 2) (mc + 2))
+          (q - 2 + 4 + mc) true) (q - 2 + 4 + mc + 1) false) (q - 2 + 6 + mc) true) (q - 2 - a + ((a + mc + 5 : Nat) : Int)) = false
+    rw [show q - 2 - (a : Int) + ((a + mc + 5 : Nat) : Int)
+          = q - 2 + 4 + (mc : Int) + 1 by omega]
+    rw [writeAt_other _ _ _ _ (by omega)]
+    exact writeAt_same _ (q - 2 + 4 + mc + 1) false
+  · show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt
+              (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+                cfg.tape (q - 2 + 5 + mc) true) (q - 2 + 4) false)
+                (q - 2 + 3) true) (q - 2 + 2) false) (q - 2 + 1) true)
+                (q - 2) true) (q - 2 + 3) false) (q - 2 + 4) true)
+                (q - 2 + 3) true) (q - 2 + 2) true) (q - 2 + 2) false)
+                (q - 2 + 3) false) (q - 2 + 2) (mc + 2))
+          (q - 2 + 4 + mc) true) (q - 2 + 4 + mc + 1) false) (q - 2 + 6 + mc) true) (q - 2 - a + ((a + mc + 5 : Nat) : Int) + 1) = true
+    rw [show q - 2 - (a : Int) + ((a + mc + 5 : Nat) : Int) + 1
+          = q - 2 + 6 + (mc : Int) by omega]
+    exact writeAt_same _ (q - 2 + 6 + mc) true
+  · intro y hy
+    show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt
+              (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+                cfg.tape (q - 2 + 5 + mc) true) (q - 2 + 4) false)
+                (q - 2 + 3) true) (q - 2 + 2) false) (q - 2 + 1) true)
+                (q - 2) true) (q - 2 + 3) false) (q - 2 + 4) true)
+                (q - 2 + 3) true) (q - 2 + 2) true) (q - 2 + 2) false)
+                (q - 2 + 3) false) (q - 2 + 2) (mc + 2))
+          (q - 2 + 4 + mc) true) (q - 2 + 4 + mc + 1) false) (q - 2 + 6 + mc) true) y = false
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega)]
+    rw [catTape_outside (mc + 2) _ (q - 2 + 2) _ (by omega)]
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+    exact hblankR y (by omega)
+  · show q - 2 + 6 + (mc : Int) + 1
+        = q - 2 - (a : Int) + ((a + mc + 5 : Nat) : Int) + 2
+    omega
+
+/-- Transport for the `b = 1` level-death with levels remaining. -/
+theorem transport_collapse_lvl {cfg : Config} {x : Nat} {xs : List Nat}
+    {a mc : Nat}
+    (h : Realizes (AState.lvl ((x :: xs) ++ [a]) 1 (mc + 1)) cfg) :
+    ∃ (N : Nat) (cfg' : Config), 0 < N ∧ stepN N cfg = some cfg' ∧
+      Realizes (AState.lvl (x :: xs) (a + mc + 5) 1) cfg' ∧ CSafeSeg cfg N := by
+  obtain ⟨hL, _hb, hc, hsE, lo, q, hblankL, hchain, hbones, hgap, hcones,
+    hblankR, hhead⟩ := h
+  obtain ⟨ha, haones, hg0, hg1, hchain0⟩ :=
+    chainAt_split_last (x :: xs) a cfg.tape lo q hchain
+  have hloq : lo ≤ q - 2 - (a : Int) :=
+    chainAt_le (x :: xs) cfg.tape lo _ hchain0
+  obtain ⟨hrun, hsafe⟩ := collapse1_run (c := cfg) (p := q - 2) mc
+    hsE
+    (by rw [hhead]; omega)
+    hg0
+    (by rw [show q - 2 + 1 = q - 1 by omega]; exact hg1)
+    (by rw [show q - 2 + 2 = q + ((0 : Nat) : Int) by omega]
+        exact hbones 0 (by omega))
+    (by rw [show q - 2 + 3 = q + ((1 : Nat) : Int) by omega]; exact hgap)
+    (fun i hi => by
+      rw [show q - 2 + 4 + (i : Int) = q + ((1 : Nat) : Int) + 1 + (i : Int)
+            by omega]
+      exact hcones i hi)
+    (by rw [show q - 2 + 5 + (mc : Int)
+              = q + ((1 : Nat) : Int) + 1 + ((mc + 1 : Nat) : Int) by omega]
+        exact hblankR _ (by omega))
+  have hfresh : (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt
+              (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+                cfg.tape (q - 2 + 5 + mc) true) (q - 2 + 4) false)
+                (q - 2 + 3) true) (q - 2 + 2) false) (q - 2 + 1) true)
+                (q - 2) true) (q - 2 + 3) false) (q - 2 + 4) true)
+                (q - 2 + 3) true) (q - 2 + 2) true) (q - 2 + 2) false)
+                (q - 2 + 3) false) (q - 2 + 2) (mc + 2))
+          (q - 2 + 4 + mc) true) (q - 2 + 4 + mc + 1) false) (q - 2 + 6 + mc) = false := by
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+    rw [catTape_outside (mc + 2) _ (q - 2 + 2) _ (by omega)]
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+    exact hblankR _ (by omega)
+  have hd := dstep_run (c := ⟨State.D, q - 2 + 6 + mc, writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt
+              (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+                cfg.tape (q - 2 + 5 + mc) true) (q - 2 + 4) false)
+                (q - 2 + 3) true) (q - 2 + 2) false) (q - 2 + 1) true)
+                (q - 2) true) (q - 2 + 3) false) (q - 2 + 4) true)
+                (q - 2 + 3) true) (q - 2 + 2) true) (q - 2 + 2) false)
+                (q - 2 + 3) false) (q - 2 + 2) (mc + 2))
+          (q - 2 + 4 + mc) true) (q - 2 + 4 + mc + 1) false⟩)
+    (q := q - 2 + 6 + mc) rfl rfl hfresh
+  refine ⟨29 + 8 * mc + 1, ⟨State.E, q - 2 + 6 + mc + 1, writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt
+              (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+                cfg.tape (q - 2 + 5 + mc) true) (q - 2 + 4) false)
+                (q - 2 + 3) true) (q - 2 + 2) false) (q - 2 + 1) true)
+                (q - 2) true) (q - 2 + 3) false) (q - 2 + 4) true)
+                (q - 2 + 3) true) (q - 2 + 2) true) (q - 2 + 2) false)
+                (q - 2 + 3) false) (q - 2 + 2) (mc + 2))
+          (q - 2 + 4 + mc) true) (q - 2 + 4 + mc + 1) false) (q - 2 + 6 + mc) true⟩,
+    by omega, ?_, ?_, csafe_compose hrun hsafe hd.2⟩
+  · rw [stepN_add, hrun]; exact hd.1
+  refine ⟨by simp, by omega, by omega, rfl, lo, q - 2 - a,
+    ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  · intro y hy
+    show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt
+              (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+                cfg.tape (q - 2 + 5 + mc) true) (q - 2 + 4) false)
+                (q - 2 + 3) true) (q - 2 + 2) false) (q - 2 + 1) true)
+                (q - 2) true) (q - 2 + 3) false) (q - 2 + 4) true)
+                (q - 2 + 3) true) (q - 2 + 2) true) (q - 2 + 2) false)
+                (q - 2 + 3) false) (q - 2 + 2) (mc + 2))
+          (q - 2 + 4 + mc) true) (q - 2 + 4 + mc + 1) false) (q - 2 + 6 + mc) true) y = false
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega)]
+    rw [catTape_outside (mc + 2) _ (q - 2 + 2) _ (by omega)]
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+    exact hblankL y hy
+  · exact chainAt_frame (x :: xs) cfg.tape _ lo (q - 2 - a) hchain0
+      (fun y hy1 hy2 => by
+        show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt
+              (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+                cfg.tape (q - 2 + 5 + mc) true) (q - 2 + 4) false)
+                (q - 2 + 3) true) (q - 2 + 2) false) (q - 2 + 1) true)
+                (q - 2) true) (q - 2 + 3) false) (q - 2 + 4) true)
+                (q - 2 + 3) true) (q - 2 + 2) true) (q - 2 + 2) false)
+                (q - 2 + 3) false) (q - 2 + 2) (mc + 2))
+          (q - 2 + 4 + mc) true) (q - 2 + 4 + mc + 1) false) (q - 2 + 6 + mc) true) y = cfg.tape y
+        rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega)]
+        rw [catTape_outside (mc + 2) _ (q - 2 + 2) _ (by omega)]
+        rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+)
+  · intro i hi
+    by_cases h1 : i < a
+    · show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt
+              (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+                cfg.tape (q - 2 + 5 + mc) true) (q - 2 + 4) false)
+                (q - 2 + 3) true) (q - 2 + 2) false) (q - 2 + 1) true)
+                (q - 2) true) (q - 2 + 3) false) (q - 2 + 4) true)
+                (q - 2 + 3) true) (q - 2 + 2) true) (q - 2 + 2) false)
+                (q - 2 + 3) false) (q - 2 + 2) (mc + 2))
+          (q - 2 + 4 + mc) true) (q - 2 + 4 + mc + 1) false) (q - 2 + 6 + mc) true) (q - 2 - a + i) = true
+      rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega)]
+      rw [catTape_outside (mc + 2) _ (q - 2 + 2) _ (by omega)]
+      rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+      exact haones i h1
+    · by_cases h2 : i = a
+      · show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt
+              (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+                cfg.tape (q - 2 + 5 + mc) true) (q - 2 + 4) false)
+                (q - 2 + 3) true) (q - 2 + 2) false) (q - 2 + 1) true)
+                (q - 2) true) (q - 2 + 3) false) (q - 2 + 4) true)
+                (q - 2 + 3) true) (q - 2 + 2) true) (q - 2 + 2) false)
+                (q - 2 + 3) false) (q - 2 + 2) (mc + 2))
+          (q - 2 + 4 + mc) true) (q - 2 + 4 + mc + 1) false) (q - 2 + 6 + mc) true) (q - 2 - a + i) = true
+        rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega)]
+        rw [catTape_outside (mc + 2) _ (q - 2 + 2) _ (by omega)]
+        rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+        rw [show q - 2 - (a : Int) + (i : Int) = q - 2 by omega]
+        exact writeAt_same _ (q - 2) true
+      · by_cases h3 : i = a + 1
+        · show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt
+              (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+                cfg.tape (q - 2 + 5 + mc) true) (q - 2 + 4) false)
+                (q - 2 + 3) true) (q - 2 + 2) false) (q - 2 + 1) true)
+                (q - 2) true) (q - 2 + 3) false) (q - 2 + 4) true)
+                (q - 2 + 3) true) (q - 2 + 2) true) (q - 2 + 2) false)
+                (q - 2 + 3) false) (q - 2 + 2) (mc + 2))
+          (q - 2 + 4 + mc) true) (q - 2 + 4 + mc + 1) false) (q - 2 + 6 + mc) true) (q - 2 - a + i) = true
+          rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+              writeAt_other _ _ _ _ (by omega)]
+          rw [catTape_outside (mc + 2) _ (q - 2 + 2) _ (by omega)]
+          rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+              writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+              writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+              writeAt_other _ _ _ _ (by omega)]
+          rw [show q - 2 - (a : Int) + (i : Int) = q - 2 + 1 by omega]
+          exact writeAt_same _ (q - 2 + 1) true
+        · by_cases h4 : i = a + mc + 4
+          · show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt
+              (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+                cfg.tape (q - 2 + 5 + mc) true) (q - 2 + 4) false)
+                (q - 2 + 3) true) (q - 2 + 2) false) (q - 2 + 1) true)
+                (q - 2) true) (q - 2 + 3) false) (q - 2 + 4) true)
+                (q - 2 + 3) true) (q - 2 + 2) true) (q - 2 + 2) false)
+                (q - 2 + 3) false) (q - 2 + 2) (mc + 2))
+          (q - 2 + 4 + mc) true) (q - 2 + 4 + mc + 1) false) (q - 2 + 6 + mc) true) (q - 2 - a + i) = true
+            rw [show q - 2 - (a : Int) + (i : Int) = q - 2 + 4 + (mc : Int)
+                  by omega]
+            rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+            exact writeAt_same _ (q - 2 + 4 + mc) true
+          · show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt
+              (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+                cfg.tape (q - 2 + 5 + mc) true) (q - 2 + 4) false)
+                (q - 2 + 3) true) (q - 2 + 2) false) (q - 2 + 1) true)
+                (q - 2) true) (q - 2 + 3) false) (q - 2 + 4) true)
+                (q - 2 + 3) true) (q - 2 + 2) true) (q - 2 + 2) false)
+                (q - 2 + 3) false) (q - 2 + 2) (mc + 2))
+          (q - 2 + 4 + mc) true) (q - 2 + 4 + mc + 1) false) (q - 2 + 6 + mc) true) (q - 2 - a + i) = true
+            rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+                writeAt_other _ _ _ _ (by omega)]
+            exact catTape_trail (mc + 2) _ (q - 2 + 2) _ (by omega) (by omega)
+  · show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt
+              (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+                cfg.tape (q - 2 + 5 + mc) true) (q - 2 + 4) false)
+                (q - 2 + 3) true) (q - 2 + 2) false) (q - 2 + 1) true)
+                (q - 2) true) (q - 2 + 3) false) (q - 2 + 4) true)
+                (q - 2 + 3) true) (q - 2 + 2) true) (q - 2 + 2) false)
+                (q - 2 + 3) false) (q - 2 + 2) (mc + 2))
+          (q - 2 + 4 + mc) true) (q - 2 + 4 + mc + 1) false) (q - 2 + 6 + mc) true) (q - 2 - a + ((a + mc + 5 : Nat) : Int)) = false
+    rw [show q - 2 - (a : Int) + ((a + mc + 5 : Nat) : Int)
+          = q - 2 + 4 + (mc : Int) + 1 by omega]
+    rw [writeAt_other _ _ _ _ (by omega)]
+    exact writeAt_same _ (q - 2 + 4 + mc + 1) false
+  · intro i hi
+    have hi0 : i = 0 := by omega
+    rw [hi0]
+    show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt
+              (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+                cfg.tape (q - 2 + 5 + mc) true) (q - 2 + 4) false)
+                (q - 2 + 3) true) (q - 2 + 2) false) (q - 2 + 1) true)
+                (q - 2) true) (q - 2 + 3) false) (q - 2 + 4) true)
+                (q - 2 + 3) true) (q - 2 + 2) true) (q - 2 + 2) false)
+                (q - 2 + 3) false) (q - 2 + 2) (mc + 2))
+          (q - 2 + 4 + mc) true) (q - 2 + 4 + mc + 1) false) (q - 2 + 6 + mc) true) (q - 2 - a + ((a + mc + 5 : Nat) : Int) + 1 + ((0 : Nat) : Int)) = true
+    rw [show q - 2 - (a : Int) + ((a + mc + 5 : Nat) : Int) + 1
+          + ((0 : Nat) : Int) = q - 2 + 6 + (mc : Int) by omega]
+    exact writeAt_same _ (q - 2 + 6 + mc) true
+  · intro y hy
+    show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt
+              (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt
+                cfg.tape (q - 2 + 5 + mc) true) (q - 2 + 4) false)
+                (q - 2 + 3) true) (q - 2 + 2) false) (q - 2 + 1) true)
+                (q - 2) true) (q - 2 + 3) false) (q - 2 + 4) true)
+                (q - 2 + 3) true) (q - 2 + 2) true) (q - 2 + 2) false)
+                (q - 2 + 3) false) (q - 2 + 2) (mc + 2))
+          (q - 2 + 4 + mc) true) (q - 2 + 4 + mc + 1) false) (q - 2 + 6 + mc) true) y = false
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega)]
+    rw [catTape_outside (mc + 2) _ (q - 2 + 2) _ (by omega)]
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+    exact hblankR y (by omega)
+  · show q - 2 + 6 + (mc : Int) + 1
+        = q - 2 - (a : Int) + ((a + mc + 5 : Nat) : Int) + 1 + ((1 : Nat) : Int)
+    omega
+
+/-- Transport for a top-level record: the whole-tape left crossing, the
+`E`-record step, and the dominant rule compose to realize
+`lvl [2] (n-2) 2`. -/
+theorem transport_top {cfg : Config} {m : Nat}
+    (h : Realizes (AState.top (m + 4)) cfg) :
+    ∃ (N : Nat) (cfg' : Config), 0 < N ∧ stepN N cfg = some cfg' ∧
+      Realizes (AState.lvl [2] (m + 2) 2) cfg' ∧ CSafeSeg cfg N := by
+  obtain ⟨_hn, hsE, lo, hblankL, hones, hgap, hone1, hblankR, hhead⟩ := h
+  obtain ⟨hlc, hlcsafe⟩ := leftcross_run (c := cfg) (q := lo + m + 6) (m + 3)
+    hsE (by rw [hhead]; omega)
+    (hblankR _ (by omega))
+    (by rw [show lo + (m : Int) + 6 - 1 = lo + ((m + 4 : Nat) : Int) + 1
+              by omega]
+        exact hone1)
+    (by rw [show lo + (m : Int) + 6 - 2 = lo + ((m + 4 : Nat) : Int) by omega]
+        exact hgap)
+    (fun i hi => by
+      have := hones (m + 3 - i) (by omega)
+      rw [show lo + (m : Int) + 6 - 3 - (i : Int)
+            = lo + ((m + 3 - i : Nat) : Int) by omega]
+      exact this)
+    (by rw [show lo + (m : Int) + 6 - 4 - ((m + 3 : Nat) : Int) = lo - 1
+              by omega]
+        exact hblankL _ (by omega))
+  rw [show lo + (m : Int) + 6 - 1 = lo + m + 5 by omega,
+      show lo + (m : Int) + 6 - 2 = lo + m + 4 by omega,
+      show lo + (m : Int) + 6 - 3 - ((m + 3 : Nat) : Int) = lo by omega,
+      show lo + (m : Int) + 6 - 4 - ((m + 3 : Nat) : Int) = lo - 1
+        by omega] at hlc
+  have hes := estep_run (c := ⟨State.E, lo - 1, writeAt (writeAt (writeAt (writeAt cfg.tape (lo + m + 6) true)
+      (lo + m + 5) false) (lo + m + 4) true) lo false⟩) (q := lo - 1) rfl rfl
+    (by
+      show (writeAt (writeAt (writeAt (writeAt cfg.tape (lo + m + 6) true)
+      (lo + m + 5) false) (lo + m + 4) true) lo false) (lo - 1) = false
+      rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+      exact hblankL _ (by omega))
+  obtain ⟨hdom, hdomsafe⟩ := dominant_rule_run
+    (c := ⟨State.A, lo - 1 - 1, writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape (lo + m + 6) true)
+      (lo + m + 5) false) (lo + m + 4) true) lo false) (lo - 1) true⟩) (p := lo - 2) m rfl (by show lo - 1 - 1 = lo - 2; omega)
+    (by
+      show (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape (lo + m + 6) true)
+      (lo + m + 5) false) (lo + m + 4) true) lo false) (lo - 1) true) (lo - 2) = false
+      rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega)]
+      exact hblankL _ (by omega))
+    (by
+      show (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape (lo + m + 6) true)
+      (lo + m + 5) false) (lo + m + 4) true) lo false) (lo - 1) true) (lo - 2 + 1) = true
+      rw [show lo - 2 + 1 = lo - 1 by omega]
+      exact writeAt_same _ (lo - 1) true)
+    (by
+      show (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape (lo + m + 6) true)
+      (lo + m + 5) false) (lo + m + 4) true) lo false) (lo - 1) true) (lo - 2 + 2) = false
+      rw [show lo - 2 + 2 = lo by omega]
+      rw [writeAt_other _ _ _ _ (by omega)]
+      exact writeAt_same _ lo false)
+    (fun i hi => by
+      show (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape (lo + m + 6) true)
+      (lo + m + 5) false) (lo + m + 4) true) lo false) (lo - 1) true) (lo - 2 + 3 + i) = true
+      by_cases hlast : i = m + 3
+      · rw [hlast, show lo - 2 + 3 + ((m + 3 : Nat) : Int) = lo + m + 4 by omega]
+        rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+        exact writeAt_same _ (lo + m + 4) true
+      rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega)]
+      have := hones (1 + i) (by omega)
+      rw [show lo + ((1 + i : Nat) : Int) = lo - 2 + 3 + (i : Int) by omega]
+        at this
+      exact this)
+    (by
+      show (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape (lo + m + 6) true)
+      (lo + m + 5) false) (lo + m + 4) true) lo false) (lo - 1) true) (lo - 2 + 7 + m) = false
+      rw [show lo - 2 + 7 + (m : Int) = lo + m + 5 by omega]
+      rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega)]
+      exact writeAt_same _ (lo + m + 5) false)
+    (by
+      show (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape (lo + m + 6) true)
+      (lo + m + 5) false) (lo + m + 4) true) lo false) (lo - 1) true) (lo - 2 + 8 + m) = true
+      rw [show lo - 2 + 8 + (m : Int) = lo + m + 6 by omega]
+      rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+      exact writeAt_same _ (lo + m + 6) true)
+  refine ⟨3 * (m + 3) + 4 + (1 + (13 + 5 * m)),
+    ⟨State.E, lo - 2 + 9 + m, writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape (lo + m + 6) true)
+      (lo + m + 5) false) (lo + m + 4) true) lo false) (lo - 1) true) (lo - 2) true)
+          (lo - 2 + 3) false) (lo - 2 + 5) false) (lo - 2 + 6) false) (lo - 2 + 5) m)
+        (lo - 2 + 5 + m) true) (lo - 2 + 5 + m + 1) false)
+        (lo - 2 + 5 + m + 2) true⟩, by omega, ?_, ?_, ?_⟩
+  · rw [stepN_add, hlc]
+    show stepN (1 + (13 + 5 * m)) ⟨State.E, lo - 1, writeAt (writeAt (writeAt (writeAt cfg.tape (lo + m + 6) true)
+      (lo + m + 5) false) (lo + m + 4) true) lo false⟩ = _
+    rw [stepN_add, hes.1]
+    show stepN (13 + 5 * m) ⟨State.A, lo - 1 - 1, writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape (lo + m + 6) true)
+      (lo + m + 5) false) (lo + m + 4) true) lo false) (lo - 1) true⟩ = _
+    exact hdom
+  · refine ⟨by simp, by omega, by omega, rfl, lo - 2, lo + 2,
+      ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+    · intro y hy
+      show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape (lo + m + 6) true)
+      (lo + m + 5) false) (lo + m + 4) true) lo false) (lo - 1) true) (lo - 2) true)
+          (lo - 2 + 3) false) (lo - 2 + 5) false) (lo - 2 + 6) false) (lo - 2 + 5) m)
+        (lo - 2 + 5 + m) true) (lo - 2 + 5 + m + 1) false)
+        (lo - 2 + 5 + m + 2) true) y = false
+      rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega)]
+      rw [catTape_outside m _ (lo - 2 + 5) _ (by omega)]
+      rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega)]
+      exact hblankL y (by omega)
+    · refine ⟨by omega, ?_, ?_, ?_, ?_⟩
+      · intro i hi
+        by_cases hi0 : i = 0
+        · rw [hi0]
+          show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape (lo + m + 6) true)
+      (lo + m + 5) false) (lo + m + 4) true) lo false) (lo - 1) true) (lo - 2) true)
+          (lo - 2 + 3) false) (lo - 2 + 5) false) (lo - 2 + 6) false) (lo - 2 + 5) m)
+        (lo - 2 + 5 + m) true) (lo - 2 + 5 + m + 1) false)
+        (lo - 2 + 5 + m + 2) true) (lo - 2 + ((0 : Nat) : Int)) = true
+          rw [show lo - 2 + ((0 : Nat) : Int) = lo - 2 by omega]
+          rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+              writeAt_other _ _ _ _ (by omega)]
+          rw [catTape_outside m _ (lo - 2 + 5) _ (by omega)]
+          rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+              writeAt_other _ _ _ _ (by omega)]
+          exact writeAt_same _ (lo - 2) true
+        · have hi1 : i = 1 := by omega
+          rw [hi1]
+          show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape (lo + m + 6) true)
+      (lo + m + 5) false) (lo + m + 4) true) lo false) (lo - 1) true) (lo - 2) true)
+          (lo - 2 + 3) false) (lo - 2 + 5) false) (lo - 2 + 6) false) (lo - 2 + 5) m)
+        (lo - 2 + 5 + m) true) (lo - 2 + 5 + m + 1) false)
+        (lo - 2 + 5 + m + 2) true) (lo - 2 + ((1 : Nat) : Int)) = true
+          rw [show lo - 2 + ((1 : Nat) : Int) = lo - 1 by omega]
+          rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+              writeAt_other _ _ _ _ (by omega)]
+          rw [catTape_outside m _ (lo - 2 + 5) _ (by omega)]
+          rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+              writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+          exact writeAt_same _ (lo - 1) true
+      · show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape (lo + m + 6) true)
+      (lo + m + 5) false) (lo + m + 4) true) lo false) (lo - 1) true) (lo - 2) true)
+          (lo - 2 + 3) false) (lo - 2 + 5) false) (lo - 2 + 6) false) (lo - 2 + 5) m)
+        (lo - 2 + 5 + m) true) (lo - 2 + 5 + m + 1) false)
+        (lo - 2 + 5 + m + 2) true) (lo - 2 + ((2 : Nat) : Int)) = false
+        rw [show lo - 2 + ((2 : Nat) : Int) = lo by omega]
+        rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega)]
+        rw [catTape_outside m _ (lo - 2 + 5) _ (by omega)]
+        rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega)]
+        exact writeAt_same _ lo false
+      · show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape (lo + m + 6) true)
+      (lo + m + 5) false) (lo + m + 4) true) lo false) (lo - 1) true) (lo - 2) true)
+          (lo - 2 + 3) false) (lo - 2 + 5) false) (lo - 2 + 6) false) (lo - 2 + 5) m)
+        (lo - 2 + 5 + m) true) (lo - 2 + 5 + m + 1) false)
+        (lo - 2 + 5 + m + 2) true) (lo - 2 + ((2 : Nat) : Int) + 1) = false
+        rw [show lo - 2 + ((2 : Nat) : Int) + 1 = lo - 2 + 3 by omega]
+        rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega)]
+        rw [catTape_outside m _ (lo - 2 + 5) _ (by omega)]
+        rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+        exact writeAt_same _ (lo - 2 + 3) false
+      · show lo - 2 + ((2 : Nat) : Int) + 2 = lo + 2
+        omega
+    · intro i hi
+      by_cases hi0 : i = 0
+      · rw [hi0]
+        show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape (lo + m + 6) true)
+      (lo + m + 5) false) (lo + m + 4) true) lo false) (lo - 1) true) (lo - 2) true)
+          (lo - 2 + 3) false) (lo - 2 + 5) false) (lo - 2 + 6) false) (lo - 2 + 5) m)
+        (lo - 2 + 5 + m) true) (lo - 2 + 5 + m + 1) false)
+        (lo - 2 + 5 + m + 2) true) (lo + 2 + ((0 : Nat) : Int)) = true
+        rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega)]
+        rw [catTape_outside m _ (lo - 2 + 5) _ (by omega)]
+        rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega)]
+        have := hones 2 (by omega)
+        rw [show lo + ((2 : Nat) : Int) = lo + 2 + ((0 : Nat) : Int) by omega]
+          at this
+        exact this
+      · by_cases hilast : i = m + 1
+        · rw [hilast]
+          show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape (lo + m + 6) true)
+      (lo + m + 5) false) (lo + m + 4) true) lo false) (lo - 1) true) (lo - 2) true)
+          (lo - 2 + 3) false) (lo - 2 + 5) false) (lo - 2 + 6) false) (lo - 2 + 5) m)
+        (lo - 2 + 5 + m) true) (lo - 2 + 5 + m + 1) false)
+        (lo - 2 + 5 + m + 2) true) (lo + 2 + ((m + 1 : Nat) : Int)) = true
+          rw [show lo + 2 + ((m + 1 : Nat) : Int) = lo - 2 + 5 + (m : Int)
+                by omega]
+          rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+          exact writeAt_same _ (lo - 2 + 5 + m) true
+        · show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape (lo + m + 6) true)
+      (lo + m + 5) false) (lo + m + 4) true) lo false) (lo - 1) true) (lo - 2) true)
+          (lo - 2 + 3) false) (lo - 2 + 5) false) (lo - 2 + 6) false) (lo - 2 + 5) m)
+        (lo - 2 + 5 + m) true) (lo - 2 + 5 + m + 1) false)
+        (lo - 2 + 5 + m + 2) true) (lo + 2 + (i : Int)) = true
+          rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+              writeAt_other _ _ _ _ (by omega)]
+          exact catTape_trail m _ (lo - 2 + 5) _ (by omega) (by omega)
+    · show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape (lo + m + 6) true)
+      (lo + m + 5) false) (lo + m + 4) true) lo false) (lo - 1) true) (lo - 2) true)
+          (lo - 2 + 3) false) (lo - 2 + 5) false) (lo - 2 + 6) false) (lo - 2 + 5) m)
+        (lo - 2 + 5 + m) true) (lo - 2 + 5 + m + 1) false)
+        (lo - 2 + 5 + m + 2) true) (lo + 2 + ((m + 2 : Nat) : Int)) = false
+      rw [show lo + 2 + ((m + 2 : Nat) : Int) = lo - 2 + 5 + (m : Int) + 1
+            by omega]
+      rw [writeAt_other _ _ _ _ (by omega)]
+      exact writeAt_same _ (lo - 2 + 5 + m + 1) false
+    · intro i hi
+      by_cases hi0 : i = 0
+      · rw [hi0]
+        show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape (lo + m + 6) true)
+      (lo + m + 5) false) (lo + m + 4) true) lo false) (lo - 1) true) (lo - 2) true)
+          (lo - 2 + 3) false) (lo - 2 + 5) false) (lo - 2 + 6) false) (lo - 2 + 5) m)
+        (lo - 2 + 5 + m) true) (lo - 2 + 5 + m + 1) false)
+        (lo - 2 + 5 + m + 2) true) (lo + 2 + ((m + 2 : Nat) : Int) + 1 + ((0 : Nat) : Int)) = true
+        rw [show lo + 2 + ((m + 2 : Nat) : Int) + 1 + ((0 : Nat) : Int)
+              = lo - 2 + 5 + (m : Int) + 2 by omega]
+        exact writeAt_same _ (lo - 2 + 5 + m + 2) true
+      · have hi1 : i = 1 := by omega
+        rw [hi1]
+        show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape (lo + m + 6) true)
+      (lo + m + 5) false) (lo + m + 4) true) lo false) (lo - 1) true) (lo - 2) true)
+          (lo - 2 + 3) false) (lo - 2 + 5) false) (lo - 2 + 6) false) (lo - 2 + 5) m)
+        (lo - 2 + 5 + m) true) (lo - 2 + 5 + m + 1) false)
+        (lo - 2 + 5 + m + 2) true) (lo + 2 + ((m + 2 : Nat) : Int) + 1 + ((1 : Nat) : Int)) = true
+        rw [show lo + 2 + ((m + 2 : Nat) : Int) + 1 + ((1 : Nat) : Int)
+              = lo + m + 6 by omega]
+        rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega)]
+        rw [catTape_outside m _ (lo - 2 + 5) _ (by omega)]
+        rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+        exact writeAt_same _ (lo + m + 6) true
+    · intro y hy
+      show (writeAt (writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt cfg.tape (lo + m + 6) true)
+      (lo + m + 5) false) (lo + m + 4) true) lo false) (lo - 1) true) (lo - 2) true)
+          (lo - 2 + 3) false) (lo - 2 + 5) false) (lo - 2 + 6) false) (lo - 2 + 5) m)
+        (lo - 2 + 5 + m) true) (lo - 2 + 5 + m + 1) false)
+        (lo - 2 + 5 + m + 2) true) y = false
+      rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega)]
+      rw [catTape_outside m _ (lo - 2 + 5) _ (by omega)]
+      rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega)]
+      exact hblankR y (by omega)
+    · show lo - 2 + 9 + (m : Int)
+          = lo + 2 + ((m + 2 : Nat) : Int) + 1 + ((2 : Nat) : Int)
+      omega
+  · rw [show 3 * (m + 3) + 4 + (1 + (13 + 5 * m))
+          = (3 * (m + 3) + 4) + (1 + (13 + 5 * m)) from rfl]
+    exact csafe_compose hlc (csafe_of_noC hlcsafe)
+      (csafe_compose hes.1 hes.2 hdomsafe)
+
+theorem aorbit_succ {n : Nat} {s : AState} (horb : aorbit n = some s) :
+    aorbit (n + 1) = astep s := by
+  show (match aorbit n with
+        | none => none
+        | some s => astep s) = astep s
+  rw [horb]
+
+/-- **The dispatcher.**  Under the orbit conjecture, every configuration
+realizing a live abstract state advances safely to another one. -/
+theorem orbit_segment (hso : SafeOrbit) (cfg : Config) (hinv : OrbitInv cfg) :
+    ∃ k, 0 < k ∧ ∃ cfg', stepN k cfg = some cfg' ∧ OrbitInv cfg' ∧
+      CSafeSeg cfg k := by
+  obtain ⟨n, s, horb, hreal⟩ := hinv
+  have hsucc : aorbit (n + 1) = astep s := aorbit_succ horb
+  have hlive : astep s ≠ none := by rw [← hsucc]; exact hso (n + 1)
+  cases s with
+  | top N =>
+      have h4 : 4 ≤ N := by
+        cases Nat.lt_or_ge N 4 with
+        | inr hge => exact hge
+        | inl hlt =>
+            refine absurd ?_ hlive
+            show (if 4 ≤ N then some (AState.lvl [2] (N - 2) 2) else none)
+                = none
+            rw [if_neg (show ¬(4 ≤ N) by omega)]
+      obtain ⟨m, rfl⟩ : ∃ m, N = m + 4 := ⟨N - 4, by omega⟩
+      obtain ⟨K, cfg', hK, hst, hreal', hsf⟩ := transport_top hreal
+      refine ⟨K, hK, cfg', hst,
+        ⟨n + 1, AState.lvl [2] (m + 2) 2, ?_, hreal'⟩, hsf⟩
+      rw [hsucc]
+      show (if 4 ≤ m + 4 then some (AState.lvl [2] (m + 4 - 2) 2) else none)
+          = some (AState.lvl [2] (m + 2) 2)
+      rw [if_pos (show 4 ≤ m + 4 by omega), show m + 4 - 2 = m + 2 by omega]
+  | lvl L b c =>
+      have hb1 : 1 ≤ b := hreal.2.1
+      have hc1 : 1 ≤ c := hreal.2.2.1
+      cases hu : unsnoc L with
+      | none =>
+          refine absurd ?_ hlive
+          show (match unsnoc L with
+                | none => none
+                | some (L₀, a) =>
+                    if 3 ≤ b then some (AState.lvl (lastInc2 L) (b - 2) (c + 1))
+                    else if b = 2 then
+                      (if 4 ≤ c then
+                        some (AState.lvl (lastInc2 L ++ [1]) (c - 2) 1)
+                       else none)
+                    else if b = 1 then some (collapseTarget L₀ (a + c + 4))
+                    else none) = none
+          rw [hu]
+      | some pr =>
+          obtain ⟨L₀, a⟩ := pr
+          have hastep : astep (AState.lvl L b c)
+              = (if 3 ≤ b then some (AState.lvl (lastInc2 L) (b - 2) (c + 1))
+                 else if b = 2 then
+                   (if 4 ≤ c then
+                     some (AState.lvl (lastInc2 L ++ [1]) (c - 2) 1)
+                    else none)
+                 else if b = 1 then some (collapseTarget L₀ (a + c + 4))
+                 else none) := by
+            show (match unsnoc L with
+                  | none => none
+                  | some (L₀, a) =>
+                      if 3 ≤ b then
+                        some (AState.lvl (lastInc2 L) (b - 2) (c + 1))
+                      else if b = 2 then
+                        (if 4 ≤ c then
+                          some (AState.lvl (lastInc2 L ++ [1]) (c - 2) 1)
+                         else none)
+                      else if b = 1 then some (collapseTarget L₀ (a + c + 4))
+                      else none) = _
+            rw [hu]
+          have hbcase : b = 1 ∨ b = 2 ∨ b = 3 ∨ b = 4 ∨ 5 ≤ b := by omega
+          rcases hbcase with rfl | rfl | rfl | rfl | hge
+          · have hLeq : L = L₀ ++ [a] := unsnoc_eq L L₀ a hu
+            subst hLeq
+            obtain ⟨mc, rfl⟩ : ∃ mc, c = mc + 1 := ⟨c - 1, by omega⟩
+            cases L₀ with
+            | nil =>
+                obtain ⟨K, cfg', hK, hst, hreal', hsf⟩ :=
+                  transport_collapse_top hreal
+                refine ⟨K, hK, cfg', hst,
+                  ⟨n + 1, AState.top (a + mc + 5), ?_, hreal'⟩, hsf⟩
+                rw [hsucc, hastep, if_neg (show ¬(3 ≤ 1) by omega),
+                    if_neg (show ¬((1 : Nat) = 2) by omega),
+                    if_pos (show (1 : Nat) = 1 from rfl)]
+                show some (AState.top (a + (mc + 1) + 4))
+                    = some (AState.top (a + mc + 5))
+                rw [show a + (mc + 1) + 4 = a + mc + 5 by omega]
+            | cons x xs =>
+                obtain ⟨K, cfg', hK, hst, hreal', hsf⟩ :=
+                  transport_collapse_lvl hreal
+                refine ⟨K, hK, cfg', hst,
+                  ⟨n + 1, AState.lvl (x :: xs) (a + mc + 5) 1, ?_, hreal'⟩, hsf⟩
+                rw [hsucc, hastep, if_neg (show ¬(3 ≤ 1) by omega),
+                    if_neg (show ¬((1 : Nat) = 2) by omega),
+                    if_pos (show (1 : Nat) = 1 from rfl)]
+                show some (AState.lvl (x :: xs) (a + (mc + 1) + 4) 1)
+                    = some (AState.lvl (x :: xs) (a + mc + 5) 1)
+                rw [show a + (mc + 1) + 4 = a + mc + 5 by omega]
+          · have h4c : 4 ≤ c := by
+              cases Nat.lt_or_ge c 4 with
+              | inr hge => exact hge
+              | inl hlt =>
+                  refine absurd ?_ hlive
+                  rw [hastep, if_neg (show ¬(3 ≤ 2) by omega),
+                      if_pos (show (2 : Nat) = 2 from rfl),
+                      if_neg (show ¬(4 ≤ c) by omega)]
+            obtain ⟨mc, rfl⟩ : ∃ mc, c = mc + 4 := ⟨c - 4, by omega⟩
+            obtain ⟨K, cfg', hK, hst, hreal', hsf⟩ := transport_spawn hreal
+            refine ⟨K, hK, cfg', hst,
+              ⟨n + 1, AState.lvl (lastInc2 L ++ [1]) (mc + 2) 1, ?_,
+                hreal'⟩, hsf⟩
+            rw [hsucc, hastep, if_neg (show ¬(3 ≤ 2) by omega),
+                if_pos (show (2 : Nat) = 2 from rfl),
+                if_pos (show 4 ≤ mc + 4 by omega)]
+            show some (AState.lvl (lastInc2 L ++ [1]) (mc + 4 - 2) 1)
+                = some (AState.lvl (lastInc2 L ++ [1]) (mc + 2) 1)
+            rw [show mc + 4 - 2 = mc + 2 by omega]
+          · obtain ⟨K, cfg', hK, hst, hreal', hsf⟩ := transport_wh3 hreal
+            refine ⟨K, hK, cfg', hst,
+              ⟨n + 1, AState.lvl (lastInc2 L) 1 (c + 1), ?_, hreal'⟩, hsf⟩
+            rw [hsucc, hastep, if_pos (show 3 ≤ 3 by omega)]
+          · obtain ⟨K, cfg', hK, hst, hreal', hsf⟩ := transport_wh4 hreal
+            refine ⟨K, hK, cfg', hst,
+              ⟨n + 1, AState.lvl (lastInc2 L) 2 (c + 1), ?_, hreal'⟩, hsf⟩
+            rw [hsucc, hastep, if_pos (show 3 ≤ 4 by omega)]
+          · obtain ⟨mb, rfl⟩ : ∃ mb, b = mb + 5 := ⟨b - 5, by omega⟩
+            obtain ⟨K, cfg', hK, hst, hreal', hsf⟩ := transport_wh5 hreal
+            refine ⟨K, hK, cfg', hst,
+              ⟨n + 1, AState.lvl (lastInc2 L) (mb + 3) (c + 1), ?_, hreal'⟩,
+              hsf⟩
+            rw [hsucc, hastep, if_pos (show 3 ≤ mb + 5 by omega)]
+            show some (AState.lvl (lastInc2 L) (mb + 5 - 2) (c + 1))
+                = some (AState.lvl (lastInc2 L) (mb + 3) (c + 1))
+            rw [show mb + 5 - 2 = mb + 3 by omega]
+
+/-- **THE MAIN THEOREM.**  Under the orbit conjecture `SafeOrbit`,
+dossier-1 never halts from the blank tape. -/
+theorem safeOrbit_nonhalting (hso : SafeOrbit) : ¬ RawHalts blankStart :=
+  nonhalting_of_orbit_segments (orbit_segment hso)
+
 end QIG.Dossier1RawTM
 
 #print axioms QIG.Dossier1RawTM.halt_requires_c_probe_00
@@ -4486,5 +5732,12 @@ end QIG.Dossier1RawTM
 #print axioms QIG.Dossier1RawTM.transport_wh3
 #print axioms QIG.Dossier1RawTM.realizes_start
 #print axioms QIG.Dossier1RawTM.nonhalting_of_orbit_segments
+#print axioms QIG.Dossier1RawTM.transport_wh5
+#print axioms QIG.Dossier1RawTM.transport_spawn
+#print axioms QIG.Dossier1RawTM.transport_collapse_top
+#print axioms QIG.Dossier1RawTM.transport_collapse_lvl
+#print axioms QIG.Dossier1RawTM.transport_top
+#print axioms QIG.Dossier1RawTM.orbit_segment
+#print axioms QIG.Dossier1RawTM.safeOrbit_nonhalting
 #print axioms QIG.Dossier1RawTM.crawl_run
 #print axioms QIG.Dossier1RawTM.exit_run

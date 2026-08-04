@@ -20,6 +20,12 @@ proofs of non-halting.
   affine event counts, fresh-value synthetic replays at 100M steps).
   Antihydra's non-halting argument is structurally complete empirically;
   the remaining burden is the Lean raw-to-macro closure induction.
+- **Dossier-1's non-halting is now formally reduced to one arithmetic
+  conjecture.** `safeOrbit_nonhalting : SafeOrbit → ¬ RawHalts blankStart`
+  is machine-checked and axiom-clean; every dynamical fact about the
+  machine (halt localization, all seven record transitions for all block
+  values, the 35-step startup, the tape grammar, the segment induction)
+  is proved. `SafeOrbit` is a statement about the abstract orbit alone.
 - **Dossier-1** (`1RB0LE_1LB1RC_0RF0RD_1RE0LA_1LA1RE_---0RB`): exact macro
   system (36 rules + 7 literals, 100% replay in/out-of-sample over 100M steps),
   recursive Collatz checkpoint law (odd `n → (3n+7)/2`, even recurses), all 33
