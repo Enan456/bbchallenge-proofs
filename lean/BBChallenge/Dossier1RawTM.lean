@@ -750,8 +750,10 @@ theorem dominant_rule_run {c : Config} {p : Int} (m : Nat)
     (tb : ∀ i : Nat, i < m + 4 → c.tape (p + 3 + i) = true)
     (tg : c.tape (p + 7 + m) = false)
     (tr : c.tape (p + 8 + m) = true) :
-    (∃ tf : Int → Bool,
-        stepN (13 + 5 * m) c = some ⟨State.E, p + 9 + m, tf⟩) ∧
+    stepN (13 + 5 * m) c = some ⟨State.E, p + 9 + m, writeAt (writeAt (writeAt
+      (catTape (writeAt (writeAt (writeAt (writeAt c.tape p true)
+          (p + 3) false) (p + 5) false) (p + 6) false) (p + 5) m)
+      (p + 5 + m) true) (p + 5 + m + 1) false) (p + 5 + m + 2) true⟩ ∧
       CSafeSeg c (13 + 5 * m) := by
   have hb3 : c.tape (p + 3) = true := by
     have := tb 0 (by omega)
@@ -823,10 +825,7 @@ theorem dominant_rule_run {c : Config} {p : Int} (m : Nat)
       (writeAt (writeAt (writeAt (writeAt c.tape p true) (p + 3) false)
         (p + 5) false) (p + 6) false) (p + 5) m⟩)
     (q := p + 5 + m) rfl rfl e0 e1 hq2 hq3
-  refine ⟨⟨writeAt (writeAt (writeAt
-      (catTape (writeAt (writeAt (writeAt (writeAt c.tape p true)
-          (p + 3) false) (p + 5) false) (p + 6) false) (p + 5) m)
-      (p + 5 + m) true) (p + 5 + m + 1) false) (p + 5 + m + 2) true, ?_⟩, ?_⟩
+  refine ⟨?_, ?_⟩
   · rw [show 13 + 5 * m = 7 + (5 * m + 6) by omega, stepN_add, sP]
     show stepN (5 * m + 6)
         ⟨State.A, p + 5,
@@ -1167,9 +1166,13 @@ theorem workhorse_run {c : Config} {p : Int} (mb mc : Nat)
     (tg2 : c.tape (p + 7 + mb) = false)
     (tc : ∀ i : Nat, i < mc + 1 → c.tape (p + 8 + mb + i) = true)
     (tF : c.tape (p + 9 + mb + mc) = false) :
-    (∃ tf : Int → Bool,
-        stepN (35 + 8 * mb + 4 * mc) c =
-          some ⟨State.E, p + 10 + mb + mc, tf⟩) ∧
+    stepN (35 + 8 * mb + 4 * mc) c =
+        some ⟨State.E, p + 10 + mb + mc, writeAt (writeAt (writeAt
+      (catTape (writeAt (writeAt (writeAt (writeAt
+        (writeAt (writeAt (writeAt (writeAt (writeAt c.tape (p + 9 + mb + mc) true)
+          (p + 8 + mb) false) (p + 7 + mb) true) (p + 2) false) (p + 1) true)
+        p true) (p + 3) false) (p + 5) false) (p + 6) false) (p + 5) (mb + 1))
+      (p + 6 + mb) true) (p + 6 + mb + 1) false) (p + 6 + mb + 2) true⟩ ∧
       CSafeSeg c (35 + 8 * mb + 4 * mc) := by
   obtain ⟨s, hd, t⟩ := c
   simp only at hs hh tg0 tg1 tb tg2 tc tF
@@ -1531,12 +1534,7 @@ theorem workhorse_run {c : Config} {p : Int} (mb mc : Nat)
   have htot : 35 + 8 * mb + 4 * mc
       = (((((((1 + 3 * mc) + 2) + 3 * (mb + 4)) + 2) + 7)
           + 5 * (mb + 1)) + (5 + (mc + 1))) := by omega
-  refine ⟨⟨writeAt (writeAt (writeAt
-      (catTape (writeAt (writeAt (writeAt (writeAt
-        (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mb + mc) true)
-          (p + 8 + mb) false) (p + 7 + mb) true) (p + 2) false) (p + 1) true)
-        p true) (p + 3) false) (p + 5) false) (p + 6) false) (p + 5) (mb + 1))
-      (p + 6 + mb) true) (p + 6 + mb + 1) false) (p + 6 + mb + 2) true, ?_⟩, ?_⟩
+  refine ⟨?_, ?_⟩
   · rw [htot]; exact acc7
   · rw [show 35 + 8 * mb + 4 * mc
         = 1 + (3 * mc + (2 + (3 * (mb + 4) + (2 + (7 + (5 * (mb + 1)
@@ -1896,8 +1894,12 @@ theorem workhorse4_run {c : Config} {p : Int} (mc : Nat)
     (tg2 : c.tape (p + 6) = false)
     (tc : ∀ i : Nat, i < mc + 1 → c.tape (p + 7 + i) = true)
     (tF : c.tape (p + 8 + mc) = false) :
-    (∃ tf : Int → Bool,
-        stepN (27 + 4 * mc) c = some ⟨State.E, p + 9 + mc, tf⟩) ∧
+    stepN (27 + 4 * mc) c = some ⟨State.E, p + 9 + mc, writeAt (writeAt (writeAt
+      (writeAt (writeAt (writeAt (writeAt
+        (writeAt (writeAt (writeAt (writeAt (writeAt c.tape (p + 8 + mc) true)
+          (p + 7) false) (p + 6) true) (p + 2) false) (p + 1) true)
+        p true) (p + 3) false) (p + 5) false) (p + 6) false)
+      (p + 5) true) (p + 5 + 1) false) (p + 5 + 2) true⟩ ∧
       CSafeSeg c (27 + 4 * mc) := by
   obtain ⟨s, hd, t⟩ := c
   simp only at hs hh tg0 tg1 tb tg2 tc tF
@@ -2084,12 +2086,7 @@ theorem workhorse4_run {c : Config} {p : Int} (mc : Nat)
             p true) (p + 3) false) (p + 5) false) (p + 6) false)
           (p + 5) true) (p + 5 + 1) false) (p + 5 + 2) true⟩ := by
     rw [stepN_add, acc1]; exact sX'
-  refine ⟨⟨writeAt (writeAt (writeAt
-      (writeAt (writeAt (writeAt (writeAt
-        (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 8 + mc) true)
-          (p + 7) false) (p + 6) true) (p + 2) false) (p + 1) true)
-        p true) (p + 3) false) (p + 5) false) (p + 6) false)
-      (p + 5) true) (p + 5 + 1) false) (p + 5 + 2) true, ?_⟩, ?_⟩
+  refine ⟨?_, ?_⟩
   · rw [show 27 + 4 * mc = ((5 + 3 * 3 + 3 * mc) + 7) + (5 + (mc + 1))
           by omega]
     exact acc2
@@ -2107,8 +2104,10 @@ theorem workhorse3_run {c : Config} {p : Int} (mc : Nat)
     (tg2 : c.tape (p + 5) = false)
     (tc : ∀ i : Nat, i < mc + 1 → c.tape (p + 6 + i) = true)
     (tF : c.tape (p + 7 + mc) = false) :
-    (∃ tf : Int → Bool,
-        stepN (19 + 4 * mc) c = some ⟨State.E, p + 8 + mc, tf⟩) ∧
+    stepN (19 + 4 * mc) c = some ⟨State.E, p + 8 + mc, writeAt (writeAt (writeAt (writeAt (writeAt
+      (writeAt (writeAt (writeAt (writeAt (writeAt c.tape (p + 7 + mc) true)
+        (p + 6) false) (p + 5) true) (p + 2) false) (p + 1) true)
+      p true) (p + 3) false) (p + 5) false) (p + 6) true) (p + 6) true⟩ ∧
       CSafeSeg c (19 + 4 * mc) := by
   obtain ⟨s, hd, t⟩ := c
   simp only at hs hh tg0 tg1 tb tg2 tc tF
@@ -2227,10 +2226,7 @@ theorem workhorse3_run {c : Config} {p : Int} (mc : Nat)
             (p + 6) false) (p + 5) true) (p + 2) false) (p + 1) true)
           p true) (p + 3) false) (p + 5) false) (p + 6) true) (p + 6) true⟩ := by
     rw [stepN_add, sD']; exact sP'
-  refine ⟨⟨writeAt (writeAt (writeAt (writeAt (writeAt
-      (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 7 + mc) true)
-        (p + 6) false) (p + 5) true) (p + 2) false) (p + 1) true)
-      p true) (p + 3) false) (p + 5) false) (p + 6) true) (p + 6) true, ?_⟩, ?_⟩
+  refine ⟨?_, ?_⟩
   · rw [show 19 + 4 * mc = (5 + 3 * 2 + 3 * mc) + (7 + (mc + 1)) by omega]
     exact acc
   · rw [show 19 + 4 * mc = (5 + 3 * 2 + 3 * mc) + (7 + (mc + 1)) by omega]
@@ -2817,8 +2813,11 @@ theorem spawn2_run {c : Config} {p : Int} (mc : Nat)
     (tg2 : c.tape (p + 4) = false)
     (tc : ∀ i : Nat, i < mc + 4 → c.tape (p + 5 + i) = true)
     (tF : c.tape (p + 9 + mc) = false) :
-    (∃ tf : Int → Bool,
-        stepN (31 + 8 * mc) c = some ⟨State.D, p + 10 + mc, tf⟩) ∧
+    stepN (31 + 8 * mc) c = some ⟨State.D, p + 10 + mc, writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt
+      (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt c.tape (p + 9 + mc) true)
+        (p + 5) false) (p + 4) true) (p + 2) false) (p + 1) true)
+      p true) (p + 3) false) (p + 6) false) (p + 8) false) (p + 9) false)
+      (p + 8) mc) (p + 8 + mc) true) (p + 8 + mc + 1) false⟩ ∧
       CSafeSeg c (31 + 8 * mc) := by
   obtain ⟨s, hd, t⟩ := c
   simp only at hs hh tg0 tg1 tb tg2 tc tF
@@ -3062,11 +3061,7 @@ theorem spawn2_run {c : Config} {p : Int} (mc : Nat)
           p true) (p + 3) false) (p + 6) false) (p + 8) false) (p + 9) false)
           (p + 8) mc) (p + 8 + mc) true) (p + 8 + mc + 1) false⟩ := by
     rw [stepN_add, acc2]; exact sT'
-  refine ⟨⟨writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt
-      (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mc) true)
-        (p + 5) false) (p + 4) true) (p + 2) false) (p + 1) true)
-      p true) (p + 3) false) (p + 6) false) (p + 8) false) (p + 9) false)
-      (p + 8) mc) (p + 8 + mc) true) (p + 8 + mc + 1) false, ?_⟩, ?_⟩
+  refine ⟨?_, ?_⟩
   · rw [show 31 + 8 * mc = (((5 + 3 * 1 + 3 * (mc + 3)) + 10) + 5 * mc) + 4
           by omega]
     exact acc3
@@ -3087,8 +3082,12 @@ theorem collapse1_run {c : Config} {p : Int} (mc : Nat)
     (tg2 : c.tape (p + 3) = false)
     (tc : ∀ i : Nat, i < mc + 1 → c.tape (p + 4 + i) = true)
     (tF : c.tape (p + 5 + mc) = false) :
-    (∃ tf : Int → Bool,
-        stepN (29 + 8 * mc) c = some ⟨State.D, p + 6 + mc, tf⟩) ∧
+    stepN (29 + 8 * mc) c = some ⟨State.D, p + 6 + mc, writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt
+      (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt c.tape
+        (p + 5 + mc) true) (p + 4) false) (p + 3) true) (p + 2) false)
+        (p + 1) true) p true) (p + 3) false) (p + 4) true) (p + 3) true)
+        (p + 2) true) (p + 2) false) (p + 3) false) (p + 2) (mc + 2))
+      (p + 4 + mc) true) (p + 4 + mc + 1) false⟩ ∧
       CSafeSeg c (29 + 8 * mc) := by
   obtain ⟨s, hd, t⟩ := c
   simp only at hs hh tg0 tg1 tb tg2 tc tF
@@ -3293,12 +3292,7 @@ theorem collapse1_run {c : Config} {p : Int} (mc : Nat)
             (p + 2) true) (p + 2) false) (p + 3) false) (p + 2) (mc + 2))
           (p + 4 + mc) true) (p + 4 + mc + 1) false⟩ := by
     rw [stepN_add, acc2]; exact sT'
-  refine ⟨⟨writeAt (writeAt (catTape (writeAt (writeAt (writeAt (writeAt
-      (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt t
-        (p + 5 + mc) true) (p + 4) false) (p + 3) true) (p + 2) false)
-        (p + 1) true) p true) (p + 3) false) (p + 4) true) (p + 3) true)
-        (p + 2) true) (p + 2) false) (p + 3) false) (p + 2) (mc + 2))
-      (p + 4 + mc) true) (p + 4 + mc + 1) false, ?_⟩, ?_⟩
+  refine ⟨?_, ?_⟩
   · rw [show 29 + 8 * mc = (((5 + 3 * 0 + 3 * mc) + 10) + 5 * (mc + 2)) + 4
           by omega]
     exact acc3
@@ -3551,6 +3545,73 @@ theorem chainAt_frame :
         exact hg1
       · exact ih t t' (lo + a + 2) q hrest
           (fun x hx1 hx2 => hagree x (by omega) hx2)
+
+/-- Splitting a nonempty chain at its last level. -/
+theorem chainAt_split_last :
+    ∀ (L₀ : List Nat) (a : Nat) (t : Int → Bool) (lo q : Int),
+      ChainAt t lo (L₀ ++ [a]) q →
+      1 ≤ a ∧
+      (∀ i : Nat, i < a → t (q - 2 - a + i) = true) ∧
+      t (q - 2) = false ∧ t (q - 1) = false ∧
+      ChainAt t lo L₀ (q - 2 - a) := by
+  intro L₀
+  induction L₀ with
+  | nil =>
+      intro a t lo q h
+      obtain ⟨ha, hones, hg0, hg1, hend⟩ := h
+      have hq : lo + a + 2 = q := hend
+      refine ⟨ha, ?_, ?_, ?_, ?_⟩
+      · intro i hi
+        rw [show q - 2 - (a : Int) + i = lo + (i : Int) by omega]
+        exact hones i hi
+      · rw [show q - 2 = lo + (a : Int) by omega]; exact hg0
+      · rw [show q - 1 = lo + (a : Int) + 1 by omega]; exact hg1
+      · show lo = q - 2 - (a : Int)
+        omega
+  | cons x rest ih =>
+      intro a t lo q h
+      obtain ⟨hx, hxones, hxg0, hxg1, hrest⟩ := h
+      obtain ⟨ha, hones, hg0, hg1, hchain⟩ := ih a t (lo + x + 2) q hrest
+      exact ⟨ha, hones, hg0, hg1, hx, hxones, hxg0, hxg1, hchain⟩
+
+/-- Rebuilding a chain whose last level grew by 2 (the old 2-gap filled,
+a new 2-gap two cells further right). -/
+theorem chainAt_grow_last :
+    ∀ (L₀ : List Nat) (a : Nat) (t' : Int → Bool) (lo q : Int),
+      1 ≤ a →
+      (∀ i : Nat, i < a + 2 → t' (q - 2 - a + i) = true) →
+      t' (q + 0) = false → t' (q + 1) = false →
+      ChainAt t' lo L₀ (q - 2 - a) →
+      ChainAt t' lo (L₀ ++ [a + 2]) (q + 2) := by
+  intro L₀
+  induction L₀ with
+  | nil =>
+      intro a t' lo q ha hones hg0 hg1 hend
+      have hq : lo = q - 2 - (a : Int) := hend
+      refine ⟨by omega, ?_, ?_, ?_, ?_⟩
+      · intro i hi
+        rw [show lo + (i : Int) = q - 2 - (a : Int) + i by omega]
+        exact hones i (by omega)
+      · rw [show lo + ((a + 2 : Nat) : Int) = q + 0 by omega]; exact hg0
+      · rw [show lo + ((a + 2 : Nat) : Int) + 1 = q + 1 by omega]; exact hg1
+      · show lo + ((a + 2 : Nat) : Int) + 2 = q + 2
+        omega
+  | cons x rest ih =>
+      intro a t' lo q ha hones hg0 hg1 hchain
+      obtain ⟨hx, hxones, hxg0, hxg1, hrest⟩ := hchain
+      exact ⟨hx, hxones, hxg0, hxg1, ih a t' (lo + x + 2) q ha hones hg0 hg1 hrest⟩
+
+/-- `lastInc2` on `L₀ ++ [a]`. -/
+theorem lastInc2_append (L₀ : List Nat) (a : Nat) :
+    lastInc2 (L₀ ++ [a]) = L₀ ++ [a + 2] := by
+  induction L₀ with
+  | nil => rfl
+  | cons x rest ih =>
+      cases rest with
+      | nil => simp [lastInc2] at ih ⊢
+      | cons y ys =>
+          show x :: lastInc2 ((y :: ys) ++ [a]) = x :: ((y :: ys) ++ [a + 2])
+          rw [ih]
 
 /-- Concrete realization of an abstract state as a machine configuration:
 blank left, the level chain, the active suffix, the head on the fresh
