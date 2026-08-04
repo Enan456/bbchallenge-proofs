@@ -843,6 +843,749 @@ theorem dominant_rule_run {c : Config} {p : Int} (m : Nat)
     exact csafe_compose sP safeP
       (csafe_compose sC (csafe_of_strong safeC) safeS)
 
+/-!
+## Atoms for the R-side workhorse rule
+
+The steady-state sweep at every epoch depth fires from an R-record
+`(…frozen…, 2, b, 1, c)` with the head at the right frontier `F`, and
+decomposes (verified by exact micro-trace, 107 steps for `b=12, c=5`) as
+
+1. entry: `E@F` writes `1` (1 step);
+2. **crawl** left across the `c`-block: 3-step tape-restoring cycles
+   `A(1)→E(1)→E(0)` (states `A`/`E` only, no `C`);
+3. gap-cross (2 steps), crawl across the `b`-block, gap-cross (2 steps);
+4. `prefix_run` — the same 7 steps with the SAME single C0 probe;
+5. `cat_run` across the remaining `b`-interior;
+6. **exit**: 5 steps plus an `E`-sweep across the (grown) `c`-block to
+   the new frontier `F + 1`.
+
+Total `4c + 8b − 6` raw steps; the whole interval touches nothing left of
+the `2`-gap, so ONE lemma covers every epoch depth.
+-/
+
+/-- State `E` sweeps right across `n` ones without touching the tape
+(`E1 = 1RE`). -/
+theorem sweep_E :
+    ∀ (n : Nat) (c : Config), c.state = State.E →
+      (∀ i : Nat, i < n → c.tape (c.head + i) = true) →
+      stepN n c = some ⟨State.E, c.head + n, c.tape⟩ := by
+  intro n
+  induction n with
+  | zero =>
+      intro c hs _
+      obtain ⟨s, h, t⟩ := c
+      simp_all [stepN]
+  | succ n ih =>
+      intro c hs hones
+      have h0 : c.tape c.head = true := by
+        simpa using hones 0 (Nat.succ_pos n)
+      have hstep : step c = some ⟨State.E, c.head + 1, c.tape⟩ := by
+        have hw := writeAt_self c.tape c.head h0
+        obtain ⟨s, h, t⟩ := c
+        simp only at hs h0 hw ⊢
+        simp [step, instr, hs, h0, move, hw]
+      have hnext : stepN n ⟨State.E, c.head + 1, c.tape⟩ =
+          some ⟨State.E, c.head + 1 + (n : Int), c.tape⟩ :=
+        ih ⟨State.E, c.head + 1, c.tape⟩ rfl
+          (fun i hi => by
+            have h := hones (i + 1) (by omega)
+            have heq : c.head + 1 + (i : Int) = c.head + ((i + 1 : Nat) : Int) := by
+              omega
+            rw [heq]; exact h)
+      have harith : c.head + 1 + (n : Int) = c.head + ((n + 1 : Nat) : Int) := by
+        omega
+      rw [show stepN (n + 1) c = (step c).bind (stepN n) from rfl, hstep]
+      rw [show ((some ⟨State.E, c.head + 1, c.tape⟩ : Option Config).bind (stepN n))
+            = stepN n ⟨State.E, c.head + 1, c.tape⟩ from rfl]
+      rw [hnext, harith]
+
+/-- One 3-step crawl cycle `A(1) → E(1) → E(0) → A`, one cell to the left,
+tape exactly restored.  States `A`/`E` only — no `C` configuration. -/
+theorem crawl_cycle {c : Config} {h : Int}
+    (hs : c.state = State.A) (hh : c.head = h)
+    (h0 : c.tape h = true) (h1 : c.tape (h - 1) = true) :
+    stepN 3 c = some ⟨State.A, h - 1, c.tape⟩ ∧
+      (∀ k d, k < 3 → stepN k c = some d → d.state ≠ State.C) := by
+  obtain ⟨s, hd, t⟩ := c
+  simp only at hs hh h0 h1
+  subst hs hd
+  have r1 : writeAt t h false (h - 1) = true := by
+    rw [writeAt_other t h (h - 1) false (by omega)]; exact h1
+  have r2 : writeAt (writeAt t h false) (h - 1) true h = false := by
+    rw [writeAt_other _ (h - 1) h true (by omega)]
+    exact writeAt_same t h false
+  have hcol : writeAt (writeAt t h false) (h - 1) true = writeAt t h false := by
+    exact writeAt_self (writeAt t h false) (h - 1) r1
+  have s1 : step ⟨State.A, h, t⟩ =
+      some ⟨State.E, h - 1, writeAt t h false⟩ := by
+    simp [step, instr, h0, move]
+  have s2 : step ⟨State.E, h - 1, writeAt t h false⟩ =
+      some ⟨State.E, h, writeAt t h false⟩ := by
+    simp [step, instr, r1, move, hcol]
+    try omega
+  have s3 : step ⟨State.E, h, writeAt t h false⟩ =
+      some ⟨State.A, h - 1, t⟩ := by
+    have hover : writeAt (writeAt t h false) h true = t := by
+      rw [writeAt_overwrite]
+      exact writeAt_self t h h0
+    have hr : writeAt t h false h = false := writeAt_same t h false
+    simp [step, instr, hr, move, hover]
+  have p1 : stepN 1 ⟨State.A, h, t⟩ =
+      some ⟨State.E, h - 1, writeAt t h false⟩ := by simp [stepN, s1]
+  have p2 : stepN 2 ⟨State.A, h, t⟩ =
+      some ⟨State.E, h, writeAt t h false⟩ := by simp [stepN, s1, s2]
+  refine ⟨?_, ?_⟩
+  · show stepN 3 ⟨State.A, h, t⟩ = _
+    simp [stepN, s1, s2, s3]
+  · intro k d hk hkd
+    have hcase : k = 0 ∨ k = 1 ∨ k = 2 := by omega
+    rcases hcase with rfl | rfl | rfl
+    · have hd : (⟨State.A, h, t⟩ : Config) = d := by simpa [stepN] using hkd
+      rw [← hd]; simp
+    · rw [p1] at hkd; rw [← Option.some_inj.mp hkd]; simp
+    · rw [p2] at hkd; rw [← Option.some_inj.mp hkd]; simp
+
+/-- The crawl: `n` cycles left across a block of ones, tape exactly
+restored, no `C` configuration at all. -/
+theorem crawl_run :
+    ∀ (n : Nat) (c : Config) (h : Int), c.state = State.A → c.head = h →
+      (∀ i : Nat, i ≤ n → c.tape (h - i) = true) →
+      stepN (3 * n) c = some ⟨State.A, h - n, c.tape⟩ ∧
+        (∀ k d, k < 3 * n → stepN k c = some d → d.state ≠ State.C) := by
+  intro n
+  induction n with
+  | zero =>
+      intro c h hs hh _
+      obtain ⟨s, hd, t⟩ := c
+      simp only at hs hh
+      subst hs hd
+      refine ⟨by simp [stepN], ?_⟩
+      intro k d hk
+      exact absurd hk (by omega)
+  | succ n ih =>
+      intro c h hs hh hones
+      have h0 : c.tape h = true := by simpa using hones 0 (by omega)
+      have h1 : c.tape (h - 1) = true := by
+        have := hones 1 (by omega)
+        rw [show h - ((1 : Nat) : Int) = h - 1 by omega] at this
+        exact this
+      obtain ⟨s3, safe3⟩ := crawl_cycle hs hh h0 h1
+      obtain ⟨srun, saferun⟩ := ih ⟨State.A, h - 1, c.tape⟩ (h - 1) rfl rfl
+        (fun i hi => by
+          have := hones (i + 1) (by omega)
+          rw [show h - 1 - (i : Int) = h - ((i + 1 : Nat) : Int) by omega]
+          exact this)
+      have hsplit : 3 * (n + 1) = 3 + 3 * n := by omega
+      refine ⟨?_, ?_⟩
+      · rw [hsplit, stepN_add, s3]
+        rw [show ((some ⟨State.A, h - 1, c.tape⟩ : Option Config).bind
+              (stepN (3 * n))) = stepN (3 * n) ⟨State.A, h - 1, c.tape⟩ from rfl]
+        rw [srun]
+        rw [show h - 1 - (n : Int) = h - ((n + 1 : Nat) : Int) by omega]
+      · intro k d hk hkd
+        by_cases hk3 : k < 3
+        · exact safe3 k d hk3 hkd
+        · have hkeq : k = 3 + (k - 3) := by omega
+          rw [hkeq, stepN_add, s3] at hkd
+          exact saferun (k - 3) d (by omega) hkd
+
+/-- The 2-step gap-cross `A(1) → E(0) → A`: the block edge is zeroed and
+the gap cell to its left becomes a `1`.  No `C` configuration. -/
+theorem gapcross_run {c : Config} {x : Int}
+    (hs : c.state = State.A) (hh : c.head = x)
+    (h0 : c.tape x = true) (h1 : c.tape (x - 1) = false) :
+    stepN 2 c = some ⟨State.A, x - 2,
+        writeAt (writeAt c.tape x false) (x - 1) true⟩ ∧
+      (∀ k d, k < 2 → stepN k c = some d → d.state ≠ State.C) := by
+  obtain ⟨s, hd, t⟩ := c
+  simp only at hs hh h0 h1
+  subst hs hd
+  have r1 : writeAt t x false (x - 1) = false := by
+    rw [writeAt_other t x (x - 1) false (by omega)]; exact h1
+  have s1 : step ⟨State.A, x, t⟩ =
+      some ⟨State.E, x - 1, writeAt t x false⟩ := by
+    simp [step, instr, h0, move]
+  have s2 : step ⟨State.E, x - 1, writeAt t x false⟩ =
+      some ⟨State.A, x - 2,
+        writeAt (writeAt t x false) (x - 1) true⟩ := by
+    simp [step, instr, r1, move]
+    try omega
+  have p1 : stepN 1 ⟨State.A, x, t⟩ =
+      some ⟨State.E, x - 1, writeAt t x false⟩ := by simp [stepN, s1]
+  refine ⟨?_, ?_⟩
+  · show stepN 2 ⟨State.A, x, t⟩ = _
+    simp [stepN, s1, s2]
+  · intro k d hk hkd
+    have hcase : k = 0 ∨ k = 1 := by omega
+    rcases hcase with rfl | rfl
+    · have hd : (⟨State.A, x, t⟩ : Config) = d := by simpa [stepN] using hkd
+      rw [← hd]; simp
+    · rw [p1] at hkd; rw [← Option.some_inj.mp hkd]; simp
+
+/-- The generalized exit: exhausted partial cycle, `D` crossing the gap,
+then an `E`-sweep across `r` ones to the new frontier.  `5 + r` steps; the
+single `C` configuration reads `1`. -/
+theorem exit_run {c : Config} {q : Int} (r : Nat)
+    (hs : c.state = State.A) (hh : c.head = q)
+    (t0 : c.tape q = false) (t1 : c.tape (q + 1) = false)
+    (t2 : c.tape (q + 2) = false)
+    (tr : ∀ i : Nat, i < r → c.tape (q + 3 + i) = true) :
+    stepN (5 + r) c = some ⟨State.E, q + 3 + r,
+        writeAt (writeAt (writeAt c.tape q true) (q + 1) false)
+          (q + 2) true⟩ ∧
+      CSafeSeg c (5 + r) := by
+  obtain ⟨s, hd, t⟩ := c
+  simp only at hs hh t0 t1 t2 tr
+  subst hs hd
+  have r1 : writeAt t q true (q + 1) = false := by
+    rw [writeAt_other t q (q + 1) true (by omega)]; exact t1
+  have r2 : writeAt (writeAt t q true) (q + 1) true q = true := by
+    rw [writeAt_other _ (q + 1) q true (by omega)]
+    exact writeAt_same t q true
+  have r3 : writeAt (writeAt t q true) (q + 1) true (q + 1) = true :=
+    writeAt_same (writeAt t q true) (q + 1) true
+  have r4 : writeAt (writeAt t q true) (q + 1) false (q + 2) = false := by
+    rw [writeAt_other _ (q + 1) (q + 2) false (by omega),
+        writeAt_other t q (q + 2) true (by omega)]
+    exact t2
+  have s1 : step ⟨State.A, q, t⟩ =
+      some ⟨State.B, q + 1, writeAt t q true⟩ := by
+    simp [step, instr, t0, move]
+  have s2 : step ⟨State.B, q + 1, writeAt t q true⟩ =
+      some ⟨State.B, q, writeAt (writeAt t q true) (q + 1) true⟩ := by
+    simp [step, instr, r1, move]
+  have s3 : step ⟨State.B, q, writeAt (writeAt t q true) (q + 1) true⟩ =
+      some ⟨State.C, q + 1, writeAt (writeAt t q true) (q + 1) true⟩ := by
+    have hself := writeAt_self (writeAt (writeAt t q true) (q + 1) true) q r2
+    simp [step, instr, r2, move, hself]
+  have s4 : step ⟨State.C, q + 1, writeAt (writeAt t q true) (q + 1) true⟩ =
+      some ⟨State.D, q + 2, writeAt (writeAt t q true) (q + 1) false⟩ := by
+    have hover := writeAt_overwrite (writeAt t q true) (q + 1) true false
+    simp [step, instr, r3, move, hover]
+    try omega
+  have s5 : step ⟨State.D, q + 2, writeAt (writeAt t q true) (q + 1) false⟩ =
+      some ⟨State.E, q + 3,
+        writeAt (writeAt (writeAt t q true) (q + 1) false) (q + 2) true⟩ := by
+    simp [step, instr, r4, move]
+    try omega
+  have hsweep : stepN r
+      ⟨State.E, q + 3,
+        writeAt (writeAt (writeAt t q true) (q + 1) false) (q + 2) true⟩ =
+      some ⟨State.E, q + 3 + (r : Int),
+        writeAt (writeAt (writeAt t q true) (q + 1) false) (q + 2) true⟩ := by
+    exact sweep_E r _ rfl (fun i hi => by
+      show writeAt (writeAt (writeAt t q true) (q + 1) false) (q + 2) true
+        (q + 3 + (i : Int)) = true
+      rw [writeAt_other _ (q + 2) _ true (by omega),
+          writeAt_other _ (q + 1) _ false (by omega),
+          writeAt_other t q _ true (by omega)]
+      exact tr i hi)
+  have p1 : stepN 1 ⟨State.A, q, t⟩ =
+      some ⟨State.B, q + 1, writeAt t q true⟩ := by simp [stepN, s1]
+  have p2 : stepN 2 ⟨State.A, q, t⟩ =
+      some ⟨State.B, q, writeAt (writeAt t q true) (q + 1) true⟩ := by
+    simp [stepN, s1, s2]
+  have p3 : stepN 3 ⟨State.A, q, t⟩ =
+      some ⟨State.C, q + 1, writeAt (writeAt t q true) (q + 1) true⟩ := by
+    simp [stepN, s1, s2, s3]
+  have p4 : stepN 4 ⟨State.A, q, t⟩ =
+      some ⟨State.D, q + 2, writeAt (writeAt t q true) (q + 1) false⟩ := by
+    simp [stepN, s1, s2, s3, s4]
+  have p5 : stepN 5 ⟨State.A, q, t⟩ =
+      some ⟨State.E, q + 3,
+        writeAt (writeAt (writeAt t q true) (q + 1) false) (q + 2) true⟩ := by
+    simp [stepN, s1, s2, s3, s4, s5]
+  refine ⟨?_, ?_⟩
+  · rw [show 5 + r = 5 + r from rfl, stepN_add, p5]
+    rw [show ((some ⟨State.E, q + 3,
+          writeAt (writeAt (writeAt t q true) (q + 1) false) (q + 2) true⟩ :
+            Option Config).bind (stepN r))
+          = stepN r ⟨State.E, q + 3,
+              writeAt (writeAt (writeAt t q true) (q + 1) false)
+                (q + 2) true⟩ from rfl]
+    exact hsweep
+  · intro k d hk hkd hC hread
+    by_cases hk5 : k < 5
+    · have hcase : k = 0 ∨ k = 1 ∨ k = 2 ∨ k = 3 ∨ k = 4 := by omega
+      rcases hcase with rfl | rfl | rfl | rfl | rfl
+      · have hd : (⟨State.A, q, t⟩ : Config) = d := by simpa [stepN] using hkd
+        rw [← hd] at hC; simp at hC
+      · rw [p1] at hkd; rw [← Option.some_inj.mp hkd] at hC; simp at hC
+      · rw [p2] at hkd; rw [← Option.some_inj.mp hkd] at hC; simp at hC
+      · rw [p3] at hkd
+        rw [← Option.some_inj.mp hkd] at hread
+        rw [show (⟨State.C, q + 1,
+              writeAt (writeAt t q true) (q + 1) true⟩ : Config).tape
+              (⟨State.C, q + 1,
+                writeAt (writeAt t q true) (q + 1) true⟩ : Config).head
+            = writeAt (writeAt t q true) (q + 1) true (q + 1) from rfl] at hread
+        rw [r3] at hread
+        exact absurd hread (by simp)
+      · rw [p4] at hkd; rw [← Option.some_inj.mp hkd] at hC; simp at hC
+    · have hkeq : k = 5 + (k - 5) := by omega
+      rw [hkeq, stepN_add, p5] at hkd
+      -- inside the E-sweep every configuration is in state E
+      have hkd' : stepN (k - 5)
+          ⟨State.E, q + 3,
+            writeAt (writeAt (writeAt t q true) (q + 1) false)
+              (q + 2) true⟩ = some d := hkd
+      have hj : k - 5 ≤ r := by omega
+      have : d.state = State.E := by
+        have hpart := sweep_E (k - 5)
+          ⟨State.E, q + 3,
+            writeAt (writeAt (writeAt t q true) (q + 1) false)
+              (q + 2) true⟩ rfl
+          (fun i hi => by
+            show writeAt (writeAt (writeAt t q true) (q + 1) false)
+              (q + 2) true (q + 3 + (i : Int)) = true
+            rw [writeAt_other _ (q + 2) _ true (by omega),
+                writeAt_other _ (q + 1) _ false (by omega),
+                writeAt_other t q _ true (by omega)]
+            exact tr i (by omega))
+        rw [hpart] at hkd'
+        rw [← Option.some_inj.mp hkd']
+      rw [this] at hC
+      exact absurd hC (by simp)
+
+theorem csafe_of_noC {c : Config} {N : Nat}
+    (h : ∀ k d, k < N → stepN k c = some d → d.state ≠ State.C) :
+    CSafeSeg c N := by
+  intro k d hk hkd hC _
+  exact absurd hC (h k d hk hkd)
+
+/-- **The R-side workhorse rule, end to end, at every epoch depth.**
+From an R-record `(… frozen …, 2, b, 1, c)` with `b = mb + 5`,
+`c = mc + 1` and the head on the fresh frontier cell: exactly
+`35 + 8·mb + 4·mc` raw steps, ending in state `E` on the next frontier
+cell, with every C-probe of a `0` safe.  Nothing left of the `2`-gap is
+read or written, so this one theorem covers the sweep at dims 5, 7, 9, …
+simultaneously. -/
+theorem workhorse_run {c : Config} {p : Int} (mb mc : Nat)
+    (hs : c.state = State.E) (hh : c.head = p + 9 + mb + mc)
+    (tg0 : c.tape p = false) (tg1 : c.tape (p + 1) = false)
+    (tb : ∀ i : Nat, i < mb + 5 → c.tape (p + 2 + i) = true)
+    (tg2 : c.tape (p + 7 + mb) = false)
+    (tc : ∀ i : Nat, i < mc + 1 → c.tape (p + 8 + mb + i) = true)
+    (tF : c.tape (p + 9 + mb + mc) = false) :
+    (∃ tf : Int → Bool,
+        stepN (35 + 8 * mb + 4 * mc) c =
+          some ⟨State.E, p + 10 + mb + mc, tf⟩) ∧
+      CSafeSeg c (35 + 8 * mb + 4 * mc) := by
+  obtain ⟨s, hd, t⟩ := c
+  simp only at hs hh tg0 tg1 tb tg2 tc tF
+  subst hs hd
+  -- 1. entry: E writes the new frontier 1
+  have sE : step ⟨State.E, p + 9 + mb + mc, t⟩ =
+      some ⟨State.A, p + 8 + mb + mc,
+        writeAt t (p + 9 + mb + mc) true⟩ := by
+    simp [step, instr, tF, move]
+    try omega
+  have pE : stepN 1 ⟨State.E, p + 9 + mb + mc, t⟩ =
+      some ⟨State.A, p + 8 + mb + mc,
+        writeAt t (p + 9 + mb + mc) true⟩ := by
+    simp [stepN, sE]
+  have safeE : CSafeSeg ⟨State.E, p + 9 + mb + mc, t⟩ 1 := by
+    apply csafe_of_noC
+    intro k d hk hkd
+    have hk0 : k = 0 := by omega
+    subst hk0
+    have hd : (⟨State.E, p + 9 + mb + mc, t⟩ : Config) = d := by
+      simpa [stepN] using hkd
+    rw [← hd]; simp
+  -- 2. crawl across the c-block
+  obtain ⟨sC1, safeC1⟩ := crawl_run mc
+    ⟨State.A, p + 8 + mb + mc, writeAt t (p + 9 + mb + mc) true⟩
+    (p + 8 + mb + mc) rfl rfl
+    (fun i hi => by
+      show writeAt t (p + 9 + mb + mc) true (p + 8 + mb + mc - i) = true
+      rw [writeAt_other t _ _ true (by omega)]
+      have := tc (mc - i) (by omega)
+      rw [show p + 8 + (mb : Int) + (mc : Int) - (i : Int)
+            = p + 8 + (mb : Int) + ((mc - i : Nat) : Int) by omega]
+      exact this)
+  rw [show p + 8 + (mb : Int) + (mc : Int) - (mc : Int) = p + 8 + (mb : Int)
+        by omega] at sC1
+  have sC1' : stepN (3 * mc)
+      ⟨State.A, p + 8 + mb + mc, writeAt t (p + 9 + mb + mc) true⟩ =
+      some ⟨State.A, p + 8 + mb, writeAt t (p + 9 + mb + mc) true⟩ := sC1
+  -- 3. gap-cross at the 1-gap
+  obtain ⟨sG1, safeG1⟩ := gapcross_run
+    (c := ⟨State.A, p + 8 + mb, writeAt t (p + 9 + mb + mc) true⟩)
+    (x := p + 8 + mb) rfl rfl
+    (by
+      show writeAt t (p + 9 + mb + mc) true (p + 8 + mb) = true
+      rw [writeAt_other t _ _ true (by omega)]
+      have := tc 0 (by omega)
+      rw [show p + 8 + (mb : Int) = p + 8 + (mb : Int) + ((0 : Nat) : Int)
+            by omega]
+      exact this)
+    (by
+      show writeAt t (p + 9 + mb + mc) true (p + 8 + mb - 1) = false
+      rw [writeAt_other t _ _ true (by omega)]
+      rw [show p + 8 + (mb : Int) - 1 = p + 7 + (mb : Int) by omega]
+      exact tg2)
+  rw [show p + 8 + (mb : Int) - 2 = p + 6 + (mb : Int) by omega,
+      show p + 8 + (mb : Int) - 1 = p + 7 + (mb : Int) by omega] at sG1
+  have sG1' : stepN 2
+      ⟨State.A, p + 8 + mb, writeAt t (p + 9 + mb + mc) true⟩ =
+      some ⟨State.A, p + 6 + mb,
+        writeAt (writeAt (writeAt t (p + 9 + mb + mc) true)
+          (p + 8 + mb) false) (p + 7 + mb) true⟩ := sG1
+  -- 4. crawl across the b-block
+  obtain ⟨sC2, safeC2⟩ := crawl_run (mb + 4)
+    ⟨State.A, p + 6 + mb,
+      writeAt (writeAt (writeAt t (p + 9 + mb + mc) true)
+        (p + 8 + mb) false) (p + 7 + mb) true⟩
+    (p + 6 + mb) rfl rfl
+    (fun i hi => by
+      show writeAt (writeAt (writeAt t (p + 9 + mb + mc) true)
+        (p + 8 + mb) false) (p + 7 + mb) true (p + 6 + mb - i) = true
+      rw [writeAt_other _ (p + 7 + mb) _ true (by omega),
+          writeAt_other _ (p + 8 + mb) _ false (by omega),
+          writeAt_other t _ _ true (by omega)]
+      have := tb (mb + 4 - i) (by omega)
+      rw [show p + 6 + (mb : Int) - (i : Int)
+            = p + 2 + ((mb + 4 - i : Nat) : Int) by omega]
+      exact this)
+  rw [show p + 6 + (mb : Int) - ((mb + 4 : Nat) : Int) = p + 2 by omega] at sC2
+  have sC2' : stepN (3 * (mb + 4))
+      ⟨State.A, p + 6 + mb,
+        writeAt (writeAt (writeAt t (p + 9 + mb + mc) true)
+          (p + 8 + mb) false) (p + 7 + mb) true⟩ =
+      some ⟨State.A, p + 2,
+        writeAt (writeAt (writeAt t (p + 9 + mb + mc) true)
+          (p + 8 + mb) false) (p + 7 + mb) true⟩ := sC2
+  -- 5. gap-cross at the 2-gap
+  obtain ⟨sG2, safeG2⟩ := gapcross_run
+    (c := ⟨State.A, p + 2,
+      writeAt (writeAt (writeAt t (p + 9 + mb + mc) true)
+        (p + 8 + mb) false) (p + 7 + mb) true⟩)
+    (x := p + 2) rfl rfl
+    (by
+      show writeAt (writeAt (writeAt t (p + 9 + mb + mc) true)
+        (p + 8 + mb) false) (p + 7 + mb) true (p + 2) = true
+      rw [writeAt_other _ (p + 7 + mb) _ true (by omega),
+          writeAt_other _ (p + 8 + mb) _ false (by omega),
+          writeAt_other t _ _ true (by omega)]
+      have := tb 0 (by omega)
+      rw [show p + 2 = p + 2 + ((0 : Nat) : Int) by omega]
+      exact this)
+    (by
+      show writeAt (writeAt (writeAt t (p + 9 + mb + mc) true)
+        (p + 8 + mb) false) (p + 7 + mb) true (p + 2 - 1) = false
+      rw [writeAt_other _ (p + 7 + mb) _ true (by omega),
+          writeAt_other _ (p + 8 + mb) _ false (by omega),
+          writeAt_other t _ _ true (by omega)]
+      rw [show p + 2 - 1 = p + 1 by omega]
+      exact tg1)
+  rw [show p + 2 - 2 = p by omega, show p + 2 - 1 = p + 1 by omega] at sG2
+  have sG2' : stepN 2
+      ⟨State.A, p + 2,
+        writeAt (writeAt (writeAt t (p + 9 + mb + mc) true)
+          (p + 8 + mb) false) (p + 7 + mb) true⟩ =
+      some ⟨State.A, p,
+        writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mb + mc) true)
+          (p + 8 + mb) false) (p + 7 + mb) true) (p + 2) false) (p + 1) true⟩ := sG2
+  -- 6. the prefix, with THE C0 probe
+  obtain ⟨sP, safeP⟩ := prefix_run
+    (c := ⟨State.A, p,
+      writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mb + mc) true)
+        (p + 8 + mb) false) (p + 7 + mb) true) (p + 2) false) (p + 1) true⟩)
+    (p := p) rfl rfl
+    (by
+      show writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mb + mc) true)
+        (p + 8 + mb) false) (p + 7 + mb) true) (p + 2) false) (p + 1) true p
+        = false
+      rw [writeAt_other _ (p + 1) _ true (by omega),
+          writeAt_other _ (p + 2) _ false (by omega),
+          writeAt_other _ (p + 7 + mb) _ true (by omega),
+          writeAt_other _ (p + 8 + mb) _ false (by omega),
+          writeAt_other t _ _ true (by omega)]
+      exact tg0)
+    (writeAt_same _ (p + 1) true)
+    (by
+      show writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mb + mc) true)
+        (p + 8 + mb) false) (p + 7 + mb) true) (p + 2) false) (p + 1) true (p + 2) = false
+      rw [writeAt_other _ (p + 1) _ true (by omega)]
+      exact writeAt_same _ (p + 2) false)
+    (by
+      show writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mb + mc) true)
+        (p + 8 + mb) false) (p + 7 + mb) true) (p + 2) false) (p + 1) true (p + 3) = true
+      rw [writeAt_other _ (p + 1) _ true (by omega),
+          writeAt_other _ (p + 2) _ false (by omega),
+          writeAt_other _ (p + 7 + mb) _ true (by omega),
+          writeAt_other _ (p + 8 + mb) _ false (by omega),
+          writeAt_other t _ _ true (by omega)]
+      have := tb 1 (by omega)
+      rw [show p + 3 = p + 2 + ((1 : Nat) : Int) by omega]
+      exact this)
+    (by
+      show writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mb + mc) true)
+        (p + 8 + mb) false) (p + 7 + mb) true) (p + 2) false) (p + 1) true (p + 4) = true
+      rw [writeAt_other _ (p + 1) _ true (by omega),
+          writeAt_other _ (p + 2) _ false (by omega),
+          writeAt_other _ (p + 7 + mb) _ true (by omega),
+          writeAt_other _ (p + 8 + mb) _ false (by omega),
+          writeAt_other t _ _ true (by omega)]
+      have := tb 2 (by omega)
+      rw [show p + 4 = p + 2 + ((2 : Nat) : Int) by omega]
+      exact this)
+    (by
+      show writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mb + mc) true)
+        (p + 8 + mb) false) (p + 7 + mb) true) (p + 2) false) (p + 1) true (p + 5) = true
+      rw [writeAt_other _ (p + 1) _ true (by omega),
+          writeAt_other _ (p + 2) _ false (by omega),
+          writeAt_other _ (p + 7 + mb) _ true (by omega),
+          writeAt_other _ (p + 8 + mb) _ false (by omega),
+          writeAt_other t _ _ true (by omega)]
+      have := tb 3 (by omega)
+      rw [show p + 5 = p + 2 + ((3 : Nat) : Int) by omega]
+      exact this)
+    (by
+      show writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mb + mc) true)
+        (p + 8 + mb) false) (p + 7 + mb) true) (p + 2) false) (p + 1) true (p + 6) = true
+      rw [writeAt_other _ (p + 1) _ true (by omega),
+          writeAt_other _ (p + 2) _ false (by omega),
+          writeAt_other _ (p + 7 + mb) _ true (by omega),
+          writeAt_other _ (p + 8 + mb) _ false (by omega),
+          writeAt_other t _ _ true (by omega)]
+      have := tb 4 (by omega)
+      rw [show p + 6 = p + 2 + ((4 : Nat) : Int) by omega]
+      exact this)
+  have sP' : stepN 7
+      ⟨State.A, p,
+        writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mb + mc) true)
+          (p + 8 + mb) false) (p + 7 + mb) true) (p + 2) false) (p + 1) true⟩ =
+      some ⟨State.A, p + 5,
+        writeAt (writeAt (writeAt (writeAt
+          (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mb + mc) true)
+            (p + 8 + mb) false) (p + 7 + mb) true) (p + 2) false) (p + 1) true)
+          p true) (p + 3) false) (p + 5) false) (p + 6) false⟩ := sP
+  -- 7. the caterpillar across the remaining b-interior
+  have hT3p5 : writeAt (writeAt (writeAt (writeAt
+      (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mb + mc) true)
+        (p + 8 + mb) false) (p + 7 + mb) true) (p + 2) false) (p + 1) true)
+      p true) (p + 3) false) (p + 5) false) (p + 6) false (p + 5) = false := by
+    rw [writeAt_other _ (p + 6) _ false (by omega)]
+    exact writeAt_same _ (p + 5) false
+  have hT3p6 : writeAt (writeAt (writeAt (writeAt
+      (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mb + mc) true)
+        (p + 8 + mb) false) (p + 7 + mb) true) (p + 2) false) (p + 1) true)
+      p true) (p + 3) false) (p + 5) false) (p + 6) false (p + 5 + 1) = false := by
+    rw [show p + 5 + 1 = p + 6 by omega]
+    exact writeAt_same _ (p + 6) false
+  obtain ⟨sCat, safeCat⟩ := cat_run (mb + 1)
+    ⟨State.A, p + 5,
+      writeAt (writeAt (writeAt (writeAt
+        (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mb + mc) true)
+          (p + 8 + mb) false) (p + 7 + mb) true) (p + 2) false) (p + 1) true)
+        p true) (p + 3) false) (p + 5) false) (p + 6) false⟩
+    (p + 5) rfl rfl hT3p5 hT3p6
+    (fun i hi => by
+      show writeAt (writeAt (writeAt (writeAt
+        (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mb + mc) true)
+          (p + 8 + mb) false) (p + 7 + mb) true) (p + 2) false) (p + 1) true)
+        p true) (p + 3) false) (p + 5) false) (p + 6) false
+        (p + 5 + 2 + (i : Int)) = true
+      rw [writeAt_other _ (p + 6) _ false (by omega),
+          writeAt_other _ (p + 5) _ false (by omega),
+          writeAt_other _ (p + 3) _ false (by omega),
+          writeAt_other _ p _ true (by omega),
+          writeAt_other _ (p + 1) _ true (by omega),
+          writeAt_other _ (p + 2) _ false (by omega)]
+      by_cases him : i = mb
+      · rw [him]
+        rw [show p + 5 + 2 + (mb : Int) = p + 7 + (mb : Int) by omega]
+        exact writeAt_same _ (p + 7 + mb) true
+      · rw [writeAt_other _ (p + 7 + mb) _ true (by omega),
+            writeAt_other _ (p + 8 + mb) _ false (by omega),
+            writeAt_other t _ _ true (by omega)]
+        have := tb (i + 5) (by omega)
+        rw [show p + 5 + 2 + (i : Int) = p + 2 + ((i + 5 : Nat) : Int) by omega]
+        exact this)
+  rw [show p + 5 + ((mb + 1 : Nat) : Int) = p + 6 + (mb : Int) by omega] at sCat
+  have sCat' : stepN (5 * (mb + 1))
+      ⟨State.A, p + 5,
+        writeAt (writeAt (writeAt (writeAt
+          (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mb + mc) true)
+            (p + 8 + mb) false) (p + 7 + mb) true) (p + 2) false) (p + 1) true)
+          p true) (p + 3) false) (p + 5) false) (p + 6) false⟩ =
+      some ⟨State.A, p + 6 + mb,
+        catTape (writeAt (writeAt (writeAt (writeAt
+          (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mb + mc) true)
+            (p + 8 + mb) false) (p + 7 + mb) true) (p + 2) false) (p + 1) true)
+          p true) (p + 3) false) (p + 5) false) (p + 6) false) (p + 5) (mb + 1)⟩ := sCat
+  -- 8. the exit with the E-sweep across the grown c-block
+  obtain ⟨eEnd0, eEnd1⟩ := catTape_end (mb + 1)
+    (writeAt (writeAt (writeAt (writeAt
+      (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mb + mc) true)
+        (p + 8 + mb) false) (p + 7 + mb) true) (p + 2) false) (p + 1) true)
+      p true) (p + 3) false) (p + 5) false) (p + 6) false)
+    (p + 5) hT3p5 hT3p6
+  rw [show p + 5 + ((mb + 1 : Nat) : Int) = p + 6 + (mb : Int) by omega] at eEnd0
+  rw [show p + 5 + ((mb + 1 : Nat) : Int) + 1 = p + 6 + (mb : Int) + 1
+        by omega] at eEnd1
+  obtain ⟨sExit, safeExit⟩ := exit_run (mc + 1)
+    (c := ⟨State.A, p + 6 + mb,
+      catTape (writeAt (writeAt (writeAt (writeAt
+        (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mb + mc) true)
+          (p + 8 + mb) false) (p + 7 + mb) true) (p + 2) false) (p + 1) true)
+        p true) (p + 3) false) (p + 5) false) (p + 6) false) (p + 5) (mb + 1)⟩)
+    (q := p + 6 + mb) rfl rfl eEnd0 eEnd1
+    (by
+      show catTape _ (p + 5) (mb + 1) (p + 6 + (mb : Int) + 2) = false
+      rw [catTape_outside (mb + 1) _ (p + 5) _ (by omega)]
+      rw [writeAt_other _ (p + 6) _ false (by omega),
+          writeAt_other _ (p + 5) _ false (by omega),
+          writeAt_other _ (p + 3) _ false (by omega),
+          writeAt_other _ p _ true (by omega),
+          writeAt_other _ (p + 1) _ true (by omega),
+          writeAt_other _ (p + 2) _ false (by omega),
+          writeAt_other _ (p + 7 + mb) _ true (by omega)]
+      rw [show p + 6 + (mb : Int) + 2 = p + 8 + (mb : Int) by omega]
+      exact writeAt_same _ (p + 8 + mb) false)
+    (fun i hi => by
+      show catTape _ (p + 5) (mb + 1) (p + 6 + (mb : Int) + 3 + (i : Int)) = true
+      rw [catTape_outside (mb + 1) _ (p + 5) _ (by omega)]
+      rw [writeAt_other _ (p + 6) _ false (by omega),
+          writeAt_other _ (p + 5) _ false (by omega),
+          writeAt_other _ (p + 3) _ false (by omega),
+          writeAt_other _ p _ true (by omega),
+          writeAt_other _ (p + 1) _ true (by omega),
+          writeAt_other _ (p + 2) _ false (by omega),
+          writeAt_other _ (p + 7 + mb) _ true (by omega),
+          writeAt_other _ (p + 8 + mb) _ false (by omega)]
+      by_cases him : i = mc
+      · rw [him]
+        rw [show p + 6 + (mb : Int) + 3 + (mc : Int)
+              = p + 9 + (mb : Int) + (mc : Int) by omega]
+        exact writeAt_same t _ true
+      · rw [writeAt_other t _ _ true (by omega)]
+        have := tc (i + 1) (by omega)
+        rw [show p + 6 + (mb : Int) + 3 + (i : Int)
+              = p + 8 + (mb : Int) + ((i + 1 : Nat) : Int) by omega]
+        exact this)
+  rw [show p + 6 + (mb : Int) + 3 + ((mc + 1 : Nat) : Int)
+        = p + 10 + (mb : Int) + (mc : Int) by omega] at sExit
+  have sExit' : stepN (5 + (mc + 1))
+      ⟨State.A, p + 6 + mb,
+        catTape (writeAt (writeAt (writeAt (writeAt
+          (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mb + mc) true)
+            (p + 8 + mb) false) (p + 7 + mb) true) (p + 2) false) (p + 1) true)
+          p true) (p + 3) false) (p + 5) false) (p + 6) false) (p + 5) (mb + 1)⟩ =
+      some ⟨State.E, p + 10 + mb + mc,
+        writeAt (writeAt (writeAt
+          (catTape (writeAt (writeAt (writeAt (writeAt
+            (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mb + mc) true)
+              (p + 8 + mb) false) (p + 7 + mb) true) (p + 2) false) (p + 1) true)
+            p true) (p + 3) false) (p + 5) false) (p + 6) false) (p + 5) (mb + 1))
+          (p + 6 + mb) true) (p + 6 + mb + 1) false) (p + 6 + mb + 2) true⟩ := sExit
+  -- assembly
+  have acc1 : stepN (1 + 3 * mc) ⟨State.E, p + 9 + mb + mc, t⟩ =
+      some ⟨State.A, p + 8 + mb,
+        writeAt t (p + 9 + mb + mc) true⟩ := by
+    rw [stepN_add, pE]; exact sC1'
+  have acc2 : stepN ((1 + 3 * mc) + 2) ⟨State.E, p + 9 + mb + mc, t⟩ =
+      some ⟨State.A, p + 6 + mb,
+        writeAt (writeAt (writeAt t (p + 9 + mb + mc) true)
+          (p + 8 + mb) false) (p + 7 + mb) true⟩ := by
+    rw [stepN_add, acc1]; exact sG1'
+  have acc3 : stepN (((1 + 3 * mc) + 2) + 3 * (mb + 4))
+      ⟨State.E, p + 9 + mb + mc, t⟩ =
+      some ⟨State.A, p + 2,
+        writeAt (writeAt (writeAt t (p + 9 + mb + mc) true)
+          (p + 8 + mb) false) (p + 7 + mb) true⟩ := by
+    rw [stepN_add, acc2]; exact sC2'
+  have acc4 : stepN ((((1 + 3 * mc) + 2) + 3 * (mb + 4)) + 2)
+      ⟨State.E, p + 9 + mb + mc, t⟩ =
+      some ⟨State.A, p,
+        writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mb + mc) true)
+          (p + 8 + mb) false) (p + 7 + mb) true) (p + 2) false) (p + 1) true⟩ := by
+    rw [stepN_add, acc3]; exact sG2'
+  have acc5 : stepN (((((1 + 3 * mc) + 2) + 3 * (mb + 4)) + 2) + 7)
+      ⟨State.E, p + 9 + mb + mc, t⟩ =
+      some ⟨State.A, p + 5,
+        writeAt (writeAt (writeAt (writeAt
+          (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mb + mc) true)
+            (p + 8 + mb) false) (p + 7 + mb) true) (p + 2) false) (p + 1) true)
+          p true) (p + 3) false) (p + 5) false) (p + 6) false⟩ := by
+    rw [stepN_add, acc4]; exact sP'
+  have acc6 : stepN ((((((1 + 3 * mc) + 2) + 3 * (mb + 4)) + 2) + 7)
+      + 5 * (mb + 1)) ⟨State.E, p + 9 + mb + mc, t⟩ =
+      some ⟨State.A, p + 6 + mb,
+        catTape (writeAt (writeAt (writeAt (writeAt
+          (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mb + mc) true)
+            (p + 8 + mb) false) (p + 7 + mb) true) (p + 2) false) (p + 1) true)
+          p true) (p + 3) false) (p + 5) false) (p + 6) false) (p + 5) (mb + 1)⟩ := by
+    rw [stepN_add, acc5]; exact sCat'
+  have acc7 : stepN (((((((1 + 3 * mc) + 2) + 3 * (mb + 4)) + 2) + 7)
+      + 5 * (mb + 1)) + (5 + (mc + 1))) ⟨State.E, p + 9 + mb + mc, t⟩ =
+      some ⟨State.E, p + 10 + mb + mc,
+        writeAt (writeAt (writeAt
+          (catTape (writeAt (writeAt (writeAt (writeAt
+            (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mb + mc) true)
+              (p + 8 + mb) false) (p + 7 + mb) true) (p + 2) false) (p + 1) true)
+            p true) (p + 3) false) (p + 5) false) (p + 6) false) (p + 5) (mb + 1))
+          (p + 6 + mb) true) (p + 6 + mb + 1) false) (p + 6 + mb + 2) true⟩ := by
+    rw [stepN_add, acc6]; exact sExit'
+  have htot : 35 + 8 * mb + 4 * mc
+      = (((((((1 + 3 * mc) + 2) + 3 * (mb + 4)) + 2) + 7)
+          + 5 * (mb + 1)) + (5 + (mc + 1))) := by omega
+  refine ⟨⟨writeAt (writeAt (writeAt
+      (catTape (writeAt (writeAt (writeAt (writeAt
+        (writeAt (writeAt (writeAt (writeAt (writeAt t (p + 9 + mb + mc) true)
+          (p + 8 + mb) false) (p + 7 + mb) true) (p + 2) false) (p + 1) true)
+        p true) (p + 3) false) (p + 5) false) (p + 6) false) (p + 5) (mb + 1))
+      (p + 6 + mb) true) (p + 6 + mb + 1) false) (p + 6 + mb + 2) true, ?_⟩, ?_⟩
+  · rw [htot]; exact acc7
+  · rw [show 35 + 8 * mb + 4 * mc
+        = 1 + (3 * mc + (2 + (3 * (mb + 4) + (2 + (7 + (5 * (mb + 1)
+            + (5 + (mc + 1)))))))) by omega]
+    exact csafe_compose pE safeE
+      (csafe_compose sC1' (csafe_of_noC safeC1)
+        (csafe_compose sG1' (csafe_of_noC safeG1)
+          (csafe_compose sC2' (csafe_of_noC safeC2)
+            (csafe_compose sG2' (csafe_of_noC safeG2)
+              (csafe_compose sP' safeP
+                (csafe_compose sCat' (csafe_of_strong safeCat) safeExit))))))
+
+/-!
+## The segment-induction keystone
+
+`cprobe_safe_of_segments` reduces `CProbeSafe c0` — safety of the entire
+infinite run — to a finite checklist: exhibit an invariant `Inv` (the
+record shape family) such that every `Inv`-configuration runs some
+positive number of steps to another `Inv`-configuration through a
+`CSafeSeg` window.  Each macro-rule lemma (`dominant_rule_run` etc.)
+discharges one case of that checklist.
+-/
+
+theorem cprobe_safe_of_segments {Inv : Config → Prop} {c0 : Config}
+    (h0 : Inv c0)
+    (hseg : ∀ c, Inv c → ∃ k, 0 < k ∧ ∃ c', stepN k c = some c' ∧
+      Inv c' ∧ CSafeSeg c k) :
+    CProbeSafe c0 := by
+  have main : ∀ (N n : Nat) (c : Config), n ≤ N → Inv c →
+      ∀ d, stepN n c = some d → d.state = State.C →
+        d.tape d.head = false → d.tape (d.head + 1) = true := by
+    intro N
+    induction N with
+    | zero =>
+        intro n c hn hInv d hd hC hread
+        obtain ⟨k, hk, c', _hs, _hInv', hsafe⟩ := hseg c hInv
+        exact hsafe n d (by omega) hd hC hread
+    | succ N ihN =>
+        intro n c hn hInv d hd hC hread
+        obtain ⟨k, hk, c', hs, hInv', hsafe⟩ := hseg c hInv
+        by_cases hlt : n < k
+        · exact hsafe n d hlt hd hC hread
+        · have hneq : n = k + (n - k) := by omega
+          rw [hneq, stepN_add, hs] at hd
+          exact ihN (n - k) c' (by omega) hInv' d hd hC hread
+  intro d hreach hC hread
+  obtain ⟨n, hn⟩ := hreach
+  exact main n n c0 (Nat.le_refl n) h0 d hn hC hread
+
 end QIG.Dossier1RawTM
 
 #print axioms QIG.Dossier1RawTM.halt_requires_c_probe_00
@@ -852,3 +1595,7 @@ end QIG.Dossier1RawTM
 #print axioms QIG.Dossier1RawTM.prefix_run
 #print axioms QIG.Dossier1RawTM.suffix_run
 #print axioms QIG.Dossier1RawTM.dominant_rule_run
+#print axioms QIG.Dossier1RawTM.cprobe_safe_of_segments
+#print axioms QIG.Dossier1RawTM.workhorse_run
+#print axioms QIG.Dossier1RawTM.crawl_run
+#print axioms QIG.Dossier1RawTM.exit_run

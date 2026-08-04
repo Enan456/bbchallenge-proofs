@@ -585,3 +585,35 @@ stage750 obligation for this rule is now a theorem. Remaining for
 `CProbeSafe blankStart`: the same treatment for the merge and expansion
 rules (same technique, different bounded segments), R-side records, and
 the top-level shape-family closure induction gluing records together.
+
+---
+
+## Dossier-1 closure induction, phase 3: keystone + workhorse at all depths (2026-08-04)
+
+All axiom-clean (`propext`, `Quot.sound`), no sorry:
+
+- **`cprobe_safe_of_segments`** — the segment-induction keystone:
+  `CProbeSafe c0` (safety of the entire infinite run) reduces to exhibiting
+  an invariant maintained by positive-length `CSafeSeg` segments. The
+  remaining work is now a *checklist* of rule lemmas, each one discharging
+  a case of this single theorem's hypothesis.
+- **`workhorse_run`** — the R-side steady-state sweep proven end-to-end
+  **at every epoch depth simultaneously**: from an R-record
+  `(…frozen…, 2, b, 1, c)` (`b = mb+5`, `c = mc+1`), exactly
+  `35 + 8·mb + 4·mc` steps to the next R-record configuration, every
+  C-probe safe, for all `mb, mc`. The trajectory reads/writes nothing left
+  of the 2-gap, so the one theorem covers the sweep at RLE dims 5, 7, 9, …
+  — infinitely many macro rules at once. Decomposition: entry write →
+  crawl across c → gap-cross → crawl across b → gap-cross → `prefix_run`
+  (the same single C0 probe) → `cat_run` → exit + E-sweep.
+- New atoms: `sweep_E`, `crawl_cycle`/`crawl_run` (3-step tape-restoring
+  A/E leftward crawl, C-free), `gapcross_run`, `exit_run` (partial cycle +
+  D exit + E-sweep, one safe C-read), `csafe_of_noC`.
+
+Record-transition census (blank start, 3M steps): 61 distinct capped
+types; the workhorse family accounts for 970+293+76+… of them. Remaining
+checklist for `CProbeSafe blankStart`: the refill family
+`(…,N,1,k)→(…,N,1,k+1)` (bounded segments), the collapse transitions that
+cross the frozen prefix (need a `(N,2)*` prefix grammar — the genuinely
+recursive part), the startup records, and the top-level invariant
+instantiation of the keystone.
