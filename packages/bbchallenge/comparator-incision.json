@@ -1,0 +1,9 @@
+{
+    "challenge_module": "Palomar.IncisionChallenge",
+    "solution_module": "Palomar.IncisionSolution",
+    "theorem_names": [
+        "IncisionChallenge.astep_dies_iff",
+        "IncisionChallenge.boundary_checking_complete"
+    ],
+    "permitted_axioms": ["propext", "Quot.sound"]
+}

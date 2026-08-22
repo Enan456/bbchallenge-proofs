@@ -1,0 +1,69 @@
+version: v0.4
+
+project:
+  name: "A BB(6) holdout's non-halting, reduced to its chain-orbit conjecture"
+  description: >-
+    A machine-checked reduction, in core Lean 4 (no Mathlib), of the halting
+    problem of the unsolved BB(6) Turing machine
+    1RB0LE_1LB1RC_0RF0RD_1RE0LA_1LA1RE_---0RB to a single arithmetic
+    conjecture about an abstract orbit (theorem dossier1_nonhalting).  The
+    orbit tracks the machine's record dynamics as a stack of chain levels
+    with an active pair (b, c): workhorse steps decrement b by 2 while
+    feeding c, a spawn at b = 2 pushes a new level (requiring c >= 4), and a
+    collapse at b = 1 folds the last level into its parent.  Every dynamical
+    fact about the machine — halt localisation to a unique undefined
+    transition, all seven record transitions with exact step counts for all
+    block values, the 35-step startup, the tape grammar realising the chain
+    states, and the closing segment induction — is proven; the sole
+    hypothesis (SafeOrbit) is that the abstract orbit never dies.  Nothing
+    here decides the machine: the orbit conjecture remains open, and its
+    empirical support (exact macro replay over 10^8 steps) lives outside the
+    formal claim.
+  authors:
+    - "Enan Srivastava"
+  responsible_maintainers:
+    - "Enan Srivastava"
+  license: "MIT"  # proposed; root LICENSE file pending owner decision
+
+classification:
+  arxiv: [math.LO, cs.CC]
+  msc2020: ["03D10"]
+
+sources:
+  - title: >-
+      Exact chain-orbit reduction for the BB(6) holdout
+      1RB0LE_1LB1RC_0RF0RD_1RE0LA_1LA1RE_---0RB (first presentation in this
+      repository)
+    type: original-proof
+    relationship: other
+    note: >-
+      The machine's macro-system analysis, chain-state grammar, and the
+      machine-checked reduction are first presented in this repository
+      (lean/BBChallenge/Dossier1RawTM.lean and this Challenge/Solution
+      pair); the machine itself is drawn from the community's official
+      BB(6) open set.
+  - title: "The Busy Beaver Challenge (bbchallenge) BB(6) open machine list"
+    type: web discussion
+    url: "https://bbchallenge.org"
+    relationship: background
+    note: >-
+      Source of the machine and of the standard text format; the machine's
+      status in the live registry must be re-checked before any registration
+      (unpublished community verdicts would supersede this entry).
+
+automation:
+  methods:
+    - method: agent
+      note: >-
+        Lean statements and proofs drafted by an AI coding agent (Claude,
+        Anthropic) under human direction; empirical rule discovery by the
+        project's Python pipeline; all proofs machine-checked by Lean.
+
+review:
+  status: self-assessed
+  notes: >-
+    No external human review.  Self-assessment: axiom audit (propext and
+    Quot.sound only), a mechanically checked parser theorem tying the
+    hand-written transition table to the published standard-format code, and
+    byte-level differential testing of the proved step semantics against an
+    independent reference simulator.

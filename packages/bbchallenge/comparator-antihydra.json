@@ -1,0 +1,6 @@
+{
+    "challenge_module": "Palomar.AntihydraChallenge",
+    "solution_module": "Palomar.AntihydraSolution",
+    "theorem_names": ["AntihydraChallenge.antihydra_nonhalting"],
+    "permitted_axioms": ["propext", "Quot.sound"]
+}

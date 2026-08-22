@@ -1,0 +1,64 @@
+version: v0.4
+
+project:
+  name: "Boundary-only checking for the Antihydra orbit"
+  description: >-
+    A machine-checked incision theorem for the abstract orbit of the BB(6)
+    Turing machine Antihydra: the orbit of triples (a, m, c) under its three
+    exact record rules can die only on the explicit boundary set m = 0 or
+    (m = 2 and a <= 1) (theorem astep_dies_iff), and the event process that
+    samples the orbit only at those boundary states — skipping every
+    intervening run of counter-frozen hydra steps in closed form — dies if
+    and only if the full orbit dies (theorem boundary_checking_complete).
+    Verifying orbit safety only at incision events is therefore certified
+    sound and complete.  The acceleration is substantial in practice:
+    measured against the raw machine, the first sixteen events already cover
+    more than 10^8 raw Turing machine steps.  Proofs are in core Lean 4 (no
+    Mathlib) and use only the axioms propext and Quot.sound.  This entry
+    concerns the orbit's incision structure alone; the (separately
+    submitted) machine-level reduction supplies the connection between this
+    orbit and Antihydra itself, and nothing here decides any machine.
+  authors:
+    - "Enan Srivastava"
+  responsible_maintainers:
+    - "Enan Srivastava"
+  license: "MIT"  # proposed; root LICENSE file pending owner decision
+
+classification:
+  arxiv: [math.LO, math.DS]
+  msc2020: ["03D10", "37B10"]
+
+sources:
+  - title: >-
+      Certified boundary-only checking for Antihydra's abstract orbit (first
+      presentation in this repository)
+    type: original-proof
+    relationship: other
+    note: >-
+      The incision decomposition, the closed-form volley, and the
+      soundness-and-completeness equivalence are first presented in this
+      repository (packages/bbchallenge/Bridge/Incision.lean and this
+      Challenge/Solution pair).
+  - title: "Antihydra — BusyBeaverWiki"
+    type: web discussion
+    url: "https://wiki.bbchallenge.org/wiki/Antihydra"
+    relationship: background
+    note: >-
+      Supplies the machine and the informal description of its record
+      dynamics; the abstract rules formalised here are proved against the
+      machine in the accompanying development.
+
+automation:
+  methods:
+    - method: agent
+      note: >-
+        Lean statements and proofs drafted by an AI coding agent (Claude,
+        Anthropic) under human direction; all proofs machine-checked by
+        Lean.
+
+review:
+  status: self-assessed
+  notes: >-
+    No external human review.  Self-assessment: axiom audit (propext and
+    Quot.sound only) and a Python mirror of the certified event process
+    cross-checked against the Lean definitions on initial segments.

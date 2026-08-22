@@ -1,0 +1,14 @@
+name = "extensions"
+version = "0.1.0"
+keywords = ["busy-beaver", "bbchallenge", "geometry"]
+defaultTargets = ["Extensions"]
+
+[leanOptions]
+relaxedAutoImplicit = false
+
+[[require]]
+name = "bbchallenge"
+path = "../bbchallenge"
+
+[[lean_lib]]
+name = "Extensions"

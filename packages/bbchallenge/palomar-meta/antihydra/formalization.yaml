@@ -1,0 +1,64 @@
+version: v0.4
+
+project:
+  name: "Antihydra non-halting, reduced to the hydra conjecture"
+  description: >-
+    A machine-checked reduction, in core Lean 4 (no Mathlib), of the halting
+    problem of the BB(6) Turing machine Antihydra
+    (1RB1RA_0LC1LE_1LD1LC_1LA0LB_1LF1RE_---0RA) to a one-dimensional
+    arithmetic conjecture: iterate b -> b + floor(b/2) from b = 12, keeping a
+    heads counter from 2 that gains 2 on even values and loses 1 on odd
+    values; if no odd value is ever met with counter <= 1, the machine never
+    halts from the blank tape (theorem antihydra_nonhalting).  The proof
+    formalises the machine's complete record dynamics (hydra, drop, and merge
+    rules, each with exact step counts for all block values), a segment
+    induction closing the raw-to-abstract gap, and a step-for-step conjugacy
+    between the abstract triple orbit and the 1-D hydra process.  The
+    hypothesis is a slightly strengthened form of the community's Antihydra
+    conjecture: the standard statement halts the machine at counter -1
+    (death at an odd value with counter = 0), whereas the tape grammar used
+    here stops tracking the machine one drop earlier (death at counter <= 1);
+    closing that single boundary case is stated as open follow-up work.
+    Nothing here decides the machine: the conjecture itself remains open.
+  authors:
+    - "Enan Srivastava"
+  responsible_maintainers:
+    - "Enan Srivastava"
+  license: "MIT"  # proposed; root LICENSE file pending owner decision
+
+classification:
+  arxiv: [math.LO, cs.CC]
+  msc2020: ["03D10"]
+
+sources:
+  - title: "Antihydra — BusyBeaverWiki"
+    type: web discussion
+    url: "https://wiki.bbchallenge.org/wiki/Antihydra"
+    relationship: formalizes
+    note: >-
+      The machine, the hydra recurrence H(n) = floor(3n/2) with the +2/-1
+      heads counter, and the informal halting analysis that this development
+      formalises and machine-checks.  The formal hypothesis strengthens the
+      wiki's death condition by one counter unit, as documented in the
+      abstract and the Challenge module docstring.
+  - title: "The Busy Beaver Challenge (bbchallenge) BB(6) project"
+    type: web discussion
+    url: "https://bbchallenge.org"
+    relationship: background
+
+automation:
+  methods:
+    - method: agent
+      note: >-
+        Lean statements and proofs drafted by an AI coding agent (Claude,
+        Anthropic) under human direction; empirical rule discovery by the
+        project's Python pipeline; all proofs machine-checked by Lean.
+
+review:
+  status: self-assessed
+  notes: >-
+    No external human review.  Self-assessment: axiom audit (all compared
+    theorems use only propext and Quot.sound), a mechanically checked parser
+    theorem tying the hand-written transition table to the published
+    standard-format code, and byte-level differential testing of the proved
+    step semantics against an independent reference simulator.

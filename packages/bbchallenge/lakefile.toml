@@ -1,0 +1,22 @@
+name = "bbchallenge"
+version = "0.1.0"
+keywords = ["busy-beaver", "bbchallenge"]
+defaultTargets = ["Bridge", "Palomar"]
+
+[leanOptions]
+relaxedAutoImplicit = false
+
+[[require]]
+name = "BBChallenge"
+path = "../../lean"
+
+[[lean_lib]]
+name = "Bridge"
+
+[[lean_lib]]
+name = "Palomar"
+globs = ["Palomar.+"]
+
+[[lean_exe]]
+name = "trace"
+root = "Trace"

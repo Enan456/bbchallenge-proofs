@@ -1,0 +1,13 @@
+{"version": "1.2.0",
+ "packagesDir": ".lake/packages",
+ "packages":
+ [{"type": "path",
+   "scope": "",
+   "name": "BBChallenge",
+   "manifestFile": "lake-manifest.json",
+   "inherited": false,
+   "dir": "../../lean",
+   "configFile": "lakefile.toml"}],
+ "name": "bbchallenge",
+ "lakeDir": ".lake",
+ "fixedToolchain": false}

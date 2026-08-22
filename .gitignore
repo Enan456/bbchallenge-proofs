@@ -2,3 +2,8 @@ lean/.lake/
 __pycache__/
 *.pyc
 .DS_Store
+.venv/
+packages/bbchallenge/.lake/
+packages/extensions/.lake/
+# regenerable via: python experiments/stage756_incision_atlas.py (137MB, exceeds GitHub limits)
+experiments/outputs/stage756/events/exact_*.jsonl

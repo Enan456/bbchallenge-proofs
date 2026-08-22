@@ -1,0 +1,6 @@
+{
+    "challenge_module": "Palomar.Dossier1Challenge",
+    "solution_module": "Palomar.Dossier1Solution",
+    "theorem_names": ["Dossier1Challenge.dossier1_nonhalting"],
+    "permitted_axioms": ["propext", "Quot.sound"]
+}
