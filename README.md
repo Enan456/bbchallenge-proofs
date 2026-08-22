@@ -50,6 +50,14 @@ proofs of non-halting.
 
 ## Layout
 
+- `packages/` — the Lean package split on top of `lean/` (see
+  `packages/README.md` and `docs/learning/`): `packages/bbchallenge/` (the
+  certified bridge layer — standard-format parser parity, the incision
+  boundary-only-checking theorem `eventSafe_iff_safeOrbitA`, and the 1-D
+  hydra bridge `hydraSafe_nonhalting`; plus the `trace` differential-test
+  executable) and `packages/extensions/` (exact geometric charts; never
+  imported by the certified packages).  `scripts/check_lean.sh` builds all
+  three packages under the axiom gate.
 - `lean/` — standalone Lake package (`lake build` inside `lean/`; core-only,
   no mathlib), all axiom-clean (`propext`, `Quot.sound`), no sorry.
   - `BBChallenge/Dossier1RawTM.lean`: halt ⟺ F reads 0; F entered only via
