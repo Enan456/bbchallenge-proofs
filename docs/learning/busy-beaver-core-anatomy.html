@@ -1,0 +1,512 @@
+<title>Busy Beaver Core Anatomy</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root {
+  --paper:#F8F9FB; --panel:#FFFFFF; --ink:#1B2130; --muted:#5C6784;
+  --line:#DDE2EE; --navy:#1E2761; --mint:#027A68; --mint-bg:#E4F4F0;
+  --gold:#9A6E12; --gold-bg:#F8F0DC; --clay:#A43E2E; --clay-bg:#F9E9E5;
+  --code-bg:#EEF1F8; --tape0:#F1F3F9; --tape1:#1E2761; --tape1-ink:#FFFFFF;
+}
+:root:not([data-theme="light"]) { }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper:#141827; --panel:#1B2033; --ink:#E7EAF4; --muted:#9AA5C4;
+    --line:#2C3450; --navy:#AEBBF0; --mint:#3ECFB2; --mint-bg:#12312C;
+    --gold:#E3B45B; --gold-bg:#33280F; --clay:#E58A76; --clay-bg:#3A1F18;
+    --code-bg:#232A42; --tape0:#232A42; --tape1:#AEBBF0; --tape1-ink:#141827;
+  }
+}
+:root[data-theme="dark"] {
+  --paper:#141827; --panel:#1B2033; --ink:#E7EAF4; --muted:#9AA5C4;
+  --line:#2C3450; --navy:#AEBBF0; --mint:#3ECFB2; --mint-bg:#12312C;
+  --gold:#E3B45B; --gold-bg:#33280F; --clay:#E58A76; --clay-bg:#3A1F18;
+  --code-bg:#232A42; --tape0:#232A42; --tape1:#AEBBF0; --tape1-ink:#141827;
+}
+* { box-sizing:border-box; }
+body { background:var(--paper); color:var(--ink);
+  font-family:"Source Sans 3",-apple-system,Segoe UI,Arial,sans-serif;
+  font-size:16px; line-height:1.62; margin:0; }
+.wrap { display:flex; gap:2.5rem; max-width:76rem; margin:0 auto; padding:0 1.25rem; }
+nav.toc { position:sticky; top:0; align-self:flex-start; width:15.5rem; flex:none;
+  padding:2rem 0 2rem; font-size:.85rem; max-height:100vh; overflow-y:auto; }
+nav.toc a { display:block; color:var(--muted); text-decoration:none; padding:.16rem 0; }
+nav.toc a:hover, nav.toc a:focus { color:var(--navy); }
+nav.toc .l1 { font-weight:600; color:var(--ink); margin-top:.75rem; }
+main { flex:1; min-width:0; max-width:46rem; padding:2.5rem 0 5rem; }
+h1,h2,h3 { font-family:Spectral,Georgia,serif; line-height:1.2; text-wrap:balance; }
+h1 { font-size:2.3rem; font-weight:700; margin:.2rem 0 .4rem; }
+h2 { font-size:1.55rem; font-weight:600; margin:3rem 0 .6rem; color:var(--navy); }
+h3 { font-size:1.15rem; font-weight:600; margin:2rem 0 .4rem; }
+p { margin:.7rem 0; }
+.lede { font-size:1.08rem; color:var(--muted); }
+code, pre { font-family:"JetBrains Mono",ui-monospace,Menlo,monospace; }
+code { background:var(--code-bg); border-radius:4px; padding:.08em .32em; font-size:.86em; }
+pre { background:var(--code-bg); border-radius:8px; padding: .85rem 1rem; overflow-x:auto;
+  font-size:.8rem; line-height:1.55; }
+pre code { background:none; padding:0; }
+.card { background:var(--panel); border:1px solid var(--line); border-radius:10px;
+  padding:1rem 1.2rem 1.1rem; margin:1.1rem 0; }
+.card > .head { display:flex; align-items:baseline; gap:.6rem; flex-wrap:wrap; margin-bottom:.4rem; }
+.card .name { font-family:"JetBrains Mono",monospace; font-weight:600; font-size:.95rem; color:var(--navy); }
+.chip { font-size:.66rem; font-weight:600; letter-spacing:.07em; border-radius:999px;
+  padding:.13em .6em; text-transform:uppercase; }
+.chip.def { background:var(--code-bg); color:var(--navy); }
+.chip.thm { background:var(--mint-bg); color:var(--mint); }
+.chip.conj { background:var(--gold-bg); color:var(--gold); }
+.chip.death { background:var(--clay-bg); color:var(--clay); }
+table.vars { border-collapse:collapse; width:100%; margin:.6rem 0; font-size:.85rem; }
+table.vars th { text-align:left; color:var(--muted); font-weight:600; font-size:.72rem;
+  text-transform:uppercase; letter-spacing:.06em; padding:.25rem .6rem .25rem 0; border-bottom:1px solid var(--line); }
+table.vars td { vertical-align:top; padding:.34rem .6rem .34rem 0; border-bottom:1px solid var(--line); }
+table.vars td:first-child { font-family:"JetBrains Mono",monospace; font-size:.8rem; white-space:nowrap; color:var(--navy); font-weight:600; }
+.tape { display:flex; gap:2px; margin:.7rem 0; flex-wrap:wrap; align-items:flex-end; }
+.tape .cell { width:1.72rem; height:1.72rem; display:flex; align-items:center; justify-content:center;
+  font-family:"JetBrains Mono",monospace; font-size:.78rem; border-radius:4px;
+  background:var(--tape0); color:var(--muted); border:1px solid var(--line); flex:none; }
+.tape .cell.one { background:var(--tape1); color:var(--tape1-ink); border-color:var(--tape1); font-weight:600; }
+.tape .cell.head { outline:2.5px solid var(--mint); outline-offset:1.5px; }
+.tape .lbl { font-size:.68rem; color:var(--muted); width:1.72rem; text-align:center;
+  font-family:"JetBrains Mono",monospace; flex:none; }
+.tape .gap { width:.55rem; flex:none; }
+.note { border-left:3px solid var(--gold); background:var(--gold-bg); border-radius:0 8px 8px 0;
+  padding:.6rem .9rem; margin:.9rem 0; font-size:.92rem; }
+.deathbox { border-left:3px solid var(--clay); background:var(--clay-bg); border-radius:0 8px 8px 0;
+  padding:.6rem .9rem; margin:.9rem 0; font-size:.92rem; }
+.crumb { font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:600; }
+.filecrumb { font-family:"JetBrains Mono",monospace; font-size:.72rem; color:var(--muted); }
+hr { border:none; border-top:1px solid var(--line); margin:2.6rem 0; }
+@media (max-width: 900px) { nav.toc { display:none; } .wrap { display:block; } }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior:auto !important; } }
+html { scroll-behavior:smooth; }
+</style>
+<div class="wrap">
+<nav class="toc" aria-label="Sections">
+  <a class="l1" href="#map">0 · The interaction map</a>
+  <a class="l1" href="#raw">1 · The raw machine</a>
+  <a href="#raw-types">types &amp; the table</a>
+  <a href="#raw-tape">tape algebra</a>
+  <a href="#raw-step">step &amp; iteration</a>
+  <a class="l1" href="#halt">2 · Halt localization</a>
+  <a href="#halt-iff">the only exit</a>
+  <a href="#halt-probe">the probe contract</a>
+  <a class="l1" href="#sweep">3 · Sweeps &amp; segments</a>
+  <a href="#sweep-lemmas">sweep lemmas</a>
+  <a href="#seg-algebra">segment algebra</a>
+  <a href="#keystone">the keystone</a>
+  <a class="l1" href="#rules">4 · The three rules</a>
+  <a href="#rule-hydra">hydra_step</a>
+  <a href="#rule-drop">drop_step</a>
+  <a href="#rule-merge">merge_chain</a>
+  <a class="l1" href="#orbit">5 · The abstract orbit</a>
+  <a href="#orbit-astate">AState &amp; astep</a>
+  <a href="#orbit-realizes">Realizes, cell by cell</a>
+  <a href="#orbit-main">the main theorem</a>
+  <a class="l1" href="#d1">6 · Dossier-1's core</a>
+  <a class="l1" href="#above">7 · What sits on top</a>
+</nav>
+<main>
+<p class="crumb">busy-beaver-core · complete anatomy · 2026-08-23</p>
+<h1>Busy Beaver Core Anatomy</h1>
+<p class="lede">Every definition, every theorem, and every variable in the
+trust base — how a raw Turing machine on an infinite tape gets reduced,
+layer by machine-checked layer, to a single arithmetic conjecture. Written
+to be read top-to-bottom; each card is one Lean declaration with its exact
+role, its variables, and a pseudo-code sketch of its proof.</p>
+<p class="filecrumb">busy-beaver-core/BusyBeaverCore/AntihydraRawTM.lean (2,088 lines) ·
+Dossier1RawTM.lean (5,743 lines) · axioms [propext, Quot.sound] · no sorry</p>
+
+<h2 id="map">0 · The interaction map</h2>
+<p>The whole development is one directed pipeline. Nothing below a layer
+knows about the layers above it, and the single unproven statement —
+the <em>orbit conjecture</em> — enters only at the very top.</p>
+<pre class="mermaid">
+flowchart TB
+  subgraph L1["layer 1 — raw machine"]
+    A["State · Dir · Instr · instr table"] --> B["Config = (state, head, tape)"]
+    B --> C["step : Config → Option Config"]
+    C --> D["stepN · RawHalts · Reaches"]
+  end
+  subgraph L2["layer 2 — halt localization"]
+    D --> E["step_eq_none_iff<br/>halt ⇔ F reads 0"]
+    E --> F["into_F_only_from_E0"]
+    F --> G["halt_requires_e_probe_00"]
+    G --> H["EProbeSafe → never halts"]
+  end
+  subgraph L3["layer 3 — certified dynamics"]
+    H --> I["sweep_A / sweep_C / sweep_E"]
+    I --> J["hydra_step · drop_step · merge_chain<br/>exact trajectories + safety certificates"]
+    J --> K["ESafeSeg algebra + keystone"]
+  end
+  subgraph L4["layer 4 — abstraction"]
+    K --> L["AState (a,m,c) · astep · aorbit"]
+    L --> M["Realizes: tape grammar"]
+    M --> N["transport lemmas + dispatcher"]
+  end
+  N --> O["safeOrbitA_nonhalting :<br/>SafeOrbitA → ¬ RawHalts blankStart"]
+  P["SafeOrbitA — THE CONJECTURE<br/>(assumed, not proven)"] -.-> O
+</pre>
+
+<h2 id="raw">1 · The raw machine</h2>
+<p class="filecrumb">AntihydraRawTM.lean lines 30–116 · mirrored in Dossier1RawTM.lean</p>
+<p>Layer 1 is deliberately boring: it is the part a skeptical reviewer must
+trust, so every definition is as small as it can be.</p>
+
+<h3 id="raw-types">Types and the transition table</h3>
+<div class="card"><div class="head"><span class="chip def">def</span><span class="name">State, Dir, Instr</span></div>
+<pre><code>inductive State | A | B | C | D | E | F     -- six control states
+inductive Dir   | L | R                     -- head directions
+structure Instr where
+  next  : State    -- state after the step
+  write : Bool     -- symbol written under the head (false=0, true=1)
+  dir   : Dir      -- which way the head moves afterwards</code></pre>
+<p>An <code>Instr</code> is one cell of the machine's program. The tape
+alphabet is <code>Bool</code>: <code>false</code> is the blank 0,
+<code>true</code> is 1.</p></div>
+
+<div class="card"><div class="head"><span class="chip def">def</span><span class="name">instr : State → Bool → Option Instr</span></div>
+<p>The full Antihydra program, transcribed from the standard code
+<code>1RB1RA_0LC1LE_1LD1LC_1LA0LB_1LF1RE_---0RA</code>. <code>none</code>
+is the <em>undefined</em> transition — the machine has nowhere to go, which
+is the definition of halting.</p>
+<pre><code>A,0 ↦ (B, 1, R)    A,1 ↦ (A, 1, R)     -- A runs right over 1s
+B,0 ↦ (C, 0, L)    B,1 ↦ (E, 1, L)
+C,0 ↦ (D, 1, L)    C,1 ↦ (C, 1, L)     -- C runs left over 1s
+D,0 ↦ (A, 1, L)    D,1 ↦ (B, 0, L)
+E,0 ↦ (F, 1, L)    E,1 ↦ (E, 1, R)     -- E runs right over 1s
+F,0 ↦ none  ⟵ THE HALT                 F,1 ↦ (A, 0, R)</code></pre>
+<p>Three self-loops (<code>A,1</code> · <code>C,1</code> · <code>E,1</code>)
+rewrite 1 over 1 — the tape is literally unchanged while they run. That
+one observation powers the entire sweep layer (§3).</p></div>
+<h3 id="raw-tape">Tape algebra — four lemmas, no more</h3>
+<div class="card"><div class="head"><span class="chip def">def</span><span class="name">move · writeAt · Config</span></div>
+<pre><code>move (h : Int) : Dir → Int          -- L ↦ h−1, R ↦ h+1
+writeAt (tape : Int → Bool) (pos : Int) (v : Bool) : Int → Bool
+  := fun x => if x = pos then v else tape x
+structure Config where
+  state : State      -- current control state
+  head  : Int        -- head position on the two-way-infinite tape
+  tape  : Int → Bool -- the whole tape, as a total function</code></pre>
+<table class="vars"><tr><th>variable</th><th>meaning</th></tr>
+<tr><td>tape</td><td>total function ℤ → Bool; “infinite tape” with no edge cases</td></tr>
+<tr><td>pos</td><td>the single cell being overwritten</td></tr>
+<tr><td>x</td><td>the probe point: <code>writeAt</code> answers for <em>any</em> cell</td></tr></table>
+<p>Everything the development ever does to a tape is a stack of
+<code>writeAt</code>s. Four lemmas are the complete toolkit:</p>
+<pre><code>writeAt_same      : writeAt t p v p = v                    -- read the written cell
+writeAt_other  (h : x ≠ p) : writeAt t p v x = t x         -- reads elsewhere untouched
+writeAt_self   (h : t p = v) : writeAt t p v = t           -- writing what's there: no-op
+writeAt_overwrite : writeAt (writeAt t p v) p w = writeAt t p w  -- last write wins</code></pre>
+<p><code>writeAt_self</code> is the secret hero: the three self-loop
+transitions write 1 over 1, so their steps provably do not change the tape
+function <em>at all</em>.</p></div>
+
+<h3 id="raw-step">One step, then n steps</h3>
+<div class="card"><div class="head"><span class="chip def">def</span><span class="name">step · stepN · RawHalts · Reaches</span></div>
+<pre><code>step (c : Config) : Option Config :=
+  match instr c.state (c.tape c.head) with   -- read the cell under the head
+  | none     => none                          -- undefined transition: HALT
+  | some ins => some ⟨ ins.next,
+                       move c.head ins.dir,
+                       writeAt c.tape c.head ins.write ⟩
+
+stepN : Nat → Config → Option Config          -- n steps; none once halted
+  | 0,     c => some c
+  | n + 1, c => match step c with
+                | none    => none
+                | some c' => stepN n c'
+
+RawHalts (c : Config) : Prop := ∃ n, stepN n c = none
+Reaches  (c d : Config) : Prop := ∃ n, stepN n c = some d
+blankStart : Config := ⟨A, 0, fun _ => false⟩</code></pre>
+<table class="vars"><tr><th>variable</th><th>meaning</th></tr>
+<tr><td>c, c', d</td><td>configurations before / after one step / after n steps</td></tr>
+<tr><td>ins</td><td>the instruction looked up for (state, read symbol)</td></tr>
+<tr><td>n</td><td>step budget; <code>stepN</code> absorbs a halt at any point into <code>none</code></td></tr></table>
+<p>One composition law, <code>stepN_add : stepN (m+n) c = (stepN m c).bind (stepN n)</code>,
+proved by induction on <code>m</code>, is what lets long runs be glued out
+of proven segments — it is used dozens of times in §4.</p></div>
+
+<h2 id="halt">2 · Halt localization</h2>
+<p class="filecrumb">AntihydraRawTM.lean lines 99–218</p>
+<p>Goal of the layer: shrink “the machine halts” from <em>anything could
+happen</em> down to <em>one specific two-cell tape pattern was reachable</em>.</p>
+
+<h3 id="halt-iff">The only exit</h3>
+<div class="card"><div class="head"><span class="chip thm">theorem</span><span class="name">step_eq_none_iff</span></div>
+<pre><code>step c = none  ↔  c.state = F ∧ c.tape c.head = false</code></pre>
+<p><b>Proof.</b> Case-split on the 6 states × 2 symbols; eleven cases
+produce <code>some _</code>, one produces <code>none</code>. Twelve
+<code>simp</code> calls. Nothing clever — by design.</p></div>
+
+<div class="card"><div class="head"><span class="chip thm">theorem</span><span class="name">into_F_only_from_E0</span></div>
+<pre><code>step c = some c'  →  c'.state = F  →
+    c.state = E                          -- predecessor was in E
+  ∧ c.tape c.head = false               -- reading a 0
+  ∧ c'.head = c.head − 1                -- E,0 = (F,1,L): moved left
+  ∧ c'.tape = writeAt c.tape c.head true  -- and wrote a 1</code></pre>
+<p><b>Proof.</b> Same 12-way case split: only the <code>E,0</code> row
+produces successor state <code>F</code>. So any halt is <em>preceded</em>
+by state E reading a 0.</p></div>
+
+<div class="card"><div class="head"><span class="chip thm">theorem</span><span class="name">stepN_none_last · stepN_some_pred</span></div>
+<pre><code>stepN_none_last : stepN n c = none →
+  ∃ k < n, ∃ d, stepN k c = some d ∧ step d = none
+stepN_some_pred : stepN (k+1) c = some d →
+  ∃ e, stepN k c = some e ∧ step e = some d</code></pre>
+<table class="vars"><tr><th>variable</th><th>meaning</th></tr>
+<tr><td>n</td><td>length of the run that halted</td></tr>
+<tr><td>k, d</td><td>index and configuration of the <em>last live</em> configuration</td></tr>
+<tr><td>e</td><td>the immediate predecessor of a run's endpoint</td></tr></table>
+<p><b>Proof.</b> Both walk the run by induction on <code>n</code> /
+<code>k</code>: peel one step, recurse on the tail, shift indices with
+<code>omega</code>. Together they let any halting run be rewound to the
+exact moment before death.</p></div>
+
+<h3 id="halt-probe">The probe contract</h3>
+<div class="card"><div class="head"><span class="chip thm">theorem</span><span class="name">halt_requires_e_probe_00</span></div>
+<pre><code>c.state ≠ F → RawHalts c →
+  ∃ d, Reaches c d ∧ d.state = E
+     ∧ d.tape d.head = false            -- E is reading a 0 …
+     ∧ d.tape (d.head − 1) = false      -- … and its LEFT neighbour is 0</code></pre>
+<p><b>Proof sketch.</b> Take the halting run (<code>hh</code>), rewind to
+the last live configuration <code>d0</code> (<code>stepN_none_last</code>);
+it satisfies <code>step d0 = none</code>, so by
+<code>step_eq_none_iff</code> it is F-reading-0. Its predecessor
+<code>e</code> (<code>stepN_some_pred</code>) entered F, so by
+<code>into_F_only_from_E0</code> <code>e</code> was E-reading-0 at head
+<code>h</code>, and the halting cell F reads is <code>h − 1</code> —
+<em>which the E-step did not write</em>
+(<code>writeAt_other</code>, since <code>h − 1 ≠ h</code>). So the 0 that
+F dies on was already there when E probed: E read a 0 with a 0 to its
+left.</p>
+<div class="tape">
+<span class="cell one">1</span><span class="cell">0</span><span class="cell head">0</span><span class="cell one">1</span><span class="cell one">1</span>
+</div>
+<p class="filecrumb">the fatal pattern: state E (ring) reading 0, with 0 on the left — the “E-probe of 00”</p></div>
+
+<div class="card"><div class="head"><span class="chip def">def</span><span class="name">EProbeSafe</span><span class="chip thm">nonhalting_of_e_probe_safe</span></div>
+<pre><code>EProbeSafe (c : Config) : Prop :=
+  ∀ d, Reaches c d → d.state = E → d.tape d.head = false →
+       d.tape (d.head − 1) = true      -- every probed 0 has a 1 on its left
+
+nonhalting_of_e_probe_safe : c.state ≠ F → EProbeSafe c → ¬ RawHalts c
+blank_nonhalting_of_e_probe_safe : EProbeSafe blankStart → ¬ RawHalts blankStart</code></pre>
+<p><b>Proof.</b> A halt would produce the 00-probe of the previous card;
+<code>EProbeSafe</code> says that probe's left cell is 1; contradiction
+(<code>Bool.noConfusion</code>). <em>This is the interface:</em> everything
+above layer 2 exists to discharge <code>EProbeSafe blankStart</code>.</p></div>
+
+<h2 id="sweep">3 · Sweeps and the segment algebra</h2>
+<p class="filecrumb">AntihydraRawTM.lean lines 220–441</p>
+
+<h3 id="sweep-lemmas">Sweep lemmas — the atoms</h3>
+<div class="card"><div class="head"><span class="chip thm">theorem</span><span class="name">sweep_A · sweep_C · sweep_E</span></div>
+<pre><code>-- E sweeps right across n ones without touching the tape:
+sweep_E : c.state = E → (∀ i &lt; n, c.tape (c.head + i) = true) →
+          stepN n c = some ⟨E, c.head + n, c.tape⟩   -- SAME tape function
+-- sweep_A: identical, state A, rightwards
+-- sweep_C: identical, state C, LEFTwards (c.head − i, c.head − n)</code></pre>
+<table class="vars"><tr><th>variable</th><th>meaning</th></tr>
+<tr><td>n</td><td>length of the block of 1s being crossed</td></tr>
+<tr><td>i</td><td>offset inside the block (hypothesis quantifier)</td></tr>
+<tr><td>hones</td><td>the block hypothesis <code>∀ i &lt; n, tape(head±i) = 1</code></td></tr></table>
+<p><b>Proof.</b> Induction on <code>n</code>. Base: zero steps. Step: the
+self-loop instruction fires (<code>step_E_on_one</code>, built from
+<code>writeAt_self</code> — writing 1 over 1 leaves <code>tape</code>
+literally equal), then the induction hypothesis crosses the remaining
+<code>n−1</code> ones. Every macro rule's trajectory is a chain of these
+sweeps plus a bounded number of boundary steps.</p></div>
+
+<h3 id="seg-algebra">Segment safety algebra</h3>
+<div class="card"><div class="head"><span class="chip def">def</span><span class="name">ESafeSeg</span><span class="chip thm">compose / of_strong / of_noE</span></div>
+<pre><code>ESafeSeg (c : Config) (N : Nat) : Prop :=      -- safety for the FIRST N steps
+  ∀ k d, k &lt; N → stepN k c = some d → d.state = E →
+         d.tape d.head = false → d.tape (d.head − 1) = true
+
+esafe_compose : stepN m c = some c' → ESafeSeg c m → ESafeSeg c' n
+              → ESafeSeg c (m + n)             -- glue segments end to end
+esafe_of_strong : (every E-configuration reads a 1)   → ESafeSeg c N
+esafe_of_noE    : (no configuration is in E at all)   → ESafeSeg c N</code></pre>
+<table class="vars"><tr><th>variable</th><th>meaning</th></tr>
+<tr><td>N, m, n</td><td>segment lengths; compose splits k into “before m / after m” with <code>stepN_add</code></td></tr>
+<tr><td>k, d</td><td>an arbitrary moment inside the segment and its configuration</td></tr></table>
+<p>The two discharge lemmas handle 95% of proof obligations: most segments
+either never visit E, or visit it only on 1s. Only the genuine probes need
+hand analysis — and §4 shows there are exactly one to two per rule.</p></div>
+
+<h3 id="keystone">The keystone</h3>
+<div class="card"><div class="head"><span class="chip thm">theorem</span><span class="name">eprobe_safe_of_segments</span></div>
+<pre><code>(h0 : Inv c0)
+(hseg : ∀ c, Inv c → ∃ k &gt; 0, ∃ c', stepN k c = some c'
+                              ∧ Inv c' ∧ ESafeSeg c k)
+→ EProbeSafe c0</code></pre>
+<table class="vars"><tr><th>variable</th><th>meaning</th></tr>
+<tr><td>Inv</td><td><em>any</em> invariant on configurations (instantiated with OrbitInv in §5)</td></tr>
+<tr><td>c0</td><td>the start (instantiated at the post-startup record)</td></tr>
+<tr><td>k, c'</td><td>each segment's positive length and endpoint</td></tr></table>
+<p><b>Proof.</b> Strong induction on a bound <code>N</code>: any reachable
+moment <code>n</code> falls either inside the current safe segment
+(<code>hsafe</code> answers directly) or beyond it — subtract the segment
+(<code>stepN_add</code>), land on <code>c'</code> where <code>Inv</code>
+holds again, recurse. Infinitely many finite safe segments become safety
+for the whole infinite run. Its sibling <code>eprobe_safe_prefix</code>
+bolts a finite startup prefix onto the front.</p></div>
+<h2 id="rules">4 · The three rules — certified trajectories</h2>
+<p class="filecrumb">AntihydraRawTM.lean lines 442–1320</p>
+<p>Each empirical macro rule became a theorem with two halves: the
+<em>exact</em> trajectory (step count and output tape, for all block
+values) and an <code>ESafeSeg</code> certificate covering its own
+duration. A <b>record</b> is the machine's tape shape at a frontier
+moment: counter block <code>a</code>, gap, middle block <code>m</code>,
+gap, block <code>c</code>, head on fresh tape.</p>
+<div class="tape">
+<span class="cell one">1</span><span class="cell one">1</span><span class="cell">0</span><span class="cell one">1</span><span class="cell one">1</span><span class="cell one">1</span><span class="cell">0</span><span class="cell one">1</span><span class="cell one">1</span><span class="cell head">0</span>
+</div>
+<p class="filecrumb">a record (a=2, m=3, c=2): blocks of 1s, single-0 gaps, head (ring) on the frontier</p>
+
+<h3 id="rule-hydra">hydra_step — 96% of everything</h3>
+<div class="card"><div class="head"><span class="chip thm">theorem</span><span class="name">hydra_step</span></div>
+<pre><code>-- anchor p = right end of the m-block; k = length of the c-block
+(hs : cfg.state = B) (hh : cfg.head = p + 2 + k)
+(tm2 : tape (p−2) = 1) (tm1 : tape (p−1) = 1) (tm0 : tape p = 1)  -- m ≥ 3 top
+(tg  : tape (p+1) = 0)                                            -- the gap
+(tc  : ∀ i &lt; k, tape (p+2+i) = 1)                                 -- the c-block
+(tf  : tape (p+2+k) = 0)                                          -- fresh frontier
+→ stepN (2k + 11) cfg
+    = some ⟨B, p+3+k, tape[p+1↦1][p−1↦0][p+2+k↦1]⟩                -- next record
+  ∧ ESafeSeg cfg (2k + 11)</code></pre>
+<table class="vars"><tr><th>variable</th><th>meaning</th></tr>
+<tr><td>p</td><td>anchor: rightmost cell of the middle block</td></tr>
+<tr><td>k</td><td>current c-block length — the trajectory costs exactly 2k+11 steps</td></tr>
+<tr><td>tm2…tf</td><td>the seven tape preconditions spelling out the record shape near p</td></tr></table>
+<p><b>Trajectory</b> (each sN a proven single step, sweeps for the
+unbounded parts): <code>B</code> steps off the frontier → <code>sweep_C</code>
+left across the c-block (k steps) → 6 boundary steps
+<code>C→D→B→E→E→E→F</code> eat two cells of the m-block and rebuild the
+gap → <code>F</code> writes the counter-side repair → <code>sweep_A</code>
+right across k+2 ones → one final step plants the new frontier 1. Net:
+<code>(a, m, c) → (a, m−2, c+3)</code>, counter untouched.</p>
+<p><b>The probe.</b> Exactly one E-reads-0 moment, at offset 5 of the
+boundary run, probing cell <code>p</code> — safe because <code>p−1</code>
+provably still holds its 1 (<code>hw3m1</code> in the source). The
+certificate is assembled with <code>esafe_compose</code> over the seven
+sub-segments; five discharge with <code>esafe_of_noE</code>.</p></div>
+
+<h3 id="rule-drop">drop_step — the counter pays</h3>
+<div class="card"><div class="head"><span class="chip thm">theorem</span><span class="name">drop_step</span></div>
+<pre><code>-- fires when m = 2; anchor q = right end of the COUNTER block
+preconditions: counter top at q · gap · the 2-block at q+2,q+3 · gap · c-block (k) · frontier
+→ stepN (2k + 15) cfg = some ⟨A, q+6+k, …seven writeAt's…⟩  ∧  ESafeSeg cfg (2k+15)</code></pre>
+<p>Net effect <code>(a, 2, c) → (a−1, c+3, 2)</code>: the counter block
+shrinks by one cell. <b>Two probes</b>: E reads the gap at
+<code>q+1</code> — safe because the counter cell <code>q</code> holds 1
+(this is exactly why the abstract rule demands <code>a ≥ 2</code>); and E
+reads the new frontier — safe because the c-top holds 1. The death of the
+whole conjecture lives here: with <code>a ≤ 1</code> there is no counter 1
+to certify the first probe.</p></div>
+
+<h3 id="rule-merge">merge_chain — the counter feeds</h3>
+<div class="card"><div class="head"><span class="chip thm">theorem</span><span class="name">merge_chain</span></div>
+<pre><code>-- fires when m = 1; n = counter length (hn : 1 ≤ n), k = c-block length
+→ stepN (2n + 2k + 22) cfg = some ⟨B, p+6+k, …eleven writeAt's…⟩ ∧ ESafeSeg …</code></pre>
+<p>Net effect <code>(a, 1, c) → (a+2, c+2, 2)</code>. The head crosses the
+<em>entire counter block</em> (hence the <code>2n</code> in the cost),
+extends it by two on the far side, and returns. Both probes are safe; the
+first precisely because the counter is non-empty (<code>hn</code>). The
+eleven-deep <code>writeAt</code> tower in the statement is the exact
+output tape — nothing is approximated.</p></div>
+
+<h2 id="orbit">5 · The abstract orbit and the main theorem</h2>
+<p class="filecrumb">AntihydraRawTM.lean lines 1321–2088</p>
+
+<h3 id="orbit-astate">AState, astep, and the conjecture</h3>
+<div class="card"><div class="head"><span class="chip def">def</span><span class="name">AState · astep · aorbit · SafeOrbitA</span></div>
+<pre><code>structure AState where a m c : Nat        -- counter, middle block, c block
+
+astep : AState → Option AState
+  | (a, m, c) => if 3 ≤ m     then some (a, m−2, c+3)          -- hydra
+                 else if m = 2 then (if 2 ≤ a then some (a−1, c+3, 2)
+                                     else none)                 -- drop — CAN DIE
+                 else if m = 1 then some (a+2, c+2, 2)          -- merge
+                 else none                                      -- m = 0 — dead
+
+aorbit 0 = some (2, 7, 2)                 -- the post-startup record
+aorbit (k+1) = (aorbit k) >>= astep
+SafeOrbitA : Prop := ∀ k, aorbit k ≠ none   -- ⟵ THE CONJECTURE</code></pre>
+<div class="deathbox"><b>Death set</b> (proved exact in packages/dossier1):
+<code>m = 0 ∨ (m = 2 ∧ a ≤ 1)</code>. Every value pattern whose absence
+from the orbit is the Antihydra conjecture.</div></div>
+
+<h3 id="orbit-realizes">Realizes — the tape grammar, cell by cell</h3>
+<div class="card"><div class="head"><span class="chip def">def</span><span class="name">Realizes (a, m, c) cfg</span></div>
+<pre><code>1 ≤ a ∧ 1 ≤ m ∧ 1 ≤ c ∧ cfg.state = B ∧ ∃ p : Int,
+  (∀ x &lt; p−a+1,        tape x = 0)   -- ① blank forever leftwards
+∧ (∀ i &lt; a,  tape (p−i)     = 1)     -- ② the counter block, ending at p
+∧            tape (p+1)     = 0      -- ③ single-0 gap
+∧ (∀ i &lt; m,  tape (p+2+i)   = 1)     -- ④ the middle block
+∧            tape (p+2+m)   = 0      -- ⑤ single-0 gap
+∧ (∀ i &lt; c,  tape (p+3+m+i) = 1)     -- ⑥ the c block
+∧ (∀ x ≥ p+3+m+c, tape x    = 0)     -- ⑦ blank forever rightwards
+∧ cfg.head = p+3+m+c                 -- ⑧ head exactly on the frontier</code></pre>
+<p>Eight conjuncts pin the <em>entire infinite tape</em>: every cell is
+determined by (a, m, c) and the anchor <code>p</code>. Conjunct ② with
+<code>1 ≤ a</code> is why the grammar cannot follow a drop at
+<code>a = 1</code> — the origin of the “heads ≤ 1” strengthening
+documented in the bridge.</p></div>
+
+<div class="card"><div class="head"><span class="chip thm">theorem</span><span class="name">startup · transports · dispatcher</span></div>
+<pre><code>startup_run  : stepN 62 blankStart = some ⟨B, 6, startTape⟩       -- by rfl
+startup_safe : ESafeSeg blankStart 62      -- by the checkSafe boolean decider
+realizes_start : Realizes (2,7,2) ⟨B, 6, startTape⟩
+
+transport_hydra : Realizes (a, m+3, c) cfg → ∃ N cfg', 0 &lt; N ∧
+  stepN N cfg = some cfg' ∧ Realizes (a, m+1, c+3) cfg' ∧ ESafeSeg cfg N
+transport_drop  : Realizes (a+2, 2, c) → … Realizes (a+1, c+3, 2) …
+transport_merge : Realizes (a, 1, c)   → … Realizes (a+2, c+2, 2) …
+
+orbit_segment (hso : SafeOrbitA) : OrbitInv cfg →
+  ∃ k &gt; 0, ∃ cfg', stepN k cfg = some cfg' ∧ OrbitInv cfg' ∧ ESafeSeg cfg k
+  -- where OrbitInv cfg := ∃ n s, aorbit n = some s ∧ Realizes s cfg</code></pre>
+<p>Each transport applies its §4 rule at the anchor the grammar provides
+and re-derives all eight conjuncts for the successor shape — pure
+<code>writeAt_other</code>/<code>omega</code> bookkeeping. The dispatcher
+case-splits <code>astep</code>: alive cases hand off to the matching
+transport; dead cases contradict <code>SafeOrbitA</code>. The startup's
+safety uses <code>checkSafe</code>, an executable boolean checker proven
+sound (<code>esafe_of_checkSafe</code>) — 62 steps checked by
+<code>rfl</code>.</p></div>
+
+<h3 id="orbit-main">The main theorem</h3>
+<div class="card"><div class="head"><span class="chip thm">theorem</span><span class="name">safeOrbitA_nonhalting</span><span class="chip conj">hypothesis: SafeOrbitA</span></div>
+<pre><code>safeOrbitA_nonhalting (hso : SafeOrbitA) : ¬ RawHalts blankStart :=
+  blank_nonhalting_of_e_probe_safe          -- layer 2 contract
+    (eprobe_safe_prefix startup_run startup_safe   -- 62-step prefix
+      (eprobe_safe_of_segments orbitInv_start      -- keystone, Inv := OrbitInv
+        (orbit_segment hso)))                      -- dispatcher supplies segments</code></pre>
+<p>Four layers compose into one line. The only free variable left in the
+whole development is <code>hso</code> — the conjecture.</p></div>
+
+<h2 id="d1">6 · Dossier-1's core, in the same skeleton</h2>
+<p class="filecrumb">Dossier1RawTM.lean · 5,743 lines · machine 1RB0LE_1LB1RC_0RF0RD_1RE0LA_1LA1RE_---0RB</p>
+<p>Identical architecture, richer instances. The differences, layer by layer:</p>
+<table class="vars">
+<tr><th>layer</th><th>Antihydra</th><th>dossier-1</th></tr>
+<tr><td>probe</td><td>E reads 0, <b>left</b> neighbour 0</td><td>C reads 0, <b>right</b> neighbour 0 (<code>CProbeSafe</code>, via <code>into_F_only_from_C0</code>)</td></tr>
+<tr><td>sweeps</td><td>3 self-loops (A,C,E)</td><td>sweeps plus the <b>caterpillar</b>: <code>cat_cycle</code> (5-step A→B→B→C→D→A cycle) iterated by <code>cat_run</code> — 5n steps crossing a block, provably C0-free, with its own tape transformer <code>catTape</code></td></tr>
+<tr><td>rules</td><td>3 (<code>hydra/drop/merge</code>)</td><td>7+ (<code>dominant_rule_run</code> = prefix+caterpillar+suffix, <code>workhorse3/4/5</code>, <code>spawn2</code>, <code>collapse1</code>, <code>leftcross</code>, <code>spawnhead</code>, <code>collapsehead</code>…), each with exact counts like 13+5m and its <code>CSafeSeg</code> certificate</td></tr>
+<tr><td>abstract state</td><td>flat triple (a,m,c)</td><td><code>AState = top N | lvl (L : List Nat) b c</code> — a <b>stack of chain levels</b> with helpers <code>unsnoc</code> (split last), <code>lastInc2</code> (+2 to last), <code>collapseTarget</code> (fold into parent or become <code>top</code>)</td></tr>
+<tr><td>grammar</td><td>8-conjunct <code>Realizes</code></td><td>recursive <code>ChainAt t lo L q</code>: for each level value <code>aᵢ</code> in L, a block <code>1^{aᵢ}</code> then <code>00</code>, chained from <code>lo</code> to <code>q</code> — plus frame/split/grow lemmas (<code>chainAt_frame</code>, <code>chainAt_split_last</code>, <code>chainAt_snoc</code>)</td></tr>
+<tr><td>conjecture</td><td><code>SafeOrbitA</code>: drop never starves</td><td><code>SafeOrbit</code>: whenever <code>b = 2</code> the companion has <code>c ≥ 4</code>, and collapses always find a level — the (3n+7)/2 checkpoint law in disguise</td></tr>
+<tr><td>main theorem</td><td><code>safeOrbitA_nonhalting</code></td><td><code>safeOrbit_nonhalting : SafeOrbit → ¬ RawHalts blankStart</code>, via the same keystone + a 35-step startup</td></tr></table>
+
+<h2 id="above">7 · What sits on top (and what never leaks down)</h2>
+<p><code>packages/dossier1</code> consumes only public theorems of this
+core: the parser parity theorems re-derive the tables; the incision layer
+re-expresses <code>SafeOrbitA</code> as boundary-event safety; the hydra
+bridge conjugates it onto <code>b ↦ b + ⌊b/2⌋</code>. <code>packages/flying-dragon</code>
+consumes dossier1. The arrows never point back: however speculative the
+geometry gets, this file's <code>[propext, Quot.sound]</code> trust base
+is untouched — re-checked by <code>scripts/check_lean.sh</code> on every
+build.</p>
+<p class="filecrumb">Companion: “Dossier1 &amp; Flying Dragon Anatomy” — the bridge layer and the proposed geometry, same treatment.</p>
+</main></div>

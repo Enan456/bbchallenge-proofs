@@ -1,0 +1,280 @@
+<title>Dossier1 and Flying Dragon Anatomy</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root {
+  --paper:#F8F9FB; --panel:#FFFFFF; --ink:#1B2130; --muted:#5C6784;
+  --line:#DDE2EE; --navy:#1E2761; --mint:#027A68; --mint-bg:#E4F4F0;
+  --gold:#9A6E12; --gold-bg:#F8F0DC; --clay:#A43E2E; --clay-bg:#F9E9E5;
+  --code-bg:#EEF1F8; --tape0:#F1F3F9; --tape1:#1E2761; --tape1-ink:#FFFFFF;
+}
+:root:not([data-theme="light"]) { }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper:#141827; --panel:#1B2033; --ink:#E7EAF4; --muted:#9AA5C4;
+    --line:#2C3450; --navy:#AEBBF0; --mint:#3ECFB2; --mint-bg:#12312C;
+    --gold:#E3B45B; --gold-bg:#33280F; --clay:#E58A76; --clay-bg:#3A1F18;
+    --code-bg:#232A42; --tape0:#232A42; --tape1:#AEBBF0; --tape1-ink:#141827;
+  }
+}
+:root[data-theme="dark"] {
+  --paper:#141827; --panel:#1B2033; --ink:#E7EAF4; --muted:#9AA5C4;
+  --line:#2C3450; --navy:#AEBBF0; --mint:#3ECFB2; --mint-bg:#12312C;
+  --gold:#E3B45B; --gold-bg:#33280F; --clay:#E58A76; --clay-bg:#3A1F18;
+  --code-bg:#232A42; --tape0:#232A42; --tape1:#AEBBF0; --tape1-ink:#141827;
+}
+* { box-sizing:border-box; }
+body { background:var(--paper); color:var(--ink);
+  font-family:"Source Sans 3",-apple-system,Segoe UI,Arial,sans-serif;
+  font-size:16px; line-height:1.62; margin:0; }
+.wrap { display:flex; gap:2.5rem; max-width:76rem; margin:0 auto; padding:0 1.25rem; }
+nav.toc { position:sticky; top:0; align-self:flex-start; width:15.5rem; flex:none;
+  padding:2rem 0 2rem; font-size:.85rem; max-height:100vh; overflow-y:auto; }
+nav.toc a { display:block; color:var(--muted); text-decoration:none; padding:.16rem 0; }
+nav.toc a:hover, nav.toc a:focus { color:var(--navy); }
+nav.toc .l1 { font-weight:600; color:var(--ink); margin-top:.75rem; }
+main { flex:1; min-width:0; max-width:46rem; padding:2.5rem 0 5rem; }
+h1,h2,h3 { font-family:Spectral,Georgia,serif; line-height:1.2; text-wrap:balance; }
+h1 { font-size:2.3rem; font-weight:700; margin:.2rem 0 .4rem; }
+h2 { font-size:1.55rem; font-weight:600; margin:3rem 0 .6rem; color:var(--navy); }
+h3 { font-size:1.15rem; font-weight:600; margin:2rem 0 .4rem; }
+p { margin:.7rem 0; }
+.lede { font-size:1.08rem; color:var(--muted); }
+code, pre { font-family:"JetBrains Mono",ui-monospace,Menlo,monospace; }
+code { background:var(--code-bg); border-radius:4px; padding:.08em .32em; font-size:.86em; }
+pre { background:var(--code-bg); border-radius:8px; padding: .85rem 1rem; overflow-x:auto;
+  font-size:.8rem; line-height:1.55; }
+pre code { background:none; padding:0; }
+.card { background:var(--panel); border:1px solid var(--line); border-radius:10px;
+  padding:1rem 1.2rem 1.1rem; margin:1.1rem 0; }
+.card > .head { display:flex; align-items:baseline; gap:.6rem; flex-wrap:wrap; margin-bottom:.4rem; }
+.card .name { font-family:"JetBrains Mono",monospace; font-weight:600; font-size:.95rem; color:var(--navy); }
+.chip { font-size:.66rem; font-weight:600; letter-spacing:.07em; border-radius:999px;
+  padding:.13em .6em; text-transform:uppercase; }
+.chip.def { background:var(--code-bg); color:var(--navy); }
+.chip.thm { background:var(--mint-bg); color:var(--mint); }
+.chip.conj { background:var(--gold-bg); color:var(--gold); }
+.chip.death { background:var(--clay-bg); color:var(--clay); }
+table.vars { border-collapse:collapse; width:100%; margin:.6rem 0; font-size:.85rem; }
+table.vars th { text-align:left; color:var(--muted); font-weight:600; font-size:.72rem;
+  text-transform:uppercase; letter-spacing:.06em; padding:.25rem .6rem .25rem 0; border-bottom:1px solid var(--line); }
+table.vars td { vertical-align:top; padding:.34rem .6rem .34rem 0; border-bottom:1px solid var(--line); }
+table.vars td:first-child { font-family:"JetBrains Mono",monospace; font-size:.8rem; white-space:nowrap; color:var(--navy); font-weight:600; }
+.tape { display:flex; gap:2px; margin:.7rem 0; flex-wrap:wrap; align-items:flex-end; }
+.tape .cell { width:1.72rem; height:1.72rem; display:flex; align-items:center; justify-content:center;
+  font-family:"JetBrains Mono",monospace; font-size:.78rem; border-radius:4px;
+  background:var(--tape0); color:var(--muted); border:1px solid var(--line); flex:none; }
+.tape .cell.one { background:var(--tape1); color:var(--tape1-ink); border-color:var(--tape1); font-weight:600; }
+.tape .cell.head { outline:2.5px solid var(--mint); outline-offset:1.5px; }
+.tape .lbl { font-size:.68rem; color:var(--muted); width:1.72rem; text-align:center;
+  font-family:"JetBrains Mono",monospace; flex:none; }
+.tape .gap { width:.55rem; flex:none; }
+.note { border-left:3px solid var(--gold); background:var(--gold-bg); border-radius:0 8px 8px 0;
+  padding:.6rem .9rem; margin:.9rem 0; font-size:.92rem; }
+.deathbox { border-left:3px solid var(--clay); background:var(--clay-bg); border-radius:0 8px 8px 0;
+  padding:.6rem .9rem; margin:.9rem 0; font-size:.92rem; }
+.crumb { font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:600; }
+.filecrumb { font-family:"JetBrains Mono",monospace; font-size:.72rem; color:var(--muted); }
+hr { border:none; border-top:1px solid var(--line); margin:2.6rem 0; }
+@media (max-width: 900px) { nav.toc { display:none; } .wrap { display:block; } }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior:auto !important; } }
+html { scroll-behavior:smooth; }
+</style>
+<div class="wrap">
+<nav class="toc" aria-label="Sections">
+  <a class="l1" href="#approach">0 · The approach</a>
+  <a class="l1" href="#format">1 · Parser parity</a>
+  <a class="l1" href="#incision">2 · The incision layer</a>
+  <a href="#inc-death">death set</a>
+  <a href="#inc-volley">the volley</a>
+  <a href="#inc-event">the event theorem</a>
+  <a class="l1" href="#bridge">3 · The hydra bridge</a>
+  <a class="l1" href="#palomar">4 · Palomar entries</a>
+  <a class="l1" href="#dragon">5 · Flying Dragon — the proposed math</a>
+  <a href="#dragon-charts">exact charts</a>
+  <a href="#dragon-program">the program</a>
+  <a href="#dragon-next">construction now underway</a>
+</nav>
+<main>
+<p class="crumb">packages/dossier1 + packages/flying-dragon · 2026-08-23</p>
+<h1>Dossier1 &amp; Flying Dragon Anatomy</h1>
+<p class="lede">The certified bridge layer built on busy-beaver-core —
+parser parity, the incision theorem, the hydra-conjecture conjugacy, and
+the Palomar registry entries — followed by the proposed mathematics of the
+flying-dragon geometry layer. Same treatment as the core anatomy: each card
+is one declaration, its variables, and its proof shape.</p>
+
+<h2 id="approach">0 · The approach</h2>
+<p>The core (companion page) reduces each machine to one conjecture.
+This layer answers three follow-up questions, each with its own module:
+<b>is it the right machine?</b> (<code>Bridge/Format</code>),
+<b>where can the orbit die, and how cheaply can we watch it?</b>
+(<code>Bridge/Incision</code>), and
+<b>is our conjecture the community's conjecture?</b>
+(<code>Bridge/Conjecture</code>). The <code>Palomar/</code> modules then
+repackage all three results in a registry-auditable form. Everything is
+core-only Lean at <code>[propext, Quot.sound]</code>.</p>
+<pre class="mermaid">
+flowchart LR
+  core["busy-beaver-core<br/>safeOrbitA_nonhalting<br/>safeOrbit_nonhalting"] --> F["Bridge.Format<br/>parse_ok"]
+  core --> I["Bridge.Incision<br/>eventSafe_iff_safeOrbitA"]
+  I --> C["Bridge.Conjecture<br/>hydraSafe_nonhalting"]
+  F & I & C --> P["Palomar/ entries<br/>Challenge ⇄ Solution transports"]
+  I --> FD["flying-dragon<br/>charts · proposed invariants"]
+</pre>
+
+<h2 id="format">1 · Parser parity — is it the right machine?</h2>
+<p class="filecrumb">Bridge/Format.lean · 232 lines · axioms [propext]</p>
+<div class="card"><div class="head"><span class="chip def">def</span><span class="name">parseEntries · tableOfF · encodeEntry</span></div>
+<pre><code>Entry := Option (Nat × Bool × Bool)      -- (next-state index, write, dir-is-right)
+parseEntries : List Char → Option (List Entry)
+  []                        ↦ some []
+  '_' :: rest               ↦ parseEntries rest          -- group separator
+  '-'::'-'::'-':: rest      ↦ none-entry :: rest          -- the halt cell
+  w :: d :: s :: rest       ↦ decode via symOf/dirOf/stOf  -- e.g. '1','R','B'
+tableOfF f := [encode (f A 0), encode (f A 1), …, encode (f F 1)]  -- row-major</code></pre>
+<table class="vars"><tr><th>variable</th><th>meaning</th></tr>
+<tr><td>w, d, s</td><td>one entry's three characters: write symbol, direction, next state</td></tr>
+<tr><td>f</td><td>any candidate transition function being encoded for comparison</td></tr></table></div>
+<div class="card"><div class="head"><span class="chip thm">theorem</span><span class="name">parse_ok · parse_detects_corruption · instr_unique</span></div>
+<pre><code>parse_ok : parseEntries codeChars = some (tableOfF instr)      -- by decide
+parse_detects_corruption : parseEntries corruptedChars ≠ some (tableOfF instr)
+instr_unique : parseEntries codeChars = some (tableOfF f) → f = instr</code></pre>
+<p><b>Proof.</b> <code>parse_ok</code> is kernel computation over a
+41-character list (over <code>List Char</code>, not <code>String</code> —
+<code>String.toList</code> drags in <code>Classical.choice</code>). The
+corruption control flips one character and proves the parse
+<em>differs</em>, so the theorem cannot pass vacuously.
+<code>instr_unique</code> chains injectivity of the encoding
+(<code>stIdx_inj</code>, <code>dirR_inj</code>, <code>encodeEntry_inj</code>,
+<code>tableOfF_inj</code> — finite case analyses) so table equality pins
+down the function itself. Both machines get the same treatment.</p></div>
+
+<h2 id="incision">2 · The incision layer — watch only the boundary</h2>
+<p class="filecrumb">Bridge/Incision.lean · 294 lines</p>
+<h3 id="inc-death">The death set, made exact</h3>
+<div class="card"><div class="head"><span class="chip thm">theorem</span><span class="name">Dead · Boundary · astep_eq_none_iff</span></div>
+<pre><code>Dead s     := s.m = 0 ∨ (s.m = 2 ∧ s.a ≤ 1)     -- decidable
+Boundary s := s.m ≤ 2
+astep_eq_none_iff : astep s = none ↔ Dead s
+safeOrbitA_iff_avoids_death : SafeOrbitA ↔ ∀ n s, aorbit n = some s → ¬ Dead s</code></pre>
+<p><b>Proof.</b> Unfold the if-chain of <code>astep</code>, four
+<code>by_cases</code> branches, <code>omega</code> on atoms only —
+an <code>omega</code> asked to prove a positive ∧/∨ silently imports
+<code>Classical.choice</code>, so compound goals are split first
+(<code>constructor &lt;;&gt; omega</code>).</p></div>
+<h3 id="inc-volley">The volley — event-skipping in closed form</h3>
+<div class="card"><div class="head"><span class="chip def">def</span><span class="name">volley</span><span class="chip thm">volley_interior · aiter_volley</span></div>
+<pre><code>volley (a, m, c) := if m ≤ 2 then (a, m, c)
+                    else (a, 2 − m % 2, c + 3·⌊(m−1)/2⌋)
+volley_interior : 3 ≤ m → volley (a,m,c) = volley (a, m−2, c+3)  -- it IS the recursion
+aiter_volley    : ∃ j, aiter j s = some (volley s)               -- and it's reachable</code></pre>
+<table class="vars"><tr><th>variable</th><th>meaning</th></tr>
+<tr><td>j</td><td>number of hydra steps skipped: ⌊(m−1)/2⌋, proved by fuel induction on m</td></tr>
+<tr><td>2 − m % 2</td><td>the landing boundary value: odd m → 1 (merge next), even m → 2 (drop next)</td></tr></table></div>
+<h3 id="inc-event">The event theorem</h3>
+<div class="card"><div class="head"><span class="chip thm">theorem</span><span class="name">eventSafe_iff_safeOrbitA · eventSafe_nonhalting</span></div>
+<pre><code>estep s  := (astep s).map volley          -- one boundary rule + one whole volley
+eorbit 0 = some (volley (2,7,2)) ;  eorbit (k+1) = (eorbit k) >>= estep
+EventSafe := ∀ k, eorbit k ≠ none
+
+eventSafe_iff_safeOrbitA : EventSafe ↔ SafeOrbitA
+eventSafe_nonhalting     : EventSafe → ¬ RawHalts blankStart</code></pre>
+<p><b>Proof, both directions by orbit interleaving.</b>
+(→) invariant: every <code>aorbit</code> point has its volley on the event
+orbit — interior steps keep the same volley
+(<code>volley_interior</code>), boundary steps advance one event.
+(←) invariant: every event point is itself an <code>aorbit</code> point
+(<code>aiter_volley</code> + <code>aorbit_add_aiter</code>). So the two
+processes die together: checking <em>only at incisions</em> is sound
+<b>and</b> complete. Measured: event 16 ≈ raw step 10⁸; event 20,000 ≈
+raw step 10⁷⁰⁴⁶.</p></div>
+
+<h2 id="bridge">3 · The hydra bridge — is it *the* conjecture?</h2>
+<p class="filecrumb">Bridge/Conjecture.lean · 201 lines</p>
+<div class="card"><div class="head"><span class="chip def">def</span><span class="name">hydraNext · HydraState · hydraStep · HydraSafe</span></div>
+<pre><code>hydraNext b := b + b / 2                        -- H(b) = ⌊3b/2⌋
+HydraState  := { b : Nat, heads : Nat }
+hydraStep s := if s.b % 2 = 0     then some (H b, heads + 2)
+               else if 2 ≤ heads then some (H b, heads − 1)
+               else none                        -- odd value, starving counter
+hydraOrbit 0 = some (12, 2) ;  HydraSafe := ∀ k, hydraOrbit k ≠ none</code></pre></div>
+<div class="card"><div class="head"><span class="chip thm">theorem</span><span class="name">RelHA · relHA_step · hydraSafe_nonhalting</span></div>
+<pre><code>RelHA s h := (s.m = 1 ∨ s.m = 2) ∧ s.c % 3 = 2
+           ∧ h.b = s.m + 2·(s.c − 2)/3 + 5     -- the change of variables
+           ∧ h.heads = s.a                      -- machine counter = heads
+
+relHA_step : RelHA s h → (both die) ∨ (∃ s' h', both step ∧ RelHA s' h')
+hydraSafe_iff_safeOrbitA : HydraSafe ↔ SafeOrbitA
+hydraSafe_nonhalting : HydraSafe → ¬ RawHalts blankStart</code></pre>
+<table class="vars"><tr><th>variable</th><th>meaning</th></tr>
+<tr><td>b = m + 2(c−2)/3 + 5</td><td>the hydra value hidden in the record: pre-volley block length + 5</td></tr>
+<tr><td>c % 3 = 2</td><td>boundary invariant: every event state's c has this residue — it makes (c−2)/3 exact</td></tr>
+<tr><td>parity</td><td>b even ⇔ m = 1 ⇔ merge (+2) · b odd ⇔ m = 2 ⇔ drop (−1)</td></tr></table>
+<p><b>Proof.</b> Lock-step simulation: for merges and live drops, the
+closed forms of <code>estep</code> reduce both sides and <code>omega</code>
+verifies the b-arithmetic; deaths coincide exactly (drop needs
+<code>a ≥ 2</code> ⇔ odd step needs <code>heads ≥ 2</code>).</p>
+<div class="note"><b>The honest delta.</b> The wiki's process dies at
+counter = 0; ours at ≤ 1, one drop earlier, because <code>Realizes</code>
+needs a non-empty counter block (conjunct ② of the grammar). So
+<code>HydraSafe</code> is possibly strictly stronger than the community
+statement — documented everywhere the claim appears; closing the
+<code>a = 0</code> grammar case is open work.</div></div>
+
+<h2 id="palomar">4 · Palomar entries — auditable repackaging</h2>
+<p class="filecrumb">Palomar/*.lean · three comparator configs · palomar-meta/*/formalization.yaml</p>
+<div class="card"><div class="head"><span class="chip def">pattern</span><span class="name">Challenge ⇄ transport ⇄ Solution</span></div>
+<p>Each entry's <b>Challenge</b> re-defines everything from scratch
+(zero imports, 79–153 lines, sorried statements) so a reviewer audits a
+single small file. Its <b>Solution</b> re-declares the same names and
+proves them by <b>transport</b>: state maps (<code>stMap</code>,
+<code>cMap</code>, <code>tMap</code>, <code>aMap</code>, <code>hMap</code>),
+step commutations (<code>step_map</code> — 12-case, <code>astep_map</code>,
+<code>hydraOrbit_map</code>), orbit inductions, then the certified theorem
+pulled across. Comparator will verify statement-identity and the axiom
+set kernel-side; the local validator already passes everything except the
+repository LICENSE.</p>
+<pre><code>entry 1  antihydra_nonhalting        : HydraSafe → ¬ Halts       (120-line challenge)
+entry 2  astep_dies_iff + boundary_checking_complete             (79-line challenge)
+entry 3  dossier1_nonhalting         : SafeOrbit → ¬ Halts       (153-line challenge)</code></pre></div>
+
+<h2 id="dragon">5 · Flying Dragon — the proposed mathematics</h2>
+<p class="filecrumb">packages/flying-dragon · never imported by the certified packages</p>
+<h3 id="dragon-charts">What exists: exact charts</h3>
+<div class="card"><div class="head"><span class="chip def">def</span><span class="name">simplexChart · log2Chart · h2Chart</span></div>
+<pre><code>simplexChart (a,m,c) := (a/Σ, m/Σ, c/Σ)  as exact Frac, Σ = a+m+c
+  -- simplexChart_sum : numerators sum to the common denominator
+log2Chart := (log₂(a+1), log₂(m+1), log₂(c+1))     -- additive shadow of growth
+h2Chart   := (a − c, Σ + 1)                        -- upper-half-plane surrogate
+  -- h2Chart_y_pos : the y-coordinate is always positive (a real ℍ² point)</code></pre>
+<p>Exact rational/integer counterparts of the Python atlas charts. The
+death condition <code>m = 0</code> is literally a <em>face</em> of the
+simplex: “the orbit dies” becomes “the trajectory touches the wall.”</p></div>
+<h3 id="dragon-program">The proposed program, honestly framed</h3>
+<div class="card"><div class="head"><span class="chip conj">proposed</span><span class="name">incision geometry</span></div>
+<p>Orbit values explode like 1.5ᵏ, so Euclidean plots degenerate; the
+proposal is that log / projective / hyperbolic coordinates are where a
+machine-characteristic <em>incision figure</em> lives. Three tiers, in
+increasing ambition:</p>
+<table class="vars"><tr><th>tier</th><th>claim</th><th>status</th></tr>
+<tr><td>certified acceleration</td><td>boundary-only checking, event costs in closed form</td><td>proven (§2) + being extended now</td></tr>
+<tr><td>empirical atlas</td><td>incision figures match within delta-rule families</td><td>first pass done (stage756): 3+2 machines pair up; raw charts need log scaling</td></tr>
+<tr><td>invariant regions</td><td>an estep-invariant region at positive distance from the death face ⇒ <b>unconditional</b> non-halting</td><td>open; impossible for Antihydra-class machines unless the conjecture falls — scoped to cohort machines whose clouds look confined</td></tr></table>
+<div class="note">No known invariant separates Antihydra's orbit from its
+death set — if one existed the conjecture would be solved. Tier 3 is a
+search, not a promise; a null result is a publishable finding.</div></div>
+<h3 id="dragon-next">Construction now underway</h3>
+<div class="card"><div class="head"><span class="chip def">next</span><span class="name">FlyingDragon.EventCost · FlyingDragon.Margin</span></div>
+<pre><code>-- certified per-event raw-step cost (what the Python atlas only computes):
+ruleCost  : merge (a,1,c) ↦ 2a+2c+22 · drop (a,2,c) ↦ 2c+15
+volleyCost j = Σ_{i&lt;j} (2(2+3i)+11) = 3j² + 12j      -- closed form, proven
+eventCost s := ruleCost s + volleyCost (skip length of the next volley)
+
+-- the death margin as a certified quantity on the event orbit:
+margin s := s.a − 2   at drop-boundary states       -- dies below 0
+heads accounting : heads after k events = 2 + 2·merges(k) − drops(k)</code></pre>
+<p>These make the atlas's acceleration and margin curves <em>theorems</em>
+instead of measurements — the first bricks of tier 1's extension and the
+vocabulary tier 3's invariant statements will be written in.</p></div>
+<p class="filecrumb">Companion: “Busy Beaver Core Anatomy” — the trust base beneath all of this.</p>
+</main></div>
