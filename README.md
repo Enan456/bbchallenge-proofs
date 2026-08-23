@@ -97,6 +97,43 @@ proofs of non-halting.
   asking on the forum/Discord about unpublished verdicts**).
 - `docs/results/` — the cumulative results document.
 
+## Standing on the shoulders of giants: Rocq parity and the proof alongside the decider
+
+This project deliberately builds on — and stays checkable against — the
+bbchallenge community's foundations. BB(5) = 47,176,870 was settled in
+**Rocq** (Coq-BB5), and Rocq remains the community's reference system;
+the official BB(6) open-set list, the standard machine text format, and
+the wiki's cryptid analyses (including the Antihydra hydra recurrence our
+bridge theorem targets) are all community work this repo consumes rather
+than reinvents.
+
+Rather than porting Rocq code, we rebuilt the same raw TM semantics
+natively in core Lean and then made parity with that tradition
+*checkable at three independent levels*:
+
+1. **Parser parity (kernel-checked):** the published standard-format codes,
+   parsed by an in-Lean parser, provably equal our hand-written transition
+   tables (`Bridge/Format.lean`, axioms `[propext]`, with corrupted-code
+   negative controls) — the formal object is the community's machine.
+2. **Differential execution:** the proved `step`, run executably, is
+   byte-identical over thousands of steps against an independent reference
+   simulator (`tests/lean_parity/`).
+3. **Semantic bisimulation (theorem):** the Rocq tradition's zipper tape
+   (`left × current × right`) is proven step-for-step equivalent to our
+   functional `Int → Bool` tape — `zipper_halts_iff : ZHalts zBlank ↔
+   RawHalts blankStart` (`Bridge/Bisimulation.lean`), so any halting
+   argument in either representation is an argument in the other.
+
+The proofs were **developed alongside the decider pipeline, not after
+it**: the `qgkit` decider chain and exact macro-system fitter surfaced
+each machine's record rules empirically (fail-closed, 100% replay), the
+stage750/753 obligation dischargers said exactly which statements needed
+proving, and the Lean layer then certified those statements for all block
+values — with the empirical layer demoted to evidence the moment the
+theorem landed. Each side checks the other: the deciders found the
+structure, the proofs fixed it, and the differential traces tie the two
+together.
+
 ## Reproduction
 
 Python side (needs `numpy`, `tqdm`; run from repo root):

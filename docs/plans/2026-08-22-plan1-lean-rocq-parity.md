@@ -6,8 +6,12 @@
 > `tests/lean_parity/`, 4/4 green; deviation: the Python reference is a
 > self-contained ~30-line stepper in the test file rather than qgkit — a
 > cleaner independence claim).  Task 5 script DONE (`scripts/check_lean.sh`,
-> gate OK); CI workflow pending repo publication.  Tasks 3–4 (written Rocq
-> correspondence; zipper-tape bisimulation) remain open.
+> gate OK); CI workflow pending repo publication.  Task 4 DONE (2026-08-23:
+> `packages/dossier1/Bridge/Bisimulation.lean` — zipper-tape semantics
+> proven step-for-step equivalent to the functional tape;
+> `zipper_halts_iff` at `[propext, Quot.sound]`; README gained the
+> shoulders-of-giants commentary). Task 3 (pinned Coq-BB5 written
+> correspondence) remains open.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use
 > superpowers:subagent-driven-development (recommended) or
