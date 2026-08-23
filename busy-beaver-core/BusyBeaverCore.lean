@@ -1,2 +1,4 @@
 import BusyBeaverCore.Dossier1RawTM
 import BusyBeaverCore.AntihydraRawTM
+import BusyBeaverCore.Dossier2RawTM
+import BusyBeaverCore.Dossier3RawTM

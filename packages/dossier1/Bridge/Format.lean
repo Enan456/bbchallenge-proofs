@@ -1,5 +1,7 @@
 import BusyBeaverCore.AntihydraRawTM
 import BusyBeaverCore.Dossier1RawTM
+import BusyBeaverCore.Dossier2RawTM
+import BusyBeaverCore.Dossier3RawTM
 
 /-!
 # Standard-format parser and table-equality theorems (plan 1, task 1)
@@ -209,6 +211,73 @@ theorem parse_detects_corruption :
 
 end Dossier1
 
+
+/-! ## Dossier2 -/
+
+namespace Dossier2
+
+open QIG.Dossier2RawTM
+
+def stIdx : State → Nat
+  | .A => 0 | .B => 1 | .C => 2 | .D => 3 | .E => 4 | .F => 5
+
+def dirR : Dir → Bool
+  | .L => false | .R => true
+
+def encodeEntry (i : Option Instr) : Entry :=
+  i.map fun i => (stIdx i.next, i.write, dirR i.dir)
+
+def tableOfF (f : State → Bool → Option Instr) : List Entry :=
+  [encodeEntry (f .A false), encodeEntry (f .A true),
+   encodeEntry (f .B false), encodeEntry (f .B true),
+   encodeEntry (f .C false), encodeEntry (f .C true),
+   encodeEntry (f .D false), encodeEntry (f .D true),
+   encodeEntry (f .E false), encodeEntry (f .E true),
+   encodeEntry (f .F false), encodeEntry (f .F true)]
+
+/-- `1RB1RC_1LC1LC_1RE0LD_1LB1RF_---1RA_0RD1RD`, as characters. -/
+def codeChars : List Char :=
+  ['1', 'R', 'B', '1', 'R', 'C', '_', '1', 'L', 'C', '1', 'L', 'C', '_',
+   '1', 'R', 'E', '0', 'L', 'D', '_', '1', 'L', 'B', '1', 'R', 'F', '_',
+   '-', '-', '-', '1', 'R', 'A', '_', '0', 'R', 'D', '1', 'R', 'D']
+
+theorem parse_ok : parseEntries codeChars = some (tableOfF instr) := by decide
+
+end Dossier2
+
+/-! ## Dossier3 -/
+
+namespace Dossier3
+
+open QIG.Dossier3RawTM
+
+def stIdx : State → Nat
+  | .A => 0 | .B => 1 | .C => 2 | .D => 3 | .E => 4 | .F => 5
+
+def dirR : Dir → Bool
+  | .L => false | .R => true
+
+def encodeEntry (i : Option Instr) : Entry :=
+  i.map fun i => (stIdx i.next, i.write, dirR i.dir)
+
+def tableOfF (f : State → Bool → Option Instr) : List Entry :=
+  [encodeEntry (f .A false), encodeEntry (f .A true),
+   encodeEntry (f .B false), encodeEntry (f .B true),
+   encodeEntry (f .C false), encodeEntry (f .C true),
+   encodeEntry (f .D false), encodeEntry (f .D true),
+   encodeEntry (f .E false), encodeEntry (f .E true),
+   encodeEntry (f .F false), encodeEntry (f .F true)]
+
+/-- `1RB1RB_1LC0RE_---1LD_0RA1LB_1RA1LF_0LE1LE`, as characters. -/
+def codeChars : List Char :=
+  ['1', 'R', 'B', '1', 'R', 'B', '_', '1', 'L', 'C', '0', 'R', 'E', '_',
+   '-', '-', '-', '1', 'L', 'D', '_', '0', 'R', 'A', '1', 'L', 'B', '_',
+   '1', 'R', 'A', '1', 'L', 'F', '_', '0', 'L', 'E', '1', 'L', 'E']
+
+theorem parse_ok : parseEntries codeChars = some (tableOfF instr) := by decide
+
+end Dossier3
+
 /-! ## String display forms (quarantined: these two lemmas alone use
 `String.toList`, which transitively reports `Classical.choice`) -/
 
@@ -229,4 +298,6 @@ end QIG.Parity
 #print axioms QIG.Parity.Antihydra.instr_unique
 #print axioms QIG.Parity.Dossier1.parse_ok
 #print axioms QIG.Parity.Dossier1.parse_detects_corruption
+#print axioms QIG.Parity.Dossier2.parse_ok
+#print axioms QIG.Parity.Dossier3.parse_ok
 #print axioms QIG.Parity.antihydra_code_chars
