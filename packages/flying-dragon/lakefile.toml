@@ -1,14 +1,14 @@
-name = "extensions"
+name = "flying-dragon"
 version = "0.1.0"
 keywords = ["busy-beaver", "bbchallenge", "geometry"]
-defaultTargets = ["Extensions"]
+defaultTargets = ["FlyingDragon"]
 
 [leanOptions]
 relaxedAutoImplicit = false
 
 [[require]]
-name = "bbchallenge"
-path = "../bbchallenge"
+name = "dossier1"
+path = "../dossier1"
 
 [[lean_lib]]
-name = "Extensions"
+name = "FlyingDragon"

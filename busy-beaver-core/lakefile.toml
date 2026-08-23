@@ -1,10 +1,10 @@
-name = "BBChallenge"
+name = "busy-beaver-core"
 version = "0.1.0"
 keywords = ["busy-beaver", "bbchallenge"]
-defaultTargets = ["BBChallenge"]
+defaultTargets = ["BusyBeaverCore"]
 
 [leanOptions]
 relaxedAutoImplicit = false
 
 [[lean_lib]]
-name = "BBChallenge"
+name = "BusyBeaverCore"

@@ -7,7 +7,7 @@ it does **not** claim.  Updated 2026-08-22 (packages split + bridge layer).
 
 ### Proven, machine-checked, axioms `[propext, Quot.sound]`, no sorry
 
-In `lean/BBChallenge/AntihydraRawTM.lean`:
+In `busy-beaver-core/BusyBeaverCore/AntihydraRawTM.lean`:
 
 - `step_eq_none_iff` — the machine halts in one step iff it is in state `F`
   reading `0`.
@@ -20,7 +20,7 @@ In `lean/BBChallenge/AntihydraRawTM.lean`:
   from blank tape is formally reduced to the abstract triple-orbit
   conjecture `SafeOrbitA`.
 
-In `packages/bbchallenge/Bridge/` (2026-08-22):
+In `packages/dossier1/Bridge/` (2026-08-22):
 
 - `parse_ok` (axioms `[propext]`) — the bbchallenge standard-format code,
   parsed mechanically, equals the hand-written transition table (with a
@@ -61,8 +61,8 @@ deltas, both machine-checked where they live and documented in
 - Halt localization to the `C`-probe of `00`; all seven record transitions
   for all block values; the 35-step startup; the chain-state tape grammar;
   the segment induction; `safeOrbit_nonhalting : SafeOrbit → ¬ RawHalts
-  blankStart` (`lean/BBChallenge/Dossier1RawTM.lean`).
-- `parse_ok` for its standard-format code (`packages/bbchallenge`).
+  blankStart` (`busy-beaver-core/BusyBeaverCore/Dossier1RawTM.lean`).
+- `parse_ok` for its standard-format code (`packages/dossier1`).
 
 ### Assumed
 

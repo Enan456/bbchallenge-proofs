@@ -16,7 +16,7 @@ Python charts mirror, so that any future invariant-region statement has a
 formal home.
 -/
 
-namespace QIG.Extensions
+namespace QIG.FlyingDragon
 
 open QIG.AntihydraRawTM
 
@@ -66,7 +66,7 @@ theorem h2Chart_y_pos_eorbit {k : Nat} {s : AState} (h : eorbit k = some s) :
     0 < (h2Chart s).2 :=
   h2Chart_y_pos s
 
-end QIG.Extensions
+end QIG.FlyingDragon
 
-#print axioms QIG.Extensions.simplexChart_sum
-#print axioms QIG.Extensions.h2Chart_y_pos
+#print axioms QIG.FlyingDragon.simplexChart_sum
+#print axioms QIG.FlyingDragon.h2Chart_y_pos

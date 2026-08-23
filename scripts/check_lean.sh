@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Axiom-gated build of all Lean packages (plan 1, task 5).
 #
-# Builds lean/, packages/bbchallenge/, packages/extensions/ and fails if any
+# Builds busy-beaver-core/, packages/dossier1/, packages/flying-dragon/ and fails if any
 # `#print axioms` report contains an axiom outside the allowed set.
 # The only tolerated exception is Bridge/Format.lean's two quarantined
 # String-display lemmas (`*_code_chars`), which are documented to use
@@ -17,7 +17,7 @@ export PATH="$HOME/.elan/bin:$PATH"
 LOG="$(mktemp)"
 trap 'rm -f "$LOG"' EXIT
 
-for pkg in lean packages/bbchallenge packages/extensions; do
+for pkg in busy-beaver-core packages/dossier1 packages/flying-dragon; do
   echo "== lake build: $pkg"
   (cd "$ROOT/$pkg" && lake build) 2>&1 | tee -a "$LOG"
 done

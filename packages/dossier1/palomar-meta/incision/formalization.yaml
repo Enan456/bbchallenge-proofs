@@ -37,7 +37,7 @@ sources:
     note: >-
       The incision decomposition, the closed-form volley, and the
       soundness-and-completeness equivalence are first presented in this
-      repository (packages/bbchallenge/Bridge/Incision.lean and this
+      repository (packages/dossier1/Bridge/Incision.lean and this
       Challenge/Solution pair).
   - title: "Antihydra — BusyBeaverWiki"
     type: web discussion

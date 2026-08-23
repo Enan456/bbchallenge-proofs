@@ -3,7 +3,7 @@
 
 Mechanically re-implements the intake checks of the Palomar registry
 (palomar-registry.org; policy at PalomarRegistry/PalomarPolicy@CONTRIBUTING.md)
-for the three Challenge/Solution entries in packages/bbchallenge:
+for the three Challenge/Solution entries in packages/dossier1:
 
   * comparator.json shape: exactly the required keys, permitted_axioms a
     subset of {propext, Quot.sound, Classical.choice}, nonempty theorem list;
@@ -38,7 +38,7 @@ import sys
 import yaml
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
-PKG = REPO / "packages" / "bbchallenge"
+PKG = REPO / "packages" / "dossier1"
 
 ALLOWED_AXIOMS = {"propext", "Quot.sound", "Classical.choice"}
 REQUIRED_KEYS = {"challenge_module", "solution_module", "theorem_names",

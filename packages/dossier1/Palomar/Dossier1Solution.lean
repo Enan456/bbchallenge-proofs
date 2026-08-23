@@ -1,4 +1,4 @@
-import BBChallenge.Dossier1RawTM
+import BusyBeaverCore.Dossier1RawTM
 
 /-!
 # Solution: dossier-1 does not halt, conditional on its orbit conjecture

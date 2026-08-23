@@ -1,4 +1,4 @@
-import BBChallenge.AntihydraRawTM
+import BusyBeaverCore.AntihydraRawTM
 
 /-!
 # Incision layer for Antihydra (plan 3, tasks 1–2)

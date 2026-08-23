@@ -39,7 +39,7 @@ sources:
     note: >-
       The machine's macro-system analysis, chain-state grammar, and the
       machine-checked reduction are first presented in this repository
-      (lean/BBChallenge/Dossier1RawTM.lean and this Challenge/Solution
+      (busy-beaver-core/BusyBeaverCore/Dossier1RawTM.lean and this Challenge/Solution
       pair); the machine itself is drawn from the community's official
       BB(6) open set.
   - title: "The Busy Beaver Challenge (bbchallenge) BB(6) open machine list"

@@ -1,5 +1,5 @@
-import BBChallenge.AntihydraRawTM
-import BBChallenge.Dossier1RawTM
+import BusyBeaverCore.AntihydraRawTM
+import BusyBeaverCore.Dossier1RawTM
 
 /-!
 # Differential-trace executable (plan 1, task 2)

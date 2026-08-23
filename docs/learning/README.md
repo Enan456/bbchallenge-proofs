@@ -23,15 +23,15 @@ Corresponding action plans:
 The core tasks of all three plans are implemented in the `packages/` split
 (see `packages/README.md`):
 
-- **Plan 1**: `packages/bbchallenge/Bridge/Format.lean` (parser +
+- **Plan 1**: `packages/dossier1/Bridge/Format.lean` (parser +
   `decide`-proved table equality, axioms `[propext]`), the `trace`
   executable + `tests/lean_parity/` differential tests (4/4 passing).
-- **Plan 2**: `packages/bbchallenge/Bridge/Conjecture.lean` — the bridge
+- **Plan 2**: `packages/dossier1/Bridge/Conjecture.lean` — the bridge
   `hydraSafe_iff_safeOrbitA` / `hydraSafe_nonhalting` to the community's 1-D
   hydra recurrence; `docs/submissions/statement-of-claims.md`.
-- **Plan 3**: `packages/bbchallenge/Bridge/Incision.lean` — the certified
+- **Plan 3**: `packages/dossier1/Bridge/Incision.lean` — the certified
   boundary-only-checking theorem `eventSafe_iff_safeOrbitA`;
-  `packages/extensions/` (exact charts); `qgkit/bb6/geometry/` +
+  `packages/flying-dragon/` (exact charts); `qgkit/bb6/geometry/` +
   `experiments/stage756_incision_atlas.py` (the empirical atlas).
 - Gate: `scripts/check_lean.sh` (build + axiom check for all three
   packages).  Results: `docs/results/2026-08-22-packages-bridge-incision.md`.

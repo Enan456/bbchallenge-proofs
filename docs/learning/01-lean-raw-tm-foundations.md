@@ -1,9 +1,9 @@
 # Set 1 — The traditional busy-beaver formal layer (raw TM semantics in Lean)
 
 **Files today:** the first ~430 lines of both
-`lean/BBChallenge/Dossier1RawTM.lean` and `lean/BBChallenge/AntihydraRawTM.lean`
+`busy-beaver-core/BusyBeaverCore/Dossier1RawTM.lean` and `busy-beaver-core/BusyBeaverCore/AntihydraRawTM.lean`
 (currently duplicated per machine; consolidation into a shared
-`BBChallenge/RawTM.lean` kernel is planned).
+`BusyBeaverCore/RawTM.lean` kernel is planned).
 
 ## What this layer is
 

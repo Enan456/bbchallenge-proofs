@@ -50,20 +50,20 @@ proofs of non-halting.
 
 ## Layout
 
-- `packages/` — the Lean package split on top of `lean/` (see
-  `packages/README.md` and `docs/learning/`): `packages/bbchallenge/` (the
+- `packages/` — the Lean package split on top of `busy-beaver-core/` (see
+  `packages/README.md` and `docs/learning/`): `packages/dossier1/` (the
   certified bridge layer — standard-format parser parity, the incision
   boundary-only-checking theorem `eventSafe_iff_safeOrbitA`, and the 1-D
   hydra bridge `hydraSafe_nonhalting`; plus the `trace` differential-test
-  executable) and `packages/extensions/` (exact geometric charts; never
+  executable) and `packages/flying-dragon/` (exact geometric charts; never
   imported by the certified packages).  `scripts/check_lean.sh` builds all
   three packages under the axiom gate.
-- `lean/` — standalone Lake package (`lake build` inside `lean/`; core-only,
+- `busy-beaver-core/` — standalone Lake package (`lake build` inside `busy-beaver-core/`; core-only,
   no mathlib), all axiom-clean (`propext`, `Quot.sound`), no sorry.
-  - `BBChallenge/Dossier1RawTM.lean`: halt ⟺ F reads 0; F entered only via
+  - `BusyBeaverCore/Dossier1RawTM.lean`: halt ⟺ F reads 0; F entered only via
     `C0`; any halt passes through a reachable C-probe of a `00` pattern;
     `CProbeSafe blankStart → ¬RawHalts blankStart`.
-  - `BBChallenge/AntihydraRawTM.lean`: the Antihydra mirror — halt ⟺ F
+  - `BusyBeaverCore/AntihydraRawTM.lean`: the Antihydra mirror — halt ⟺ F
     reads 0; F entered only via `E0` (write 1, move left); any halt passes
     through a reachable E-probe of `00` on the left;
     `EProbeSafe blankStart → ¬RawHalts blankStart` — precisely the contract
@@ -109,7 +109,7 @@ python experiments/stage751_open_set_observatory.py --input experiments/outputs/
 Lean side:
 
 ```sh
-cd lean && lake build
+cd busy-beaver-core && lake build
 ```
 
 `#print axioms` at the bottom of `Dossier1RawTM.lean` must report only

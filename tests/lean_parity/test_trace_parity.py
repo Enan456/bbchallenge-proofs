@@ -1,7 +1,7 @@
 """Differential parity test: Lean's proved `step` semantics vs an independent
 Python reference simulator (plan 1, task 2).
 
-The Lean side is `packages/bbchallenge`'s `trace` executable, which iterates
+The Lean side is `packages/dossier1`'s `trace` executable, which iterates
 the *proved* `step` function from `blankStart` and prints one line per step:
 ``index state head window`` with ``window`` = the 33 cells [head-16, head+16].
 
@@ -12,7 +12,7 @@ the traces is the test.
 
 Run: python3 -m pytest tests/lean_parity/ -v
 The test skips (does not fail) if the Lean executable has not been built:
-    cd packages/bbchallenge && lake build trace
+    cd packages/dossier1 && lake build trace
 """
 
 from __future__ import annotations
@@ -23,7 +23,7 @@ import subprocess
 import pytest
 
 REPO = pathlib.Path(__file__).resolve().parents[2]
-TRACE_BIN = REPO / "packages" / "bbchallenge" / ".lake" / "build" / "bin" / "trace"
+TRACE_BIN = REPO / "packages" / "dossier1" / ".lake" / "build" / "bin" / "trace"
 
 MACHINES = {
     "antihydra": "1RB1RA_0LC1LE_1LD1LC_1LA0LB_1LF1RE_---0RA",
@@ -73,7 +73,7 @@ def trace_bin():
     if not TRACE_BIN.exists():
         pytest.skip(
             "Lean trace executable not built "
-            "(cd packages/bbchallenge && lake build trace)"
+            "(cd packages/dossier1 && lake build trace)"
         )
     return TRACE_BIN
 
