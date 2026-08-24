@@ -496,6 +496,54 @@ theorem spawn_step {cfg : Config} {p : Int}
   · rw [p6] at hkd
     rw [← Option.some_inj.mp hkd] at hC; simp at hC
 
+
+/-- **The sweep-pair induction**: the `D↔F` gait crosses `2n` ones
+without touching the tape.  Informally: the return stroke of the traversal
+rule — each pair of steps rewrites `1` over `1` twice (D then F),
+so after any number of pairs the tape function is *literally unchanged*
+and the head has moved `2n` cells.  Built by induction on the pair count
+from the two proven atoms. -/
+theorem sweep_DF :
+    ∀ (n : Nat) (c : Config), c.state = State.D →
+      (∀ i : Nat, i < 2 * n → c.tape (c.head + i) = true) →
+      stepN (2 * n) c = some ⟨State.D, c.head + (2 * n : Int), c.tape⟩ := by
+  intro n
+  induction n with
+  | zero =>
+      intro c hs _
+      obtain ⟨s, h, t⟩ := c
+      simp_all [stepN]
+  | succ n ih =>
+      intro c hs hones
+      have h0 : c.tape c.head = true := by
+        have := hones 0 (by omega)
+        simpa using this
+      have h1 : c.tape (c.head + 1) = true := by
+        have := hones 1 (by omega)
+        rwa [show c.head + ((1 : Nat) : Int) = c.head + 1 by omega] at this
+      have hstep1 := step_D_on_one hs h0
+      have hstep2 : step ⟨State.F, c.head + 1, c.tape⟩
+          = some ⟨State.D, c.head + 1 + 1, c.tape⟩ :=
+        step_F_on_one rfl h1
+      have hnext := ih ⟨State.D, c.head + 1 + 1, c.tape⟩ rfl
+        (fun i hi => by
+          have := hones (i + 2) (by omega)
+          show c.tape (c.head + 1 + 1 + (i : Int)) = true
+          rwa [show c.head + ((i + 2 : Nat) : Int)
+                = c.head + 1 + 1 + (i : Int) by omega] at this)
+      have a2 : stepN 2 c = some ⟨State.D, c.head + 1 + 1, c.tape⟩ := by
+        simp [stepN, hstep1, hstep2]
+      have hcomp : stepN (2 * (n + 1)) c
+          = (stepN 2 c).bind (stepN (2 * n)) := by
+        rw [show 2 * (n + 1) = 2 + 2 * n by omega, stepN_add]
+      simp only at hnext
+      rw [hcomp, a2]
+      show stepN (2 * n) ⟨State.D, c.head + 1 + 1, c.tape⟩
+          = some ⟨State.D, c.head + (2 * ((n + 1 : Nat) : Int)), c.tape⟩
+      rw [hnext,
+          show c.head + 1 + 1 + 2 * (n : Int)
+            = c.head + 2 * ((n + 1 : Nat) : Int) from by omega]
+
 end QIG.Dossier2RawTM
 
 #print axioms QIG.Dossier2RawTM.halt_requires_c_probe_00
@@ -504,3 +552,4 @@ end QIG.Dossier2RawTM
 #print axioms QIG.Dossier2RawTM.csafe_of_checkSafe
 #print axioms QIG.Dossier2RawTM.step_D_on_one
 #print axioms QIG.Dossier2RawTM.spawn_step
+#print axioms QIG.Dossier2RawTM.sweep_DF
