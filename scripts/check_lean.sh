@@ -17,7 +17,7 @@ export PATH="$HOME/.elan/bin:$PATH"
 LOG="$(mktemp)"
 trap 'rm -f "$LOG"' EXIT
 
-for pkg in busy-beaver-core packages/dossier1 packages/flying-dragon; do
+for pkg in busy-beaver-core packages/dossier1 packages/flying-dragon packages/forge; do
   echo "== lake build: $pkg"
   (cd "$ROOT/$pkg" && lake build) 2>&1 | tee -a "$LOG"
 done

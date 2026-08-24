@@ -1,0 +1,14 @@
+name = "forge"
+version = "0.1.0"
+keywords = ["busy-beaver", "bbchallenge", "forge"]
+defaultTargets = ["Forge"]
+
+[leanOptions]
+relaxedAutoImplicit = false
+
+[[require]]
+name = "dossier1"
+path = "../dossier1"
+
+[[lean_lib]]
+name = "Forge"
