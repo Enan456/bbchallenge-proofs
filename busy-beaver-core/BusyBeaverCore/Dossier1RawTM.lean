@@ -170,7 +170,11 @@ theorem stepN_some_pred :
           exact ⟨e, by simpa [stepN, hstep] using he, hlast⟩
 
 /-- Halt localization: from any non-`F` start, a raw halt forces a reachable
-configuration where `C` reads a `0` whose right neighbour is also `0`. -/
+configuration where `C` reads a `0` whose right neighbour is also `0`. 
+
+Informally: dossier-1's two-cell death pattern — mirror-image of
+Antihydra's, with `C` probing rightward.  A halting run must first stand
+in `C` on a `0` whose right neighbour is also `0`. -/
 theorem halt_requires_c_probe_00 {c : Config} (hne : c.state ≠ State.F)
     (hh : RawHalts c) :
     ∃ d : Config, Reaches c d ∧ d.state = State.C ∧
@@ -750,7 +754,13 @@ theorem catTape_end :
 /-- **The dominant rule, end to end.**  From an L-record of shape
 `(1, m+4, 1)` with single-0 gaps: exactly `13 + 5m` raw steps, ending in
 state `E` at the new right frontier, and every C-probe of a `0` along the
-way has a `1` to its right — for all `m`. -/
+way has a `1` to its right — for all `m`. 
+
+Informally: the machine's bread-and-butter rule as one theorem —
+a 7-step prefix containing the rule's *only* `C0` probe (guarded by the
+first `1` of the middle block), then the C0-free caterpillar across the
+unbounded middle, then a 6-step suffix to the new frontier.  Exact count
+`13 + 5m`, safety certificate included, for every block length. -/
 theorem dominant_rule_run {c : Config} {p : Int} (m : Nat)
     (hs : c.state = State.A) (hh : c.head = p)
     (t0 : c.tape p = false) (t1 : c.tape (p + 1) = true)
@@ -3321,6 +3331,9 @@ positive number of steps to another `Inv`-configuration through a
 discharges one case of that checklist.
 -/
 
+/-- Informally: dossier-1's keystone — identical in spirit to Antihydra's:
+safety in pieces is safety forever, by strong induction on the number of
+segments preceding any given moment. -/
 theorem cprobe_safe_of_segments {Inv : Config → Prop} {c0 : Config}
     (h0 : Inv c0)
     (hseg : ∀ c, Inv c → ∃ k, 0 < k ∧ ∃ c', stepN k c = some c' ∧
@@ -3525,7 +3538,12 @@ def collapseTarget : List Nat → Nat → AState
   | x :: xs, n => AState.lvl (x :: xs) n 1
 
 /-- The abstract transition, mirroring the proven rule lemmas.  `none`
-marks the value patterns whose safety is exactly the orbit conjecture. -/
+marks the value patterns whose safety is exactly the orbit conjecture.
+
+Informally: the stack machine distilled from seven tape theorems —
+workhorses decrement `b` by 2 feeding `c`, a spawn pushes a level when
+`b = 2` (needing `c ≥ 4`), a collapse folds the last level into its
+parent when `b = 1`.  All tape has evaporated; only integers remain. -/
 def astep : AState → Option AState
   | AState.top n =>
       if 4 ≤ n then some (AState.lvl [2] (n - 2) 2) else none
@@ -5733,7 +5751,11 @@ theorem orbit_segment (hso : SafeOrbit) (cfg : Config) (hinv : OrbitInv cfg) :
             rw [show mb + 5 - 2 = mb + 3 by omega]
 
 /-- **THE MAIN THEOREM.**  Under the orbit conjecture `SafeOrbit`,
-dossier-1 never halts from the blank tape. -/
+dossier-1 never halts from the blank tape.
+
+Informally: the same four-layer composition as Antihydra's main theorem,
+over a deeper abstract state.  5,700 lines of certified dynamics, one
+remaining hypothesis — the `(3n+7)/2` checkpoint law. -/
 theorem safeOrbit_nonhalting (hso : SafeOrbit) : ¬ RawHalts blankStart :=
   nonhalting_of_orbit_segments (orbit_segment hso)
 

@@ -12,6 +12,10 @@ is the differential-parity test.
 
 The functional tape means step `i` costs `O(i)` cell reads, so keep `n` in
 the low thousands — this is a semantics cross-check, not a simulator.
+
+Informally: the proved mathematics, made to leave footprints — so an
+independent thirty-line stepper can confirm, byte for byte, that the
+object we prove about is the machine everyone else runs.
 -/
 
 def boolChar (b : Bool) : Char := if b then '1' else '0'

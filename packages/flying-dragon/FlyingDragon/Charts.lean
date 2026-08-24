@@ -54,7 +54,10 @@ theorem simplexChart_den (s : AState) :
       (simplexChart s).2.2.den = s.a + s.m + s.c :=
   ⟨rfl, rfl, rfl⟩
 
-/-- Integer log₂ chart: the additive shadow of multiplicative growth. -/
+/-- Integer log₂ chart: the additive shadow of multiplicative growth.
+
+Informally: orbits multiply; logarithms make them walk.  The exact
+integer form keeps the chart core-only. -/
 def log2Chart (s : AState) : Nat × Nat × Nat :=
   (Nat.log2 (s.a + 1), Nat.log2 (s.m + 1), Nat.log2 (s.c + 1))
 
@@ -64,6 +67,8 @@ in the upper half-plane). -/
 def h2Chart (s : AState) : Int × Nat :=
   ((s.a : Int) - (s.c : Int), s.a + s.m + s.c + 1)
 
+/-- Informally: the surrogate really lands in the upper half-plane — the
+minimal well-formedness a hyperbolic reading needs. -/
 theorem h2Chart_y_pos (s : AState) : 0 < (h2Chart s).2 := by
   simp [h2Chart]
 

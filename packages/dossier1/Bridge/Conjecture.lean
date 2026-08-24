@@ -39,7 +39,11 @@ deriving Repr, DecidableEq
 
 /-- One step of the community recurrence: `+2` heads on even values, `−1`
 on odd values; an odd value with `heads ≤ 1` is the death our tape grammar
-can no longer track. -/
+can no longer track.
+
+Informally: the hydra as the wiki tells it — a number growing by half
+itself, feeding or starving a counter by its parity.  No machine anywhere
+in this definition; that is the point of the bridge. -/
 def hydraStep (s : HydraState) : Option HydraState :=
   if s.b % 2 = 0 then some ⟨hydraNext s.b, s.heads + 2⟩
   else if 2 ≤ s.heads then some ⟨hydraNext s.b, s.heads - 1⟩
@@ -195,11 +199,17 @@ theorem hydraSafe_iff_eventSafe : HydraSafe ↔ EventSafe := by
     · rw [hhs]; simp
     · exact absurd hen (he k)
 
-/-- **THE BRIDGE.**  The 1-D form is exactly our orbit conjecture. -/
+/-- **THE BRIDGE.**  The 1-D form is exactly our orbit conjecture.
+
+Informally: the machine's fate and the arithmetic sequence's fate are one
+question, not two — proved by running the dictionary `RelHA` through
+every event. -/
 theorem hydraSafe_iff_safeOrbitA : HydraSafe ↔ SafeOrbitA :=
   hydraSafe_iff_eventSafe.trans eventSafe_iff_safeOrbitA
 
-/-- **Main corollary.**  If the 1-D hydra process (`b ↦ b + ⌊b/2⌋` from 12,
+/-- **Main corollary.**  Informally: prove the wiki's recurrence never
+starves its counter (one boundary case stronger, as documented above) and
+Antihydra never halts.  If the 1-D hydra process (`b ↦ b + ⌊b/2⌋` from 12,
 heads `+2` on even / `−1` on odd, never facing an odd value with heads
 `≤ 1`) runs forever, Antihydra never halts from the blank tape. -/
 theorem hydraSafe_nonhalting (h : HydraSafe) : ¬ RawHalts blankStart :=

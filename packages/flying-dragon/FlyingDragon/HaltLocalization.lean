@@ -30,7 +30,10 @@ namespace QIG.FlyingDragon
 open QIG.AntihydraRawTM
 
 /-- Structural invariant of event states: the boundary block is 1 or 2 and
-the companion block is nonempty. -/
+the companion block is nonempty.
+
+Informally: the event orbit never strays from the boundary — the shape
+fact that makes every later case analysis total. -/
 theorem eorbit_inv : ∀ (k : Nat) (s : AState), eorbit k = some s →
     (s.m = 1 ∨ s.m = 2) ∧ 1 ≤ s.c := by
   intro k
@@ -139,7 +142,10 @@ theorem halt_localized (k j : Nat) (s : AState) (h : eorbit k = some s)
 
 /-- Equivalent bound form: any orbit death lies at least `s.a` events past
 any live event state — the earliest *candidate* death index is computable
-from the current counter alone. -/
+from the current counter alone.
+
+Informally: halting has a projection — before taking a single further
+step you can name the first event index at which death is even possible. -/
 theorem projected_death_bound (k n : Nat) (s : AState)
     (h : eorbit k = some s) (hdead : eorbit n = none) (hkn : k ≤ n) :
     k + s.a ≤ n := by

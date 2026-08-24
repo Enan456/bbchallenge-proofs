@@ -54,6 +54,13 @@ def eorbit : Nat → Option (Nat × Nat × Nat)
 
 /-! ## Transport to the certified development -/
 
+/-! ## Transport: why re-declaring works
+
+The challenge defines its own copies of every type, so its theorems cannot
+simply cite ours.  The maps below are componentwise identities up to
+renaming; each commutation lemma is a finite case split or structural
+induction; the certified theorems then cross the bridge intact. -/
+
 def tMap (s : Nat × Nat × Nat) : QIG.AntihydraRawTM.AState :=
   ⟨s.1, s.2.1, s.2.2⟩
 

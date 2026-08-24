@@ -26,7 +26,11 @@ structure Machine where
   hentry : EntryOnly tbl spec
   hA : spec.haltSt ≠ St.A
 
-/-- The machine's probe contract, delivered by the generic theorems. -/
+/-- The machine's probe contract, delivered by the generic theorems.
+
+Informally: the forge's promise — hand over the data bundle and receive
+the reduction "probe safety implies never halts" with no further proof
+work. -/
 theorem Machine.blank_nonhalting (M : Machine)
     (hsafe : ProbeSafe M.tbl M.spec blankStart) :
     ¬ RawHalts M.tbl blankStart :=

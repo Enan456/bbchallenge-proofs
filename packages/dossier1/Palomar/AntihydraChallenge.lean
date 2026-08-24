@@ -114,7 +114,11 @@ dies. -/
 def HydraSafe : Prop := ∀ k, hydraOrbit k ≠ none
 
 /-- **Main result.**  Under the hydra conjecture, Antihydra never halts from
-the all-zero tape. -/
+the all-zero tape.
+
+Informally: everything above this line is the complete formal meaning of
+the claim — a reader who checks these 100 lines has checked the statement;
+the proof lives in the solution module and is compared by Comparator. -/
 theorem antihydra_nonhalting (hsafe : HydraSafe) : ¬ Halts := sorry
 
 end AntihydraChallenge

@@ -102,7 +102,11 @@ def stepN : Nat → Config → Option Config
       stepN n c'
 
 /-- The raw machine halts in one step exactly at the unique undefined
-transition `F0`. -/
+transition `F0`.
+
+Informally: twelve cases, one door.  The machine's program has a single
+undefined cell, and this case split is the whole proof that halting means
+standing on it. -/
 theorem step_eq_none_iff (c : Config) :
     step c = none ↔ c.state = State.F ∧ c.tape c.head = false := by
   cases hs : c.state <;> cases ht : c.tape c.head <;>
@@ -121,7 +125,11 @@ def blankStart : Config where
 
 /-- State `F` is entered only by `E` reading `0` (the transition
 `E0 = 1LF`): the predecessor is in state `E` on a `0`, and the successor
-sits one cell to the left with a `1` written at the probed cell. -/
+sits one cell to the left with a `1` written at the probed cell. 
+
+Informally: the turnstile into death — `F` is reachable only through
+`E` reading a `0`, stepping left, leaving a `1` behind.  So the final two
+configurations of any halting run are completely determined. -/
 theorem into_F_only_from_E0 {c c' : Config} (h : step c = some c')
     (hF : c'.state = State.F) :
     c.state = State.E ∧ c.tape c.head = false ∧
@@ -268,7 +276,12 @@ theorem step_E_on_one {c : Config} (hs : c.state = State.E)
   have hw := writeAt_self c.tape c.head ht
   simp [step, instr, hs, ht, move, hw]
 
-/-- State `E` sweeps right across `n` ones without touching the tape. -/
+/-- State `E` sweeps right across `n` ones without touching the tape.
+
+Informally: the three self-loop transitions rewrite `1` over `1`, so the
+tape function after the sweep is *literally equal* to the tape before —
+not merely equivalent.  These three lemmas are the atoms every macro rule
+decomposes into. -/
 theorem sweep_E :
     ∀ (n : Nat) (c : Config), c.state = State.E →
       (∀ i : Nat, i < n → c.tape (c.head + i) = true) →
@@ -1554,7 +1567,13 @@ theorem startTape_blank_right : ∀ x : Int, 6 ≤ x → startTape x = false := 
           writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega)]
   rfl
 
-/-- Transport for the hydra rule: `(a, m+3, c) → (a, m+1, c+3)`. -/
+/-- Transport for the hydra rule: `(a, m+3, c) → (a, m+1, c+3)`. 
+
+Informally: the abstract hydra rule, played on the tape.  Given a
+configuration realizing `(a, m+3, c)`, the proven trajectory of
+`hydra_step` runs and the eight grammar conjuncts are re-established for
+`(a, m+1, c+3)` — cell-by-cell bookkeeping, no new ideas.  Its two
+siblings do the same for drop and merge. -/
 theorem transport_hydra {cfg : Config} {a m c : Nat}
     (h : Realizes ⟨a, m + 3, c⟩ cfg) :
     ∃ (N : Nat) (cfg' : Config), 0 < N ∧ stepN N cfg = some cfg' ∧
@@ -2100,7 +2119,13 @@ theorem orbit_segment (hso : SafeOrbitA) (cfg : Config) (hinv : OrbitInv cfg) :
           else none) = _
     rw [if_pos (show 3 ≤ m' + 3 by omega), show m' + 3 - 2 = m' + 1 by omega]
 
-/-- **THE MAIN THEOREM.**  Under the Antihydra conjecture `SafeOrbitA`,
+/-- **THE MAIN THEOREM.**  Informally: four layers compose in one line —
+the dispatcher supplies safe segments, the keystone welds them into
+eternal probe safety, the startup prefix bolts on the first 62 steps, and
+the layer-2 contract concludes the machine never halts.  The only free
+hypothesis is the conjecture itself.
+
+Under the Antihydra conjecture `SafeOrbitA`,
 Antihydra never halts from the blank tape. -/
 theorem safeOrbitA_nonhalting (hso : SafeOrbitA) : ¬ RawHalts blankStart := by
   have hpost : EProbeSafe ⟨State.B, 6, startTape⟩ :=

@@ -104,7 +104,11 @@ def HaltIff : Prop :=
   ∀ s b, tbl s b = none ↔ (s = spec.haltSt ∧ b = false)
 
 /-- Instantiation fact 2: the halt state is entered only from
-`(probeSt, 0)`, writing `wr` and moving in `dir`. -/
+`(probeSt, 0)`, writing `wr` and moving in `dir`.
+
+Informally: together with `HaltIff`, this is *all* a machine must certify
+about itself to enter the forge — two sentences a 12-way case split checks
+mechanically.  Everything else is generic. -/
 def EntryOnly : Prop :=
   ∀ s b i, tbl s b = some i → i.next = spec.haltSt →
     s = spec.probeSt ∧ b = false ∧ i.write = spec.wr ∧ i.dir = spec.dir
@@ -236,7 +240,11 @@ theorem halt_requires_probe (hh : HaltIff tbl spec) (he : EntryOnly tbl spec)
       rwa [writeAt_other e.tape e.head (e.head + probeOff spec.dir) spec.wr
         (by cases hd : spec.dir <;> simp [probeOff, hd] <;> omega)] at hread
 
-/-- The generic probe-safety contract. -/
+/-- The generic probe-safety contract.
+
+Informally: the sentry condition, machine-independent — a `1` always
+guards the `dir`-side of whatever the probe state reads.  Discharging it
+is what the orbit layers of any particular machine are for. -/
 def ProbeSafe (c : Config) : Prop :=
   ∀ d : Config, Reaches tbl c d → d.state = spec.probeSt →
     d.tape d.head = false → d.tape (d.head + probeOff spec.dir) = true

@@ -23,7 +23,10 @@ namespace QIG.FlyingDragon
 open QIG.AntihydraRawTM
 
 /-- Number of merge events (`m = 1` boundary states) among the first `k`
-executed events. -/
+executed events.
+
+Informally: the ledger's credit column; `dropCount` is the debit column.
+The accounting theorem says the counter is exactly their balance. -/
 def mergeCount : Nat → Nat
   | 0 => 0
   | k + 1 =>
@@ -158,7 +161,10 @@ theorem heads_accounting :
               rw [hdead] at h
               exact absurd h (by simp)
 
-/-- Every executed event is a merge or a drop — event counts partition. -/
+/-- Every executed event is a merge or a drop — event counts partition.
+
+Informally: no third kind of event exists; the ledger's two columns
+account for everything a live orbit does. -/
 theorem event_is_merge_or_drop {k : Nat} {s : AState}
     (h : eorbit k = some s) (halive : eorbit (k + 1) ≠ none) :
     s.m = 1 ∨ s.m = 2 := by

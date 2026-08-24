@@ -134,6 +134,13 @@ def SafeOrbit : Prop := ∀ k, aorbit k ≠ none
 
 /-! ## Transport: the raw machine -/
 
+/-! ## Transport: why re-declaring works
+
+The challenge defines its own copies of every type, so its theorems cannot
+simply cite ours.  The maps below are componentwise identities up to
+renaming; each commutation lemma is a finite case split or structural
+induction; the certified theorems then cross the bridge intact. -/
+
 def stMap : St → QIG.Dossier1RawTM.State
   | .A => .A | .B => .B | .C => .C | .D => .D | .E => .E | .F => .F
 

@@ -147,7 +147,13 @@ theorem stepN_some_pred :
           obtain ⟨e, he, hlast⟩ := ih c1 d h1
           exact ⟨e, by simpa [stepN, hstep] using he, hlast⟩
 
-/-- Halt localization: any raw halt from a non-`C` start forces a reachable
+/-- Informally: the two-cell death pattern for this machine — a halting
+run must first stand in `B` on a `0` whose left neighbour is also
+`0`.  Same argument as its elder siblings: rewind to the last living
+configuration, enter through the unique turnstile, observe the fatal cell
+was not written by the entering step.
+
+Halt localization: any raw halt from a non-`C` start forces a reachable
 `B` reading a `0` whose LEFT neighbour is also `0`. -/
 theorem halt_requires_b_probe_00 {c : Config} (hne : c.state ≠ State.C)
     (hh : RawHalts c) :

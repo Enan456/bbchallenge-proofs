@@ -51,7 +51,11 @@ def stOf : Char → Option Nat
 
 /-- Parse a standard-format code character stream into entries.  Group
 separators `_` are skipped; `---` is the undefined transition; otherwise an
-entry is `<write><dir><next>`. -/
+entry is `<write><dir><next>`.
+
+Informally: the community's machine notation, executable inside the
+kernel — total, structural, and over `List Char` so that `decide` on it
+remains axiom-clean (over `String` it would drag in `Classical.choice`). -/
 def parseEntries : List Char → Option (List Entry)
   | [] => some []
   | '_' :: rest => parseEntries rest
@@ -113,7 +117,11 @@ table again. -/
 theorem parse_ok : parseEntries codeChars = some (tableOfF instr) := by decide
 
 /-- Negative control: a corrupted code (last entry `0RA → 0RB`) does *not*
-parse to our table, so `parse_ok` is not vacuous. -/
+parse to our table, so `parse_ok` is not vacuous.
+
+Informally: proof that the test can fail — flip one character and the
+kernel notices.  A parity theorem that could not detect corruption would
+prove nothing. -/
 theorem parse_detects_corruption :
     parseEntries
       ['1', 'R', 'B', '1', 'R', 'A', '_', '0', 'L', 'C', '1', 'L', 'E', '_',

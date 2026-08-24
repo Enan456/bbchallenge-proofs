@@ -147,7 +147,11 @@ orbit never dies. -/
 def SafeOrbit : Prop := ∀ k, aorbit k ≠ none
 
 /-- **Main result.**  Under the orbit conjecture, the machine never halts
-from the all-zero tape. -/
+from the all-zero tape.
+
+Informally: this file *is* the claim — machine, orbit, and hypothesis in
+150 auditable lines; the proof arrives by transport in the solution
+module. -/
 theorem dossier1_nonhalting (hsafe : SafeOrbit) : ¬ Halts := sorry
 
 end Dossier1Challenge

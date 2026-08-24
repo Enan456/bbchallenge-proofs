@@ -80,7 +80,10 @@ def margin (s : AState) : Nat := s.a - 2
 
 /-- A drop that survives (`astep` alive at `m = 2`) has its margin
 well-defined as `a − 2` with `a ≥ 2` — dying and `margin` bottoming out
-coincide. -/
+coincide. 
+
+Informally: the orbit's death and the margin's floor are the same
+event — a drop survives exactly when the counter can pay. -/
 theorem drop_alive_iff_margin (a c : Nat) :
     astep ⟨a, 2, c⟩ ≠ none ↔ 2 ≤ a := by
   constructor

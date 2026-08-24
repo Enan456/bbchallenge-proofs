@@ -29,7 +29,11 @@ def Boundary (s : AState) : Prop := s.m ≤ 2
 instance (s : AState) : Decidable (Dead s) := by unfold Dead; exact inferInstance
 instance (s : AState) : Decidable (Boundary s) := by unfold Boundary; exact inferInstance
 
-/-- `astep` dies exactly on the death set. -/
+/-- `astep` dies exactly on the death set.
+
+Informally: the conjecture's danger zone drawn precisely — no state
+outside `{m = 0} ∪ {m = 2, a ≤ 1}` can kill the orbit, which is what
+licenses never looking anywhere else. -/
 theorem astep_eq_none_iff (s : AState) : astep s = none ↔ Dead s := by
   obtain ⟨a, m, c⟩ := s
   by_cases h3 : 3 ≤ m
@@ -255,7 +259,11 @@ theorem safeOrbitA_of_eventSafe (h : EventSafe) : SafeOrbitA := by
   simp
 
 /-- **Completeness of boundary-only checking**: if the full orbit never dies,
-neither does the event process (event states are orbit states). -/
+neither does the event process (event states are orbit states).
+
+Informally: the sampler never hallucinates — every event state is a
+genuine orbit state (`aiter_volley` walks the volley there), so a death
+the sampler reports is a death the orbit suffers. -/
 theorem eventSafe_of_safeOrbitA (h : SafeOrbitA) : EventSafe := by
   have main : ∀ k, ∃ t n, eorbit k = some t ∧ aorbit n = some t := by
     intro k
@@ -294,7 +302,10 @@ theorem eventSafe_iff_safeOrbitA : EventSafe ↔ SafeOrbitA :=
   ⟨safeOrbitA_of_eventSafe, eventSafe_of_safeOrbitA⟩
 
 /-- Chained with the Set 2 reduction: boundary-event safety alone implies
-Antihydra never halts from the blank tape. -/
+Antihydra never halts from the blank tape.
+
+Informally: watch only the incisions, and if none ever bleeds, the
+machine runs forever. -/
 theorem eventSafe_nonhalting (h : EventSafe) : ¬ RawHalts blankStart :=
   safeOrbitA_nonhalting (safeOrbitA_of_eventSafe h)
 

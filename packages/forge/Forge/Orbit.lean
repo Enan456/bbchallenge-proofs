@@ -23,7 +23,11 @@ section Orbit
 
 variable {A : Type} (f : A → Option A) (seed : A)
 
-/-- Iterated partial dynamics from a seed. -/
+/-- Iterated partial dynamics from a seed.
+
+Informally: any discrete process that can die — the forge's orbits, event
+processes, and hydra recurrences are all instances of this one
+definition. -/
 def orbit : Nat → Option A
   | 0 => some seed
   | k + 1 =>
@@ -234,7 +238,11 @@ theorem margin_rules : MarginRules estep margin := by
           show a - 1 = 0
           omega
 
-/-- The Forge orbit over `estep` is the incision event orbit. -/
+/-- The Forge orbit over `estep` is the incision event orbit.
+
+Informally: the generic machinery and the bespoke development are looking
+at the same sequence — so the generic margin theorem's conclusions apply
+to the real event orbit verbatim. -/
 theorem orbit_eq_eorbit :
     ∀ k, orbit estep (volley ⟨2, 7, 2⟩) k = eorbit k := by
   intro k

@@ -31,7 +31,10 @@ structure ZConfig where
 
 /-- One zipper step: consult the table on `cur`, write, then shift the
 zipper in the head's direction (the vacated cell is pushed onto one side,
-the next cell popped — blank if its list is exhausted). -/
+the next cell popped — blank if its list is exhausted).
+
+Informally: the Rocq tradition's step, verbatim in spirit — the head
+never moves; the *tape* slides under it. -/
 def zstep (z : ZConfig) : Option ZConfig :=
   match instr z.state z.cur with
   | none => none
@@ -72,7 +75,12 @@ theorem tail_getD (l : List Bool) (i : Nat) :
     l.tail.getD i false = l.getD (i + 1) false := by
   cases l <;> rfl
 
-/-- One step preserves `Matches`; halts coincide. -/
+/-- One step preserves `Matches`; halts coincide.
+
+Informally: take one step with each camera; the photographs still agree.
+The proof is the twelve table cases, and within each a per-cell audit:
+the written cell lands where `getD 0` looks, the popped side shifts by
+one (`tail_getD`), and every other cell is untouched. -/
 theorem step_bisim {z : ZConfig} {c : Config} (h : Matches z c) :
     (zstep z = none ∧ step c = none) ∨
     (∃ z' c', zstep z = some z' ∧ step c = some c' ∧ Matches z' c') := by

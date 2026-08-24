@@ -72,7 +72,10 @@ theorem astep_dies_iff (a m c : Nat) :
     astep (a, m, c) = none ↔ (m = 0 ∨ (m = 2 ∧ a ≤ 1)) := sorry
 
 /-- **Boundary-only checking is sound and complete**: the event process
-never dies iff the full abstract orbit never dies. -/
+never dies iff the full abstract orbit never dies.
+
+Informally: sampling the orbit only where its counter can move loses
+nothing — the certificate behind exponential event-skipping. -/
 theorem boundary_checking_complete :
     (∀ k, eorbit k ≠ none) ↔ (∀ k, aorbit k ≠ none) := sorry
 
