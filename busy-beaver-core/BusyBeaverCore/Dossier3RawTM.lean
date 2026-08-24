@@ -2057,6 +2057,184 @@ theorem cat_run :
         rw [show 10 * (n + 1) = 10 + 10 * n from by omega]
         exact hc
 
+/-- **March triple**: the first three steps of a cycle in isolation — used when the crawl's final segment is a partial cycle ending at the left-edge business.  Digs at offset 2 behind, fills the front, hands to the next march position. -/
+theorem march_triple {c : Config} {h : Int}
+    (hs : c.state = State.E) (hh : c.head = h)
+    (tp0 : c.tape (h) = false) (tp1 : c.tape (h + 1) = true)
+    (tp2 : c.tape (h + 2) = true)
+    :
+    stepN 3 c = some ⟨State.E, h + 3,
+        writeAt (writeAt c.tape (h) true) (h + 2) false⟩ ∧
+      BSafeSeg c 3 := by
+  obtain ⟨s, hd, t⟩ := c
+  simp only at hs hh tp0 tp1 tp2
+  subst hs
+  have hp : h = hd := hh.symm
+  subst hp
+  have hf0 : (writeAt t (h) true) (h + 1) = true := by
+    rw [writeAt_other _ _ _ _ (by omega)]
+    exact tp1
+  have hf1 : (writeAt t (h) true) (h + 2) = true := by
+    rw [writeAt_other _ _ _ _ (by omega)]
+    exact tp2
+  have s0 : step ⟨State.E, h, t⟩
+      = some ⟨State.A, h + 1, writeAt t (h) true⟩ := by
+    simp [step, instr, tp0, move]
+    try omega
+  have s1 : step ⟨State.A, h + 1, writeAt t (h) true⟩
+      = some ⟨State.B, h + 2, writeAt t (h) true⟩ := by
+    have hself := writeAt_self _ _ hf0
+    simp [step, instr, hf0, move, hself]
+    try omega
+  have s2 : step ⟨State.B, h + 2, writeAt t (h) true⟩
+      = some ⟨State.E, h + 3, writeAt (writeAt t (h) true) (h + 2) false⟩ := by
+    simp [step, instr, hf1, move]
+    try omega
+  have p1 : stepN 1 ⟨State.E, h, t⟩ = some ⟨State.A, h + 1, writeAt t (h) true⟩ := by
+    simp [stepN, s0]
+  have p2 : stepN 2 ⟨State.E, h, t⟩ = some ⟨State.B, h + 2, writeAt t (h) true⟩ := by
+    simp [stepN, s0, s1]
+  refine ⟨by simp [stepN, s0, s1, s2], ?_⟩
+  intro k d hk hkd hP hread
+  have hcase : k = 0 ∨ k = 1 ∨ k = 2 := by omega
+  rcases hcase with rfl | rfl | rfl
+  · have hdd : (⟨State.E, h, t⟩ : Config) = d := by simpa [stepN] using hkd
+    rw [← hdd] at hP
+    simp at hP
+  · rw [p1] at hkd
+    rw [← Option.some_inj.mp hkd] at hP
+    simp at hP
+  · rw [p2] at hkd
+    rw [← Option.some_inj.mp hkd] at hread
+    rw [show (⟨State.B, h + 2, writeAt t (h) true⟩ : Config).tape (⟨State.B, h + 2, writeAt t (h) true⟩ : Config).head
+        = (writeAt t (h) true) (h + 2) from rfl] at hread
+    rw [hf1] at hread
+    exact absurd hread (by simp)
+
+/-- **March pair**: the first six steps of a cycle in isolation — the even-`a` partial segment before the edge business. -/
+theorem march_pair {c : Config} {h : Int}
+    (hs : c.state = State.E) (hh : c.head = h)
+    (tp0 : c.tape (h) = false) (tp1 : c.tape (h + 1) = true)
+    (tp2 : c.tape (h + 2) = true) (tp3 : c.tape (h + 3) = false)
+    (tp4 : c.tape (h + 4) = true) (tp5 : c.tape (h + 5) = true)
+    :
+    stepN 6 c = some ⟨State.E, h + 6,
+        writeAt (writeAt (writeAt (writeAt c.tape (h) true) (h + 2) false) (h + 3) true) (h + 5) false⟩ ∧
+      BSafeSeg c 6 := by
+  obtain ⟨s, hd, t⟩ := c
+  simp only at hs hh tp0 tp1 tp2 tp3 tp4 tp5
+  subst hs
+  have hp : h = hd := hh.symm
+  subst hp
+  have hf0 : (writeAt t (h) true) (h + 1) = true := by
+    rw [writeAt_other _ _ _ _ (by omega)]
+    exact tp1
+  have hf1 : (writeAt t (h) true) (h + 2) = true := by
+    rw [writeAt_other _ _ _ _ (by omega)]
+    exact tp2
+  have hf2 : (writeAt (writeAt t (h) true) (h + 2) false) (h + 3) = false := by
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+    exact tp3
+  have hf3 : (writeAt (writeAt (writeAt t (h) true) (h + 2) false) (h + 3) true) (h + 4) = true := by
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+    exact tp4
+  have hf4 : (writeAt (writeAt (writeAt t (h) true) (h + 2) false) (h + 3) true) (h + 5) = true := by
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+    exact tp5
+  have s0 : step ⟨State.E, h, t⟩
+      = some ⟨State.A, h + 1, writeAt t (h) true⟩ := by
+    simp [step, instr, tp0, move]
+    try omega
+  have s1 : step ⟨State.A, h + 1, writeAt t (h) true⟩
+      = some ⟨State.B, h + 2, writeAt t (h) true⟩ := by
+    have hself := writeAt_self _ _ hf0
+    simp [step, instr, hf0, move, hself]
+    try omega
+  have s2 : step ⟨State.B, h + 2, writeAt t (h) true⟩
+      = some ⟨State.E, h + 3, writeAt (writeAt t (h) true) (h + 2) false⟩ := by
+    simp [step, instr, hf1, move]
+    try omega
+  have s3 : step ⟨State.E, h + 3, writeAt (writeAt t (h) true) (h + 2) false⟩
+      = some ⟨State.A, h + 4, writeAt (writeAt (writeAt t (h) true) (h + 2) false) (h + 3) true⟩ := by
+    simp [step, instr, hf2, move]
+    try omega
+  have s4 : step ⟨State.A, h + 4, writeAt (writeAt (writeAt t (h) true) (h + 2) false) (h + 3) true⟩
+      = some ⟨State.B, h + 5, writeAt (writeAt (writeAt t (h) true) (h + 2) false) (h + 3) true⟩ := by
+    have hself := writeAt_self _ _ hf3
+    simp [step, instr, hf3, move, hself]
+    try omega
+  have s5 : step ⟨State.B, h + 5, writeAt (writeAt (writeAt t (h) true) (h + 2) false) (h + 3) true⟩
+      = some ⟨State.E, h + 6, writeAt (writeAt (writeAt (writeAt t (h) true) (h + 2) false) (h + 3) true) (h + 5) false⟩ := by
+    simp [step, instr, hf4, move]
+    try omega
+  have p1 : stepN 1 ⟨State.E, h, t⟩ = some ⟨State.A, h + 1, writeAt t (h) true⟩ := by
+    simp [stepN, s0]
+  have p2 : stepN 2 ⟨State.E, h, t⟩ = some ⟨State.B, h + 2, writeAt t (h) true⟩ := by
+    simp [stepN, s0, s1]
+  have p3 : stepN 3 ⟨State.E, h, t⟩ = some ⟨State.E, h + 3, writeAt (writeAt t (h) true) (h + 2) false⟩ := by
+    simp [stepN, s0, s1, s2]
+  have p4 : stepN 4 ⟨State.E, h, t⟩ = some ⟨State.A, h + 4, writeAt (writeAt (writeAt t (h) true) (h + 2) false) (h + 3) true⟩ := by
+    simp [stepN, s0, s1, s2, s3]
+  have p5 : stepN 5 ⟨State.E, h, t⟩ = some ⟨State.B, h + 5, writeAt (writeAt (writeAt t (h) true) (h + 2) false) (h + 3) true⟩ := by
+    simp [stepN, s0, s1, s2, s3, s4]
+  refine ⟨by simp [stepN, s0, s1, s2, s3, s4, s5], ?_⟩
+  intro k d hk hkd hP hread
+  have hcase : k = 0 ∨ k = 1 ∨ k = 2 ∨ k = 3 ∨ k = 4 ∨ k = 5 := by omega
+  rcases hcase with rfl | rfl | rfl | rfl | rfl | rfl
+  · have hdd : (⟨State.E, h, t⟩ : Config) = d := by simpa [stepN] using hkd
+    rw [← hdd] at hP
+    simp at hP
+  · rw [p1] at hkd
+    rw [← Option.some_inj.mp hkd] at hP
+    simp at hP
+  · rw [p2] at hkd
+    rw [← Option.some_inj.mp hkd] at hread
+    rw [show (⟨State.B, h + 2, writeAt t (h) true⟩ : Config).tape (⟨State.B, h + 2, writeAt t (h) true⟩ : Config).head
+        = (writeAt t (h) true) (h + 2) from rfl] at hread
+    rw [hf1] at hread
+    exact absurd hread (by simp)
+  · rw [p3] at hkd
+    rw [← Option.some_inj.mp hkd] at hP
+    simp at hP
+  · rw [p4] at hkd
+    rw [← Option.some_inj.mp hkd] at hP
+    simp at hP
+  · rw [p5] at hkd
+    rw [← Option.some_inj.mp hkd] at hread
+    rw [show (⟨State.B, h + 5, writeAt (writeAt (writeAt t (h) true) (h + 2) false) (h + 3) true⟩ : Config).tape (⟨State.B, h + 5, writeAt (writeAt (writeAt t (h) true) (h + 2) false) (h + 3) true⟩ : Config).head
+        = (writeAt (writeAt (writeAt t (h) true) (h + 2) false) (h + 3) true) (h + 5) from rfl] at hread
+    rw [hf4] at hread
+    exact absurd hread (by simp)
+
+
+/-- A finite-support shape: `1` on `[l, r]` minus four (possibly
+duplicated) hole positions, `0` outside.  Every spawn-entry tape of the
+machine's eternal run has this form — the whole closure proof moves
+between `holeTape`s. -/
+def holeTape (l r a b c d : Int) : Int → Bool :=
+  fun q =>
+    if q = a ∨ q = b ∨ q = c ∨ q = d then false
+    else if l ≤ q ∧ q ≤ r then true
+    else false
+
+theorem holeTape_hole {l r a b c d q : Int}
+    (h : q = a ∨ q = b ∨ q = c ∨ q = d) :
+    holeTape l r a b c d q = false := by
+  unfold holeTape
+  rw [if_pos h]
+
+theorem holeTape_one {l r a b c d q : Int}
+    (h1 : ¬(q = a ∨ q = b ∨ q = c ∨ q = d)) (h2 : l ≤ q) (h3 : q ≤ r) :
+    holeTape l r a b c d q = true := by
+  unfold holeTape
+  rw [if_neg h1, if_pos ⟨h2, h3⟩]
+
+theorem holeTape_out {l r a b c d q : Int}
+    (h1 : ¬(q = a ∨ q = b ∨ q = c ∨ q = d)) (h2 : ¬(l ≤ q ∧ q ≤ r)) :
+    holeTape l r a b c d q = false := by
+  unfold holeTape
+  rw [if_neg h1, if_neg h2]
+
 end QIG.Dossier3RawTM
 
 #print axioms QIG.Dossier3RawTM.halt_requires_b_probe_00
@@ -2074,3 +2252,5 @@ end QIG.Dossier3RawTM
 #print axioms QIG.Dossier3RawTM.edge_odd_seg
 #print axioms QIG.Dossier3RawTM.edge_even_seg
 #print axioms QIG.Dossier3RawTM.cat_run
+#print axioms QIG.Dossier3RawTM.march_triple
+#print axioms QIG.Dossier3RawTM.march_pair

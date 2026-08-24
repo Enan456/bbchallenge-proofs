@@ -2050,6 +2050,1431 @@ theorem cat_run :
         rw [show 10 * (n + 1) = 10 + 10 * n from by omega]
         exact hc
 
+/-- **March triple**: the first three steps of a cycle in isolation — used when the crawl's final segment is a partial cycle ending at the left-edge business.  Digs at offset 2 behind, fills the front, hands to the next march position. -/
+theorem march_triple {c : Config} {h : Int}
+    (hs : c.state = State.D) (hh : c.head = h)
+    (tm2 : c.tape (h - 2) = true) (tm1 : c.tape (h - 1) = true)
+    (tp0 : c.tape (h) = false)
+    :
+    stepN 3 c = some ⟨State.D, h - 3,
+        writeAt (writeAt c.tape (h) true) (h - 2) false⟩ ∧
+      CSafeSeg c 3 := by
+  obtain ⟨s, hd, t⟩ := c
+  simp only at hs hh tm2 tm1 tp0
+  subst hs
+  have hp : h = hd := hh.symm
+  subst hp
+  have hf0 : (writeAt t (h) true) (h - 1) = true := by
+    rw [writeAt_other _ _ _ _ (by omega)]
+    exact tm1
+  have hf1 : (writeAt t (h) true) (h - 2) = true := by
+    rw [writeAt_other _ _ _ _ (by omega)]
+    exact tm2
+  have s0 : step ⟨State.D, h, t⟩
+      = some ⟨State.B, h - 1, writeAt t (h) true⟩ := by
+    simp [step, instr, tp0, move]
+    try omega
+  have s1 : step ⟨State.B, h - 1, writeAt t (h) true⟩
+      = some ⟨State.C, h - 2, writeAt t (h) true⟩ := by
+    have hself := writeAt_self _ _ hf0
+    simp [step, instr, hf0, move, hself]
+    try omega
+  have s2 : step ⟨State.C, h - 2, writeAt t (h) true⟩
+      = some ⟨State.D, h - 3, writeAt (writeAt t (h) true) (h - 2) false⟩ := by
+    simp [step, instr, hf1, move]
+    try omega
+  have p1 : stepN 1 ⟨State.D, h, t⟩ = some ⟨State.B, h - 1, writeAt t (h) true⟩ := by
+    simp [stepN, s0]
+  have p2 : stepN 2 ⟨State.D, h, t⟩ = some ⟨State.C, h - 2, writeAt t (h) true⟩ := by
+    simp [stepN, s0, s1]
+  refine ⟨by simp [stepN, s0, s1, s2], ?_⟩
+  intro k d hk hkd hP hread
+  have hcase : k = 0 ∨ k = 1 ∨ k = 2 := by omega
+  rcases hcase with rfl | rfl | rfl
+  · have hdd : (⟨State.D, h, t⟩ : Config) = d := by simpa [stepN] using hkd
+    rw [← hdd] at hP
+    simp at hP
+  · rw [p1] at hkd
+    rw [← Option.some_inj.mp hkd] at hP
+    simp at hP
+  · rw [p2] at hkd
+    rw [← Option.some_inj.mp hkd] at hread
+    rw [show (⟨State.C, h - 2, writeAt t (h) true⟩ : Config).tape (⟨State.C, h - 2, writeAt t (h) true⟩ : Config).head
+        = (writeAt t (h) true) (h - 2) from rfl] at hread
+    rw [hf1] at hread
+    exact absurd hread (by simp)
+
+/-- **March pair**: the first six steps of a cycle in isolation — the even-`a` partial segment before the edge business. -/
+theorem march_pair {c : Config} {h : Int}
+    (hs : c.state = State.D) (hh : c.head = h)
+    (tm5 : c.tape (h - 5) = true) (tm4 : c.tape (h - 4) = true)
+    (tm3 : c.tape (h - 3) = false) (tm2 : c.tape (h - 2) = true)
+    (tm1 : c.tape (h - 1) = true) (tp0 : c.tape (h) = false)
+    :
+    stepN 6 c = some ⟨State.D, h - 6,
+        writeAt (writeAt (writeAt (writeAt c.tape (h) true) (h - 2) false) (h - 3) true) (h - 5) false⟩ ∧
+      CSafeSeg c 6 := by
+  obtain ⟨s, hd, t⟩ := c
+  simp only at hs hh tm5 tm4 tm3 tm2 tm1 tp0
+  subst hs
+  have hp : h = hd := hh.symm
+  subst hp
+  have hf0 : (writeAt t (h) true) (h - 1) = true := by
+    rw [writeAt_other _ _ _ _ (by omega)]
+    exact tm1
+  have hf1 : (writeAt t (h) true) (h - 2) = true := by
+    rw [writeAt_other _ _ _ _ (by omega)]
+    exact tm2
+  have hf2 : (writeAt (writeAt t (h) true) (h - 2) false) (h - 3) = false := by
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+    exact tm3
+  have hf3 : (writeAt (writeAt (writeAt t (h) true) (h - 2) false) (h - 3) true) (h - 4) = true := by
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+    exact tm4
+  have hf4 : (writeAt (writeAt (writeAt t (h) true) (h - 2) false) (h - 3) true) (h - 5) = true := by
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+    exact tm5
+  have s0 : step ⟨State.D, h, t⟩
+      = some ⟨State.B, h - 1, writeAt t (h) true⟩ := by
+    simp [step, instr, tp0, move]
+    try omega
+  have s1 : step ⟨State.B, h - 1, writeAt t (h) true⟩
+      = some ⟨State.C, h - 2, writeAt t (h) true⟩ := by
+    have hself := writeAt_self _ _ hf0
+    simp [step, instr, hf0, move, hself]
+    try omega
+  have s2 : step ⟨State.C, h - 2, writeAt t (h) true⟩
+      = some ⟨State.D, h - 3, writeAt (writeAt t (h) true) (h - 2) false⟩ := by
+    simp [step, instr, hf1, move]
+    try omega
+  have s3 : step ⟨State.D, h - 3, writeAt (writeAt t (h) true) (h - 2) false⟩
+      = some ⟨State.B, h - 4, writeAt (writeAt (writeAt t (h) true) (h - 2) false) (h - 3) true⟩ := by
+    simp [step, instr, hf2, move]
+    try omega
+  have s4 : step ⟨State.B, h - 4, writeAt (writeAt (writeAt t (h) true) (h - 2) false) (h - 3) true⟩
+      = some ⟨State.C, h - 5, writeAt (writeAt (writeAt t (h) true) (h - 2) false) (h - 3) true⟩ := by
+    have hself := writeAt_self _ _ hf3
+    simp [step, instr, hf3, move, hself]
+    try omega
+  have s5 : step ⟨State.C, h - 5, writeAt (writeAt (writeAt t (h) true) (h - 2) false) (h - 3) true⟩
+      = some ⟨State.D, h - 6, writeAt (writeAt (writeAt (writeAt t (h) true) (h - 2) false) (h - 3) true) (h - 5) false⟩ := by
+    simp [step, instr, hf4, move]
+    try omega
+  have p1 : stepN 1 ⟨State.D, h, t⟩ = some ⟨State.B, h - 1, writeAt t (h) true⟩ := by
+    simp [stepN, s0]
+  have p2 : stepN 2 ⟨State.D, h, t⟩ = some ⟨State.C, h - 2, writeAt t (h) true⟩ := by
+    simp [stepN, s0, s1]
+  have p3 : stepN 3 ⟨State.D, h, t⟩ = some ⟨State.D, h - 3, writeAt (writeAt t (h) true) (h - 2) false⟩ := by
+    simp [stepN, s0, s1, s2]
+  have p4 : stepN 4 ⟨State.D, h, t⟩ = some ⟨State.B, h - 4, writeAt (writeAt (writeAt t (h) true) (h - 2) false) (h - 3) true⟩ := by
+    simp [stepN, s0, s1, s2, s3]
+  have p5 : stepN 5 ⟨State.D, h, t⟩ = some ⟨State.C, h - 5, writeAt (writeAt (writeAt t (h) true) (h - 2) false) (h - 3) true⟩ := by
+    simp [stepN, s0, s1, s2, s3, s4]
+  refine ⟨by simp [stepN, s0, s1, s2, s3, s4, s5], ?_⟩
+  intro k d hk hkd hP hread
+  have hcase : k = 0 ∨ k = 1 ∨ k = 2 ∨ k = 3 ∨ k = 4 ∨ k = 5 := by omega
+  rcases hcase with rfl | rfl | rfl | rfl | rfl | rfl
+  · have hdd : (⟨State.D, h, t⟩ : Config) = d := by simpa [stepN] using hkd
+    rw [← hdd] at hP
+    simp at hP
+  · rw [p1] at hkd
+    rw [← Option.some_inj.mp hkd] at hP
+    simp at hP
+  · rw [p2] at hkd
+    rw [← Option.some_inj.mp hkd] at hread
+    rw [show (⟨State.C, h - 2, writeAt t (h) true⟩ : Config).tape (⟨State.C, h - 2, writeAt t (h) true⟩ : Config).head
+        = (writeAt t (h) true) (h - 2) from rfl] at hread
+    rw [hf1] at hread
+    exact absurd hread (by simp)
+  · rw [p3] at hkd
+    rw [← Option.some_inj.mp hkd] at hP
+    simp at hP
+  · rw [p4] at hkd
+    rw [← Option.some_inj.mp hkd] at hP
+    simp at hP
+  · rw [p5] at hkd
+    rw [← Option.some_inj.mp hkd] at hread
+    rw [show (⟨State.C, h - 5, writeAt (writeAt (writeAt t (h) true) (h - 2) false) (h - 3) true⟩ : Config).tape (⟨State.C, h - 5, writeAt (writeAt (writeAt t (h) true) (h - 2) false) (h - 3) true⟩ : Config).head
+        = (writeAt (writeAt (writeAt t (h) true) (h - 2) false) (h - 3) true) (h - 5) from rfl] at hread
+    rw [hf4] at hread
+    exact absurd hread (by simp)
+
+
+/-- A finite-support shape: `1` on `[l, r]` minus four (possibly
+duplicated) hole positions, `0` outside.  Every spawn-entry tape of the
+machine's eternal run has this form — the whole closure proof moves
+between `holeTape`s. -/
+def holeTape (l r a b c d : Int) : Int → Bool :=
+  fun q =>
+    if q = a ∨ q = b ∨ q = c ∨ q = d then false
+    else if l ≤ q ∧ q ≤ r then true
+    else false
+
+theorem holeTape_hole {l r a b c d q : Int}
+    (h : q = a ∨ q = b ∨ q = c ∨ q = d) :
+    holeTape l r a b c d q = false := by
+  unfold holeTape
+  rw [if_pos h]
+
+theorem holeTape_one {l r a b c d q : Int}
+    (h1 : ¬(q = a ∨ q = b ∨ q = c ∨ q = d)) (h2 : l ≤ q) (h3 : q ≤ r) :
+    holeTape l r a b c d q = true := by
+  unfold holeTape
+  rw [if_neg h1, if_pos ⟨h2, h3⟩]
+
+theorem holeTape_out {l r a b c d q : Int}
+    (h1 : ¬(q = a ∨ q = b ∨ q = c ∨ q = d)) (h2 : ¬(l ≤ q ∧ q ≤ r)) :
+    holeTape l r a b c d q = false := by
+  unfold holeTape
+  rw [if_neg h1, if_neg h2]
+
+
+-- EPISODES-BEGIN (generated)
+
+/-- Constructive De Morgan for closed intervals. -/
+theorem not_and_le' {a b q : Int} (h : ¬(a ≤ q ∧ q ≤ b)) :
+    q < a ∨ b < q := by
+  by_cases hx : a ≤ q
+  · right
+    by_cases hy : q ≤ b
+    · exact absurd ⟨hx, hy⟩ h
+    · omega
+  · left
+    omega
+
+/-- **The spawn episode**: 7 steps at the right edge — extends the field by one and digs the fresh carried hole at `r - 2`, handing the caterpillar its entry pattern. -/
+theorem episode_spawn {c : Config} {l h1 h2 r : Int}
+    (hs : c.state = State.D) (hh : c.head = r)
+    (ht : c.tape = holeTape (l) (r - 1) (h1) (h2) (h2) (h2))
+    (hgl : l ≤ h1)
+    (hgo : h1 + 1 ≤ h2)
+    (hgb2 : h2 ≤ r - 4)
+    :
+    stepN (7) c
+        = some ⟨State.D, (r + 1), holeTape (l) (r) (h1) (h2) (r - 2) (r - 2)⟩ ∧
+      CSafeSeg c (7) := by
+  obtain ⟨hrun1, hsafe1⟩ := spawn_step
+    (p := (r)) hs hh
+    (by rw [ht]; exact (holeTape_out (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by intro hcc; omega)))
+    (by rw [ht]; exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)))
+    (by rw [ht]; exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)))
+    (by rw [ht]; exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)))
+  rw [ht] at hrun1
+  have hN1 : (writeAt (writeAt (holeTape (l) (r - 1) (h1) (h2) (h2) (h2)) (r) true) (r - 2) false) = holeTape (l) (r) (h1) (h2) (r - 2) (r - 2) := by
+    funext q
+    by_cases hw0 : q = (r - 2)
+    · rw [hw0, writeAt_same _ _ _]
+      exact (holeTape_hole (Or.inr (Or.inr (Or.inl (by omega))))).symm
+    · rw [writeAt_other _ _ _ _ (by omega)]
+      by_cases hw1 : q = (r)
+      · rw [hw1, writeAt_same _ _ _]
+        exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+      · rw [writeAt_other _ _ _ _ (by omega)]
+        by_cases hin : q = (h1) ∨ q = (h2) ∨ q = (h2) ∨ q = (h2)
+        · rw [holeTape_hole hin]
+          rcases hin with hx | hx | hx | hx
+          · exact (holeTape_hole (Or.inl (by omega))).symm
+          · exact (holeTape_hole (Or.inr (Or.inl (by omega)))).symm
+          · exact (holeTape_hole (Or.inr (Or.inl (by omega)))).symm
+          · exact (holeTape_hole (Or.inr (Or.inl (by omega)))).symm
+        · by_cases hrange : (l) ≤ q ∧ q ≤ (r - 1)
+          · obtain ⟨hr1, hr2⟩ := hrange
+            rw [holeTape_one hin hr1 hr2]
+            exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+          · have hrr := not_and_le' hrange
+            clear hrange
+            rw [holeTape_out hin (by intro hcc; omega)]
+            exact (holeTape_out (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by intro hcc; omega)).symm
+  rw [hN1] at hrun1
+  refine ⟨?_, ?_⟩
+  · exact hrun1
+  · exact hsafe1
+
+/-- **The spawn-variant episode**: the edge hole at `r - 1` (fuse aftermath) is filled and re-dug one cell left; the next entry reads it as a carried hole. -/
+theorem episode_variant {c : Config} {l h1 h2 r : Int}
+    (hs : c.state = State.D) (hh : c.head = r)
+    (ht : c.tape = holeTape (l) (r - 1) (h1) (h2) (h2) (h2))
+    (hgl : l ≤ h1)
+    (hgd : h1 ≤ r - 4)
+    (hgv : h2 = r - 1)
+    :
+    stepN (7) c
+        = some ⟨State.D, (r + 1), holeTape (l) (r) (h1) (r - 2) (r - 2) (r - 2)⟩ ∧
+      CSafeSeg c (7) := by
+  obtain ⟨hrun1, hsafe1⟩ := spawn_variant_step
+    (h := (r)) hs hh
+    (by rw [ht]; exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)))
+    (by rw [ht]; exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)))
+    (by rw [ht]; exact (holeTape_hole (Or.inr (Or.inl (by omega)))))
+    (by rw [ht]; exact (holeTape_out (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by intro hcc; omega)))
+  rw [ht] at hrun1
+  have hN1 : (writeAt (writeAt (writeAt (holeTape (l) (r - 1) (h1) (h2) (h2) (h2)) (r) true) (r - 1) true) (r - 2) false) = holeTape (l) (r) (h1) (r - 2) (r - 2) (r - 2) := by
+    funext q
+    by_cases hw0 : q = (r - 2)
+    · rw [hw0, writeAt_same _ _ _]
+      exact (holeTape_hole (Or.inr (Or.inl (by omega)))).symm
+    · rw [writeAt_other _ _ _ _ (by omega)]
+      by_cases hw1 : q = (r - 1)
+      · rw [hw1, writeAt_same _ _ _]
+        exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+      · rw [writeAt_other _ _ _ _ (by omega)]
+        by_cases hw2 : q = (r)
+        · rw [hw2, writeAt_same _ _ _]
+          exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+        · rw [writeAt_other _ _ _ _ (by omega)]
+          by_cases hin : q = (h1) ∨ q = (h2) ∨ q = (h2) ∨ q = (h2)
+          · rw [holeTape_hole hin]
+            rcases hin with hx | hx | hx | hx
+            · exact (holeTape_hole (Or.inl (by omega))).symm
+            · exfalso
+              omega
+            · exfalso
+              omega
+            · exfalso
+              omega
+          · by_cases hrange : (l) ≤ q ∧ q ≤ (r - 1)
+            · obtain ⟨hr1, hr2⟩ := hrange
+              rw [holeTape_one hin hr1 hr2]
+              exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+            · have hrr := not_and_le' hrange
+              clear hrange
+              rw [holeTape_out hin (by intro hcc; omega)]
+              exact (holeTape_out (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by intro hcc; omega)).symm
+  rw [hN1] at hrun1
+  refine ⟨?_, ?_⟩
+  · exact hrun1
+  · exact hsafe1
+
+/-- **The generic traversal episode** (3-hole entry, gap ≥ 4): crawl `k1` cycles, cross the upper hole (+4), crawl `k2` more, terminate at the lower hole (+6), sweep home. -/
+theorem episode_generic {c : Config} {l h1 h2 r : Int}
+    {k1 k2 m : Nat}
+    (hs : c.state = State.D) (hh : c.head = r)
+    (ht : c.tape = holeTape (l) (r - 1) (h1) (h2) (r - 3) (r - 3))
+    (hgl : l ≤ h1)
+    (hgb : h1 + 4 ≤ h2)
+    (hgk1 : r - 2 * (k1 : Int) = h2 + 6)
+    (hgk2 : h2 + 1 - 2 * (k2 : Int) = h1 + 5)
+    (hgm : h1 + 7 + 2 * (m : Int) = r + 1)
+    :
+    stepN (10 * k1 + (13 + (10 * k2 + (13 + (1 + 2 * m))))) c
+        = some ⟨State.D, (r + 1), holeTape (l) (r) (h1 + 6) (h2 + 4) (h2 + 4) (h2 + 4)⟩ ∧
+      CSafeSeg c (10 * k1 + (13 + (10 * k2 + (13 + (1 + 2 * m))))) := by
+  obtain ⟨hrun1, hsafe1⟩ := cat_run k1 c (r)
+    hs hh
+    (by rw [ht]; exact (holeTape_out (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by intro hcc; omega)))
+    (by rw [ht]; exact (holeTape_hole (Or.inr (Or.inr (Or.inl (by omega))))))
+    (by intro q hq1 hq2 hq3 hq4; rw [ht]; exact holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+  rw [ht] at hrun1
+  have hN1 : catTape (holeTape (l) (r - 1) (h1) (h2) (r - 3) (r - 3)) (r) k1 = holeTape (l) (r) (h1) (h2) (h2 + 3) (h2 + 6) := by
+    funext q
+    show (if q = (r) - 2 * (k1 : Int) ∨ q = (r) - 2 * (k1 : Int) - 3 then false
+          else if (r) - 2 * (k1 : Int) - 3 < q ∧ q ≤ (r) then true
+          else (holeTape (l) (r - 1) (h1) (h2) (r - 3) (r - 3)) q) = (holeTape (l) (r) (h1) (h2) (h2 + 3) (h2 + 6)) q
+    by_cases hf : q = (r) - 2 * (k1 : Int)
+    · rw [if_pos (Or.inl hf)]
+      exact (holeTape_hole (Or.inr (Or.inr (Or.inr (by omega))))).symm
+    · by_cases hc : q = (r) - 2 * (k1 : Int) - 3
+      · rw [if_pos (Or.inr hc)]
+        exact (holeTape_hole (Or.inr (Or.inr (Or.inl (by omega))))).symm
+      · rw [if_neg (by intro hor; exact hor.elim hf hc)]
+        by_cases hz : (r) - 2 * (k1 : Int) - 3 < q ∧ q ≤ (r)
+        · rw [if_pos hz]
+          obtain ⟨hz1, hz2⟩ := hz
+          exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+        · have hzz := not_and_le hz
+          clear hz
+          rw [if_neg (by intro hcc; omega)]
+          by_cases hin : q = (h1) ∨ q = (h2) ∨ q = (r - 3) ∨ q = (r - 3)
+          · rw [holeTape_hole hin]
+            rcases hin with hx | hx | hx | hx
+            · exact (holeTape_hole (Or.inl (by omega))).symm
+            · exact (holeTape_hole (Or.inr (Or.inl (by omega)))).symm
+            · exfalso
+              omega
+            · exfalso
+              omega
+          · by_cases hrange : (l) ≤ q ∧ q ≤ (r - 1)
+            · obtain ⟨hr1, hr2⟩ := hrange
+              rw [holeTape_one hin hr1 hr2]
+              exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+            · have hrr := not_and_le' hrange
+              clear hrange
+              rw [holeTape_out hin (by intro hcc; omega)]
+              exact (holeTape_out (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by intro hcc; omega)).symm
+  rw [hN1] at hrun1
+  rw [show (r) - 2 * (k1 : Int) = (h2 + 6) from by omega] at hrun1
+  obtain ⟨hrun2, hsafe2⟩ := cross_cycle
+    (c := (⟨State.D, (h2 + 6), holeTape (l) (r) (h1) (h2) (h2 + 3) (h2 + 6)⟩ : Config)) (h := (h2 + 6)) rfl rfl
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_hole (Or.inr (Or.inl (by omega))))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_hole (Or.inr (Or.inr (Or.inl (by omega)))))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_hole (Or.inr (Or.inr (Or.inr (by omega)))))
+  have hN2 : (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (holeTape (l) (r) (h1) (h2) (h2 + 3) (h2 + 6)) ((h2 + 6)) true) ((h2 + 6) - 2) false) ((h2 + 6) - 3) true) ((h2 + 6) - 5) false) ((h2 + 6) - 6) true) ((h2 + 6) - 8) false) = holeTape (l) (r) (h1) (h2 - 2) (h2 + 1) (h2 + 4) := by
+    funext q
+    by_cases hw0 : q = ((h2 + 6) - 8)
+    · rw [hw0, writeAt_same _ _ _]
+      exact (holeTape_hole (Or.inr (Or.inl (by omega)))).symm
+    · rw [writeAt_other _ _ _ _ (by omega)]
+      by_cases hw1 : q = ((h2 + 6) - 6)
+      · rw [hw1, writeAt_same _ _ _]
+        exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+      · rw [writeAt_other _ _ _ _ (by omega)]
+        by_cases hw2 : q = ((h2 + 6) - 5)
+        · rw [hw2, writeAt_same _ _ _]
+          exact (holeTape_hole (Or.inr (Or.inr (Or.inl (by omega))))).symm
+        · rw [writeAt_other _ _ _ _ (by omega)]
+          by_cases hw3 : q = ((h2 + 6) - 3)
+          · rw [hw3, writeAt_same _ _ _]
+            exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+          · rw [writeAt_other _ _ _ _ (by omega)]
+            by_cases hw4 : q = ((h2 + 6) - 2)
+            · rw [hw4, writeAt_same _ _ _]
+              exact (holeTape_hole (Or.inr (Or.inr (Or.inr (by omega))))).symm
+            · rw [writeAt_other _ _ _ _ (by omega)]
+              by_cases hw5 : q = ((h2 + 6))
+              · rw [hw5, writeAt_same _ _ _]
+                exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+              · rw [writeAt_other _ _ _ _ (by omega)]
+                by_cases hin : q = (h1) ∨ q = (h2) ∨ q = (h2 + 3) ∨ q = (h2 + 6)
+                · rw [holeTape_hole hin]
+                  rcases hin with hx | hx | hx | hx
+                  · exact (holeTape_hole (Or.inl (by omega))).symm
+                  · exfalso
+                    omega
+                  · exfalso
+                    omega
+                  · exfalso
+                    omega
+                · by_cases hrange : (l) ≤ q ∧ q ≤ (r)
+                  · obtain ⟨hr1, hr2⟩ := hrange
+                    rw [holeTape_one hin hr1 hr2]
+                    exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+                  · have hrr := not_and_le' hrange
+                    clear hrange
+                    rw [holeTape_out hin (by intro hcc; omega)]
+                    exact (holeTape_out (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by intro hcc; omega)).symm
+  rw [hN2] at hrun2
+  rw [show ((h2 + 6) - 5) = (h2 + 1) from by omega] at hrun2
+  obtain ⟨hrun3, hsafe3⟩ := cat_run k2 (⟨State.D, (h2 + 1), holeTape (l) (r) (h1) (h2 - 2) (h2 + 1) (h2 + 4)⟩ : Config) (h2 + 1)
+    rfl rfl
+    (holeTape_hole (Or.inr (Or.inr (Or.inl (by omega)))))
+    (holeTape_hole (Or.inr (Or.inl (by omega))))
+    (fun q hq1 hq2 hq3 hq4 => holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+  have hN3 : catTape (holeTape (l) (r) (h1) (h2 - 2) (h2 + 1) (h2 + 4)) (h2 + 1) k2 = holeTape (l) (r) (h1) (h1 + 2) (h1 + 5) (h2 + 4) := by
+    funext q
+    show (if q = (h2 + 1) - 2 * (k2 : Int) ∨ q = (h2 + 1) - 2 * (k2 : Int) - 3 then false
+          else if (h2 + 1) - 2 * (k2 : Int) - 3 < q ∧ q ≤ (h2 + 1) then true
+          else (holeTape (l) (r) (h1) (h2 - 2) (h2 + 1) (h2 + 4)) q) = (holeTape (l) (r) (h1) (h1 + 2) (h1 + 5) (h2 + 4)) q
+    by_cases hf : q = (h2 + 1) - 2 * (k2 : Int)
+    · rw [if_pos (Or.inl hf)]
+      exact (holeTape_hole (Or.inr (Or.inr (Or.inl (by omega))))).symm
+    · by_cases hc : q = (h2 + 1) - 2 * (k2 : Int) - 3
+      · rw [if_pos (Or.inr hc)]
+        exact (holeTape_hole (Or.inr (Or.inl (by omega)))).symm
+      · rw [if_neg (by intro hor; exact hor.elim hf hc)]
+        by_cases hz : (h2 + 1) - 2 * (k2 : Int) - 3 < q ∧ q ≤ (h2 + 1)
+        · rw [if_pos hz]
+          obtain ⟨hz1, hz2⟩ := hz
+          exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+        · have hzz := not_and_le hz
+          clear hz
+          rw [if_neg (by intro hcc; omega)]
+          by_cases hin : q = (h1) ∨ q = (h2 - 2) ∨ q = (h2 + 1) ∨ q = (h2 + 4)
+          · rw [holeTape_hole hin]
+            rcases hin with hx | hx | hx | hx
+            · exact (holeTape_hole (Or.inl (by omega))).symm
+            · exfalso
+              omega
+            · exfalso
+              omega
+            · exact (holeTape_hole (Or.inr (Or.inr (Or.inr (by omega))))).symm
+          · by_cases hrange : (l) ≤ q ∧ q ≤ (r)
+            · obtain ⟨hr1, hr2⟩ := hrange
+              rw [holeTape_one hin hr1 hr2]
+              exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+            · have hrr := not_and_le' hrange
+              clear hrange
+              rw [holeTape_out hin (by intro hcc; omega)]
+              exact (holeTape_out (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by intro hcc; omega)).symm
+  rw [hN3] at hrun3
+  rw [show (h2 + 1) - 2 * (k2 : Int) = (h1 + 5) from by omega] at hrun3
+  obtain ⟨hrun4, hsafe4⟩ := term_cycle
+    (c := (⟨State.D, (h1 + 5), holeTape (l) (r) (h1) (h1 + 2) (h1 + 5) (h2 + 4)⟩ : Config)) (h := (h1 + 5)) rfl rfl
+    (holeTape_hole (Or.inl (by omega)))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_hole (Or.inr (Or.inl (by omega))))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_hole (Or.inr (Or.inr (Or.inl (by omega)))))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+  have hN4 : (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (holeTape (l) (r) (h1) (h1 + 2) (h1 + 5) (h2 + 4)) ((h1 + 5)) true) ((h1 + 5) - 2) false) ((h1 + 5) - 3) true) ((h1 + 5) - 5) true) ((h1 + 5) - 2) true) ((h1 + 5) + 1) false) = holeTape (l) (r) (h1 + 6) (h2 + 4) (h2 + 4) (h2 + 4) := by
+    funext q
+    by_cases hw0 : q = ((h1 + 5) + 1)
+    · rw [hw0, writeAt_same _ _ _]
+      exact (holeTape_hole (Or.inl (by omega))).symm
+    · rw [writeAt_other _ _ _ _ (by omega)]
+      by_cases hw1 : q = ((h1 + 5) - 2)
+      · rw [hw1, writeAt_same _ _ _]
+        exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+      · rw [writeAt_other _ _ _ _ (by omega)]
+        by_cases hw2 : q = ((h1 + 5) - 5)
+        · rw [hw2, writeAt_same _ _ _]
+          exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+        · rw [writeAt_other _ _ _ _ (by omega)]
+          by_cases hw3 : q = ((h1 + 5) - 3)
+          · rw [hw3, writeAt_same _ _ _]
+            exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+          · rw [writeAt_other _ _ _ _ (by omega)]
+            rw [writeAt_other _ _ _ _ (by omega)]
+            by_cases hw5 : q = ((h1 + 5))
+            · rw [hw5, writeAt_same _ _ _]
+              exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+            · rw [writeAt_other _ _ _ _ (by omega)]
+              by_cases hin : q = (h1) ∨ q = (h1 + 2) ∨ q = (h1 + 5) ∨ q = (h2 + 4)
+              · rw [holeTape_hole hin]
+                rcases hin with hx | hx | hx | hx
+                · exfalso
+                  omega
+                · exfalso
+                  omega
+                · exfalso
+                  omega
+                · exact (holeTape_hole (Or.inr (Or.inl (by omega)))).symm
+              · by_cases hrange : (l) ≤ q ∧ q ≤ (r)
+                · obtain ⟨hr1, hr2⟩ := hrange
+                  rw [holeTape_one hin hr1 hr2]
+                  exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+                · have hrr := not_and_le' hrange
+                  clear hrange
+                  rw [holeTape_out hin (by intro hcc; omega)]
+                  exact (holeTape_out (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by intro hcc; omega)).symm
+  rw [hN4] at hrun4
+  rw [show ((h1 + 5) + 1) = (h1 + 6) from by omega] at hrun4
+  have hrun5 : stepN 1 (⟨State.F, (h1 + 6), holeTape (l) (r) (h1 + 6) (h2 + 4) (h2 + 4) (h2 + 4)⟩ : Config)
+      = some ⟨State.D, (h1 + 7), holeTape (l) (r) (h1 + 6) (h2 + 4) (h2 + 4) (h2 + 4)⟩ := by
+    have hstp := step_F_any (c := (⟨State.F, (h1 + 6), holeTape (l) (r) (h1 + 6) (h2 + 4) (h2 + 4) (h2 + 4)⟩ : Config)) rfl
+    simp only at hstp
+    rw [show (h1 + 6) + 1 = (h1 + 7) from by omega] at hstp
+    simp [stepN, hstp]
+  have hsafe5 : CSafeSeg (⟨State.F, (h1 + 6), holeTape (l) (r) (h1 + 6) (h2 + 4) (h2 + 4) (h2 + 4)⟩ : Config) 1 := by
+    intro k d hk hkd hP hread
+    have hk0 : k = 0 := by omega
+    subst hk0
+    have hdd : ((⟨State.F, (h1 + 6), holeTape (l) (r) (h1 + 6) (h2 + 4) (h2 + 4) (h2 + 4)⟩ : Config) : Config) = d := by simpa [stepN] using hkd
+    rw [← hdd] at hP
+    simp at hP
+  have hrun6 := sweep_mixed m (⟨State.D, (h1 + 7), holeTape (l) (r) (h1 + 6) (h2 + 4) (h2 + 4) (h2 + 4)⟩ : Config) rfl
+    (fun i hi => by
+      show holeTape (l) (r) (h1 + 6) (h2 + 4) (h2 + 4) (h2 + 4) ((h1 + 7) + 2 * (i : Int)) = true
+      exact holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+  have hsafe6 := sweep_mixed_safe m (⟨State.D, (h1 + 7), holeTape (l) (r) (h1 + 6) (h2 + 4) (h2 + 4) (h2 + 4)⟩ : Config) rfl
+    (fun i hi => by
+      show holeTape (l) (r) (h1 + 6) (h2 + 4) (h2 + 4) (h2 + 4) ((h1 + 7) + 2 * (i : Int)) = true
+      exact holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+  simp only at hrun6
+  rw [show (h1 + 7) + (2 * m : Int) = (r + 1) from by omega] at hrun6
+  refine ⟨?_, ?_⟩
+  · rw [stepN_add, hrun1]
+    show stepN ((13) + ((10 * k2) + ((13) + ((1) + ((2 * m)))))) _ = _
+    rw [stepN_add, hrun2]
+    show stepN ((10 * k2) + ((13) + ((1) + ((2 * m))))) _ = _
+    rw [stepN_add, hrun3]
+    show stepN ((13) + ((1) + ((2 * m)))) _ = _
+    rw [stepN_add, hrun4]
+    show stepN ((1) + ((2 * m))) _ = _
+    rw [stepN_add, hrun5]
+    show stepN ((2 * m)) _ = _
+    rw [hrun6]
+  · exact (csafe_compose hrun1 hsafe1 (csafe_compose hrun2 hsafe2 (csafe_compose hrun3 hsafe3 (csafe_compose hrun4 hsafe4 (csafe_compose hrun5 hsafe5 hsafe6)))))
+
+/-- **The fusion episode** (`b = 1`): the crawl reaches the adjacent hole pair; three business fills plant the fused hole at `h1 + 9`, and the parity-shifted sweep leaves a fresh hole at `r + 1`, exiting at `r + 2`. -/
+theorem episode_fuse {c : Config} {l h1 h2 r : Int}
+    {k1 m : Nat}
+    (hs : c.state = State.D) (hh : c.head = r)
+    (ht : c.tape = holeTape (l) (r - 1) (h1) (h2) (r - 3) (r - 3))
+    (hgl : l ≤ h1)
+    (hgf : h2 = h1 + 2)
+    (hgk1 : r - 2 * (k1 : Int) = h2 + 6)
+    (hgc : h2 + 7 ≤ r)
+    (hgm : h2 + 8 + 2 * (m : Int) = r + 2)
+    :
+    stepN (10 * k1 + (19 + (1 + 2 * m))) c
+        = some ⟨State.D, (r + 2), holeTape (l) (r) (h2 + 7) (h2 + 7) (h2 + 7) (h2 + 7)⟩ ∧
+      CSafeSeg c (10 * k1 + (19 + (1 + 2 * m))) := by
+  obtain ⟨hrun1, hsafe1⟩ := cat_run k1 c (r)
+    hs hh
+    (by rw [ht]; exact (holeTape_out (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by intro hcc; omega)))
+    (by rw [ht]; exact (holeTape_hole (Or.inr (Or.inr (Or.inl (by omega))))))
+    (by intro q hq1 hq2 hq3 hq4; rw [ht]; exact holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+  rw [ht] at hrun1
+  have hN1 : catTape (holeTape (l) (r - 1) (h1) (h2) (r - 3) (r - 3)) (r) k1 = holeTape (l) (r) (h1) (h2) (h2 + 3) (h2 + 6) := by
+    funext q
+    show (if q = (r) - 2 * (k1 : Int) ∨ q = (r) - 2 * (k1 : Int) - 3 then false
+          else if (r) - 2 * (k1 : Int) - 3 < q ∧ q ≤ (r) then true
+          else (holeTape (l) (r - 1) (h1) (h2) (r - 3) (r - 3)) q) = (holeTape (l) (r) (h1) (h2) (h2 + 3) (h2 + 6)) q
+    by_cases hf : q = (r) - 2 * (k1 : Int)
+    · rw [if_pos (Or.inl hf)]
+      exact (holeTape_hole (Or.inr (Or.inr (Or.inr (by omega))))).symm
+    · by_cases hc : q = (r) - 2 * (k1 : Int) - 3
+      · rw [if_pos (Or.inr hc)]
+        exact (holeTape_hole (Or.inr (Or.inr (Or.inl (by omega))))).symm
+      · rw [if_neg (by intro hor; exact hor.elim hf hc)]
+        by_cases hz : (r) - 2 * (k1 : Int) - 3 < q ∧ q ≤ (r)
+        · rw [if_pos hz]
+          obtain ⟨hz1, hz2⟩ := hz
+          exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+        · have hzz := not_and_le hz
+          clear hz
+          rw [if_neg (by intro hcc; omega)]
+          by_cases hin : q = (h1) ∨ q = (h2) ∨ q = (r - 3) ∨ q = (r - 3)
+          · rw [holeTape_hole hin]
+            rcases hin with hx | hx | hx | hx
+            · exact (holeTape_hole (Or.inl (by omega))).symm
+            · exact (holeTape_hole (Or.inr (Or.inl (by omega)))).symm
+            · exfalso
+              omega
+            · exfalso
+              omega
+          · by_cases hrange : (l) ≤ q ∧ q ≤ (r - 1)
+            · obtain ⟨hr1, hr2⟩ := hrange
+              rw [holeTape_one hin hr1 hr2]
+              exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+            · have hrr := not_and_le' hrange
+              clear hrange
+              rw [holeTape_out hin (by intro hcc; omega)]
+              exact (holeTape_out (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by intro hcc; omega)).symm
+  rw [hN1] at hrun1
+  rw [show (r) - 2 * (k1 : Int) = (h2 + 6) from by omega] at hrun1
+  obtain ⟨hrun2, hsafe2⟩ := fuse_cycle
+    (c := (⟨State.D, (h2 + 6), holeTape (l) (r) (h1) (h2) (h2 + 3) (h2 + 6)⟩ : Config)) (h := (h2 + 6)) rfl rfl
+    (holeTape_hole (Or.inl (by omega)))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_hole (Or.inr (Or.inl (by omega))))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_hole (Or.inr (Or.inr (Or.inl (by omega)))))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_hole (Or.inr (Or.inr (Or.inr (by omega)))))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+  have hN2 : (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (holeTape (l) (r) (h1) (h2) (h2 + 3) (h2 + 6)) ((h2 + 6)) true) ((h2 + 6) - 2) false) ((h2 + 6) - 3) true) ((h2 + 6) - 5) false) ((h2 + 6) - 6) true) ((h2 + 6) - 8) true) ((h2 + 6) - 5) true) ((h2 + 6) - 2) true) ((h2 + 6) + 1) false) = holeTape (l) (r) (h2 + 7) (h2 + 7) (h2 + 7) (h2 + 7) := by
+    funext q
+    by_cases hw0 : q = ((h2 + 6) + 1)
+    · rw [hw0, writeAt_same _ _ _]
+      exact (holeTape_hole (Or.inl (by omega))).symm
+    · rw [writeAt_other _ _ _ _ (by omega)]
+      by_cases hw1 : q = ((h2 + 6) - 2)
+      · rw [hw1, writeAt_same _ _ _]
+        exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+      · rw [writeAt_other _ _ _ _ (by omega)]
+        by_cases hw2 : q = ((h2 + 6) - 5)
+        · rw [hw2, writeAt_same _ _ _]
+          exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+        · rw [writeAt_other _ _ _ _ (by omega)]
+          by_cases hw3 : q = ((h2 + 6) - 8)
+          · rw [hw3, writeAt_same _ _ _]
+            exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+          · rw [writeAt_other _ _ _ _ (by omega)]
+            by_cases hw4 : q = ((h2 + 6) - 6)
+            · rw [hw4, writeAt_same _ _ _]
+              exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+            · rw [writeAt_other _ _ _ _ (by omega)]
+              rw [writeAt_other _ _ _ _ (by omega)]
+              by_cases hw6 : q = ((h2 + 6) - 3)
+              · rw [hw6, writeAt_same _ _ _]
+                exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+              · rw [writeAt_other _ _ _ _ (by omega)]
+                rw [writeAt_other _ _ _ _ (by omega)]
+                by_cases hw8 : q = ((h2 + 6))
+                · rw [hw8, writeAt_same _ _ _]
+                  exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+                · rw [writeAt_other _ _ _ _ (by omega)]
+                  by_cases hin : q = (h1) ∨ q = (h2) ∨ q = (h2 + 3) ∨ q = (h2 + 6)
+                  · rw [holeTape_hole hin]
+                    rcases hin with hx | hx | hx | hx
+                    · exfalso
+                      omega
+                    · exfalso
+                      omega
+                    · exfalso
+                      omega
+                    · exfalso
+                      omega
+                  · by_cases hrange : (l) ≤ q ∧ q ≤ (r)
+                    · obtain ⟨hr1, hr2⟩ := hrange
+                      rw [holeTape_one hin hr1 hr2]
+                      exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+                    · have hrr := not_and_le' hrange
+                      clear hrange
+                      rw [holeTape_out hin (by intro hcc; omega)]
+                      exact (holeTape_out (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by intro hcc; omega)).symm
+  rw [hN2] at hrun2
+  rw [show ((h2 + 6) + 1) = (h2 + 7) from by omega] at hrun2
+  have hrun3 : stepN 1 (⟨State.F, (h2 + 7), holeTape (l) (r) (h2 + 7) (h2 + 7) (h2 + 7) (h2 + 7)⟩ : Config)
+      = some ⟨State.D, (h2 + 8), holeTape (l) (r) (h2 + 7) (h2 + 7) (h2 + 7) (h2 + 7)⟩ := by
+    have hstp := step_F_any (c := (⟨State.F, (h2 + 7), holeTape (l) (r) (h2 + 7) (h2 + 7) (h2 + 7) (h2 + 7)⟩ : Config)) rfl
+    simp only at hstp
+    rw [show (h2 + 7) + 1 = (h2 + 8) from by omega] at hstp
+    simp [stepN, hstp]
+  have hsafe3 : CSafeSeg (⟨State.F, (h2 + 7), holeTape (l) (r) (h2 + 7) (h2 + 7) (h2 + 7) (h2 + 7)⟩ : Config) 1 := by
+    intro k d hk hkd hP hread
+    have hk0 : k = 0 := by omega
+    subst hk0
+    have hdd : ((⟨State.F, (h2 + 7), holeTape (l) (r) (h2 + 7) (h2 + 7) (h2 + 7) (h2 + 7)⟩ : Config) : Config) = d := by simpa [stepN] using hkd
+    rw [← hdd] at hP
+    simp at hP
+  have hrun4 := sweep_mixed m (⟨State.D, (h2 + 8), holeTape (l) (r) (h2 + 7) (h2 + 7) (h2 + 7) (h2 + 7)⟩ : Config) rfl
+    (fun i hi => by
+      show holeTape (l) (r) (h2 + 7) (h2 + 7) (h2 + 7) (h2 + 7) ((h2 + 8) + 2 * (i : Int)) = true
+      exact holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+  have hsafe4 := sweep_mixed_safe m (⟨State.D, (h2 + 8), holeTape (l) (r) (h2 + 7) (h2 + 7) (h2 + 7) (h2 + 7)⟩ : Config) rfl
+    (fun i hi => by
+      show holeTape (l) (r) (h2 + 7) (h2 + 7) (h2 + 7) (h2 + 7) ((h2 + 8) + 2 * (i : Int)) = true
+      exact holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+  simp only at hrun4
+  rw [show (h2 + 8) + (2 * m : Int) = (r + 2) from by omega] at hrun4
+  refine ⟨?_, ?_⟩
+  · rw [stepN_add, hrun1]
+    show stepN ((19) + ((1) + ((2 * m)))) _ = _
+    rw [stepN_add, hrun2]
+    show stepN ((1) + ((2 * m))) _ = _
+    rw [stepN_add, hrun3]
+    show stepN ((2 * m)) _ = _
+    rw [hrun4]
+  · exact (csafe_compose hrun1 hsafe1 (csafe_compose hrun2 hsafe2 (csafe_compose hrun3 hsafe3 hsafe4)))
+
+/-- **The carried-hole termination episode** (2-hole entry, odd arrival parity at `h1`): terminate (+6) without any crossing; the parity-shifted sweep leaves a hole at `r + 1` and exits at `r + 2`. -/
+theorem episode_carried_term {c : Config} {l h1 h2 r : Int}
+    {k1 m : Nat}
+    (hs : c.state = State.D) (hh : c.head = r)
+    (ht : c.tape = holeTape (l) (r - 1) (h1) (h2) (h2) (h2))
+    (hgl : l ≤ h1)
+    (hgv2 : h2 = r - 3)
+    (hgc5 : h1 + 7 ≤ r)
+    (hgk1 : r - 2 * (k1 : Int) = h1 + 5)
+    (hgm : h1 + 7 + 2 * (m : Int) = r + 2)
+    :
+    stepN (10 * k1 + (13 + (1 + 2 * m))) c
+        = some ⟨State.D, (r + 2), holeTape (l) (r) (h1 + 6) (h1 + 6) (h1 + 6) (h1 + 6)⟩ ∧
+      CSafeSeg c (10 * k1 + (13 + (1 + 2 * m))) := by
+  obtain ⟨hrun1, hsafe1⟩ := cat_run k1 c (r)
+    hs hh
+    (by rw [ht]; exact (holeTape_out (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by intro hcc; omega)))
+    (by rw [ht]; exact (holeTape_hole (Or.inr (Or.inl (by omega)))))
+    (by intro q hq1 hq2 hq3 hq4; rw [ht]; exact holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+  rw [ht] at hrun1
+  have hN1 : catTape (holeTape (l) (r - 1) (h1) (h2) (h2) (h2)) (r) k1 = holeTape (l) (r) (h1) (h1 + 2) (h1 + 5) (h1 + 5) := by
+    funext q
+    show (if q = (r) - 2 * (k1 : Int) ∨ q = (r) - 2 * (k1 : Int) - 3 then false
+          else if (r) - 2 * (k1 : Int) - 3 < q ∧ q ≤ (r) then true
+          else (holeTape (l) (r - 1) (h1) (h2) (h2) (h2)) q) = (holeTape (l) (r) (h1) (h1 + 2) (h1 + 5) (h1 + 5)) q
+    by_cases hf : q = (r) - 2 * (k1 : Int)
+    · rw [if_pos (Or.inl hf)]
+      exact (holeTape_hole (Or.inr (Or.inr (Or.inl (by omega))))).symm
+    · by_cases hc : q = (r) - 2 * (k1 : Int) - 3
+      · rw [if_pos (Or.inr hc)]
+        exact (holeTape_hole (Or.inr (Or.inl (by omega)))).symm
+      · rw [if_neg (by intro hor; exact hor.elim hf hc)]
+        by_cases hz : (r) - 2 * (k1 : Int) - 3 < q ∧ q ≤ (r)
+        · rw [if_pos hz]
+          obtain ⟨hz1, hz2⟩ := hz
+          exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+        · have hzz := not_and_le hz
+          clear hz
+          rw [if_neg (by intro hcc; omega)]
+          by_cases hin : q = (h1) ∨ q = (h2) ∨ q = (h2) ∨ q = (h2)
+          · rw [holeTape_hole hin]
+            rcases hin with hx | hx | hx | hx
+            · exact (holeTape_hole (Or.inl (by omega))).symm
+            · exfalso
+              omega
+            · exfalso
+              omega
+            · exfalso
+              omega
+          · by_cases hrange : (l) ≤ q ∧ q ≤ (r - 1)
+            · obtain ⟨hr1, hr2⟩ := hrange
+              rw [holeTape_one hin hr1 hr2]
+              exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+            · have hrr := not_and_le' hrange
+              clear hrange
+              rw [holeTape_out hin (by intro hcc; omega)]
+              exact (holeTape_out (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by intro hcc; omega)).symm
+  rw [hN1] at hrun1
+  rw [show (r) - 2 * (k1 : Int) = (h1 + 5) from by omega] at hrun1
+  obtain ⟨hrun2, hsafe2⟩ := term_cycle
+    (c := (⟨State.D, (h1 + 5), holeTape (l) (r) (h1) (h1 + 2) (h1 + 5) (h1 + 5)⟩ : Config)) (h := (h1 + 5)) rfl rfl
+    (holeTape_hole (Or.inl (by omega)))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_hole (Or.inr (Or.inl (by omega))))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_hole (Or.inr (Or.inr (Or.inl (by omega)))))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+  have hN2 : (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (holeTape (l) (r) (h1) (h1 + 2) (h1 + 5) (h1 + 5)) ((h1 + 5)) true) ((h1 + 5) - 2) false) ((h1 + 5) - 3) true) ((h1 + 5) - 5) true) ((h1 + 5) - 2) true) ((h1 + 5) + 1) false) = holeTape (l) (r) (h1 + 6) (h1 + 6) (h1 + 6) (h1 + 6) := by
+    funext q
+    by_cases hw0 : q = ((h1 + 5) + 1)
+    · rw [hw0, writeAt_same _ _ _]
+      exact (holeTape_hole (Or.inl (by omega))).symm
+    · rw [writeAt_other _ _ _ _ (by omega)]
+      by_cases hw1 : q = ((h1 + 5) - 2)
+      · rw [hw1, writeAt_same _ _ _]
+        exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+      · rw [writeAt_other _ _ _ _ (by omega)]
+        by_cases hw2 : q = ((h1 + 5) - 5)
+        · rw [hw2, writeAt_same _ _ _]
+          exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+        · rw [writeAt_other _ _ _ _ (by omega)]
+          by_cases hw3 : q = ((h1 + 5) - 3)
+          · rw [hw3, writeAt_same _ _ _]
+            exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+          · rw [writeAt_other _ _ _ _ (by omega)]
+            rw [writeAt_other _ _ _ _ (by omega)]
+            by_cases hw5 : q = ((h1 + 5))
+            · rw [hw5, writeAt_same _ _ _]
+              exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+            · rw [writeAt_other _ _ _ _ (by omega)]
+              by_cases hin : q = (h1) ∨ q = (h1 + 2) ∨ q = (h1 + 5) ∨ q = (h1 + 5)
+              · rw [holeTape_hole hin]
+                rcases hin with hx | hx | hx | hx
+                · exfalso
+                  omega
+                · exfalso
+                  omega
+                · exfalso
+                  omega
+                · exfalso
+                  omega
+              · by_cases hrange : (l) ≤ q ∧ q ≤ (r)
+                · obtain ⟨hr1, hr2⟩ := hrange
+                  rw [holeTape_one hin hr1 hr2]
+                  exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+                · have hrr := not_and_le' hrange
+                  clear hrange
+                  rw [holeTape_out hin (by intro hcc; omega)]
+                  exact (holeTape_out (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by intro hcc; omega)).symm
+  rw [hN2] at hrun2
+  rw [show ((h1 + 5) + 1) = (h1 + 6) from by omega] at hrun2
+  have hrun3 : stepN 1 (⟨State.F, (h1 + 6), holeTape (l) (r) (h1 + 6) (h1 + 6) (h1 + 6) (h1 + 6)⟩ : Config)
+      = some ⟨State.D, (h1 + 7), holeTape (l) (r) (h1 + 6) (h1 + 6) (h1 + 6) (h1 + 6)⟩ := by
+    have hstp := step_F_any (c := (⟨State.F, (h1 + 6), holeTape (l) (r) (h1 + 6) (h1 + 6) (h1 + 6) (h1 + 6)⟩ : Config)) rfl
+    simp only at hstp
+    rw [show (h1 + 6) + 1 = (h1 + 7) from by omega] at hstp
+    simp [stepN, hstp]
+  have hsafe3 : CSafeSeg (⟨State.F, (h1 + 6), holeTape (l) (r) (h1 + 6) (h1 + 6) (h1 + 6) (h1 + 6)⟩ : Config) 1 := by
+    intro k d hk hkd hP hread
+    have hk0 : k = 0 := by omega
+    subst hk0
+    have hdd : ((⟨State.F, (h1 + 6), holeTape (l) (r) (h1 + 6) (h1 + 6) (h1 + 6) (h1 + 6)⟩ : Config) : Config) = d := by simpa [stepN] using hkd
+    rw [← hdd] at hP
+    simp at hP
+  have hrun4 := sweep_mixed m (⟨State.D, (h1 + 7), holeTape (l) (r) (h1 + 6) (h1 + 6) (h1 + 6) (h1 + 6)⟩ : Config) rfl
+    (fun i hi => by
+      show holeTape (l) (r) (h1 + 6) (h1 + 6) (h1 + 6) (h1 + 6) ((h1 + 7) + 2 * (i : Int)) = true
+      exact holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+  have hsafe4 := sweep_mixed_safe m (⟨State.D, (h1 + 7), holeTape (l) (r) (h1 + 6) (h1 + 6) (h1 + 6) (h1 + 6)⟩ : Config) rfl
+    (fun i hi => by
+      show holeTape (l) (r) (h1 + 6) (h1 + 6) (h1 + 6) (h1 + 6) ((h1 + 7) + 2 * (i : Int)) = true
+      exact holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+  simp only at hrun4
+  rw [show (h1 + 7) + (2 * m : Int) = (r + 2) from by omega] at hrun4
+  refine ⟨?_, ?_⟩
+  · rw [stepN_add, hrun1]
+    show stepN ((13) + ((1) + ((2 * m)))) _ = _
+    rw [stepN_add, hrun2]
+    show stepN ((1) + ((2 * m))) _ = _
+    rw [stepN_add, hrun3]
+    show stepN ((2 * m)) _ = _
+    rw [hrun4]
+  · exact (csafe_compose hrun1 hsafe1 (csafe_compose hrun2 hsafe2 (csafe_compose hrun3 hsafe3 hsafe4)))
+
+/-- **The deep traversal, odd `a`**: cross the lone hole (+4), crawl to the left edge, extend the field by one, plant at `(l - 1) + 6`, sweep home.  The renewal move of the eternal macro-cycle. -/
+theorem episode_deep_odd {c : Config} {l h1 h2 r : Int}
+    {k1 k2 m : Nat}
+    (hs : c.state = State.D) (hh : c.head = r)
+    (ht : c.tape = holeTape (l) (r - 1) (h1) (h2) (h2) (h2))
+    (hgl9 : l + 9 ≤ h1)
+    (hgv2 : h2 = r - 3)
+    (hgk1 : r - 2 * (k1 : Int) = h1 + 6)
+    (hgk2 : h1 + 1 - 2 * (k2 : Int) = l + 4)
+    (hgm : l + 6 + 2 * (m : Int) = r + 1)
+    :
+    stepN (10 * k1 + (13 + (10 * k2 + (3 + (10 + (1 + 2 * m)))))) c
+        = some ⟨State.D, (r + 1), holeTape (l - 1) (r) (l + 5) (h1 + 4) (h1 + 4) (h1 + 4)⟩ ∧
+      CSafeSeg c (10 * k1 + (13 + (10 * k2 + (3 + (10 + (1 + 2 * m)))))) := by
+  obtain ⟨hrun1, hsafe1⟩ := cat_run k1 c (r)
+    hs hh
+    (by rw [ht]; exact (holeTape_out (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by intro hcc; omega)))
+    (by rw [ht]; exact (holeTape_hole (Or.inr (Or.inl (by omega)))))
+    (by intro q hq1 hq2 hq3 hq4; rw [ht]; exact holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+  rw [ht] at hrun1
+  have hN1 : catTape (holeTape (l) (r - 1) (h1) (h2) (h2) (h2)) (r) k1 = holeTape (l) (r) (h1) (h1 + 3) (h1 + 6) (h1 + 6) := by
+    funext q
+    show (if q = (r) - 2 * (k1 : Int) ∨ q = (r) - 2 * (k1 : Int) - 3 then false
+          else if (r) - 2 * (k1 : Int) - 3 < q ∧ q ≤ (r) then true
+          else (holeTape (l) (r - 1) (h1) (h2) (h2) (h2)) q) = (holeTape (l) (r) (h1) (h1 + 3) (h1 + 6) (h1 + 6)) q
+    by_cases hf : q = (r) - 2 * (k1 : Int)
+    · rw [if_pos (Or.inl hf)]
+      exact (holeTape_hole (Or.inr (Or.inr (Or.inl (by omega))))).symm
+    · by_cases hc : q = (r) - 2 * (k1 : Int) - 3
+      · rw [if_pos (Or.inr hc)]
+        exact (holeTape_hole (Or.inr (Or.inl (by omega)))).symm
+      · rw [if_neg (by intro hor; exact hor.elim hf hc)]
+        by_cases hz : (r) - 2 * (k1 : Int) - 3 < q ∧ q ≤ (r)
+        · rw [if_pos hz]
+          obtain ⟨hz1, hz2⟩ := hz
+          exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+        · have hzz := not_and_le hz
+          clear hz
+          rw [if_neg (by intro hcc; omega)]
+          by_cases hin : q = (h1) ∨ q = (h2) ∨ q = (h2) ∨ q = (h2)
+          · rw [holeTape_hole hin]
+            rcases hin with hx | hx | hx | hx
+            · exact (holeTape_hole (Or.inl (by omega))).symm
+            · exfalso
+              omega
+            · exfalso
+              omega
+            · exfalso
+              omega
+          · by_cases hrange : (l) ≤ q ∧ q ≤ (r - 1)
+            · obtain ⟨hr1, hr2⟩ := hrange
+              rw [holeTape_one hin hr1 hr2]
+              exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+            · have hrr := not_and_le' hrange
+              clear hrange
+              rw [holeTape_out hin (by intro hcc; omega)]
+              exact (holeTape_out (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by intro hcc; omega)).symm
+  rw [hN1] at hrun1
+  rw [show (r) - 2 * (k1 : Int) = (h1 + 6) from by omega] at hrun1
+  obtain ⟨hrun2, hsafe2⟩ := cross_cycle
+    (c := (⟨State.D, (h1 + 6), holeTape (l) (r) (h1) (h1 + 3) (h1 + 6) (h1 + 6)⟩ : Config)) (h := (h1 + 6)) rfl rfl
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_hole (Or.inl (by omega)))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_hole (Or.inr (Or.inl (by omega))))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_hole (Or.inr (Or.inr (Or.inl (by omega)))))
+  have hN2 : (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (holeTape (l) (r) (h1) (h1 + 3) (h1 + 6) (h1 + 6)) ((h1 + 6)) true) ((h1 + 6) - 2) false) ((h1 + 6) - 3) true) ((h1 + 6) - 5) false) ((h1 + 6) - 6) true) ((h1 + 6) - 8) false) = holeTape (l) (r) (h1 - 2) (h1 + 1) (h1 + 4) (h1 + 4) := by
+    funext q
+    by_cases hw0 : q = ((h1 + 6) - 8)
+    · rw [hw0, writeAt_same _ _ _]
+      exact (holeTape_hole (Or.inl (by omega))).symm
+    · rw [writeAt_other _ _ _ _ (by omega)]
+      by_cases hw1 : q = ((h1 + 6) - 6)
+      · rw [hw1, writeAt_same _ _ _]
+        exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+      · rw [writeAt_other _ _ _ _ (by omega)]
+        by_cases hw2 : q = ((h1 + 6) - 5)
+        · rw [hw2, writeAt_same _ _ _]
+          exact (holeTape_hole (Or.inr (Or.inl (by omega)))).symm
+        · rw [writeAt_other _ _ _ _ (by omega)]
+          by_cases hw3 : q = ((h1 + 6) - 3)
+          · rw [hw3, writeAt_same _ _ _]
+            exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+          · rw [writeAt_other _ _ _ _ (by omega)]
+            by_cases hw4 : q = ((h1 + 6) - 2)
+            · rw [hw4, writeAt_same _ _ _]
+              exact (holeTape_hole (Or.inr (Or.inr (Or.inl (by omega))))).symm
+            · rw [writeAt_other _ _ _ _ (by omega)]
+              by_cases hw5 : q = ((h1 + 6))
+              · rw [hw5, writeAt_same _ _ _]
+                exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+              · rw [writeAt_other _ _ _ _ (by omega)]
+                by_cases hin : q = (h1) ∨ q = (h1 + 3) ∨ q = (h1 + 6) ∨ q = (h1 + 6)
+                · rw [holeTape_hole hin]
+                  rcases hin with hx | hx | hx | hx
+                  · exfalso
+                    omega
+                  · exfalso
+                    omega
+                  · exfalso
+                    omega
+                  · exfalso
+                    omega
+                · by_cases hrange : (l) ≤ q ∧ q ≤ (r)
+                  · obtain ⟨hr1, hr2⟩ := hrange
+                    rw [holeTape_one hin hr1 hr2]
+                    exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+                  · have hrr := not_and_le' hrange
+                    clear hrange
+                    rw [holeTape_out hin (by intro hcc; omega)]
+                    exact (holeTape_out (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by intro hcc; omega)).symm
+  rw [hN2] at hrun2
+  rw [show ((h1 + 6) - 5) = (h1 + 1) from by omega] at hrun2
+  obtain ⟨hrun3, hsafe3⟩ := cat_run k2 (⟨State.D, (h1 + 1), holeTape (l) (r) (h1 - 2) (h1 + 1) (h1 + 4) (h1 + 4)⟩ : Config) (h1 + 1)
+    rfl rfl
+    (holeTape_hole (Or.inr (Or.inl (by omega))))
+    (holeTape_hole (Or.inl (by omega)))
+    (fun q hq1 hq2 hq3 hq4 => holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+  have hN3 : catTape (holeTape (l) (r) (h1 - 2) (h1 + 1) (h1 + 4) (h1 + 4)) (h1 + 1) k2 = holeTape (l) (r) (l + 1) (l + 4) (h1 + 4) (h1 + 4) := by
+    funext q
+    show (if q = (h1 + 1) - 2 * (k2 : Int) ∨ q = (h1 + 1) - 2 * (k2 : Int) - 3 then false
+          else if (h1 + 1) - 2 * (k2 : Int) - 3 < q ∧ q ≤ (h1 + 1) then true
+          else (holeTape (l) (r) (h1 - 2) (h1 + 1) (h1 + 4) (h1 + 4)) q) = (holeTape (l) (r) (l + 1) (l + 4) (h1 + 4) (h1 + 4)) q
+    by_cases hf : q = (h1 + 1) - 2 * (k2 : Int)
+    · rw [if_pos (Or.inl hf)]
+      exact (holeTape_hole (Or.inr (Or.inl (by omega)))).symm
+    · by_cases hc : q = (h1 + 1) - 2 * (k2 : Int) - 3
+      · rw [if_pos (Or.inr hc)]
+        exact (holeTape_hole (Or.inl (by omega))).symm
+      · rw [if_neg (by intro hor; exact hor.elim hf hc)]
+        by_cases hz : (h1 + 1) - 2 * (k2 : Int) - 3 < q ∧ q ≤ (h1 + 1)
+        · rw [if_pos hz]
+          obtain ⟨hz1, hz2⟩ := hz
+          exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+        · have hzz := not_and_le hz
+          clear hz
+          rw [if_neg (by intro hcc; omega)]
+          by_cases hin : q = (h1 - 2) ∨ q = (h1 + 1) ∨ q = (h1 + 4) ∨ q = (h1 + 4)
+          · rw [holeTape_hole hin]
+            rcases hin with hx | hx | hx | hx
+            · exfalso
+              omega
+            · exfalso
+              omega
+            · exact (holeTape_hole (Or.inr (Or.inr (Or.inl (by omega))))).symm
+            · exact (holeTape_hole (Or.inr (Or.inr (Or.inl (by omega))))).symm
+          · by_cases hrange : (l) ≤ q ∧ q ≤ (r)
+            · obtain ⟨hr1, hr2⟩ := hrange
+              rw [holeTape_one hin hr1 hr2]
+              exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+            · have hrr := not_and_le' hrange
+              clear hrange
+              rw [holeTape_out hin (by intro hcc; omega)]
+              exact (holeTape_out (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by intro hcc; omega)).symm
+  rw [hN3] at hrun3
+  rw [show (h1 + 1) - 2 * (k2 : Int) = (l + 4) from by omega] at hrun3
+  obtain ⟨hrun4, hsafe4⟩ := march_triple
+    (c := (⟨State.D, (l + 4), holeTape (l) (r) (l + 1) (l + 4) (h1 + 4) (h1 + 4)⟩ : Config)) (h := (l + 4)) rfl rfl
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_hole (Or.inr (Or.inl (by omega))))
+  have hN4 : (writeAt (writeAt (holeTape (l) (r) (l + 1) (l + 4) (h1 + 4) (h1 + 4)) ((l + 4)) true) ((l + 4) - 2) false) = holeTape (l) (r) (l + 1) (l + 2) (h1 + 4) (h1 + 4) := by
+    funext q
+    by_cases hw0 : q = ((l + 4) - 2)
+    · rw [hw0, writeAt_same _ _ _]
+      exact (holeTape_hole (Or.inr (Or.inl (by omega)))).symm
+    · rw [writeAt_other _ _ _ _ (by omega)]
+      by_cases hw1 : q = ((l + 4))
+      · rw [hw1, writeAt_same _ _ _]
+        exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+      · rw [writeAt_other _ _ _ _ (by omega)]
+        by_cases hin : q = (l + 1) ∨ q = (l + 4) ∨ q = (h1 + 4) ∨ q = (h1 + 4)
+        · rw [holeTape_hole hin]
+          rcases hin with hx | hx | hx | hx
+          · exact (holeTape_hole (Or.inl (by omega))).symm
+          · exfalso
+            omega
+          · exact (holeTape_hole (Or.inr (Or.inr (Or.inl (by omega))))).symm
+          · exact (holeTape_hole (Or.inr (Or.inr (Or.inl (by omega))))).symm
+        · by_cases hrange : (l) ≤ q ∧ q ≤ (r)
+          · obtain ⟨hr1, hr2⟩ := hrange
+            rw [holeTape_one hin hr1 hr2]
+            exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+          · have hrr := not_and_le' hrange
+            clear hrange
+            rw [holeTape_out hin (by intro hcc; omega)]
+            exact (holeTape_out (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by intro hcc; omega)).symm
+  rw [hN4] at hrun4
+  rw [show ((l + 4) - 3) = (l + 1) from by omega] at hrun4
+  obtain ⟨hrun5, hsafe5⟩ := edge_odd_seg
+    (c := (⟨State.D, (l + 1), holeTape (l) (r) (l + 1) (l + 2) (h1 + 4) (h1 + 4)⟩ : Config)) (h := (l + 1)) rfl rfl
+    (holeTape_out (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by intro hcc; omega))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_hole (Or.inl (by omega)))
+    (holeTape_hole (Or.inr (Or.inl (by omega))))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+  have hN5 : (writeAt (writeAt (writeAt (writeAt (holeTape (l) (r) (l + 1) (l + 2) (h1 + 4) (h1 + 4)) ((l + 1)) true) ((l + 1) - 2) true) ((l + 1) + 1) true) ((l + 1) + 4) false) = holeTape (l - 1) (r) (l + 5) (h1 + 4) (h1 + 4) (h1 + 4) := by
+    funext q
+    by_cases hw0 : q = ((l + 1) + 4)
+    · rw [hw0, writeAt_same _ _ _]
+      exact (holeTape_hole (Or.inl (by omega))).symm
+    · rw [writeAt_other _ _ _ _ (by omega)]
+      by_cases hw1 : q = ((l + 1) + 1)
+      · rw [hw1, writeAt_same _ _ _]
+        exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+      · rw [writeAt_other _ _ _ _ (by omega)]
+        by_cases hw2 : q = ((l + 1) - 2)
+        · rw [hw2, writeAt_same _ _ _]
+          exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+        · rw [writeAt_other _ _ _ _ (by omega)]
+          by_cases hw3 : q = ((l + 1))
+          · rw [hw3, writeAt_same _ _ _]
+            exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+          · rw [writeAt_other _ _ _ _ (by omega)]
+            by_cases hin : q = (l + 1) ∨ q = (l + 2) ∨ q = (h1 + 4) ∨ q = (h1 + 4)
+            · rw [holeTape_hole hin]
+              rcases hin with hx | hx | hx | hx
+              · exfalso
+                omega
+              · exfalso
+                omega
+              · exact (holeTape_hole (Or.inr (Or.inl (by omega)))).symm
+              · exact (holeTape_hole (Or.inr (Or.inl (by omega)))).symm
+            · by_cases hrange : (l) ≤ q ∧ q ≤ (r)
+              · obtain ⟨hr1, hr2⟩ := hrange
+                rw [holeTape_one hin hr1 hr2]
+                exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+              · have hrr := not_and_le' hrange
+                clear hrange
+                rw [holeTape_out hin (by intro hcc; omega)]
+                exact (holeTape_out (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by intro hcc; omega)).symm
+  rw [hN5] at hrun5
+  rw [show ((l + 1) + 4) = (l + 5) from by omega] at hrun5
+  have hrun6 : stepN 1 (⟨State.F, (l + 5), holeTape (l - 1) (r) (l + 5) (h1 + 4) (h1 + 4) (h1 + 4)⟩ : Config)
+      = some ⟨State.D, (l + 6), holeTape (l - 1) (r) (l + 5) (h1 + 4) (h1 + 4) (h1 + 4)⟩ := by
+    have hstp := step_F_any (c := (⟨State.F, (l + 5), holeTape (l - 1) (r) (l + 5) (h1 + 4) (h1 + 4) (h1 + 4)⟩ : Config)) rfl
+    simp only at hstp
+    rw [show (l + 5) + 1 = (l + 6) from by omega] at hstp
+    simp [stepN, hstp]
+  have hsafe6 : CSafeSeg (⟨State.F, (l + 5), holeTape (l - 1) (r) (l + 5) (h1 + 4) (h1 + 4) (h1 + 4)⟩ : Config) 1 := by
+    intro k d hk hkd hP hread
+    have hk0 : k = 0 := by omega
+    subst hk0
+    have hdd : ((⟨State.F, (l + 5), holeTape (l - 1) (r) (l + 5) (h1 + 4) (h1 + 4) (h1 + 4)⟩ : Config) : Config) = d := by simpa [stepN] using hkd
+    rw [← hdd] at hP
+    simp at hP
+  have hrun7 := sweep_mixed m (⟨State.D, (l + 6), holeTape (l - 1) (r) (l + 5) (h1 + 4) (h1 + 4) (h1 + 4)⟩ : Config) rfl
+    (fun i hi => by
+      show holeTape (l - 1) (r) (l + 5) (h1 + 4) (h1 + 4) (h1 + 4) ((l + 6) + 2 * (i : Int)) = true
+      exact holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+  have hsafe7 := sweep_mixed_safe m (⟨State.D, (l + 6), holeTape (l - 1) (r) (l + 5) (h1 + 4) (h1 + 4) (h1 + 4)⟩ : Config) rfl
+    (fun i hi => by
+      show holeTape (l - 1) (r) (l + 5) (h1 + 4) (h1 + 4) (h1 + 4) ((l + 6) + 2 * (i : Int)) = true
+      exact holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+  simp only at hrun7
+  rw [show (l + 6) + (2 * m : Int) = (r + 1) from by omega] at hrun7
+  refine ⟨?_, ?_⟩
+  · rw [stepN_add, hrun1]
+    show stepN ((13) + ((10 * k2) + ((3) + ((10) + ((1) + ((2 * m))))))) _ = _
+    rw [stepN_add, hrun2]
+    show stepN ((10 * k2) + ((3) + ((10) + ((1) + ((2 * m)))))) _ = _
+    rw [stepN_add, hrun3]
+    show stepN ((3) + ((10) + ((1) + ((2 * m))))) _ = _
+    rw [stepN_add, hrun4]
+    show stepN ((10) + ((1) + ((2 * m)))) _ = _
+    rw [stepN_add, hrun5]
+    show stepN ((1) + ((2 * m))) _ = _
+    rw [stepN_add, hrun6]
+    show stepN ((2 * m)) _ = _
+    rw [hrun7]
+  · exact (csafe_compose hrun1 hsafe1 (csafe_compose hrun2 hsafe2 (csafe_compose hrun3 hsafe3 (csafe_compose hrun4 hsafe4 (csafe_compose hrun5 hsafe5 (csafe_compose hrun6 hsafe6 hsafe7))))))
+
+/-- **The deep traversal, even `a`**: cross the lone hole, crawl to the edge, extend the field by three, plant at `(l - 3) + 9`, sweep home. -/
+theorem episode_deep_even {c : Config} {l h1 h2 r : Int}
+    {k1 k2 m : Nat}
+    (hs : c.state = State.D) (hh : c.head = r)
+    (ht : c.tape = holeTape (l) (r - 1) (h1) (h2) (h2) (h2))
+    (hgl9 : l + 10 ≤ h1)
+    (hgv2 : h2 = r - 3)
+    (hgk1 : r - 2 * (k1 : Int) = h1 + 6)
+    (hgk2 : h1 + 1 - 2 * (k2 : Int) = l + 5)
+    (hgm : l + 7 + 2 * (m : Int) = r + 1)
+    :
+    stepN (10 * k1 + (13 + (10 * k2 + (6 + (13 + (1 + 2 * m)))))) c
+        = some ⟨State.D, (r + 1), holeTape (l - 3) (r) (l + 6) (h1 + 4) (h1 + 4) (h1 + 4)⟩ ∧
+      CSafeSeg c (10 * k1 + (13 + (10 * k2 + (6 + (13 + (1 + 2 * m)))))) := by
+  obtain ⟨hrun1, hsafe1⟩ := cat_run k1 c (r)
+    hs hh
+    (by rw [ht]; exact (holeTape_out (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by intro hcc; omega)))
+    (by rw [ht]; exact (holeTape_hole (Or.inr (Or.inl (by omega)))))
+    (by intro q hq1 hq2 hq3 hq4; rw [ht]; exact holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+  rw [ht] at hrun1
+  have hN1 : catTape (holeTape (l) (r - 1) (h1) (h2) (h2) (h2)) (r) k1 = holeTape (l) (r) (h1) (h1 + 3) (h1 + 6) (h1 + 6) := by
+    funext q
+    show (if q = (r) - 2 * (k1 : Int) ∨ q = (r) - 2 * (k1 : Int) - 3 then false
+          else if (r) - 2 * (k1 : Int) - 3 < q ∧ q ≤ (r) then true
+          else (holeTape (l) (r - 1) (h1) (h2) (h2) (h2)) q) = (holeTape (l) (r) (h1) (h1 + 3) (h1 + 6) (h1 + 6)) q
+    by_cases hf : q = (r) - 2 * (k1 : Int)
+    · rw [if_pos (Or.inl hf)]
+      exact (holeTape_hole (Or.inr (Or.inr (Or.inl (by omega))))).symm
+    · by_cases hc : q = (r) - 2 * (k1 : Int) - 3
+      · rw [if_pos (Or.inr hc)]
+        exact (holeTape_hole (Or.inr (Or.inl (by omega)))).symm
+      · rw [if_neg (by intro hor; exact hor.elim hf hc)]
+        by_cases hz : (r) - 2 * (k1 : Int) - 3 < q ∧ q ≤ (r)
+        · rw [if_pos hz]
+          obtain ⟨hz1, hz2⟩ := hz
+          exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+        · have hzz := not_and_le hz
+          clear hz
+          rw [if_neg (by intro hcc; omega)]
+          by_cases hin : q = (h1) ∨ q = (h2) ∨ q = (h2) ∨ q = (h2)
+          · rw [holeTape_hole hin]
+            rcases hin with hx | hx | hx | hx
+            · exact (holeTape_hole (Or.inl (by omega))).symm
+            · exfalso
+              omega
+            · exfalso
+              omega
+            · exfalso
+              omega
+          · by_cases hrange : (l) ≤ q ∧ q ≤ (r - 1)
+            · obtain ⟨hr1, hr2⟩ := hrange
+              rw [holeTape_one hin hr1 hr2]
+              exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+            · have hrr := not_and_le' hrange
+              clear hrange
+              rw [holeTape_out hin (by intro hcc; omega)]
+              exact (holeTape_out (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by intro hcc; omega)).symm
+  rw [hN1] at hrun1
+  rw [show (r) - 2 * (k1 : Int) = (h1 + 6) from by omega] at hrun1
+  obtain ⟨hrun2, hsafe2⟩ := cross_cycle
+    (c := (⟨State.D, (h1 + 6), holeTape (l) (r) (h1) (h1 + 3) (h1 + 6) (h1 + 6)⟩ : Config)) (h := (h1 + 6)) rfl rfl
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_hole (Or.inl (by omega)))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_hole (Or.inr (Or.inl (by omega))))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_hole (Or.inr (Or.inr (Or.inl (by omega)))))
+  have hN2 : (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (holeTape (l) (r) (h1) (h1 + 3) (h1 + 6) (h1 + 6)) ((h1 + 6)) true) ((h1 + 6) - 2) false) ((h1 + 6) - 3) true) ((h1 + 6) - 5) false) ((h1 + 6) - 6) true) ((h1 + 6) - 8) false) = holeTape (l) (r) (h1 - 2) (h1 + 1) (h1 + 4) (h1 + 4) := by
+    funext q
+    by_cases hw0 : q = ((h1 + 6) - 8)
+    · rw [hw0, writeAt_same _ _ _]
+      exact (holeTape_hole (Or.inl (by omega))).symm
+    · rw [writeAt_other _ _ _ _ (by omega)]
+      by_cases hw1 : q = ((h1 + 6) - 6)
+      · rw [hw1, writeAt_same _ _ _]
+        exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+      · rw [writeAt_other _ _ _ _ (by omega)]
+        by_cases hw2 : q = ((h1 + 6) - 5)
+        · rw [hw2, writeAt_same _ _ _]
+          exact (holeTape_hole (Or.inr (Or.inl (by omega)))).symm
+        · rw [writeAt_other _ _ _ _ (by omega)]
+          by_cases hw3 : q = ((h1 + 6) - 3)
+          · rw [hw3, writeAt_same _ _ _]
+            exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+          · rw [writeAt_other _ _ _ _ (by omega)]
+            by_cases hw4 : q = ((h1 + 6) - 2)
+            · rw [hw4, writeAt_same _ _ _]
+              exact (holeTape_hole (Or.inr (Or.inr (Or.inl (by omega))))).symm
+            · rw [writeAt_other _ _ _ _ (by omega)]
+              by_cases hw5 : q = ((h1 + 6))
+              · rw [hw5, writeAt_same _ _ _]
+                exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+              · rw [writeAt_other _ _ _ _ (by omega)]
+                by_cases hin : q = (h1) ∨ q = (h1 + 3) ∨ q = (h1 + 6) ∨ q = (h1 + 6)
+                · rw [holeTape_hole hin]
+                  rcases hin with hx | hx | hx | hx
+                  · exfalso
+                    omega
+                  · exfalso
+                    omega
+                  · exfalso
+                    omega
+                  · exfalso
+                    omega
+                · by_cases hrange : (l) ≤ q ∧ q ≤ (r)
+                  · obtain ⟨hr1, hr2⟩ := hrange
+                    rw [holeTape_one hin hr1 hr2]
+                    exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+                  · have hrr := not_and_le' hrange
+                    clear hrange
+                    rw [holeTape_out hin (by intro hcc; omega)]
+                    exact (holeTape_out (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by intro hcc; omega)).symm
+  rw [hN2] at hrun2
+  rw [show ((h1 + 6) - 5) = (h1 + 1) from by omega] at hrun2
+  obtain ⟨hrun3, hsafe3⟩ := cat_run k2 (⟨State.D, (h1 + 1), holeTape (l) (r) (h1 - 2) (h1 + 1) (h1 + 4) (h1 + 4)⟩ : Config) (h1 + 1)
+    rfl rfl
+    (holeTape_hole (Or.inr (Or.inl (by omega))))
+    (holeTape_hole (Or.inl (by omega)))
+    (fun q hq1 hq2 hq3 hq4 => holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+  have hN3 : catTape (holeTape (l) (r) (h1 - 2) (h1 + 1) (h1 + 4) (h1 + 4)) (h1 + 1) k2 = holeTape (l) (r) (l + 2) (l + 5) (h1 + 4) (h1 + 4) := by
+    funext q
+    show (if q = (h1 + 1) - 2 * (k2 : Int) ∨ q = (h1 + 1) - 2 * (k2 : Int) - 3 then false
+          else if (h1 + 1) - 2 * (k2 : Int) - 3 < q ∧ q ≤ (h1 + 1) then true
+          else (holeTape (l) (r) (h1 - 2) (h1 + 1) (h1 + 4) (h1 + 4)) q) = (holeTape (l) (r) (l + 2) (l + 5) (h1 + 4) (h1 + 4)) q
+    by_cases hf : q = (h1 + 1) - 2 * (k2 : Int)
+    · rw [if_pos (Or.inl hf)]
+      exact (holeTape_hole (Or.inr (Or.inl (by omega)))).symm
+    · by_cases hc : q = (h1 + 1) - 2 * (k2 : Int) - 3
+      · rw [if_pos (Or.inr hc)]
+        exact (holeTape_hole (Or.inl (by omega))).symm
+      · rw [if_neg (by intro hor; exact hor.elim hf hc)]
+        by_cases hz : (h1 + 1) - 2 * (k2 : Int) - 3 < q ∧ q ≤ (h1 + 1)
+        · rw [if_pos hz]
+          obtain ⟨hz1, hz2⟩ := hz
+          exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+        · have hzz := not_and_le hz
+          clear hz
+          rw [if_neg (by intro hcc; omega)]
+          by_cases hin : q = (h1 - 2) ∨ q = (h1 + 1) ∨ q = (h1 + 4) ∨ q = (h1 + 4)
+          · rw [holeTape_hole hin]
+            rcases hin with hx | hx | hx | hx
+            · exfalso
+              omega
+            · exfalso
+              omega
+            · exact (holeTape_hole (Or.inr (Or.inr (Or.inl (by omega))))).symm
+            · exact (holeTape_hole (Or.inr (Or.inr (Or.inl (by omega))))).symm
+          · by_cases hrange : (l) ≤ q ∧ q ≤ (r)
+            · obtain ⟨hr1, hr2⟩ := hrange
+              rw [holeTape_one hin hr1 hr2]
+              exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+            · have hrr := not_and_le' hrange
+              clear hrange
+              rw [holeTape_out hin (by intro hcc; omega)]
+              exact (holeTape_out (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by intro hcc; omega)).symm
+  rw [hN3] at hrun3
+  rw [show (h1 + 1) - 2 * (k2 : Int) = (l + 5) from by omega] at hrun3
+  obtain ⟨hrun4, hsafe4⟩ := march_pair
+    (c := (⟨State.D, (l + 5), holeTape (l) (r) (l + 2) (l + 5) (h1 + 4) (h1 + 4)⟩ : Config)) (h := (l + 5)) rfl rfl
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_hole (Or.inl (by omega)))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_hole (Or.inr (Or.inl (by omega))))
+  have hN4 : (writeAt (writeAt (writeAt (writeAt (holeTape (l) (r) (l + 2) (l + 5) (h1 + 4) (h1 + 4)) ((l + 5)) true) ((l + 5) - 2) false) ((l + 5) - 3) true) ((l + 5) - 5) false) = holeTape (l) (r) (l) (l + 3) (h1 + 4) (h1 + 4) := by
+    funext q
+    by_cases hw0 : q = ((l + 5) - 5)
+    · rw [hw0, writeAt_same _ _ _]
+      exact (holeTape_hole (Or.inl (by omega))).symm
+    · rw [writeAt_other _ _ _ _ (by omega)]
+      by_cases hw1 : q = ((l + 5) - 3)
+      · rw [hw1, writeAt_same _ _ _]
+        exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+      · rw [writeAt_other _ _ _ _ (by omega)]
+        by_cases hw2 : q = ((l + 5) - 2)
+        · rw [hw2, writeAt_same _ _ _]
+          exact (holeTape_hole (Or.inr (Or.inl (by omega)))).symm
+        · rw [writeAt_other _ _ _ _ (by omega)]
+          by_cases hw3 : q = ((l + 5))
+          · rw [hw3, writeAt_same _ _ _]
+            exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+          · rw [writeAt_other _ _ _ _ (by omega)]
+            by_cases hin : q = (l + 2) ∨ q = (l + 5) ∨ q = (h1 + 4) ∨ q = (h1 + 4)
+            · rw [holeTape_hole hin]
+              rcases hin with hx | hx | hx | hx
+              · exfalso
+                omega
+              · exfalso
+                omega
+              · exact (holeTape_hole (Or.inr (Or.inr (Or.inl (by omega))))).symm
+              · exact (holeTape_hole (Or.inr (Or.inr (Or.inl (by omega))))).symm
+            · by_cases hrange : (l) ≤ q ∧ q ≤ (r)
+              · obtain ⟨hr1, hr2⟩ := hrange
+                rw [holeTape_one hin hr1 hr2]
+                exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+              · have hrr := not_and_le' hrange
+                clear hrange
+                rw [holeTape_out hin (by intro hcc; omega)]
+                exact (holeTape_out (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by intro hcc; omega)).symm
+  rw [hN4] at hrun4
+  rw [show ((l + 5) - 6) = (l - 1) from by omega] at hrun4
+  obtain ⟨hrun5, hsafe5⟩ := edge_even_seg
+    (c := (⟨State.D, (l - 1), holeTape (l) (r) (l) (l + 3) (h1 + 4) (h1 + 4)⟩ : Config)) (h := (l - 1)) rfl rfl
+    (holeTape_out (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by intro hcc; omega))
+    (holeTape_out (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by intro hcc; omega))
+    (holeTape_out (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by intro hcc; omega))
+    (holeTape_hole (Or.inl (by omega)))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_hole (Or.inr (Or.inl (by omega))))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+    (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+  have hN5 : (writeAt (writeAt (writeAt (writeAt (writeAt (writeAt (holeTape (l) (r) (l) (l + 3) (h1 + 4) (h1 + 4)) ((l - 1)) true) ((l - 1) - 1) true) ((l - 1) - 2) true) ((l - 1) + 1) true) ((l - 1) + 4) true) ((l - 1) + 7) false) = holeTape (l - 3) (r) (l + 6) (h1 + 4) (h1 + 4) (h1 + 4) := by
+    funext q
+    by_cases hw0 : q = ((l - 1) + 7)
+    · rw [hw0, writeAt_same _ _ _]
+      exact (holeTape_hole (Or.inl (by omega))).symm
+    · rw [writeAt_other _ _ _ _ (by omega)]
+      by_cases hw1 : q = ((l - 1) + 4)
+      · rw [hw1, writeAt_same _ _ _]
+        exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+      · rw [writeAt_other _ _ _ _ (by omega)]
+        by_cases hw2 : q = ((l - 1) + 1)
+        · rw [hw2, writeAt_same _ _ _]
+          exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+        · rw [writeAt_other _ _ _ _ (by omega)]
+          by_cases hw3 : q = ((l - 1) - 2)
+          · rw [hw3, writeAt_same _ _ _]
+            exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+          · rw [writeAt_other _ _ _ _ (by omega)]
+            by_cases hw4 : q = ((l - 1) - 1)
+            · rw [hw4, writeAt_same _ _ _]
+              exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+            · rw [writeAt_other _ _ _ _ (by omega)]
+              by_cases hw5 : q = ((l - 1))
+              · rw [hw5, writeAt_same _ _ _]
+                exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+              · rw [writeAt_other _ _ _ _ (by omega)]
+                by_cases hin : q = (l) ∨ q = (l + 3) ∨ q = (h1 + 4) ∨ q = (h1 + 4)
+                · rw [holeTape_hole hin]
+                  rcases hin with hx | hx | hx | hx
+                  · exfalso
+                    omega
+                  · exfalso
+                    omega
+                  · exact (holeTape_hole (Or.inr (Or.inl (by omega)))).symm
+                  · exact (holeTape_hole (Or.inr (Or.inl (by omega)))).symm
+                · by_cases hrange : (l) ≤ q ∧ q ≤ (r)
+                  · obtain ⟨hr1, hr2⟩ := hrange
+                    rw [holeTape_one hin hr1 hr2]
+                    exact (holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega)).symm
+                  · have hrr := not_and_le' hrange
+                    clear hrange
+                    rw [holeTape_out hin (by intro hcc; omega)]
+                    exact (holeTape_out (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by intro hcc; omega)).symm
+  rw [hN5] at hrun5
+  rw [show ((l - 1) + 7) = (l + 6) from by omega] at hrun5
+  have hrun6 : stepN 1 (⟨State.F, (l + 6), holeTape (l - 3) (r) (l + 6) (h1 + 4) (h1 + 4) (h1 + 4)⟩ : Config)
+      = some ⟨State.D, (l + 7), holeTape (l - 3) (r) (l + 6) (h1 + 4) (h1 + 4) (h1 + 4)⟩ := by
+    have hstp := step_F_any (c := (⟨State.F, (l + 6), holeTape (l - 3) (r) (l + 6) (h1 + 4) (h1 + 4) (h1 + 4)⟩ : Config)) rfl
+    simp only at hstp
+    rw [show (l + 6) + 1 = (l + 7) from by omega] at hstp
+    simp [stepN, hstp]
+  have hsafe6 : CSafeSeg (⟨State.F, (l + 6), holeTape (l - 3) (r) (l + 6) (h1 + 4) (h1 + 4) (h1 + 4)⟩ : Config) 1 := by
+    intro k d hk hkd hP hread
+    have hk0 : k = 0 := by omega
+    subst hk0
+    have hdd : ((⟨State.F, (l + 6), holeTape (l - 3) (r) (l + 6) (h1 + 4) (h1 + 4) (h1 + 4)⟩ : Config) : Config) = d := by simpa [stepN] using hkd
+    rw [← hdd] at hP
+    simp at hP
+  have hrun7 := sweep_mixed m (⟨State.D, (l + 7), holeTape (l - 3) (r) (l + 6) (h1 + 4) (h1 + 4) (h1 + 4)⟩ : Config) rfl
+    (fun i hi => by
+      show holeTape (l - 3) (r) (l + 6) (h1 + 4) (h1 + 4) (h1 + 4) ((l + 7) + 2 * (i : Int)) = true
+      exact holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+  have hsafe7 := sweep_mixed_safe m (⟨State.D, (l + 7), holeTape (l - 3) (r) (l + 6) (h1 + 4) (h1 + 4) (h1 + 4)⟩ : Config) rfl
+    (fun i hi => by
+      show holeTape (l - 3) (r) (l + 6) (h1 + 4) (h1 + 4) (h1 + 4) ((l + 7) + 2 * (i : Int)) = true
+      exact holeTape_one (by intro hor; rcases hor with hx | hx | hx | hx <;> omega) (by omega) (by omega))
+  simp only at hrun7
+  rw [show (l + 7) + (2 * m : Int) = (r + 1) from by omega] at hrun7
+  refine ⟨?_, ?_⟩
+  · rw [stepN_add, hrun1]
+    show stepN ((13) + ((10 * k2) + ((6) + ((13) + ((1) + ((2 * m))))))) _ = _
+    rw [stepN_add, hrun2]
+    show stepN ((10 * k2) + ((6) + ((13) + ((1) + ((2 * m)))))) _ = _
+    rw [stepN_add, hrun3]
+    show stepN ((6) + ((13) + ((1) + ((2 * m))))) _ = _
+    rw [stepN_add, hrun4]
+    show stepN ((13) + ((1) + ((2 * m)))) _ = _
+    rw [stepN_add, hrun5]
+    show stepN ((1) + ((2 * m))) _ = _
+    rw [stepN_add, hrun6]
+    show stepN ((2 * m)) _ = _
+    rw [hrun7]
+  · exact (csafe_compose hrun1 hsafe1 (csafe_compose hrun2 hsafe2 (csafe_compose hrun3 hsafe3 (csafe_compose hrun4 hsafe4 (csafe_compose hrun5 hsafe5 (csafe_compose hrun6 hsafe6 hsafe7))))))
+
 end QIG.Dossier2RawTM
 
 #print axioms QIG.Dossier2RawTM.halt_requires_c_probe_00
@@ -2067,3 +3492,12 @@ end QIG.Dossier2RawTM
 #print axioms QIG.Dossier2RawTM.edge_odd_seg
 #print axioms QIG.Dossier2RawTM.edge_even_seg
 #print axioms QIG.Dossier2RawTM.cat_run
+#print axioms QIG.Dossier2RawTM.march_triple
+#print axioms QIG.Dossier2RawTM.march_pair
+#print axioms QIG.Dossier2RawTM.episode_spawn
+#print axioms QIG.Dossier2RawTM.episode_variant
+#print axioms QIG.Dossier2RawTM.episode_generic
+#print axioms QIG.Dossier2RawTM.episode_fuse
+#print axioms QIG.Dossier2RawTM.episode_carried_term
+#print axioms QIG.Dossier2RawTM.episode_deep_odd
+#print axioms QIG.Dossier2RawTM.episode_deep_even
