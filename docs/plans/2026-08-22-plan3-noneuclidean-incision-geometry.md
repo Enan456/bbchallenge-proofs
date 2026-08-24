@@ -11,6 +11,19 @@
 > events, family profiles visible; raw charts need log-scaling before
 > invariant hunting).  Task 5 partial (`packages/extensions/` with exact
 > charts; invariant-region attempts not started).  Task 6 open.
+>
+> **Orbit certification, dossier-2/3 (2026-08-24):** foundation layer
+> DONE in busy-beaver-core — segment-safety algebra (CSafeSeg/BSafeSeg +
+> compose/strong/no-probe), the segment-induction keystones, prefix
+> gluing, executable checkSafe deciders with soundness, and the
+> tape-preserving sweep atoms (D↔F rightward for dossier-2, E↔F leftward
+> for dossier-3), all at [propext, Quot.sound]. Remaining for full
+> certification, per machine: sweep-pair inductions, rule-trajectory
+> theorems for the stage757 spec rules (the mixed-guard 4-block families
+> are the genuinely new part), a Realizes/ChainAt-style grammar,
+> transports, an abstract orbit + conjecture, and the dispatcher — the
+> Antihydra-scale climb, now with certified scaffolding and exact
+> empirical blueprints (outputs/stage757/specs.json) in place.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use
 > superpowers:subagent-driven-development (recommended) or

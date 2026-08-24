@@ -194,7 +194,200 @@ theorem blank_nonhalting_of_c_probe_safe
     simp [blankStart]
   exact nonhalting_of_c_probe_safe hne hsafe
 
+
+/-!
+## Orbit certification, layer 1: segment algebra, keystone, decider, atoms
+
+The certified foundation beneath a future rule-by-rule orbit proof —
+mirrors of the Antihydra development's machinery, instantiated for this
+machine's probe shape.  Informally: everything here is machine-checked
+scaffolding; the remaining climb is the rule trajectories of the stage757
+spec, which will slot into `csafe_compose` and the keystone exactly as
+Antihydra's rules did.
+-/
+
+theorem writeAt_same (tape : Int → Bool) (pos : Int) (value : Bool) :
+    writeAt tape pos value pos = value := by
+  simp [writeAt]
+
+theorem writeAt_self (tape : Int → Bool) (pos : Int) {value : Bool}
+    (h : tape pos = value) : writeAt tape pos value = tape := by
+  funext x
+  by_cases hx : x = pos
+  · subst hx; simp [writeAt, h]
+  · simp [writeAt, hx]
+
+/-- Sequential-composition law for `stepN`. -/
+theorem stepN_add :
+    ∀ (m n : Nat) (c : Config),
+      stepN (m + n) c = (stepN m c).bind (stepN n) := by
+  intro m
+  induction m with
+  | zero => intro n c; simp [stepN, Nat.zero_add]
+  | succ m ih =>
+      intro n c
+      rw [Nat.succ_add]
+      cases hstep : step c with
+      | none => simp [stepN, hstep]
+      | some c1 => simp [stepN, hstep, ih]
+
+/-- Informally: the machine's tape-preserving gait — `D` on a `1`
+rewrites `1` over `1` and hands off to `F`, leaving the tape function
+*literally equal*.  These two atoms are what block-crossing sweeps will be
+built from. -/
+theorem step_D_on_one {c : Config} (hs : c.state = State.D)
+    (ht : c.tape c.head = true) :
+    step c = some ⟨State.F, c.head + 1, c.tape⟩ := by
+  have hw := writeAt_self c.tape c.head ht
+  simp [step, instr, hs, ht, move, hw]
+
+theorem step_F_on_one {c : Config} (hs : c.state = State.F)
+    (ht : c.tape c.head = true) :
+    step c = some ⟨State.D, c.head + 1, c.tape⟩ := by
+  have hw := writeAt_self c.tape c.head ht
+  simp [step, instr, hs, ht, move, hw]
+
+/-- Conditional C-probe safety over the first `N` steps of a run. -/
+def CSafeSeg (c : Config) (N : Nat) : Prop :=
+  ∀ k d, k < N → stepN k c = some d → d.state = State.C →
+    d.tape d.head = false → d.tape (d.head + 1) = true
+
+theorem csafe_compose {c c' : Config} {m n : Nat}
+    (hm : stepN m c = some c') (h1 : CSafeSeg c m) (h2 : CSafeSeg c' n) :
+    CSafeSeg c (m + n) := by
+  intro k d hk hkd hP hread
+  by_cases hkm : k < m
+  · exact h1 k d hkm hkd hP hread
+  · have hkeq : k = m + (k - m) := by omega
+    rw [hkeq, stepN_add, hm] at hkd
+    exact h2 (k - m) d (by omega) hkd hP hread
+
+/-- A segment in which every `C` configuration reads a `1` is safe. -/
+theorem csafe_of_strong {c : Config} {N : Nat}
+    (h : ∀ k d, k < N → stepN k c = some d → d.state = State.C →
+      d.tape d.head = true) : CSafeSeg c N := by
+  intro k d hk hkd hP hread
+  rw [h k d hk hkd hP] at hread
+  exact absurd hread (by simp)
+
+/-- A segment with no `C` configuration at all is safe. -/
+theorem csafe_of_noC {c : Config} {N : Nat}
+    (h : ∀ k d, k < N → stepN k c = some d → d.state ≠ State.C) :
+    CSafeSeg c N := by
+  intro k d hk hkd hP _
+  exact absurd hP (h k d hk hkd)
+
+/-- The segment-induction keystone.  Informally: safety in pieces is
+safety forever — an invariant maintained by positive safe segments gives
+`CProbeSafe` for the whole infinite run, by strong induction on how many
+segments precede any given moment. -/
+theorem cprobe_safe_of_segments {Inv : Config → Prop} {c0 : Config}
+    (h0 : Inv c0)
+    (hseg : ∀ c, Inv c → ∃ k, 0 < k ∧ ∃ c', stepN k c = some c' ∧
+      Inv c' ∧ CSafeSeg c k) :
+    CProbeSafe c0 := by
+  have main : ∀ (N n : Nat) (c : Config), n ≤ N → Inv c →
+      ∀ d, stepN n c = some d → d.state = State.C →
+        d.tape d.head = false → d.tape (d.head + 1) = true := by
+    intro N
+    induction N with
+    | zero =>
+        intro n c hn hInv d hd hP hread
+        obtain ⟨k, hk, c', _hs, _hInv', hsafe⟩ := hseg c hInv
+        exact hsafe n d (by omega) hd hP hread
+    | succ N ihN =>
+        intro n c hn hInv d hd hP hread
+        obtain ⟨k, hk, c', hs, hInv', hsafe⟩ := hseg c hInv
+        by_cases hlt : n < k
+        · exact hsafe n d hlt hd hP hread
+        · have hneq : n = k + (n - k) := by omega
+          rw [hneq, stepN_add, hs] at hd
+          exact ihN (n - k) c' (by omega) hInv' d hd hP hread
+  intro d hreach hP hread
+  obtain ⟨n, hn⟩ := hreach
+  exact main n n c0 (Nat.le_refl n) h0 d hn hP hread
+
+/-- Prefix safety plus tail safety gives whole-run safety. -/
+theorem cprobe_safe_prefix {c d : Config} {M : Nat}
+    (hM : stepN M c = some d)
+    (hpre : CSafeSeg c M) (hpost : CProbeSafe d) : CProbeSafe c := by
+  intro e hreach hP hread
+  obtain ⟨n, hn⟩ := hreach
+  by_cases h : n < M
+  · exact hpre n e h hn hP hread
+  · have hsplit : n = M + (n - M) := by omega
+    rw [hsplit, stepN_add, hM] at hn
+    exact hpost e ⟨n - M, hn⟩ hP hread
+
+/-- Executable per-configuration safety check.  Informally: the boolean
+twin of the probe contract, so finite prefixes (startups, rule boundary
+windows) can be certified by `rfl` instead of hand analysis. -/
+def safeCfg (c : Config) : Bool :=
+  match c.state with
+  | State.C => c.tape c.head || c.tape (c.head + 1)
+  | _ => true
+
+def checkSafe : Nat → Config → Bool
+  | 0, _ => true
+  | k + 1, c =>
+      safeCfg c &&
+        (match step c with
+         | none => true
+         | some c' => checkSafe k c')
+
+theorem safeCfg_spec {c : Config} (hC : c.state = State.C)
+    (h : safeCfg c = true) (hr : c.tape c.head = false) :
+    c.tape (c.head + 1) = true := by
+  obtain ⟨s, hd, t⟩ := c
+  simp only at hC hr ⊢
+  subst hC
+  simp only [safeCfg] at h
+  simp [hr] at h
+  exact h
+
+theorem csafe_of_checkSafe :
+    ∀ (N : Nat) (c : Config), checkSafe N c = true → CSafeSeg c N := by
+  intro N
+  induction N with
+  | zero =>
+      intro c _ k d hk _ _ _
+      exact absurd hk (by omega)
+  | succ N ih =>
+      intro c h k d hk hkd hC hread
+      rw [show checkSafe (N + 1) c
+            = (safeCfg c &&
+                (match step c with
+                 | none => true
+                 | some c' => checkSafe N c')) from rfl] at h
+      have h1 : safeCfg c = true := by
+        cases hsc : safeCfg c
+        · rw [hsc] at h; simp at h
+        · rfl
+      have h2 : (match step c with
+                 | none => true
+                 | some c' => checkSafe N c') = true := by
+        rw [h1] at h; simpa using h
+      cases k with
+      | zero =>
+          have hdd : c = d := by simpa [stepN] using hkd
+          subst hdd
+          exact safeCfg_spec hC h1 hread
+      | succ j =>
+          cases hstep : step c with
+          | none =>
+              rw [show stepN (j + 1) c = (step c).bind (stepN j) from rfl,
+                  hstep] at hkd
+              simp at hkd
+          | some c1 =>
+              rw [hstep] at h2
+              rw [show stepN (j + 1) c = (step c).bind (stepN j) from rfl,
+                  hstep] at hkd
+              exact ih c1 h2 j d (by omega) hkd hC hread
+
 end QIG.Dossier2RawTM
 
 #print axioms QIG.Dossier2RawTM.halt_requires_c_probe_00
 #print axioms QIG.Dossier2RawTM.blank_nonhalting_of_c_probe_safe
+#print axioms QIG.Dossier2RawTM.cprobe_safe_of_segments
+#print axioms QIG.Dossier2RawTM.csafe_of_checkSafe
+#print axioms QIG.Dossier2RawTM.step_D_on_one
