@@ -1877,6 +1877,186 @@ theorem edge_even_seg {c : Config} {h : Int}
     rw [← Option.some_inj.mp hkd] at hP
     simp at hP
 
+
+/-- Constructive De Morgan for the interval guards (mirror): hands
+`omega` a positive disjunction instead of a negated conjunction (which
+would pull `Classical.choice` into the axiom print). -/
+theorem not_and_ge {a b q : Int} (h : ¬(a ≤ q ∧ q < b)) :
+    q < a ∨ b ≤ q := by
+  by_cases hx : a ≤ q
+  · right
+    by_cases hy : q < b
+    · exact absurd ⟨hx, hy⟩ h
+    · omega
+  · left
+    omega
+
+/-- Closed form of the tape after `n` caterpillar cycles from entry `h`
+(mirror): the crawled zone `[h, h + 2n + 3)` is all `1`s except the new
+front cell `h + 2n`; the new carried hole sits at `h + 2n + 3`. -/
+def catTape (t : Int → Bool) (h : Int) (n : Nat) : Int → Bool :=
+  fun q =>
+    if q = h + 2 * n ∨ q = h + 2 * n + 3 then false
+    else if h ≤ q ∧ q < h + 2 * n + 3 then true
+    else t q
+
+/-- **The caterpillar run** (mirror): `n` cycles glued end-to-end —
+`10n` steps, `2n` cells of rightward travel, probe-safe throughout. -/
+theorem cat_run :
+    ∀ (n : Nat) (c : Config) (h : Int), c.state = State.E → c.head = h →
+      c.tape h = false → c.tape (h + 3) = false →
+      (∀ q : Int, h ≤ q → q ≤ h + 2 * n + 4 → q ≠ h → q ≠ h + 3 →
+        c.tape q = true) →
+      stepN (10 * n) c = some ⟨State.E, h + 2 * n, catTape c.tape h n⟩ ∧
+        BSafeSeg c (10 * n) := by
+  intro n
+  induction n with
+  | zero =>
+      intro c h hs hh t0 t3 hpre
+      obtain ⟨s, hd, t⟩ := c
+      simp only at hs hh t0 t3 hpre
+      subst hs
+      have hp : h = hd := hh.symm
+      subst hp
+      refine ⟨?_, ?_⟩
+      · have htape : catTape t h 0 = t := by
+          funext q
+          show (if q = h + 2 * ((0 : Nat) : Int) ∨
+                  q = h + 2 * ((0 : Nat) : Int) + 3 then false
+                else if h ≤ q ∧ q < h + 2 * ((0 : Nat) : Int) + 3 then true
+                else t q) = t q
+          split
+          · rename_i hA
+            rcases hA with h1 | h1
+            · have hq : q = h := by omega
+              rw [hq]
+              exact t0.symm
+            · have hq : q = h + 3 := by omega
+              rw [hq]
+              exact t3.symm
+          · split
+            · rename_i hA hB
+              exact (hpre q (by omega) (by omega) (by omega)
+                (by omega)).symm
+            · rfl
+        show some (⟨State.E, h, t⟩ : Config) = _
+        rw [htape,
+            show h + 2 * ((0 : Nat) : Int) = h from by omega]
+      · intro k d hk
+        exact absurd hk (by omega)
+  | succ n ih =>
+      intro c h hs hh t0 t3 hpre
+      have h1 := hpre (h + 1) (by omega) (by omega) (by omega) (by omega)
+      have h2 := hpre (h + 2) (by omega) (by omega) (by omega) (by omega)
+      have h4 := hpre (h + 4) (by omega) (by omega) (by omega) (by omega)
+      have h5 := hpre (h + 5) (by omega) (by omega) (by omega) (by omega)
+      have h6 := hpre (h + 6) (by omega) (by omega) (by omega) (by omega)
+      obtain ⟨hrun10, hsafe10⟩ := cat_cycle hs hh t0 h1 h2 t3 h4 h5 h6
+      have hT1f : (writeAt (writeAt (writeAt (writeAt c.tape h true)
+          (h + 2) false) (h + 3) true) (h + 5) false) (h + 2) = false := by
+        rw [writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega)]
+        exact writeAt_same _ _ _
+      have hT1c : (writeAt (writeAt (writeAt (writeAt c.tape h true)
+          (h + 2) false) (h + 3) true) (h + 5) false) (h + 2 + 3)
+          = false := by
+        rw [show h + 2 + 3 = h + 5 from by omega]
+        exact writeAt_same _ _ _
+      have hT1pre : ∀ q : Int, h + 2 ≤ q → q ≤ h + 2 + 2 * (n : Int) + 4 →
+          q ≠ h + 2 → q ≠ h + 2 + 3 →
+          (writeAt (writeAt (writeAt (writeAt c.tape h true)
+            (h + 2) false) (h + 3) true) (h + 5) false) q = true := by
+        intro q hq1 hq2 hq3 hq4
+        by_cases hq5 : q = h + 3
+        · rw [hq5, writeAt_other _ _ _ _ (by omega)]
+          exact writeAt_same _ _ _
+        · rw [writeAt_other _ _ _ _ (by omega),
+              writeAt_other _ _ _ _ (by omega),
+              writeAt_other _ _ _ _ (by omega),
+              writeAt_other _ _ _ _ (by omega)]
+          exact hpre q (by omega) (by omega) (by omega) (by omega)
+      obtain ⟨hrunN, hsafeN⟩ :=
+        ih ⟨State.E, h + 2, writeAt (writeAt (writeAt (writeAt c.tape h
+          true) (h + 2) false) (h + 3) true) (h + 5) false⟩ (h + 2)
+          rfl rfl hT1f hT1c hT1pre
+      have heq : catTape (writeAt (writeAt (writeAt (writeAt c.tape h
+          true) (h + 2) false) (h + 3) true) (h + 5) false) (h + 2) n
+          = catTape c.tape h (n + 1) := by
+        funext q
+        show (if q = h + 2 + 2 * (n : Int) ∨
+                q = h + 2 + 2 * (n : Int) + 3 then false
+              else if h + 2 ≤ q ∧ q < h + 2 + 2 * (n : Int) + 3 then true
+              else (writeAt (writeAt (writeAt (writeAt c.tape h true)
+                (h + 2) false) (h + 3) true) (h + 5) false) q) =
+            (if q = h + 2 * ((n + 1 : Nat) : Int) ∨
+                q = h + 2 * ((n + 1 : Nat) : Int) + 3 then false
+              else if h ≤ q ∧ q < h + 2 * ((n + 1 : Nat) : Int) + 3
+                then true
+              else c.tape q)
+        split
+        · rename_i hA
+          split
+          · rfl
+          · rename_i hA2
+            exfalso
+            rcases hA with hx | hx
+            · exact hA2 (Or.inl (by omega))
+            · exact hA2 (Or.inr (by omega))
+        · rename_i hA
+          have hA2 : ¬(q = h + 2 * ((n + 1 : Nat) : Int) ∨
+              q = h + 2 * ((n + 1 : Nat) : Int) + 3) := by
+            intro hc
+            rcases hc with hx | hx
+            · exact hA (Or.inl (by omega))
+            · exact hA (Or.inr (by omega))
+          rw [if_neg hA2]
+          split
+          · rename_i hB
+            rw [if_pos (show h ≤ q ∧
+                q < h + 2 * ((n + 1 : Nat) : Int) + 3 from
+                ⟨by omega, by omega⟩)]
+          · rename_i hB
+            have hB' := not_and_ge hB
+            clear hB
+            split
+            · rename_i hB2
+              obtain ⟨hB2a, hB2b⟩ := hB2
+              by_cases hq : q = h
+              · rw [hq, writeAt_other _ _ _ _ (by omega),
+                    writeAt_other _ _ _ _ (by omega),
+                    writeAt_other _ _ _ _ (by omega)]
+                exact writeAt_same _ _ _
+              · have hq1 : q = h + 1 := by omega
+                rw [hq1, writeAt_other _ _ _ _ (by omega),
+                    writeAt_other _ _ _ _ (by omega),
+                    writeAt_other _ _ _ _ (by omega),
+                    writeAt_other _ _ _ _ (by omega)]
+                exact hpre (h + 1) (by omega) (by omega) (by omega)
+                  (by omega)
+            · rename_i hB2
+              have hB2' := not_and_ge hB2
+              clear hB2
+              rw [writeAt_other _ _ _ _ (by omega),
+                  writeAt_other _ _ _ _ (by omega),
+                  writeAt_other _ _ _ _ (by omega),
+                  writeAt_other _ _ _ _ (by omega)]
+      have hcomp : stepN (10 * (n + 1)) c
+          = (stepN 10 c).bind (stepN (10 * n)) := by
+        rw [show 10 * (n + 1) = 10 + 10 * n from by omega, stepN_add]
+      refine ⟨?_, ?_⟩
+      · rw [hcomp, hrun10]
+        show stepN (10 * n) ⟨State.E, h + 2, writeAt (writeAt (writeAt
+            (writeAt c.tape h true) (h + 2) false) (h + 3) true)
+            (h + 5) false⟩
+            = some ⟨State.E, h + 2 * ((n + 1 : Nat) : Int),
+                catTape c.tape h (n + 1)⟩
+        rw [hrunN, heq,
+            show h + 2 + 2 * (n : Int)
+              = h + 2 * ((n + 1 : Nat) : Int) from by omega]
+      · have hc := bsafe_compose hrun10 hsafe10 hsafeN
+        rw [show 10 * (n + 1) = 10 + 10 * n from by omega]
+        exact hc
+
 end QIG.Dossier3RawTM
 
 #print axioms QIG.Dossier3RawTM.halt_requires_b_probe_00
@@ -1893,3 +2073,4 @@ end QIG.Dossier3RawTM
 #print axioms QIG.Dossier3RawTM.fuse_cycle
 #print axioms QIG.Dossier3RawTM.edge_odd_seg
 #print axioms QIG.Dossier3RawTM.edge_even_seg
+#print axioms QIG.Dossier3RawTM.cat_run
