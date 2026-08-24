@@ -81,9 +81,12 @@ theorem eorbit_inv : ∀ (k : Nat) (s : AState), eorbit k = some s →
             · rw [astep_drop_dead c (by omega)] at h
               exact absurd h (by simp)
 
-/-- The counter falls by at most one per event: from an event state with
-counter `a`, the state `j` events later (which provably exists while
-`j < a`) still has counter at least `a − j`. -/
+/-- Informally: *the counter is a fuse that burns one notch per drop and
+never faster* — merges lengthen it, drops shorten it by exactly one, and
+nothing else touches it.  So `j` events after reading the fuse at length
+`a`, at least `a − j` remains, and in particular the orbit is still alive.
+(This is the concrete ancestor of the forge's generic `MarginRules`
+argument.) -/
 theorem counter_lower_bound :
     ∀ (j k : Nat) (s : AState), eorbit k = some s → j + 1 ≤ s.a →
       ∃ t, eorbit (k + j) = some t ∧ s.a ≤ t.a + j := by
@@ -123,7 +126,11 @@ theorem counter_lower_bound :
 
 /-- **Projected-halt localization.**  From an event state with counter `a`,
 the orbit cannot die within the next `a − 1` events — a certified skip
-window needing zero death checks. -/
+window needing zero death checks.
+
+Informally: death requires the fuse to burn to nothing, and the fuse burns
+at most one notch per event — so read it once and leap.  At event 20,000
+the fuse is 9,919 notches long; the leaps grow as the orbit runs. -/
 theorem halt_localized (k j : Nat) (s : AState) (h : eorbit k = some s)
     (hj : j < s.a) : eorbit (k + j) ≠ none := by
   obtain ⟨t, ht, _⟩ := counter_lower_bound j k s h (by omega)

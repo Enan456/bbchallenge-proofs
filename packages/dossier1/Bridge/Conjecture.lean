@@ -80,10 +80,15 @@ theorem estep_drop_dead {a : Nat} (c : Nat) (ha : a ≤ 1) :
 
 /-! ## The conjugacy -/
 
-/-- The simulation relation between boundary states of the event process and
-1-D hydra states: the hydra value is the *pre-volley* block length plus 5
-(`b = m + 2·(c−2)/3 + 5`), and the hydra heads counter is the machine's
-counter block `a`.  Boundary states always satisfy `c ≡ 2 (mod 3)`. -/
+/-- **The dictionary.**  Informally: hiding inside every boundary record is
+a single number `b` — the block the last rule produced, plus five — and
+the community's hydra sequence is exactly the sequence of these numbers.
+The residue invariant `c ≡ 2 (mod 3)` is what makes the change of
+variables exact: the companion grows only in threes, so `(c − 2)/3`
+recovers precisely how far the last volley ran.  Parity matches parity:
+even `b` ⇔ the boundary is a merge (`m = 1`), odd `b` ⇔ a drop (`m = 2`)
+— which is why the hydra's coin flips *are* the machine's counter
+movements. -/
 def RelHA (s : AState) (h : HydraState) : Prop :=
   (s.m = 1 ∨ s.m = 2) ∧ s.c % 3 = 2 ∧
     h.b = s.m + 2 * ((s.c - 2) / 3) + 5 ∧ h.heads = s.a
@@ -96,7 +101,13 @@ theorem two_sub_mod_two (x : Nat) : 2 - x % 2 = 1 ∨ 2 - x % 2 = 2 := by
   · exact Or.inr (by omega)
   · exact Or.inl (by omega)
 
-/-- One event step preserves the relation, and deaths coincide exactly. -/
+/-- Informally: *one incision event on the machine side is one term of the
+hydra recurrence on the arithmetic side* — same branching, same counter
+arithmetic, same deaths.  The proof runs both sides through their closed
+forms and lets linear arithmetic check that `b + ⌊b/2⌋` is what a rule
+plus its volley does to `b = m + 2(c−2)/3 + 5`.  Deaths align exactly
+because the drop's guard (`a ≥ 2`) is literally the recurrence's
+heads-check. -/
 theorem relHA_step {s : AState} {h : HydraState} (hr : RelHA s h) :
     (estep s = none ∧ hydraStep h = none) ∨
     (∃ s' h', estep s = some s' ∧ hydraStep h = some h' ∧ RelHA s' h') := by

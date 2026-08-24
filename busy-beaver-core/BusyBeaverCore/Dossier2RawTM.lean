@@ -80,6 +80,9 @@ theorem step_eq_none_iff (c : Config) :
   cases hs : c.state <;> cases ht : c.tape c.head <;>
     simp [step, instr, hs, ht]
 
+/-- Informally: halting is the existence of a finite step count after
+which the iterated dynamics return `none` — the one global property this
+file localizes into a two-cell tape pattern. -/
 def RawHalts (c : Config) : Prop := ∃ n : Nat, stepN n c = none
 
 def Reaches (c d : Config) : Prop := ∃ n : Nat, stepN n c = some d

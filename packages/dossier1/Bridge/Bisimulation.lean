@@ -56,7 +56,12 @@ def zBlank : ZConfig := ⟨State.A, [], false, []⟩
 
 /-- A zipper configuration matches a functional one when every cell agrees:
 the current cell, and both half-tapes read off by offset (out-of-list
-offsets are blank, which `List.getD … false` encodes). -/
+offsets are blank, which `List.getD … false` encodes).
+
+Informally: two photographs of the same tape from different cameras — the
+Rocq tradition's head-centred zipper and our absolute-coordinate function.
+`Matches` says the photographs agree pixel by pixel; the bisimulation
+below says they *stay* agreeing forever. -/
 def Matches (z : ZConfig) (c : Config) : Prop :=
   z.state = c.state ∧
   c.tape c.head = z.cur ∧
@@ -202,7 +207,12 @@ theorem zBlank_matches : Matches zBlank blankStart :=
   ⟨rfl, rfl, fun _ => rfl, fun _ => rfl⟩
 
 /-- **Rocq parity as a theorem**: the zipper machine halts from blank iff
-the functional machine does. -/
+the functional machine does.
+
+Informally: any halting argument phrased over the representation the
+Coq-BB5 lineage uses *is* an argument about our machine, and vice versa —
+the two formal traditions provably talk about the same object.  What
+would ordinarily be a correspondence essay is one `Iff`. -/
 theorem zipper_halts_iff : ZHalts zBlank ↔ RawHalts blankStart :=
   halts_bisim zBlank_matches
 

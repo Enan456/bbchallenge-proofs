@@ -100,6 +100,15 @@ def HydraSafe : Prop := ∀ k, hydraOrbit k ≠ none
 
 /-! ## Transport to the certified development -/
 
+/-! ## Transport: why re-declaring works
+
+The challenge defines its own copies of every type, so its theorem cannot
+simply cite ours — the types differ.  The maps below are componentwise
+identities up to renaming; each commutation lemma is a finite case split;
+and the main theorem is our certified result pulled across the bridge.
+This is the standard pattern for making a small auditable statement file
+inherit a large development's theorem. -/
+
 def stMap : St → QIG.AntihydraRawTM.State
   | .A => .A | .B => .B | .C => .C | .D => .D | .E => .E | .F => .F
 

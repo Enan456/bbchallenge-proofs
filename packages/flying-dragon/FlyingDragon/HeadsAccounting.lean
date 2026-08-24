@@ -81,7 +81,13 @@ theorem eorbit_boundary : ∀ {k : Nat} {s : AState},
               exact volley_boundary_mem u
 
 /-- **Heads accounting.**  Along the event orbit, the counter carries its
-complete history: start 2, +2 per merge, −1 per drop. -/
+complete history: start 2, +2 per merge, −1 per drop.
+
+Informally: a conservation law.  The measured +0.5/event drift is not a
+statistic about the counter — it *is* the merge/drop ratio, because
+nothing else ever touches the counter (volleys are counter-frozen).
+Stated additively (`a + drops = 2 + 2·merges`) so ℕ-subtraction never
+muddies the ledger. -/
 theorem heads_accounting :
     ∀ (k : Nat) (s : AState), eorbit k = some s →
       s.a + dropCount k = 2 + 2 * mergeCount k := by

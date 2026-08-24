@@ -261,7 +261,13 @@ theorem stepN_add :
       | some c1 => simp [stepN, hstep, ih]
 
 /-- One caterpillar cycle: five raw steps, explicit output tape, and the
-only intermediate `C` configuration reads `1`. -/
+only intermediate `C` configuration reads `1`.
+
+Informally: the machine's gait.  Five steps that inch the head one cell
+rightward while munching the block ahead — and, crucially, whose single
+`C`-moment reads a `1`, so a caterpillar can never trip the halting
+pattern.  `cat_run` iterates this cycle `n` times for the unbounded middle
+of the dominant rule. -/
 theorem cat_cycle {c : Config} {h : Int}
     (hs : c.state = State.A) (hh : c.head = h)
     (h0 : c.tape h = false) (h1 : c.tape (h + 1) = false)
@@ -339,7 +345,9 @@ theorem cat_cycle {c : Config} {h : Int}
       rw [← Option.some_inj.mp hkd] at hC
       simp at hC
 
-/-- The tape after `n` caterpillar cycles starting at `h`. -/
+/-- The tape after `n` caterpillar cycles starting at `h` — the closed
+form of the gait's footprints, so the dominant rule can state its output
+tape exactly. -/
 def catTape (t : Int → Bool) (h : Int) : Nat → (Int → Bool)
   | 0 => t
   | n + 1 =>
@@ -3454,7 +3462,12 @@ inductive AState where
   | lvl (L : List Nat) (b : Nat) (c : Nat)
 deriving Repr, DecidableEq
 
-/-- Increase the last level by 2. -/
+/-- Increase the last level by 2.
+
+Informally: the chain bookkeeping — each workhorse pass feeds the youngest
+level of the stack.  With `unsnoc` (split off the last level) and
+`collapseTarget` (what a dying level leaves behind), these three list
+operations are the entire vocabulary of the abstract dynamics. -/
 def lastInc2 : List Nat → List Nat
   | [] => []
   | [a] => [a + 2]
@@ -3537,11 +3550,22 @@ def aorbit : Nat → Option AState
 
 /-- **The orbit conjecture** — the sole unproven ingredient: the abstract
 orbit never dies.  Equivalently: at every level, whenever `b` reaches 2
-the companion satisfies `c ≥ 4`, and collapses always find a level. -/
+the companion satisfies `c ≥ 4`, and collapses always find a level.
+
+Informally: dossier-1's whole fate, folded into one sentence about a stack
+of integers — the recursive Collatz checkpoint law (odd `n → (3n+7)/2`)
+wearing machine clothes.  As with Antihydra, nothing else in the 5,700
+lines is assumed. -/
 def SafeOrbit : Prop := ∀ k : Nat, aorbit k ≠ none
 
 /-- `ChainAt t lo L q`: from `lo`, alternating `1^a 0 0` for each `a` in
-`L`, ending at `q`. -/
+`L`, ending at `q`.
+
+Informally: the recursive tape grammar — where Antihydra's grammar was
+eight fixed conjuncts, dossier-1's is defined by recursion on the level
+stack: each level contributes its block of `1`s and a double-`0` spacer.
+The frame/split/grow lemmas below are the algebra that lets transports
+edit one level while the rest of the chain stands still. -/
 def ChainAt (t : Int → Bool) : Int → List Nat → Int → Prop
   | lo, [], q => lo = q
   | lo, a :: rest, q =>

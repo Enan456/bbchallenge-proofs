@@ -89,9 +89,12 @@ theorem safeOrbitA_iff_avoids_death :
 
 /-! ## The volley: certified event-skipping -/
 
-/-- Collapse a whole run of hydra steps in closed form: from `(a, m, c)` the
-orbit deterministically reaches the boundary state
-`(a, 2 - m % 2, c + 3⌊(m-1)/2⌋)` without the counter moving. -/
+/-- **The volley.**  Informally: while `m ≥ 3` the orbit has no choices —
+hydra fires again and again, two off the middle block, three onto the
+companion, counter untouched — so the whole run can be *summed in closed
+form*: parity of `m` decides where it lands (`1` or `2`), and the
+companion collects `3⌊(m−1)/2⌋`.  One formula replaces an unbounded loop;
+this is the engine of every acceleration downstream. -/
 def volley (s : AState) : AState :=
   if s.m ≤ 2 then s else ⟨s.a, 2 - s.m % 2, s.c + 3 * ((s.m - 1) / 2)⟩
 
@@ -217,9 +220,12 @@ theorem eorbit_succ {k : Nat} {s : AState} (h : eorbit k = some s) :
 
 /-! ## The equivalence: boundary-only checking is sound and complete -/
 
-/-- **Soundness of boundary-only checking**: if the event process never dies,
-the full abstract orbit never dies.  (Every full-orbit state lies on the
-volley path of an event state, and volleys never die.) -/
+/-- **Soundness of boundary-only checking.**  Informally: *nothing fatal
+can hide between two boundary events*, because between events the orbit is
+inside a volley, and volleys are deterministic hydra runs that cannot die.
+Formally each full-orbit state is shown to lie on the volley path of some
+event state — interior steps keep the same volley destination
+(`volley_interior`), boundary steps advance to the next event. -/
 theorem safeOrbitA_of_eventSafe (h : EventSafe) : SafeOrbitA := by
   have main : ∀ n, ∃ t, aorbit n = some t ∧ ∃ k, eorbit k = some (volley t) := by
     intro n
@@ -277,8 +283,13 @@ theorem eventSafe_of_safeOrbitA (h : SafeOrbitA) : EventSafe := by
   rw [hek]
   simp
 
-/-- **The incision theorem.**  Checking only at boundary events is exactly
-as strong as checking the whole orbit. -/
+/-- **The incision theorem.**  Informally: *watching the orbit only where
+the counter can move loses nothing* — the sampled process and the full
+orbit live and die together.  Soundness says nothing hides between events;
+completeness says every event is genuinely reachable, so a death seen by
+the sampler is a death of the orbit.  This is the certificate behind the
+measured acceleration: sixteen events already span the first 10⁸ raw
+machine steps. -/
 theorem eventSafe_iff_safeOrbitA : EventSafe ↔ SafeOrbitA :=
   ⟨safeOrbitA_of_eventSafe, eventSafe_of_safeOrbitA⟩
 

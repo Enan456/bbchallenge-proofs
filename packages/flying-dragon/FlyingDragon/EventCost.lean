@@ -30,7 +30,13 @@ def volleyCost : Nat → Nat
   | j + 1 => volleyCost j + hydraStepCost j
 
 /-- **Closed form**: a `j`-step volley costs exactly `3j² + 12j` plus the
-`3j` from the growing writes — total `3j² + 15j`. -/
+`3j` from the growing writes — total `3j² + 15j`.
+
+Informally: the atlas *measured* this parabola; here it is derived — the
+`i`-th hydra step pays for a companion block that has grown to `2 + 3i`,
+and summing the arithmetic progression gives the square.  The induction
+handles the one non-linear moment (`(j+1)²`) by expanding it before omega
+looks. -/
 theorem volleyCost_closed (j : Nat) : volleyCost j = 3 * j * j + 12 * j := by
   induction j with
   | zero => rfl

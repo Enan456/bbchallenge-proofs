@@ -42,12 +42,22 @@ theorem orbit_succ {k : Nat} {s : A} (h : orbit f seed k = some s) :
 
 variable (margin : A → Nat)
 
-/-- The margin contract: one step loses at most one margin unit, and the
-dynamics die only at margin zero. -/
+/-- **The margin contract.**  Informally: a `margin` is a ruler for
+*distance to death*.  Two clauses make any such ruler sound: (a) one step
+of the dynamics can shorten the ruler by at most one notch, and (b) the
+dynamics can only die where the ruler reads zero.  Nothing else is asked —
+no monotonicity, no drift, no knowledge of what the dynamics do.  That
+these two local facts already yield global skip windows is the point of
+this file. -/
 def MarginRules : Prop :=
   (∀ s t, f s = some t → margin s ≤ margin t + 1) ∧
   (∀ s, f s = none → margin s = 0)
 
+/-- Informally: *after `j` steps the ruler has lost at most `j` notches* —
+and, crucially, the orbit provably survives those `j` steps whenever the
+ruler started longer than `j`.  Induction on `j`: at each step either the
+dynamics die (impossible: by clause (b) the ruler would read zero, but it
+still has notches left) or clause (a) bounds the loss. -/
 theorem margin_lower_bound (hm : MarginRules f margin) :
     ∀ (j k : Nat) (s : A), orbit f seed k = some s → j + 1 ≤ margin s →
       ∃ t, orbit f seed (k + j) = some t ∧ margin s ≤ margin t + j := by
@@ -69,9 +79,11 @@ theorem margin_lower_bound (hm : MarginRules f margin) :
           rw [show k + (j + 1) = (k + j) + 1 by omega,
               orbit_succ f seed ht, hf]
 
-/-- **Generic skip windows**: from any live state, the orbit provably
-survives the next `margin s − 1` steps — no death checks needed inside
-the window. -/
+/-- **Generic skip windows.**  Informally: *read the ruler once, then
+close your eyes for `margin s − 1` steps* — death in that window is
+impossible, so a checker may leap it wholesale and re-read the ruler at
+the far edge.  For Antihydra this window is thousands of events wide and
+growing; the theorem is what makes leaping sound. -/
 theorem margin_halt_localized (hm : MarginRules f margin) (k j : Nat)
     (s : A) (h : orbit f seed k = some s) (hj : j < margin s) :
     orbit f seed (k + j) ≠ none := by
@@ -79,7 +91,9 @@ theorem margin_halt_localized (hm : MarginRules f margin) (k j : Nat)
   rw [ht]
   simp
 
-/-- Any death lies at least `margin s` steps past any live state. -/
+/-- The same fact viewed as a *projection*: the earliest step at which the
+dynamics could possibly die is `k + margin s` — computable from the
+current state alone, before taking a single further step. -/
 theorem margin_death_bound (hm : MarginRules f margin) (k n : Nat) (s : A)
     (h : orbit f seed k = some s) (hdead : orbit f seed n = none)
     (hkn : k ≤ n) : k + margin s ≤ n := by
@@ -102,6 +116,10 @@ namespace AntihydraDemo
 
 open QIG.AntihydraRawTM
 
+/-- Antihydra's ruler: the counter block, less one.  Death has two modes —
+`m = 0` (ruler pinned to zero) and a drop with `a ≤ 1` (where `a − 1 = 0`
+in ℕ) — so clause (b) holds by arithmetic; and no rule moves the counter
+down by more than one, so clause (a) holds rule-by-rule. -/
 def margin (s : AState) : Nat := if s.m = 0 then 0 else s.a - 1
 
 /-- Constructor-form counter preservation (local so forge need not import

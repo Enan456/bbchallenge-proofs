@@ -13,7 +13,12 @@ Antihydra, dossier-1, dossier-2, dossier-3.
 namespace QIG.Forge
 
 /-- Uniform instantiation bundle: everything a machine needs to enter the
-forge. -/
+forge.
+
+Informally: a machine *is* four fields of data plus two facts a case
+split checks in milliseconds.  Compare the ~200-line bespoke developments
+these instantiations replace — the generic theorems above absorbed all
+the reasoning, leaving only the machine's identity. -/
 structure Machine where
   tbl : St → Bool → Option Instr
   spec : HaltSpec

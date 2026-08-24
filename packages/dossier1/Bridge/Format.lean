@@ -103,7 +103,13 @@ def codeChars : List Char :=
    '1', 'L', 'F', '1', 'R', 'E', '_', '-', '-', '-', '0', 'R', 'A']
 
 /-- **The machine we reason about is the machine on the label.**  Parsing the
-published standard-format code yields exactly the hand-written table. -/
+published standard-format code yields exactly the hand-written table.
+
+Informally: the one human transcription in the trust base, checked by the
+kernel.  The proof term is a single `decide`: the parser runs on the
+41-character code *inside the proof checker*, and the resulting table is
+compared to `instr` bit for bit.  No reviewer needs to squint at the
+table again. -/
 theorem parse_ok : parseEntries codeChars = some (tableOfF instr) := by decide
 
 /-- Negative control: a corrupted code (last entry `0RA → 0RB`) does *not*
@@ -140,7 +146,11 @@ theorem encodeEntry_inj {x y : Option Instr}
         rfl
 
 /-- The encoding is injective on transition functions: table equality pins
-down `instr` itself. -/
+down `instr` itself.
+
+Informally: without this, `parse_ok` would only say the *encodings* agree;
+with it, agreement of encodings forces agreement of the functions — so the
+parse theorem really does determine the machine. -/
 theorem tableOfF_inj {f g : State → Bool → Option Instr}
     (h : tableOfF f = tableOfF g) : f = g := by
   simp [tableOfF] at h

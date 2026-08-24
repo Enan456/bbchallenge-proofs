@@ -77,8 +77,14 @@ def RawHalts (c : Config) : Prop := ∃ n : Nat, stepN tbl n c = none
 
 def Reaches (c d : Config) : Prop := ∃ n : Nat, stepN tbl n c = some d
 
-/-- **The disproof arm**: any concrete halting trace certifies halting —
-for a specific machine and `n`, `h` is checkable by kernel computation. -/
+/-- **The disproof arm.**  Informally: to show a machine halts, you need
+nothing clever — exhibit the number of steps and let the kernel replay the
+run.  For a concrete machine and a concrete `n`, the hypothesis `h` is
+established by `rfl`/`decide`, i.e. by pure computation inside the trusted
+kernel; the "proof" is one constructor application, which is why this
+theorem needs no axioms at all.  Together with
+`nonhalting_of_probe_safe` below, both possible verdicts about a machine
+have a landing pad in the forge. -/
 theorem halts_certificate {c : Config} (n : Nat)
     (h : stepN tbl n c = none) : RawHalts tbl c := ⟨n, h⟩
 
@@ -103,6 +109,12 @@ def EntryOnly : Prop :=
   ∀ s b i, tbl s b = some i → i.next = spec.haltSt →
     s = spec.probeSt ∧ b = false ∧ i.write = spec.wr ∧ i.dir = spec.dir
 
+/-- Informally: *the machine can die in one step exactly when it stands on
+the one undefined cell of its program* — in state `haltSt` reading `0`.
+Everything else in the development funnels halting through this single
+door.  The proof is nothing but a case split on what the table returns,
+with the instantiation fact `hh` translating "the table returned `none`"
+into "we are at the halt cell". -/
 theorem step_eq_none_iff (hh : HaltIff tbl spec) (c : Config) :
     step tbl c = none ↔ c.state = spec.haltSt ∧ c.tape c.head = false := by
   cases hi : tbl c.state (c.tape c.head) with
@@ -122,6 +134,12 @@ theorem step_eq_none_iff (hh : HaltIff tbl spec) (c : Config) :
         rw [hi] at hnone
         simp at hnone
 
+/-- Informally: *you cannot wander into the halting state; there is exactly
+one turnstile*.  If a step lands in `haltSt`, the previous configuration
+was in `probeSt` reading a `0`, the head moved one cell in the fixed
+direction `dir`, and the tape changed only at the departed cell.  This is
+what lets us reason about the last two steps of any halting run: the
+final configuration is forced, so the penultimate one is too. -/
 theorem into_halt_only_from_probe (he : EntryOnly tbl spec) {c c' : Config}
     (h : step tbl c = some c') (hst : c'.state = spec.haltSt) :
     c.state = spec.probeSt ∧ c.tape c.head = false ∧
@@ -183,9 +201,19 @@ theorem stepN_some_pred :
           obtain ⟨e, he, hlast⟩ := ih c1 d h1
           exact ⟨e, by simpa [stepN, hstep] using he, hlast⟩
 
-/-- **Generic halt localization**: any halt from a non-halt-state start
-passes through a reachable probe of a `00` pattern (the second `0` on the
-`dir` side). -/
+/-- **Generic halt localization.**  Informally: *a halting run must, at
+some earlier moment, stand in the probe state on a `0` whose `dir`-side
+neighbour is also `0`* — a two-cell window on an infinite tape.
+
+Why: rewind the halting run to its last living configuration (it dies by
+`step_eq_none_iff`, so it is the halt state reading `0`); its predecessor
+entered through the turnstile (`into_halt_only_from_probe`), so it was the
+probe state reading `0`; and the fatal `0` the halt state dies on sits one
+cell over in direction `dir` — a cell the turnstile step *did not write*
+(`writeAt_other`), so it was already `0` at probe time.  Halting, an
+unbounded global property, has become the reachability of one local
+pattern.  This is the same move the macro emulation makes empirically;
+here it is a theorem. -/
 theorem halt_requires_probe (hh : HaltIff tbl spec) (he : EntryOnly tbl spec)
     {c : Config} (hne : c.state ≠ spec.haltSt) (hraw : RawHalts tbl c) :
     ∃ d : Config, Reaches tbl c d ∧ d.state = spec.probeSt ∧
@@ -213,7 +241,12 @@ def ProbeSafe (c : Config) : Prop :=
   ∀ d : Config, Reaches tbl c d → d.state = spec.probeSt →
     d.tape d.head = false → d.tape (d.head + probeOff spec.dir) = true
 
-/-- **The proof arm**: probe safety implies the machine never halts. -/
+/-- **The proof arm.**  Informally: *if every `0` the probe state ever
+reads has a `1` standing guard on its `dir` side, the machine can never
+halt* — because a halt would produce the guarded pattern with a `0` where
+the guard must be.  Discharging this `ProbeSafe` invariant is the entire
+remaining content of a non-halting proof; the orbit layers exist to supply
+it. -/
 theorem nonhalting_of_probe_safe (hh : HaltIff tbl spec)
     (he : EntryOnly tbl spec) {c : Config} (hne : c.state ≠ spec.haltSt)
     (hsafe : ProbeSafe tbl spec c) : ¬ RawHalts tbl c := by

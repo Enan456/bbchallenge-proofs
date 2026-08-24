@@ -80,7 +80,12 @@ structure Config where
   head : Int
   tape : Int → Bool
 
-/-- One raw TM step.  `none` means the undefined `F0` halt was reached. -/
+/-- One raw TM step.  `none` means the undefined `F0` halt was reached.
+
+Informally: read the cell under the head, look it up in the program, and
+either die (the one undefined entry) or write, move, and change state.
+Everything ever proven about this machine is a statement about iterating
+this ten-line function. -/
 def step (c : Config) : Option Config := do
   let ins ← instr c.state (c.tape c.head)
   some {
@@ -173,7 +178,13 @@ theorem stepN_some_pred :
           exact ⟨e, by simpa [stepN, hstep] using he, hlast⟩
 
 /-- Halt localization: from any non-`F` start, a raw halt forces a reachable
-configuration where `E` reads a `0` whose left neighbour is also `0`. -/
+configuration where `E` reads a `0` whose left neighbour is also `0`.
+
+Informally: *to die, the machine must first stand in state `E` on a `0`
+with another `0` immediately to its left* — because the only door into the
+halting state `F` is the transition `E0`, which steps left, and the cell
+`F` then dies on was not touched by that step.  An unbounded question
+("does it ever halt?") becomes the reachability of a two-cell pattern. -/
 theorem halt_requires_e_probe_00 {c : Config} (hne : c.state ≠ State.F)
     (hh : RawHalts c) :
     ∃ d : Config, Reaches c d ∧ d.state = State.E ∧
@@ -195,7 +206,12 @@ theorem halt_requires_e_probe_00 {c : Config} (hne : c.state ≠ State.F)
 
 /-- The E-probe-safety invariant: every `0` that state `E` reads in any
 reachable configuration has a `1` immediately to its left.  This is exactly
-the invariant discharged empirically by stage753. -/
+the invariant discharged empirically by stage753.
+
+Informally: a sentry condition.  If a `1` always guards the left flank of
+whatever `E` probes, the fatal pattern of `halt_requires_e_probe_00` can
+never occur, so the machine runs forever.  The remaining 1,800 lines of
+this file exist to discharge this one predicate from the record dynamics. -/
 def EProbeSafe (c : Config) : Prop :=
   ∀ d : Config, Reaches c d → d.state = State.E → d.tape d.head = false →
     d.tape (d.head - 1) = true
@@ -401,7 +417,14 @@ theorem esafe_of_noE {c : Config} {N : Nat}
   exact absurd hE (h k d hk hkd)
 
 /-- The segment-induction keystone: an invariant maintained by positive
-safe segments gives `EProbeSafe` for the whole infinite run. -/
+safe segments gives `EProbeSafe` for the whole infinite run.
+
+Informally: *safety in pieces is safety forever*.  If from every
+invariant-satisfying configuration the machine runs some positive number
+of steps safely and lands on the invariant again, then every moment of
+the infinite run falls inside one of these safe segments — strong
+induction on how many segments precede it.  This is how finitely many
+rule theorems control an infinite trajectory. -/
 theorem eprobe_safe_of_segments {Inv : Config → Prop} {c0 : Config}
     (h0 : Inv c0)
     (hseg : ∀ c, Inv c → ∃ k, 0 < k ∧ ∃ c', stepN k c = some c' ∧
@@ -1350,12 +1373,23 @@ def aorbit : Nat → Option AState
 
 /-- **The Antihydra conjecture**, in the exact form the machine needs:
 the abstract orbit never dies.  Equivalently, the counter never runs out
-when the drop rule fires. -/
+when the drop rule fires.
+
+Informally: this is the *only* unproven sentence in the whole development
+— a statement about a sequence of integer triples, with no tape, no head,
+no machine.  Everything else in this file converts the machine's fate
+into exactly this sentence. -/
 def SafeOrbitA : Prop := ∀ k : Nat, aorbit k ≠ none
 
 /-- A configuration realizing an abstract state: blank, the counter
 block ending at `p`, a `0`, the `m`-block, a `0`, the `c`-block, then the
-head on the fresh frontier and blank beyond. -/
+head on the fresh frontier and blank beyond.
+
+Informally: the *tape grammar* — eight conjuncts that pin every one of the
+infinitely many cells from just three numbers and an anchor.  Transport
+lemmas push it through each rule, and its demand for a non-empty counter
+block (`1 ≤ a`) is the origin of the one honest delta against the
+community's conjecture statement. -/
 def Realizes : AState → Config → Prop
   | ⟨a, m, c⟩, cfg =>
       1 ≤ a ∧ 1 ≤ m ∧ 1 ≤ c ∧ cfg.state = State.B ∧
@@ -1999,7 +2033,12 @@ theorem aorbit_succ {n : Nat} {s : AState} (horb : aorbit n = some s) :
   rw [horb]
 
 /-- **The dispatcher.**  Under the Antihydra conjecture, every realized
-live abstract state advances safely to another one. -/
+live abstract state advances safely to another one.
+
+Informally: the conductor.  Ask the abstract orbit which rule fires next;
+the matching transport theorem plays it on the tape, safely, landing on
+the next realized state.  Feeding this to the keystone turns rule-by-rule
+safety into eternal safety. -/
 theorem orbit_segment (hso : SafeOrbitA) (cfg : Config) (hinv : OrbitInv cfg) :
     ∃ k, 0 < k ∧ ∃ cfg', stepN k cfg = some cfg' ∧ OrbitInv cfg' ∧
       ESafeSeg cfg k := by

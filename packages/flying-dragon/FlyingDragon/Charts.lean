@@ -28,7 +28,13 @@ structure Frac where
 deriving Repr, DecidableEq
 
 /-- Projective simplex chart: `(a : m : c)` normalized by the total mass.
-The death face `{m = 0}` is literally a face of the simplex. -/
+The death face `{m = 0}` is literally a face of the simplex.
+
+Informally: divide out the explosion.  Orbit values race to infinity, but
+their *proportions* live on a triangle — and dying ("`m` hits zero")
+becomes touching one wall of that triangle.  The geometric program's
+hypotheses are all statements about where trajectories sit in charts like
+this one. -/
 def simplexChart (s : AState) : Frac × Frac × Frac :=
   let d := s.a + s.m + s.c
   (⟨s.a, d⟩, ⟨s.m, d⟩, ⟨s.c, d⟩)
