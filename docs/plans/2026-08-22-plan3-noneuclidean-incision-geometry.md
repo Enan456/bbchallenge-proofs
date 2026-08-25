@@ -12,7 +12,17 @@
 > invariant hunting).  Task 5 partial (`packages/extensions/` with exact
 > charts; invariant-region attempts not started).  Task 6 open.
 >
-> **Orbit certification, dossier-2/3 (2026-08-24):** foundation layer
+> **CONDITIONAL CLOSURE, dossier-2/3 (2026-08-24):** COMPLETE — both
+> machines reduced end-to-end to `SafeMetaOrbit → ¬ RawHalts blankStart`
+> at [propext, Quot.sound]: interaction-calculus atoms, cat_run/sweep
+> inductions, seven episode theorems each, concrete startup anchors
+> (235 / 2044 steps), abstract five-integer orbit + transport + keystone.
+> The remaining conjecture is a deterministic Euclid/Collatz-hybrid
+> avoidance statement, validated to 10^8 abstract episodes; the excluded
+> bands are provably lethal. See
+> docs/results/2026-08-24-dossier23-conditional-closure.md.
+>
+> **Orbit certification, dossier-2/3 (earlier):** foundation layer
 > DONE in busy-beaver-core — segment-safety algebra (CSafeSeg/BSafeSeg +
 > compose/strong/no-probe), the segment-induction keystones, prefix
 > gluing, executable checkSafe deciders with soundness, and the
