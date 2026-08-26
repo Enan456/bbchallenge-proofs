@@ -1,6 +1,7 @@
 \documentclass[11pt]{article}
 \usepackage[margin=1in]{geometry}
 \usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage[hidelinks]{hyperref}
 \usepackage{microtype}
@@ -18,131 +19,204 @@ Utilizing Non-Euclidean Geometry to Solve Busy Beaver}
 \maketitle
 
 \begin{abstract}
-The fifth Busy Beaver number was settled in 2024; the sixth is guarded
-by a residual set of ``cryptid'' Turing machines whose halting problems
-resist every known decider. We present a certified pipeline that hunts
-these cryptids geometrically: raw tape dynamics are compressed into
-\emph{orbit events}, embedded in non-Euclidean (logarithmic, simplex,
-hyperbolic) charts where their self-similar structure becomes affine,
-and then re-certified in core Lean~4 (axioms
-$\{\mathrm{propext},\mathrm{Quot.sound}\}$ only). The headline result:
-two previously open BB(6) machines are reduced, machine-checked end to
-end, to conditional theorems $\Safe \rightarrow \lnot\Halts$, where
-$\Safe$ concerns a deterministic affine map on five integers. Every raw
-step either machine ever takes---startup, one degenerate episode, and an
-eternity of seven certified episode types---is accounted for by
-theorems; the remaining conjecture is a subtractive Euclid/Collatz
-hybrid whose excluded parameter bands are \emph{provably lethal}, so
-avoiding them is exactly the halting question. The proofs were compiled
-by generator--verifier loops: fail-closed empirical calculi validated
-against $10^9$ raw steps, then emitted as Lean and re-checked by the
-kernel.
+Whether the sixth Busy Beaver value can be determined turns on a
+residual set of ``cryptid'' Turing machines whose halting problems have
+resisted every decider brought to bear on them. We reconceptualize the
+halting question for this class as an event-history problem: the
+machine's evolution is a long-duration process punctuated by recurrent
+events, and halting is a terminal event whose hazard concentrates in
+identifiable regions of a low-dimensional state space. Exploiting this
+structure, we develop a certified pipeline in which raw tape dynamics
+are aggregated into orbit events, embedded in non-Euclidean
+(logarithmic, simplex, hyperbolic) coordinate systems where the
+dynamics become affine, and then re-derived as machine-checked theorems
+in core Lean~4 under a minimal axiom set. Our central result reduces
+two previously open BB(6) machines, end to end, to conditional theorems
+of the form $\Safe \rightarrow \lnot\Halts$, in which the antecedent
+concerns only a deterministic affine map on five integers. We validate
+each layer by differential testing against $10^{9}$ raw machine steps
+and show that the excluded parameter configurations are lethal:
+entering them provably produces the halting transition. The remaining
+conjecture is therefore not an artifact of the method but the halting
+problem itself, compressed to arithmetic. We close by situating the
+approach within the formal-mathematics workflow emerging around Lean
+and large language models.
 \end{abstract}
 
-\section{Cryptids and the shape of the residual set}
-After BB(5) $=47{,}176{,}870$ was machine-checked, attention moved to
-the BB(6) frontier, where a residual cohort of holdout machines---%
-``cryptids'' such as Antihydra---encode Collatz-like arithmetic. We
-classified 1{,}094 holdouts with a Collatz-lens profiler (growth
-dimension, record structure, exact projections); none is decided by
-existing budgets, and 51 exhibit \emph{compact growth}: tape
-configurations that stay describable by a bounded vector of counters.
-These are the machines our pipeline targets.
+\section{Motivation and framing}
+The determination of $BB(5)=47{,}176{,}870$, machine-checked in Rocq by
+the bbchallenge Collaboration \cite{coqbb5,deciders}, transformed the
+Busy Beaver program from a computational pastime into a subfield of
+verified mathematics. The frontier now rests at $n=6$, where the
+obstruction is qualitative rather than quantitative: a small residual
+set of machines---the cryptids, of which Antihydra is the
+best-known---encode Collatz-like arithmetic, so that deciding them
+appears to require number theory beyond current reach \cite{aaronson}.
+Tao's result that almost all Collatz orbits attain almost bounded
+values \cite{tao-collatz} marks the present boundary of what is
+provable for such maps, and it is a measure-theoretic statement; the
+Busy Beaver question demands pointwise control of a single orbit.
 
-\section{Incision geometry: checking only at the boundary}
-For a compact-growth machine, halting danger concentrates at
-\emph{incision events}: the rare configurations where a distinguished
-``probe'' state reads the symbol that could launch the halting
-transition. In Lean we prove this is not a heuristic but an
-equivalence: for Antihydra, an event process $\mathsf{eorbit}$ (a
-closed-form \emph{volley} skipping through the interior dynamics)
-satisfies
-$$\mathsf{SafeOrbit} \iff \forall k,\ \mathsf{eorbit}(k)\neq\bot,$$
-so checking safety \emph{only at incisions} is sound and complete.
-Embedding event clouds via $x\mapsto\log(1{+}x)$, projective simplex
-normalization, and upper-half-plane charts renders the record dynamics
-affine and exposes family structure across the cohort---the empirical
-atlas that guides which machines admit exact certification.
+Our point of departure is methodological. Treating the machine as a
+dynamical system in the tradition of Moore and K\r{u}rka
+\cite{moore,kurka}, we observe that for the compact-growth cryptids the
+hazard of halting is not diffuse in time: it concentrates at
+\emph{incision events}, rare configurations in which a distinguished
+probe state reads the one symbol that could initiate the halting
+transition. The natural framework is that of event-history analysis:
+long censored spells of routine motion, recurrent events with
+measurable covariates, occasional regime transitions (renewals), and a
+terminal event whose risk set we can characterize exactly. The
+methodological task is then to certify (i) that the risk set is where
+we say it is, and (ii) what the process does between visits to it.
 
-\section{Orbital dragons: predictive emulation}
-An \emph{orbit finder} fits fail-closed exact rational affine
-specifications to record-level dynamics (exact arithmetic, no
-tolerance; any residual rejects the spec). On the nine-machine
-certification queue it returns exact specs for four machines:
-Antihydra, one known reduction target, and two machines new to this
-program (``dossier-2/3,'' a mirror pair). A generic predictor then
-replays orbits at record granularity, giving certified skip horizons
-and, crucially, the complete grammar of each machine's motion.
+\section{Data reduction: from tapes to orbits to charts}
+Figure~\ref{fig:std} displays the standard representations of one of
+our two target machines: the space--time diagram and the tape-extent
+growth curves. Both are faithful and both are uninformative; the
+self-similar structure of the process is invisible at this level of
+aggregation.
 
-\section{The interaction calculus and conditional closure}
-For the mirror pair we decode the entire eternal dynamics into a
-\emph{local interaction calculus} on a tape shape
-$1^{a}\,0\,1^{b}\,0\,1^{c}$: a ten-step ``caterpillar'' gait crawls the
-field; static holes are \emph{crossed} ($+4$) or \emph{terminated}
-($+6$) according to arrival parity; adjacent holes \emph{fuse} ($+9$);
-the field edge runs a parity-dependent business. Validated
-episode-for-episode against $10^{9}$ raw steps per machine, the
-calculus compiles to seven Lean episode theorems per machine over a
-uniform \texttt{holeTape} shape, glued by an $n$-fold cycle induction
-and a mixed sweep lemma whose $F$-parity constraint explains every
-$+4/{+}6/{+}9$ shift. A five-integer abstract orbit
-$\mathsf{metaStep}$ dispatches the episodes; transport, a segment
-keystone, and fully concrete startup anchors (235 and 2{,}044 certified
-steps, including one degenerate episode each) yield, at axioms
-$\{\mathrm{propext},\mathrm{Quot.sound}\}$:
+\begin{figure}[t]
+\centering
+\includegraphics[height=2.5in]{fig1_spacetime.png}
+\caption{The standard representation: a space--time diagram of the
+first 1{,}600 steps of dossier-2. Texture is visible; structure is
+not.}
+\label{fig:std}
+\end{figure}
+
+We therefore aggregate. Record-level analysis of the tape yields, for
+each machine, a shape vector: the field boundaries and the positions of
+two mobile ``holes,'' summarized as counters $(a,b,c)$. Embedding the
+resulting orbit in three non-Euclidean charts---the componentwise
+logarithmic map of Maslov--Litvinov dequantization \cite{viro,litvinov},
+the projective simplex normalization of the Perron--Frobenius
+tradition, and a hyperbolic shape-versus-scale chart in the spirit of
+Poincar\'e embeddings \cite{nickel-kiela}---renders the dynamics
+affine (Figure~\ref{fig:charts}). Generic evolution appears as line
+segments; renewals appear as corners and jumps. It is this piecewise
+affinity, discovered geometrically, that the certification layer then
+proves.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{fig3_charts.png}
+\caption{Our representation: 60{,}049 consecutive orbit events of
+dossier-2 in the three charts. Left: logarithmic chart; generic loops
+are affine segments. Center: simplex chart; scale is quotiented out
+and only shape dynamics remain. Right: hyperbolic-style chart; the
+eternal orbit is an ascending walk, one zig per renewal generation.}
+\label{fig:charts}
+\end{figure}
+
+\section{Certification: from charts back to theorems}
+The geometric layer guides but does not warrant. Every claim used in
+the final theorems is re-derived in core Lean~4, with axioms restricted
+to $\{\mathrm{propext},\mathrm{Quot.sound}\}$, over the raw
+transition-table semantics validated against the Rocq lineage by parser
+identities, differential execution traces, and a mechanized
+bisimulation with a zipper-tape model.
+
+The certified account of the two machines' dynamics is an
+\emph{interaction calculus}: a ten-step caterpillar gait crawls the
+field; static holes are crossed ($+4$) or terminated ($+6$) according
+to the parity of arrival; adjacent holes fuse ($+9$); the field edge
+executes a parity-dependent extension. Seven episode theorems per
+machine---each a complete trajectory between successive spawn entries,
+with exact step counts and probe safety---are compiled from this
+calculus by simulation-driven generators and glued by two inductions
+(an $n$-fold cycle lemma and a mixed sweep lemma whose parity
+constraint explains every shift constant). A five-integer abstract
+orbit $\mathsf{metaStep}$ dispatches the episodes; a transport theorem,
+a segment-induction keystone, and fully concrete startup certificates
+(235 and 2{,}044 steps, including one degenerate episode per machine)
+complete the chain.
+
 \begin{theorem}
-For each of the two machines,\quad
-$\Safe \;\longrightarrow\; \lnot\,\Halts(\mathsf{blankStart})$.
+For each of the two machines, at axioms
+$\{\mathrm{propext},\mathrm{Quot.sound}\}$:
+$\ \Safe \rightarrow \lnot\,\Halts(\mathsf{blankStart})$.
 \end{theorem}
-$\Safe$ states that the abstract orbit never leaves its guarded region.
-The renewal map is a subtractive Euclid/Collatz hybrid: generic loops
-conserve $\gamma = c-b$ while $a$ grows by $6$; deep renewals swap
-$(a,b)$; fusions rotate $(a,2,c)\mapsto(a{+}9,\,c{-}6,\,1)$.
-Simulating the excluded bands ($\gamma\in\{1,3,5\}$ at renewal,
-$b\le 2$ at carried entries) produces a halt within ${\sim}50$ steps:
-the conjecture \emph{is} the halting problem, compressed from a Turing
-machine to arithmetic on five integers. Both orbits survive $10^{8}$
-abstract episodes ($\approx 10^{15}$ raw steps).
 
-\section{Method: generator--verifier proof compilation}
-All certified layers are emitted by simulation-driven compilers: atoms
-are derived by running the machine table over declared precondition
-windows (the theorem cannot diverge from the machine); episodes are
-compiled from segment plans with funext normalizations between stages;
-mirror machines are generated by systematic sign-flips of the plans.
-The empirical layer is fail-closed---any unexplained episode halts the
-pipeline---and everything emitted is re-checked by the Lean kernel, so
-the generators are convenience, not trust surface. Notable
-proof-engineering findings: \texttt{omega} leaks
-$\mathrm{Classical.choice}$ from negated-conjunction hypotheses;
-and rewriting on \texttt{stepN} goals triggers a post-rewrite
-definitional-equality attempt that evaluates entire runs (a hidden
-quadratic cost), eliminated by term-mode run gluing.
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.8\textwidth]{fig4_gamma.png}
+\caption{The compressed conjecture. The renewal invariant
+$\gamma=c-b$ across the first fifty renewals; the shaded band
+$\gamma\in\{1,3,5\}$ is provably lethal. $\Safe$ asserts that this
+process never enters the band. This figure \emph{is} the halting
+problem of dossier-2.}
+\label{fig:gamma}
+\end{figure}
 
-\section{Honest scope}
-No unconditional non-halting claim is made for any open machine. Four
-machines (Antihydra, its companion, and the mirror pair) are reduced to
-single conjectures; for the mirror pair the conjecture is a
-deterministic five-integer recurrence, sharper in kind than its
-Collatz-like relatives. Empirical horizons are bounded by computation,
-not by what is true.
+\section{Validation and the status of the conjecture}
+Three validation regimes discipline the pipeline. First, the empirical
+calculus is fail-closed: it must classify every episode exactly, and it
+does so for $10^{9}$ raw steps per machine with no unexplained events.
+Second, the Lean $\mathsf{metaStep}$ is mirrored in Python and checked
+snapshot-for-snapshot against raw emulation, a test now permanent in
+the repository. Third, the abstract orbits are run to $10^{8}$
+episodes (a raw-step horizon near $10^{15}$) without leaving the
+guarded region.
 
-\paragraph{Acknowledgments.}
-The Lean developments, empirical calculi, and proof compilers were
-built in close collaboration with an AI assistant (Claude, Anthropic);
-all emitted proofs are machine-checked by the Lean~4 kernel with the
-stated axiom bar, and all empirical claims were validated by
-differential testing against independent raw-machine emulation.
+The substantive status of $\Safe$ deserves emphasis
+(Figure~\ref{fig:gamma}). The renewal map is a subtractive
+Euclid--Collatz hybrid: generic loops conserve $\gamma=c-b$ while $a$
+advances; deep renewals exchange the roles of $a$ and $b$; fusions
+rotate $(a,2,c)\mapsto(a{+}9,c{-}6,1)$. We verified by direct
+construction that the excluded configurations halt within roughly
+fifty steps. The conjecture is therefore sharp: no weaker invariant
+suffices, and no stronger one is available without resolving the
+arithmetic. What has changed is the type of the open problem---from a
+question about a Turing machine to a question about a five-integer
+recurrence.
+
+\section{Relation to the emerging formal workflow}
+The development is an instance of the human--AI--kernel workflow that
+Tao and collaborators have articulated for the Equational Theories
+Project and the Palomar registry \cite{etp,palomar}: generators (here,
+an AI assistant compiling proofs from validated empirical calculi) are
+labor; the Lean kernel is the sole trust surface. Our experience adds
+two proof-engineering observations of possible independent use:
+\texttt{omega} imports classical choice through negated-conjunction
+hypotheses, and rewriting on \texttt{stepN} goals triggers
+whole-run definitional evaluation---both eliminable by constructive
+De Morgan lemmas and term-mode composition, respectively.
+
+\paragraph{Honest scope.} No unconditional non-halting claim is made
+for any open machine. The charts are instruments of discovery and
+exposition; no theorem depends on them. Empirical horizons are bounded
+by computation performed, not by what is true.
+
+\paragraph{Acknowledgments.} The Lean developments, empirical calculi,
+and proof compilers were built in collaboration with an AI assistant
+(Claude, Anthropic). All emitted proofs are checked by the Lean~4
+kernel at the stated axiom bar.
 
 \begin{thebibliography}{9}\small
 \bibitem{coqbb5} The bbchallenge Collaboration.
-\emph{Determination of BB(5)}, machine-checked in Rocq (Coq-BB5), 2024.
-\bibitem{bbchallenge} The bbchallenge project.
-\texttt{https://bbchallenge.org} --- cryptids and the BB(6) frontier.
-\bibitem{repo} E.~Srivastava.
-\emph{bbchallenge-proofs}: certified emulation pipeline
-(busy-beaver-core, dossier, flying-dragon packages), 2026.
-\texttt{https://github.com/Enan456/bbchallenge-proofs}.
+Determination of the fifth Busy Beaver value. arXiv:2509.12337.
+\bibitem{deciders} The bbchallenge Collaboration.
+Turing machine deciders, part I. arXiv:2504.20563.
+\bibitem{aaronson} S.~Aaronson. The Busy Beaver frontier.
+\emph{SIGACT News}, 2020.
+\bibitem{tao-collatz} T.~Tao. Almost all orbits of the Collatz map
+attain almost bounded values. arXiv:1909.03562.
+\bibitem{moore} C.~Moore. Generalized shifts: unpredictability and
+undecidability in dynamical systems. \emph{Nonlinearity} 4 (1991).
+\bibitem{kurka} P.~K\r{u}rka. On topological dynamics of Turing
+machines. \emph{Theoret.\ Comput.\ Sci.} 174 (1997).
+\bibitem{viro} O.~Viro. On basic concepts of tropical geometry.
+\emph{Proc.\ Steklov Inst.\ Math.} 273 (2011).
+\bibitem{litvinov} G.~Litvinov. Maslov dequantization, idempotent and
+tropical mathematics. \emph{J.\ Math.\ Sci.} 140 (2007).
+\bibitem{nickel-kiela} M.~Nickel and D.~Kiela. Poincar\'e embeddings
+for learning hierarchical representations. NeurIPS 2017.
+\bibitem{etp} T.~Tao et al. The Equational Theories Project.
+arXiv:2512.07087.
+\bibitem{palomar} T.~Tao. Palomar: a registry of Lean-verified
+mathematics, 2026. \texttt{palomar-registry.org}.
 \end{thebibliography}
 
 \end{document}
