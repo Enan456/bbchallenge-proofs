@@ -1,0 +1,6 @@
+{
+    "challenge_module": "Palomar.Dossier2CryptidChallenge",
+    "solution_module": "Palomar.Dossier2CryptidSolution",
+    "theorem_names": ["Dossier2CryptidChallenge.dossier2_nonhalting"],
+    "permitted_axioms": ["propext", "Quot.sound"]
+}

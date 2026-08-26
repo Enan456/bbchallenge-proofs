@@ -1,0 +1,82 @@
+version: v0.4
+
+project:
+  name: "Dossier-2 non-halting, reduced to a five-integer orbit conjecture"
+  description: >-
+    A machine-checked reduction, in core Lean 4 (no Mathlib), of the halting
+    problem of the BB(6) holdout Turing machine dossier-2
+    (1RB1RC_1LC1LC_1RE0LD_1LB1RF_---1RA_0RD1RD) to a conjecture about a deterministic
+    guard-dispatched affine map on five integers (SafeMetaOrbit).  The
+    certified chain covers every raw step the machine ever takes: a
+    235-step concrete startup certificate (including one degenerate
+    episode), seven episode theorems describing the eternal dynamics over a
+    uniform two-hole tape shape, an n-fold caterpillar-cycle induction and a
+    parity-constrained sweep lemma, a five-integer abstract orbit with a
+    transport theorem, and a segment-induction keystone discharging probe
+    safety into non-halting (theorem dossier2_nonhalting).  The abstract
+    calculus was validated fail-closed against 10^9 raw machine steps and the
+    conjecture holds empirically for 10^8 abstract episodes; the excluded
+    parameter bands are provably lethal (entering them forces the halting
+    transition), so the conjecture is exactly the machine's halting problem.
+    Nothing here decides the machine: the conjecture itself remains open.
+  authors:
+    - "Enan Srivastava"
+  responsible_maintainers:
+    - "Enan Srivastava <enan332@gmail.com>"
+  license: "MIT"
+
+classification:
+  arxiv: [math.LO, cs.CC]
+  msc2020: ["03D10"]
+
+sources:
+  - title: "The Busy Beaver Challenge (bbchallenge) BB(6) project"
+    type: web discussion
+    url: "https://bbchallenge.org"
+    relationship: formalizes
+    note: >-
+      The machine 1RB1RC_1LC1LC_1RE0LD_1LB1RF_---1RA_0RD1RD is one of the
+      bbchallenge BB(6) holdout set; this development formalises its
+      complete record-level dynamics and reduces its halting problem to
+      the SafeMetaOrbit conjecture.
+  - title: "bbchallenge deciders paper (Turing machine deciders, part I)"
+    type: preprint
+    url: "https://arxiv.org/abs/2504.20563"
+    relationship: background
+
+automation:
+  methods:
+    - method: agent
+      note: >-
+        Lean statements and proofs drafted by an AI coding agent (Claude,
+        Anthropic) under human direction; the interaction calculus was
+        discovered and validated fail-closed by the project's Python
+        pipeline against 10^9 raw machine steps; episode and anchor
+        theorems compiled by simulation-driven generators; all proofs
+        machine-checked by Lean.
+
+review:
+  status: self-assessed
+  notes: >-
+    No external human review.  Self-assessment: axiom audit (compared
+    theorem uses only propext and Quot.sound), differential testing of
+    every theorem layer against independent raw emulation (permanent
+    pytest), snapshot-exact validation of the abstract orbit mirror,
+    and a 235-step fully concrete startup certificate.
+
+claims:
+  - theorem: "Dossier2CryptidChallenge.dossier2_nonhalting"
+    statement_informal: >-
+      If the five-integer abstract orbit of dossier-2 never leaves its
+      guarded region (SafeMetaOrbit), then the machine
+      1RB1RC_1LC1LC_1RE0LD_1LB1RF_---1RA_0RD1RD never halts from the all-zero tape.
+    status: "conditional"
+    axioms: ["propext", "Quot.sound"]
+
+provenance:
+  relationship: "original"
+  notes: >-
+    Original development; the machine is one of the bbchallenge BB(6)
+    holdouts.  Proofs were developed in collaboration with an AI assistant
+    (Claude, Anthropic); all results are checked by the Lean 4 kernel at the
+    stated axiom set.

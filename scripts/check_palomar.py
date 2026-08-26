@@ -52,6 +52,10 @@ ENTRIES = [
      "palomar-meta/incision/formalization.yaml"),
     ("dossier1", "comparator-dossier1.json",
      "palomar-meta/dossier1/formalization.yaml"),
+    ("dossier2cryptid", "comparator-dossier2cryptid.json",
+     "palomar-meta/dossier2cryptid/formalization.yaml"),
+    ("dossier3cryptid", "comparator-dossier3cryptid.json",
+     "palomar-meta/dossier3cryptid/formalization.yaml"),
 ]
 
 failures: list[str] = []
