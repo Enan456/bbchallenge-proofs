@@ -84,14 +84,19 @@ $l, r$, the hole positions $h_1, h_2$, and a tag. We write
 $a = h_1 - l$, $b = h_2 - h_1$, $c = r - h_2$ for the three gap
 lengths. Plotted in raw coordinates, the event data looks like growth
 curves with no visible law (Figure~\ref{fig:std}). Plotted in the
-right coordinates --- $\log(1{+}x)$ per component, or the projective
-simplex $(a,b,c)/(a{+}b{+}c)$, or shape against log-scale --- the same
-data is piecewise linear (Figure~\ref{fig:charts}). Straight segments
+right coordinates the same data is piecewise linear: componentwise
+$\log(1{+}x)$ straightens each regime, the projective simplex
+$(a,b,c)/(a{+}b{+}c)$ removes scale, and hyperbolic and spherical
+renderings of those two charts expose the orbit's nested renewal
+structure (Figure~\ref{fig:charts}). Straight segments
 are one regime; corners are regime changes. These coordinate choices
 are standard elsewhere: the log map is the tropical limit of algebraic
-geometry \cite{viro,litvinov}, the simplex normalization is
-Perron--Frobenius, and shape-versus-scale is the hyperbolic geometry
-used for hierarchical data \cite{nickel-kiela}. The underlying view of
+geometry --- historically, a dequantization, the $\hbar \to 0$ limit
+of a quantum calculus \cite{viro,litvinov}; the simplex normalization
+with its Fisher--Rao metric is the classical face of quantum state
+geometry, made literal by the amplitude map $p \mapsto \sqrt{p}$; and
+shape-versus-scale is the hyperbolic geometry used for hierarchical
+data \cite{nickel-kiela}. The underlying view of
 a Turing machine as a dynamical system goes back to Moore and
 K\r{u}rka \cite{moore,kurka}.
 
@@ -105,12 +110,17 @@ row per step). Nothing about the long-run law is visible here.}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\textwidth]{fig3_charts.png}
-\caption{The same machine, 60{,}049 events, in three coordinate
-systems. Left: componentwise $\log(1{+}x)$; each straight segment is
-one regime of the dynamics. Center: the simplex $(a,b,c)/(a{+}b{+}c)$;
-scale is removed and only shape moves. Right: shape against log-scale;
-the orbit climbs one zig per regime change.}
+\includegraphics[height=2.55in]{fig5_poincare.png}\hfill
+\includegraphics[height=2.55in]{fig6_fisher_rao.png}
+\caption{The same machine, 100{,}050 events, in two non-Euclidean
+coordinate systems. Left: the Poincar\'e disk --- shape runs along the
+boundary direction, log-scale is hyperbolic depth, and each renewal
+generation of the orbit sits one nested arc deeper. Right: the
+amplitude octant --- the normalized state $(a,b,c)/(a{+}b{+}c)$ mapped
+by $p \mapsto \sqrt{p}$ onto the Fisher--Rao sphere, so the orbit
+becomes a path whose geodesic length measures statistical
+distinguishability. Straight arcs are single regimes; corners are
+regime changes.}
 \label{fig:charts}
 \end{figure}
 
@@ -157,19 +167,21 @@ $(a,b,c) \mapsto (a{+}6,\,b{-}2,\,c{-}2)$, so $\gamma = c - b$ is
 conserved while the counters drain. When $b$ or $c$ runs out, a
 renewal move re-seeds the triple by subtracting and swapping counters,
 with parity choosing the branch --- part Euclidean algorithm, part
-Collatz. Figure~\ref{fig:gamma} shows the value of $\gamma$ at the
-first fifty renewals against the fatal band
-$\gamma \in \{1,3,5\}$. The recurrence avoids the band for $10^{8}$
+Collatz. Figure~\ref{fig:gamma} shows the renewal process as its own
+dynamical system: the return map of $\gamma$, with the fatal values
+$\gamma \in \{1,3,5\}$ marked. The recurrence avoids the band for $10^{8}$
 iterations (about $10^{15}$ machine steps). Proving it does so forever
 is the open problem, now in a form a number theorist can hold in one
 hand.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.78\textwidth]{fig4_gamma.png}
-\caption{The reduced problem. Each point is one renewal of the
-recurrence; the shaded band is proven fatal. The conjecture: the
-process never enters the band.}
+\includegraphics[width=0.62\textwidth]{fig8_returnmap.png}
+\caption{The reduced problem, as a dynamical system in its own right:
+the return map of the renewal invariant, $\gamma_{k+1}$ against
+$\gamma_k$ (symlog axes), over the first fifty renewals. The red bands
+are the values proven fatal. The conjecture: the map's orbit never
+lands in a band.}
 \label{fig:gamma}
 \end{figure}
 
