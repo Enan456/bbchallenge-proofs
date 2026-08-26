@@ -2,7 +2,6 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{graphicx}
-\usepackage{booktabs}
 \usepackage[hidelinks]{hyperref}
 \usepackage{microtype}
 
@@ -19,188 +18,192 @@ Utilizing Non-Euclidean Geometry to Solve Busy Beaver}
 \maketitle
 
 \begin{abstract}
-Whether the sixth Busy Beaver value can be determined turns on a
-residual set of ``cryptid'' Turing machines whose halting problems have
-resisted every decider brought to bear on them. We reconceptualize the
-halting question for this class as an event-history problem: the
-machine's evolution is a long-duration process punctuated by recurrent
-events, and halting is a terminal event whose hazard concentrates in
-identifiable regions of a low-dimensional state space. Exploiting this
-structure, we develop a certified pipeline in which raw tape dynamics
-are aggregated into orbit events, embedded in non-Euclidean
-(logarithmic, simplex, hyperbolic) coordinate systems where the
-dynamics become affine, and then re-derived as machine-checked theorems
-in core Lean~4 under a minimal axiom set. Our central result reduces
-two previously open BB(6) machines, end to end, to conditional theorems
-of the form $\Safe \rightarrow \lnot\Halts$, in which the antecedent
-concerns only a deterministic affine map on five integers. We validate
-each layer by differential testing against $10^{9}$ raw machine steps
-and show that the excluded parameter configurations are lethal:
-entering them provably produces the halting transition. The remaining
-conjecture is therefore not an artifact of the method but the halting
-problem itself, compressed to arithmetic. We close by situating the
-approach within the formal-mathematics workflow emerging around Lean
-and large language models.
+The busy beaver value $BB(n)$ is the longest finite runtime of any
+$n$-state Turing machine started on a blank tape. $BB(5)$ was settled
+in 2024 with a computer-checked proof. $BB(6)$ is blocked by a handful
+of machines whose tapes secretly run Collatz-style arithmetic; nobody
+can prove whether they stop. We study two of these machines. Our
+approach is empirical first: we log the machine's behavior as a
+sequence of events, embed the event data in logarithmic, simplex, and
+hyperbolic coordinates, and find that the dynamics are piecewise
+affine in a five-integer state. We then prove this description correct
+in the Lean proof assistant, down to the machine's individual steps and
+with a minimal axiom footprint. The result is a machine-checked
+theorem: if a simple five-integer recurrence never enters an explicit
+finite set of bad configurations, the machine never halts. We also
+prove the converse pressure: entering a bad configuration forces the
+machine to halt. The open problem is thereby moved, without loss, from
+a Turing machine to a short arithmetic recurrence. Every empirical
+claim is validated against $10^{9}$ raw machine steps, and the
+recurrence is tested for $10^{8}$ iterations.
 \end{abstract}
 
-\section{Motivation and framing}
-The determination of $BB(5)=47{,}176{,}870$, machine-checked in Rocq by
-the bbchallenge Collaboration \cite{coqbb5,deciders}, transformed the
-Busy Beaver program from a computational pastime into a subfield of
-verified mathematics. The frontier now rests at $n=6$, where the
-obstruction is qualitative rather than quantitative: a small residual
-set of machines---the cryptids, of which Antihydra is the
-best-known---encode Collatz-like arithmetic, so that deciding them
-appears to require number theory beyond current reach \cite{aaronson}.
-Tao's result that almost all Collatz orbits attain almost bounded
-values \cite{tao-collatz} marks the present boundary of what is
-provable for such maps, and it is a measure-theoretic statement; the
-Busy Beaver question demands pointwise control of a single orbit.
+\section{The problem, from zero}
+A Turing machine here is a finite table: six control states, a tape of
+0s and 1s, and for each (state, read symbol) pair an instruction ---
+write a bit, move left or right, change state --- or nothing. If the
+table has no instruction for the current situation, the machine halts.
+$BB(n)$ asks: among all $n$-state tables that eventually halt from the
+all-zero tape, what is the longest runtime? The function is
+noncomputable, so each new value is won machine by machine: every table
+either halts (run it) or must be \emph{proven} to run forever.
 
-Our point of departure is methodological. Treating the machine as a
-dynamical system in the tradition of Moore and K\r{u}rka
-\cite{moore,kurka}, we observe that for the compact-growth cryptids the
-hazard of halting is not diffuse in time: it concentrates at
-\emph{incision events}, rare configurations in which a distinguished
-probe state reads the one symbol that could initiate the halting
-transition. The natural framework is that of event-history analysis:
-long censored spells of routine motion, recurrent events with
-measurable covariates, occasional regime transitions (renewals), and a
-terminal event whose risk set we can characterize exactly. The
-methodological task is then to certify (i) that the risk set is where
-we say it is, and (ii) what the process does between visits to it.
+The bbchallenge collaboration settled $BB(5)=47{,}176{,}870$ with a
+proof checked in the Rocq proof assistant \cite{coqbb5,deciders}. At
+six states a residual set of machines defeats all known automated
+deciders. The community calls them cryptids. The reason they are hard
+is concrete: their tape dynamics implement iterated arithmetic maps of
+the same character as the Collatz ($3x{+}1$) map --- deterministic
+integer maps where parity decides the next move, and where the question
+is whether one specific orbit ever hits a small bad set. The strongest
+known result for such maps is Tao's: \emph{almost all} Collatz orbits
+reach almost bounded values \cite{tao-collatz}. That theorem is about
+typical orbits. Busy beaver questions need the worst case: one orbit,
+followed forever. No general tool exists for that, which is why each
+cryptid is studied on its own terms.
 
-\section{Data reduction: from tapes to orbits to charts}
-Figure~\ref{fig:std} displays the standard representations of one of
-our two target machines: the space--time diagram and the tape-extent
-growth curves. Both are faithful and both are uninformative; the
-self-similar structure of the process is invisible at this level of
-aggregation.
+We work on two six-state cryptids, a mirror-image pair we call
+dossier-2 and dossier-3. Machine one is
+\texttt{1RB1RC\_1LC1LC\_1RE0LD\_1LB1RF\_---1RA\_0RD1RD} in the standard
+table notation.
+
+\section{What we do}
+Our method has three stages. Watch, compress, certify.
+
+\textbf{Watch.} We run the machine and record only the moments that
+matter. For these machines there is a natural clock: a recurring
+configuration we call a spawn entry. Between two spawn entries the
+machine performs one bounded ``episode'' of work. Sampling at spawn
+entries turns a raw trajectory of $10^{9}$ steps into a clean sequence
+of a few million events.
+
+\textbf{Compress.} At every spawn entry the tape has the same form: a
+solid block of 1s with exactly two 0-cells (``holes'') inside it. So
+the whole configuration is five integers: the block's two endpoints
+$l, r$, the hole positions $h_1, h_2$, and a tag. We write
+$a = h_1 - l$, $b = h_2 - h_1$, $c = r - h_2$ for the three gap
+lengths. Plotted in raw coordinates, the event data looks like growth
+curves with no visible law (Figure~\ref{fig:std}). Plotted in the
+right coordinates --- $\log(1{+}x)$ per component, or the projective
+simplex $(a,b,c)/(a{+}b{+}c)$, or shape against log-scale --- the same
+data is piecewise linear (Figure~\ref{fig:charts}). Straight segments
+are one regime; corners are regime changes. These coordinate choices
+are standard elsewhere: the log map is the tropical limit of algebraic
+geometry \cite{viro,litvinov}, the simplex normalization is
+Perron--Frobenius, and shape-versus-scale is the hyperbolic geometry
+used for hierarchical data \cite{nickel-kiela}. The underlying view of
+a Turing machine as a dynamical system goes back to Moore and
+K\r{u}rka \cite{moore,kurka}.
 
 \begin{figure}[t]
 \centering
-\includegraphics[height=2.5in]{fig1_spacetime.png}
-\caption{The standard representation: a space--time diagram of the
-first 1{,}600 steps of dossier-2. Texture is visible; structure is
-not.}
+\includegraphics[height=2.4in]{fig1_spacetime.png}
+\caption{Raw view: the machine's first 1{,}600 steps (dark = 1s, one
+row per step). Nothing about the long-run law is visible here.}
 \label{fig:std}
 \end{figure}
-
-We therefore aggregate. Record-level analysis of the tape yields, for
-each machine, a shape vector: the field boundaries and the positions of
-two mobile ``holes,'' summarized as counters $(a,b,c)$. Embedding the
-resulting orbit in three non-Euclidean charts---the componentwise
-logarithmic map of Maslov--Litvinov dequantization \cite{viro,litvinov},
-the projective simplex normalization of the Perron--Frobenius
-tradition, and a hyperbolic shape-versus-scale chart in the spirit of
-Poincar\'e embeddings \cite{nickel-kiela}---renders the dynamics
-affine (Figure~\ref{fig:charts}). Generic evolution appears as line
-segments; renewals appear as corners and jumps. It is this piecewise
-affinity, discovered geometrically, that the certification layer then
-proves.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\textwidth]{fig3_charts.png}
-\caption{Our representation: 60{,}049 consecutive orbit events of
-dossier-2 in the three charts. Left: logarithmic chart; generic loops
-are affine segments. Center: simplex chart; scale is quotiented out
-and only shape dynamics remain. Right: hyperbolic-style chart; the
-eternal orbit is an ascending walk, one zig per renewal generation.}
+\caption{The same machine, 60{,}049 events, in three coordinate
+systems. Left: componentwise $\log(1{+}x)$; each straight segment is
+one regime of the dynamics. Center: the simplex $(a,b,c)/(a{+}b{+}c)$;
+scale is removed and only shape moves. Right: shape against log-scale;
+the orbit climbs one zig per regime change.}
 \label{fig:charts}
 \end{figure}
 
-\section{Certification: from charts back to theorems}
-The geometric layer guides but does not warrant. Every claim used in
-the final theorems is re-derived in core Lean~4, with axioms restricted
-to $\{\mathrm{propext},\mathrm{Quot.sound}\}$, over the raw
-transition-table semantics validated against the Rocq lineage by parser
-identities, differential execution traces, and a mechanized
-bisimulation with a zipper-tape model.
+\textbf{Certify.} The picture suggests a law; the law must then be
+proven about the actual machine, or it is only a picture. We first
+validate it empirically and fail-closed: a predictor that knows the
+conjectured law must reproduce every event --- exact positions, exact
+tape --- over $10^{9}$ raw steps per machine, and any miss aborts. It
+reproduces all of them. We then prove the law in Lean~4, using only the
+kernel's minimal axioms (\textsf{propext}, \textsf{Quot.sound}; no
+classical choice). The certified account consists of: seven theorems,
+one per episode type, each giving the episode's exact step count,
+exact output shape, and safety; two inductions that handle the
+episodes' unbounded middle parts; a concrete certificate for the
+machine's startup (235 steps for one machine, 2{,}044 for the other);
+and a transport theorem showing that a five-integer function
+$\mathsf{metaStep}$, iterated from the startup state, predicts the
+machine forever.
 
-The certified account of the two machines' dynamics is an
-\emph{interaction calculus}: a ten-step caterpillar gait crawls the
-field; static holes are crossed ($+4$) or terminated ($+6$) according
-to the parity of arrival; adjacent holes fuse ($+9$); the field edge
-executes a parity-dependent extension. Seven episode theorems per
-machine---each a complete trajectory between successive spawn entries,
-with exact step counts and probe safety---are compiled from this
-calculus by simulation-driven generators and glued by two inductions
-(an $n$-fold cycle lemma and a mixed sweep lemma whose parity
-constraint explains every shift constant). A five-integer abstract
-orbit $\mathsf{metaStep}$ dispatches the episodes; a transport theorem,
-a segment-induction keystone, and fully concrete startup certificates
-(235 and 2{,}044 steps, including one degenerate episode per machine)
-complete the chain.
+\section{The result}
+Halting, for these machines, can only happen one way: a specific
+control state must read a 0 with another 0 beside it. The certified
+episode theorems show this situation never arises while the
+five-integer iteration stays inside an explicit guarded region. Writing
+$\Safe$ for the statement that the iteration never leaves that region:
 
 \begin{theorem}
-For each of the two machines, at axioms
+For each machine, checked by the Lean kernel at axioms
 $\{\mathrm{propext},\mathrm{Quot.sound}\}$:
-$\ \Safe \rightarrow \lnot\,\Halts(\mathsf{blankStart})$.
+$\ \Safe \rightarrow \lnot\Halts(\mathsf{blankStart})$.
 \end{theorem}
+
+Two facts make this reduction meaningful rather than cosmetic. First,
+it is complete: startup, one exceptional episode, and every future
+step of the machine are covered by theorems, so nothing about the
+machine remains to be understood --- only the arithmetic. Second, it is
+sharp: we constructed the configurations just outside the guarded
+region and ran the machine from them; it halts within about fifty
+steps. Leaving the region is not merely unproven-safe. It is fatal.
+So $\Safe$ \emph{is} the halting problem, restated as arithmetic.
+
+What kind of arithmetic? Inside the main regime the iteration is
+$(a,b,c) \mapsto (a{+}6,\,b{-}2,\,c{-}2)$, so $\gamma = c - b$ is
+conserved while the counters drain. When $b$ or $c$ runs out, a
+renewal move re-seeds the triple by subtracting and swapping counters,
+with parity choosing the branch --- part Euclidean algorithm, part
+Collatz. Figure~\ref{fig:gamma} shows the value of $\gamma$ at the
+first fifty renewals against the fatal band
+$\gamma \in \{1,3,5\}$. The recurrence avoids the band for $10^{8}$
+iterations (about $10^{15}$ machine steps). Proving it does so forever
+is the open problem, now in a form a number theorist can hold in one
+hand.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.8\textwidth]{fig4_gamma.png}
-\caption{The compressed conjecture. The renewal invariant
-$\gamma=c-b$ across the first fifty renewals; the shaded band
-$\gamma\in\{1,3,5\}$ is provably lethal. $\Safe$ asserts that this
-process never enters the band. This figure \emph{is} the halting
-problem of dossier-2.}
+\includegraphics[width=0.78\textwidth]{fig4_gamma.png}
+\caption{The reduced problem. Each point is one renewal of the
+recurrence; the shaded band is proven fatal. The conjecture: the
+process never enters the band.}
 \label{fig:gamma}
 \end{figure}
 
-\section{Validation and the status of the conjecture}
-Three validation regimes discipline the pipeline. First, the empirical
-calculus is fail-closed: it must classify every episode exactly, and it
-does so for $10^{9}$ raw steps per machine with no unexplained events.
-Second, the Lean $\mathsf{metaStep}$ is mirrored in Python and checked
-snapshot-for-snapshot against raw emulation, a test now permanent in
-the repository. Third, the abstract orbits are run to $10^{8}$
-episodes (a raw-step horizon near $10^{15}$) without leaving the
-guarded region.
+\section{Why this may interest this community}
+Two reasons. The first is the workflow. This project is an instance of
+the emerging human--AI--kernel pattern in mathematics --- AI systems
+draft and compile proofs at scale, a proof kernel arbitrates, humans
+own claims --- the pattern of Tao's Equational Theories Project and the
+new Palomar registry for Lean-verified results \cite{etp,palomar}. All
+of our Lean was drafted by an AI assistant from validated empirical
+specifications; the kernel checked roughly fifteen thousand lines; the
+generators are convenience, not trust surface. The second reason is
+methodological kinship. Finding that a high-dimensional trajectory is
+governed by a low-dimensional piecewise-affine law, by choosing
+coordinates in which the structure is linear, is the daily business of
+representation learning. Here the same move is carried one step
+further: the discovered representation is not evaluated on held-out
+data but proven exactly correct, step by step, against the system that
+generated it.
 
-The substantive status of $\Safe$ deserves emphasis
-(Figure~\ref{fig:gamma}). The renewal map is a subtractive
-Euclid--Collatz hybrid: generic loops conserve $\gamma=c-b$ while $a$
-advances; deep renewals exchange the roles of $a$ and $b$; fusions
-rotate $(a,2,c)\mapsto(a{+}9,c{-}6,1)$. We verified by direct
-construction that the excluded configurations halt within roughly
-fifty steps. The conjecture is therefore sharp: no weaker invariant
-suffices, and no stronger one is available without resolving the
-arithmetic. What has changed is the type of the open problem---from a
-question about a Turing machine to a question about a five-integer
-recurrence.
+\paragraph{Scope.} We claim no unconditional non-halting result. The
+coordinate charts guide discovery and exposition; no theorem depends on
+them. Empirical horizons are what we ran, not what is true.
 
-\section{Relation to the emerging formal workflow}
-The development is an instance of the human--AI--kernel workflow that
-Tao and collaborators have articulated for the Equational Theories
-Project and the Palomar registry \cite{etp,palomar}: generators (here,
-an AI assistant compiling proofs from validated empirical calculi) are
-labor; the Lean kernel is the sole trust surface. Our experience adds
-two proof-engineering observations of possible independent use:
-\texttt{omega} imports classical choice through negated-conjunction
-hypotheses, and rewriting on \texttt{stepN} goals triggers
-whole-run definitional evaluation---both eliminable by constructive
-De Morgan lemmas and term-mode composition, respectively.
-
-\paragraph{Honest scope.} No unconditional non-halting claim is made
-for any open machine. The charts are instruments of discovery and
-exposition; no theorem depends on them. Empirical horizons are bounded
-by computation performed, not by what is true.
-
-\paragraph{Acknowledgments.} The Lean developments, empirical calculi,
-and proof compilers were built in collaboration with an AI assistant
-(Claude, Anthropic). All emitted proofs are checked by the Lean~4
-kernel at the stated axiom bar.
+\paragraph{Acknowledgments.} The Lean developments, empirical
+validation, and proof generators were built in collaboration with an AI
+assistant (Claude, Anthropic). Every proof is checked by the Lean~4
+kernel at the stated axioms.
 
 \begin{thebibliography}{9}\small
 \bibitem{coqbb5} The bbchallenge Collaboration.
 Determination of the fifth Busy Beaver value. arXiv:2509.12337.
 \bibitem{deciders} The bbchallenge Collaboration.
 Turing machine deciders, part I. arXiv:2504.20563.
-\bibitem{aaronson} S.~Aaronson. The Busy Beaver frontier.
-\emph{SIGACT News}, 2020.
 \bibitem{tao-collatz} T.~Tao. Almost all orbits of the Collatz map
 attain almost bounded values. arXiv:1909.03562.
 \bibitem{moore} C.~Moore. Generalized shifts: unpredictability and
