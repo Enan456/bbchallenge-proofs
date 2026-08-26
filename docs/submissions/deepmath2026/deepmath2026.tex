@@ -1,0 +1,148 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+
+\title{\bfseries Orbital Dragons to Hunt Cryptids:\\
+Utilizing Non-Euclidean Geometry to Solve Busy Beaver}
+\author{Enan Srivastava}
+\date{DeepMath 2026 --- Extended Abstract}
+
+\newtheorem{theorem}{Theorem}
+\newcommand{\Halts}{\mathsf{RawHalts}}
+\newcommand{\Safe}{\mathsf{SafeMetaOrbit}}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The fifth Busy Beaver number was settled in 2024; the sixth is guarded
+by a residual set of ``cryptid'' Turing machines whose halting problems
+resist every known decider. We present a certified pipeline that hunts
+these cryptids geometrically: raw tape dynamics are compressed into
+\emph{orbit events}, embedded in non-Euclidean (logarithmic, simplex,
+hyperbolic) charts where their self-similar structure becomes affine,
+and then re-certified in core Lean~4 (axioms
+$\{\mathrm{propext},\mathrm{Quot.sound}\}$ only). The headline result:
+two previously open BB(6) machines are reduced, machine-checked end to
+end, to conditional theorems $\Safe \rightarrow \lnot\Halts$, where
+$\Safe$ concerns a deterministic affine map on five integers. Every raw
+step either machine ever takes---startup, one degenerate episode, and an
+eternity of seven certified episode types---is accounted for by
+theorems; the remaining conjecture is a subtractive Euclid/Collatz
+hybrid whose excluded parameter bands are \emph{provably lethal}, so
+avoiding them is exactly the halting question. The proofs were compiled
+by generator--verifier loops: fail-closed empirical calculi validated
+against $10^9$ raw steps, then emitted as Lean and re-checked by the
+kernel.
+\end{abstract}
+
+\section{Cryptids and the shape of the residual set}
+After BB(5) $=47{,}176{,}870$ was machine-checked, attention moved to
+the BB(6) frontier, where a residual cohort of holdout machines---%
+``cryptids'' such as Antihydra---encode Collatz-like arithmetic. We
+classified 1{,}094 holdouts with a Collatz-lens profiler (growth
+dimension, record structure, exact projections); none is decided by
+existing budgets, and 51 exhibit \emph{compact growth}: tape
+configurations that stay describable by a bounded vector of counters.
+These are the machines our pipeline targets.
+
+\section{Incision geometry: checking only at the boundary}
+For a compact-growth machine, halting danger concentrates at
+\emph{incision events}: the rare configurations where a distinguished
+``probe'' state reads the symbol that could launch the halting
+transition. In Lean we prove this is not a heuristic but an
+equivalence: for Antihydra, an event process $\mathsf{eorbit}$ (a
+closed-form \emph{volley} skipping through the interior dynamics)
+satisfies
+$$\mathsf{SafeOrbit} \iff \forall k,\ \mathsf{eorbit}(k)\neq\bot,$$
+so checking safety \emph{only at incisions} is sound and complete.
+Embedding event clouds via $x\mapsto\log(1{+}x)$, projective simplex
+normalization, and upper-half-plane charts renders the record dynamics
+affine and exposes family structure across the cohort---the empirical
+atlas that guides which machines admit exact certification.
+
+\section{Orbital dragons: predictive emulation}
+An \emph{orbit finder} fits fail-closed exact rational affine
+specifications to record-level dynamics (exact arithmetic, no
+tolerance; any residual rejects the spec). On the nine-machine
+certification queue it returns exact specs for four machines:
+Antihydra, one known reduction target, and two machines new to this
+program (``dossier-2/3,'' a mirror pair). A generic predictor then
+replays orbits at record granularity, giving certified skip horizons
+and, crucially, the complete grammar of each machine's motion.
+
+\section{The interaction calculus and conditional closure}
+For the mirror pair we decode the entire eternal dynamics into a
+\emph{local interaction calculus} on a tape shape
+$1^{a}\,0\,1^{b}\,0\,1^{c}$: a ten-step ``caterpillar'' gait crawls the
+field; static holes are \emph{crossed} ($+4$) or \emph{terminated}
+($+6$) according to arrival parity; adjacent holes \emph{fuse} ($+9$);
+the field edge runs a parity-dependent business. Validated
+episode-for-episode against $10^{9}$ raw steps per machine, the
+calculus compiles to seven Lean episode theorems per machine over a
+uniform \texttt{holeTape} shape, glued by an $n$-fold cycle induction
+and a mixed sweep lemma whose $F$-parity constraint explains every
+$+4/{+}6/{+}9$ shift. A five-integer abstract orbit
+$\mathsf{metaStep}$ dispatches the episodes; transport, a segment
+keystone, and fully concrete startup anchors (235 and 2{,}044 certified
+steps, including one degenerate episode each) yield, at axioms
+$\{\mathrm{propext},\mathrm{Quot.sound}\}$:
+\begin{theorem}
+For each of the two machines,\quad
+$\Safe \;\longrightarrow\; \lnot\,\Halts(\mathsf{blankStart})$.
+\end{theorem}
+$\Safe$ states that the abstract orbit never leaves its guarded region.
+The renewal map is a subtractive Euclid/Collatz hybrid: generic loops
+conserve $\gamma = c-b$ while $a$ grows by $6$; deep renewals swap
+$(a,b)$; fusions rotate $(a,2,c)\mapsto(a{+}9,\,c{-}6,\,1)$.
+Simulating the excluded bands ($\gamma\in\{1,3,5\}$ at renewal,
+$b\le 2$ at carried entries) produces a halt within ${\sim}50$ steps:
+the conjecture \emph{is} the halting problem, compressed from a Turing
+machine to arithmetic on five integers. Both orbits survive $10^{8}$
+abstract episodes ($\approx 10^{15}$ raw steps).
+
+\section{Method: generator--verifier proof compilation}
+All certified layers are emitted by simulation-driven compilers: atoms
+are derived by running the machine table over declared precondition
+windows (the theorem cannot diverge from the machine); episodes are
+compiled from segment plans with funext normalizations between stages;
+mirror machines are generated by systematic sign-flips of the plans.
+The empirical layer is fail-closed---any unexplained episode halts the
+pipeline---and everything emitted is re-checked by the Lean kernel, so
+the generators are convenience, not trust surface. Notable
+proof-engineering findings: \texttt{omega} leaks
+$\mathrm{Classical.choice}$ from negated-conjunction hypotheses;
+and rewriting on \texttt{stepN} goals triggers a post-rewrite
+definitional-equality attempt that evaluates entire runs (a hidden
+quadratic cost), eliminated by term-mode run gluing.
+
+\section{Honest scope}
+No unconditional non-halting claim is made for any open machine. Four
+machines (Antihydra, its companion, and the mirror pair) are reduced to
+single conjectures; for the mirror pair the conjecture is a
+deterministic five-integer recurrence, sharper in kind than its
+Collatz-like relatives. Empirical horizons are bounded by computation,
+not by what is true.
+
+\paragraph{Acknowledgments.}
+The Lean developments, empirical calculi, and proof compilers were
+built in close collaboration with an AI assistant (Claude, Anthropic);
+all emitted proofs are machine-checked by the Lean~4 kernel with the
+stated axiom bar, and all empirical claims were validated by
+differential testing against independent raw-machine emulation.
+
+\begin{thebibliography}{9}\small
+\bibitem{coqbb5} The bbchallenge Collaboration.
+\emph{Determination of BB(5)}, machine-checked in Rocq (Coq-BB5), 2024.
+\bibitem{bbchallenge} The bbchallenge project.
+\texttt{https://bbchallenge.org} --- cryptids and the BB(6) frontier.
+\bibitem{repo} E.~Srivastava.
+\emph{bbchallenge-proofs}: certified emulation pipeline
+(busy-beaver-core, dossier, flying-dragon packages), 2026.
+\texttt{https://github.com/Enan456/bbchallenge-proofs}.
+\end{thebibliography}
+
+\end{document}
