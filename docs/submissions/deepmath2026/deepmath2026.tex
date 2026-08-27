@@ -33,9 +33,14 @@ theorem: if a simple five-integer recurrence never enters an explicit
 finite set of bad configurations, the machine never halts. We also
 prove the converse pressure: entering a bad configuration forces the
 machine to halt. The open problem is thereby moved, without loss, from
-a Turing machine to a short arithmetic recurrence. Every empirical
-claim is validated against $10^{9}$ raw machine steps, and the
-recurrence is tested for $10^{8}$ iterations.
+a Turing machine to a short arithmetic recurrence. We then derive the
+recurrence's renewal map in closed form, show its fatal set is a
+width-five window around the diagonal, and close the two mechanical
+proof routes with computational evidence: no congruence invariant up to
+modulus 384 excludes the window, and the branch dynamics has
+exponential factor complexity, so it is not conjugate to a rotation.
+Every empirical claim is validated against $10^{9}$ raw machine steps,
+and the recurrence is tested for $10^{8}$ iterations.
 \end{abstract}
 
 \section{The problem, from zero}
@@ -174,6 +179,36 @@ iterations (about $10^{15}$ machine steps). Proving it does so forever
 is the open problem, now in a form a number theorist can hold in one
 hand.
 
+We characterized that problem further. Sampling the orbit at its
+renewal section reduces the whole dynamics to a two-counter map,
+verified exactly against the certified orbit: with
+$(\alpha,\beta) = (6, a{-}1)$ or $(9, a{-}2)$ by the parity of $a$,
+$$R(a,b) = \begin{cases}
+(a+6,\ b-3) & b \text{ even},\\
+(\alpha + 3(b-3),\ \beta - (b-3)) & b \text{ odd},\ b < \beta,\\
+(\alpha + 3\beta + 3,\ b - \beta - 4) & b \text{ odd},\ b > \beta.
+\end{cases}$$
+Its fatal set is geometrically simple: death occurs exactly when the
+two counters arrive almost equal ($b - \beta \in \{1,3,5\}$, plus
+two boundary cases). Two mechanical proof routes are then closed by
+computation. A sound residue-abstraction search finds a genuine mod-3
+conservation law but shows that no congruence invariant up to modulus
+$384$ excludes the fatal window. And the branch-symbol sequence has
+factor complexity growing like $1.6^{n}$ --- a rotation coding would
+give $n+1$ --- so the dynamics is not conjugate to a rigid system, and
+continued-fraction rigidity arguments do not apply as stated. Over
+$10^{5}$ renewals the orbit's minimum distance above the fatal window
+is $4$: it grazes death and survives, so no proof can rely on a
+structural buffer. What remains is a pointwise avoidance statement for
+a pseudorandom multiplicative map --- the Collatz situation --- with
+three mitigations: the map is explicit and total, the fatal set is a
+finite union of lines near the diagonal, and the certified reduction
+stands under any future argument. The natural next language is
+hyperbolic: renewal steps are integer $2{\times}2$ matrix moves, and a
+near-tie of the counters is a cusp excursion on the modular surface, so
+the conjecture asks that a specific geodesic avoid three explicit
+horoballs forever \cite{series}.
+
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.62\textwidth]{fig8_returnmap.png}
@@ -228,6 +263,8 @@ machines. \emph{Theoret.\ Comput.\ Sci.} 174 (1997).
 tropical mathematics. \emph{J.\ Math.\ Sci.} 140 (2007).
 \bibitem{nickel-kiela} M.~Nickel and D.~Kiela. Poincar\'e embeddings
 for learning hierarchical representations. NeurIPS 2017.
+\bibitem{series} C.~Series. The modular surface and continued
+fractions. \emph{J.\ London Math.\ Soc.} 31 (1985).
 \bibitem{etp} T.~Tao et al. The Equational Theories Project.
 arXiv:2512.07087.
 \bibitem{palomar} T.~Tao. Palomar: a registry of Lean-verified
