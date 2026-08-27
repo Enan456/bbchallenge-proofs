@@ -39,8 +39,11 @@ width-five window around the diagonal, and close the two mechanical
 proof routes with computational evidence: no congruence invariant up to
 modulus 384 excludes the window, and the branch dynamics has
 exponential factor complexity, so it is not conjugate to a rotation.
-Every empirical claim is validated against $10^{9}$ raw machine steps,
-and the recurrence is tested for $10^{8}$ iterations.
+Measuring the recurrence over its whole seed space shows the set of
+dying seeds has natural density zero at the Borel--Cantelli rate
+($\approx 12/X$), so our machines' seeds are typical survivors. Every
+empirical claim is validated against $10^{9}$ raw machine steps, and
+the recurrence is tested for $10^{8}$ iterations.
 \end{abstract}
 
 \section{The problem, from zero}
@@ -68,9 +71,29 @@ followed forever. No general tool exists for that, which is why each
 cryptid is studied on its own terms.
 
 We work on two six-state cryptids, a mirror-image pair we call
-dossier-2 and dossier-3. Machine one is
+dossier-2 and dossier-3. Machine one, written
 \texttt{1RB1RC\_1LC1LC\_1RE0LD\_1LB1RF\_---1RA\_0RD1RD} in the standard
-table notation.
+notation, is the following table. Each entry gives (bit written, head
+move, next state); the machine starts in state $A$ on an all-zero tape.
+
+\begin{center}\small
+\begin{tabular}{c|cc}
+state & reads 0 & reads 1 \\ \hline
+$A$ & 1, R, $B$ & 1, R, $C$ \\
+$B$ & 1, L, $C$ & 1, L, $C$ \\
+$C$ & 1, R, $E$ & 0, L, $D$ \\
+$D$ & 1, L, $B$ & 1, R, $F$ \\
+$E$ & \textbf{(none: halt)} & 1, R, $A$ \\
+$F$ & 0, R, $D$ & 1, R, $D$ \\
+\end{tabular}
+\end{center}
+
+The single empty entry is the only way to halt: the machine must be in
+state $E$ reading a 0. Working backward through the table, state $E$
+is only entered from state $C$ reading a 0, so any halt must pass
+through the configuration ``$C$ reads 0 with another 0 to its right.''
+We call this the \emph{probe event}. Everything that follows is one
+long argument that the probe event never happens.
 
 \section{What we do}
 Our method has three stages. Watch, compress, certify.
@@ -83,11 +106,39 @@ entries turns a raw trajectory of $10^{9}$ steps into a clean sequence
 of a few million events.
 
 \textbf{Compress.} At every spawn entry the tape has the same form: a
-solid block of 1s with exactly two 0-cells (``holes'') inside it. So
-the whole configuration is five integers: the block's two endpoints
-$l, r$, the hole positions $h_1, h_2$, and a tag. We write
-$a = h_1 - l$, $b = h_2 - h_1$, $c = r - h_2$ for the three gap
-lengths. Plotted in raw coordinates, the event data looks like growth
+solid block of 1s with exactly two 0-cells (``holes'') inside it, the
+head at the block's right end. A concrete instant of the certified
+orbit (machine at position $r$, dots are 0s):
+$$\cdots 0\,0\,\underbrace{1\,1\,1\,1\,1\,1}_{a}\,
+\underset{h_1}{0}\,\underbrace{1\,1\,1\,1}_{b-1}\,
+\underset{h_2}{0}\,\underbrace{1\,1\,1\,1\,1\,1\,1}_{c-1}\,
+\underset{r}{\downarrow}\,0\,0 \cdots$$
+So the whole configuration is five integers: the block's endpoints
+$l, r$, the hole positions $h_1, h_2$, and a tag; we write
+$a = h_1 - l$, $b = h_2 - h_1$, $c = r - h_2$ for the gaps. Between
+spawn entries the machine performs one of seven ``episodes,'' each
+later certified with its exact step count:
+
+\begin{center}\small
+\begin{tabular}{lll}
+episode & steps & effect on the tape \\ \hline
+spawn & $7$ & extend block by 1, dig a fresh hole at $r-2$ \\
+crawl & $10$ per cycle & the walking gait; moves 2 cells, carries a hole \\
+cross & $13$ & absorb a hole, re-dig it 4 cells right \\
+terminate & $13$ & fill a hole, plant it 6 right (the probe events) \\
+fuse & $19$ & merge adjacent holes, plant 9 right \\
+edge & $10$ or $13$ & extend the left end by 1 or 3 (renewal) \\
+sweep & $2$ per cell & return home; holes cross for free \\
+\end{tabular}
+\end{center}
+
+For instance, the crawl is a fixed ten-step loop: the machine marches
+left three cells twice (writing $1,1,0$ each time), then backs up four;
+the net effect is two cells of travel and a 0 that the walker carries
+along three cells behind itself. The danger state $C$ reads a 0
+\emph{only} inside terminate and fuse episodes, and there the theorems
+show the cell to its right always holds a 1 --- the probe event cannot
+fire. Plotted in raw coordinates, the event data looks like growth
 curves with no visible law (Figure~\ref{fig:std}). Plotted in the
 right coordinates the same data is piecewise linear: componentwise
 $\log(1{+}x)$ straightens each regime, the projective simplex
@@ -208,6 +259,29 @@ hyperbolic: renewal steps are integer $2{\times}2$ matrix moves, and a
 near-tie of the counters is a cusp excursion on the modular surface, so
 the conjecture asks that a specific geodesic avoid three explicit
 horoballs forever \cite{series}.
+
+\emph{Almost all seeds survive.} We also measured the map $R$ over
+its whole seed space, not just our orbit. Enumerating every seed in
+$[X, 2X)^2$ exactly for $X \le 256$, and sampling to $X = 2^{16}$,
+the fraction of seeds whose orbit ever dies is $\approx 12/X$: the
+dying set has natural density zero, at the rate a Borel--Cantelli
+heuristic predicts. The mechanism is visible in the data. Every
+observed death occurs within the first fifty renewals; the offset
+$b - \beta$ at the diagonal is uniformly distributed, fatal values
+included; and sizes grow by a factor $e^{0.134}$ per renewal, so the
+per-renewal hazard $\approx 6/\mathrm{size}$ sums geometrically ---
+death is an early-game phenomenon, and survival compounds. Our
+machines' seeds are therefore \emph{typical survivors}, not
+exceptions. (One measurement artifact is worth recording: an early
+instrument logged offsets only on steps actually taken and reported
+zero fatal offsets in $2 \times 10^5$ events --- survivorship bias in
+its textbook form, since a fatal offset is a death and never generates
+a step. Corrected instrumentation restored exact agreement with the
+uniform prediction.) A rigorous almost-all theorem needs one missing
+piece: the tail-hazard bound along orbits, an invariant-measure
+argument in the style of Tao's Collatz result --- with the advantage
+that $R$ is explicit, total, piecewise affine, and its hazard is
+measured uniform.
 
 \begin{figure}[t]
 \centering
