@@ -41,7 +41,11 @@ modulus 384 excludes the window, and the branch dynamics has
 exponential factor complexity, so it is not conjugate to a rotation.
 Measuring the recurrence over its whole seed space shows the set of
 dying seeds has natural density zero at the Borel--Cantelli rate
-($\approx 12/X$), so our machines' seeds are typical survivors. Every
+($\approx 12/X$), so our machines' seeds are typical survivors. We
+frame the program on a verification spectrum whose proven endpoint is
+$\mathsf{MIP}^{*} = \mathsf{RE}$: kernel checking at the bottom,
+certified predictive emulation --- this paper --- in the middle, and
+entangled-prover verification of halting-type claims as the goal. Every
 empirical claim is validated against $10^{9}$ raw machine steps, and
 the recurrence is tested for $10^{8}$ iterations.
 \end{abstract}
@@ -294,6 +298,50 @@ lands in a band.}
 \label{fig:gamma}
 \end{figure}
 
+\section{The verification spectrum: where this sits, and the goal}
+It is useful to place this work on a spectrum of what ``verifying a
+machine'' can mean, because the endpoints are now both theorems.
+
+\emph{Starting verification} is the ground-up kind: replay and check
+every step. Our Lean development is this, industrialized --- the
+kernel checks each of the $10^{4}$ startup steps individually, and the
+trust surface is two axioms and a proof checker. It is complete and
+unconditional, but it can never outrun the machine: verifying $n$
+steps costs $n$.
+
+\emph{Predictive emulation} is the middle of the spectrum and the
+substance of this paper. Instead of replaying steps, certify the
+machine's \emph{law} --- the episode theorems and the five-integer
+map --- and then verify \emph{forecasts}: where the next probe event
+can occur, what the configuration will be $10^{6}$ steps from now,
+whether halting is reachable from the current shape. One certified
+episode theorem covers unboundedly many raw steps; the certified
+recurrence covers all of them. Verification cost decouples from
+runtime. This is what lets two machines' entire futures be checked
+against a conjecture a number theorist can hold.
+
+\emph{Ending verification} is the horizon, and we take it as the
+program's goal: $\mathsf{MIP}^{*} = \mathsf{RE}$
+\cite{mipre}. A classical polynomial-time verifier, interacting with
+two entangled provers, can verify \emph{any} recursively enumerable
+statement --- including ``this Turing machine halts'' for machines far
+beyond any budget --- with the provers, not the verifier, bearing the
+unbounded cost. Non-halting statements such as ours live one level up
+(they are $\Pi_{1}$; zero-gap variants of $\mathsf{MIP}^{*}$ reach
+$\Pi_{2}^{0}$ \cite{mnyu}), so the entangled-prover frame in
+principle spans exactly the class of claims the busy beaver program
+generates. The alignment we draw is this: kernel verification anchors
+truth at the bottom; predictive emulation compresses it in the middle;
+and $\mathsf{MIP}^{*} = \mathsf{RE}$ says that at the top,
+verification of halting-type claims is possible \emph{in principle}
+with entanglement as the resource. Our quantum-inspired toolkit
+(reversible vector maps, state-space geometry) borrows disciplines
+from that endpoint; the open engineering-of-mathematics question is
+how much of the middle rung --- certified forecasts --- can be pushed
+toward it, replacing replay with interaction. Nothing in our results
+depends on this framing; it states the destination the pipeline is
+pointed at.
+
 \section{Why this may interest this community}
 Two reasons. The first is the workflow. This project is an instance of
 the emerging human--AI--kernel pattern in mathematics --- AI systems
@@ -339,6 +387,11 @@ tropical mathematics. \emph{J.\ Math.\ Sci.} 140 (2007).
 for learning hierarchical representations. NeurIPS 2017.
 \bibitem{series} C.~Series. The modular surface and continued
 fractions. \emph{J.\ London Math.\ Soc.} 31 (1985).
+\bibitem{mipre} Z.~Ji, A.~Natarajan, T.~Vidick, J.~Wright, and
+H.~Yuen. $\mathsf{MIP}^{*} = \mathsf{RE}$. arXiv:2001.04383;
+\emph{Comm.\ ACM} 64(11), 2021.
+\bibitem{mnyu} H.~Mousavi, S.~Nezhadi, and H.~Yuen. Nonlocal games,
+compression theorems, and the arithmetical hierarchy. STOC 2022.
 \bibitem{etp} T.~Tao et al. The Equational Theories Project.
 arXiv:2512.07087.
 \bibitem{palomar} T.~Tao. Palomar: a registry of Lean-verified
