@@ -154,11 +154,14 @@ startup segment is anchored concretely, as in D2/D3.
 The known limitation is quantified, not hidden: the *rule set*
 (interior + parametric boundary rules) has been stable since the
 first 800k steps, but the *decision function* is keyed by literal
-20-cell lookahead windows, and in gap-relic-dense regions that
-window is occasionally insufficient — one deviation per ~364
-segments at the 40M-learn point, every one caught (never silently
-absorbed) by the exact validators. Closing this last gap means
-replacing the literal window table with the true finite-state
-form of the transducer's decision function (equivalently: widening
-context adaptively where relics cluster) — bounded work, and the
-natural first move of the step-3 episode compiler.
+20-cell lookahead windows. A learn-on-everything probe over the
+full 200M horizon (3,955 segments) pins the residue exactly:
+**one** aliasing key — the all-clean window
+`('D1', '#.#.#.#.#.#.#.#.#.#.')`, where regroup-vs-boundary-dance
+is decided by proximity to the input end *beyond* 20 cells; every
+other frozen-phase failure was resolvable novelty (absorbed by
+continued learning, final tables 3/206/6). Closing this last gap
+means one distance-to-end feature in the decision key (equivalently
+the finite-state form of the transducer's decision function) —
+bounded work, and the natural first move of the step-3 episode
+compiler.
