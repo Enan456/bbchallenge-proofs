@@ -41,7 +41,16 @@ modulus 384 excludes the window, and the branch dynamics has
 exponential factor complexity, so it is not conjugate to a rotation.
 Measuring the recurrence over its whole seed space shows the set of
 dying seeds has natural density zero at the Borel--Cantelli rate
-($\approx 12/X$), so our machines' seeds are typical survivors. We
+($\approx 12/X$), so our machines' seeds are typical survivors.
+Surveying the entire holdout set with a two-ended harness (forward
+orbit against backward halt cone, regimes fitted in between)
+classifies all $1{,}094$ open six-state machines: zero halts, zero
+alignments; four fixed-dimension machines --- exactly the certified
+ones; an eleven-machine \emph{array class} whose state spaces grow in
+dimension, for whose leading member we construct an exact word-rewrite
+calculus (a two-phase odometer with a block-trisection boundary rule)
+validated against $2 \times 10^{8}$ raw steps; and $307$ single-law
+machines among $346$ with regime structure. We
 frame the program on a verification spectrum whose proven endpoint is
 $\mathsf{MIP}^{*} = \mathsf{RE}$: kernel checking at the bottom,
 certified predictive emulation --- this paper --- in the middle, and
@@ -297,6 +306,95 @@ are the values proven fatal. The conjecture: the map's orbit never
 lands in a band.}
 \label{fig:gamma}
 \end{figure}
+
+\section{The census: what the remaining 1{,}094 machines are}
+The pipeline above certifies individual machines. We also ran it, in
+survey form, across the entire BB(6) holdout set, and the result is a
+classification --- the first structural census, to our knowledge, of
+everything that remains open at six states.
+
+The instrument is a three-part harness modeled on a two-prover
+frame (whose provenance the next section makes precise): a
+\emph{start machine} (forward
+emulation from the blank tape), an \emph{end machine} (the backward
+halt cone: every partial configuration that could precede a halt
+within $k$ steps), and a \emph{regime machine} that detects and fits
+the piecewise laws a run moves through, using second differences of
+extreme-event times. A machine halts if and only if its forward orbit
+ever aligns with its backward cone, so the verdict compiles from the
+three reports. Across all $1{,}094$ holdouts: zero halts, and zero
+alignments --- at every sampled instant, every holdout is at least
+$18$ raw steps from any halting event. (For dossier-3 the two ends
+are provably incompatible in a stronger sense: all $134$ backward
+families at depth $24$ require three $0$s within a six-cell window,
+a pattern no certified forward shape can produce --- a finite,
+checkable statement.) The census then splits the set:
+
+\begin{itemize}
+\item \textbf{4 machines} (Antihydra and our dossiers 1--3) reduce to
+  \emph{fixed-dimension} integer maps --- a bounded tuple of counters
+  with certified episode theorems. These are the machines the previous
+  sections certify, and the sweep found no others: ranked by regime
+  cleanliness, the top $25$ candidates yield $11$ machines with exact
+  fail-closed orbit specifications, and \emph{every one of the eleven}
+  fails both fixed-shape gates (bounded hole count, bounded
+  run-length dimension). The certified four are, up to this ranking's
+  reach, the only fixed-dimension machines in the cohort.
+\item \textbf{The array class.} Those $11$ exact-but-unbounded
+  machines are the new frontier: their tape shapes are growing
+  \emph{vectors} of blocks --- the state space itself gains a
+  dimension every few regimes. Their orbit specifications are exact
+  but fragment into hundreds of rules of support one or two; the law
+  is real but lives on a space of growing dimension.
+\item \textbf{307 machines} are governed by a single affine law in
+  the regime harness (the structured third of the cohort, $346$ with
+  detectable regime structure); the rest show no structure at the
+  probed horizons.
+\end{itemize}
+
+For the top array-class machine
+(\texttt{1RB1RD\_1LC0LC\_0RD0LB\_1RF0LE\_0RD---\_0RA1RC}) we then
+built the array-class analogue of the interaction calculus: an exact
+\emph{word-rewrite system}. Its tape at each canonical event is a
+word of $1$-blocks of lengths $1$, $2$, $3$ with single-$0$ gaps; a
+sweep of the head is a sequential transducer over that word, and the
+whole dynamics compresses to five interior rules (copy, absorb,
+cursor, insert, and one parametric regroup family with cost $8+6k$),
+two parametric boundary families --- one of which is a literal
+\emph{block trisection}, $3 \mapsto 1{,}1{,}1$ --- and two derived
+laws: a deposited $2$-block acts as a \emph{cursor}, restarting the
+next pass at its own position, and whether a pass ends in a restart
+is read off the output word. Semantically the machine is a two-phase
+odometer on $\{1,3\}$-words: the $3$s are carries, the cursor is the
+carry boundary. The system is validated the way the certified
+machines were before their Lean compilation --- learn, freeze,
+verify exactly: rules learned on $4 \times 10^{7}$ raw steps
+reproduce $2{,}180$ of $2{,}186$ held-out segments over the next
+$1.6 \times 10^{8}$ steps \emph{exactly} (output word, arrival
+type, step count, head position), with zero chaining violations;
+the six exceptions are localized boundary-window events, each
+caught --- never silently absorbed --- by the fail-closed design.
+The sharpest check runs the machine itself on the calculus's own
+\emph{predictions}: configurations forecast up to $139$ sweeps
+beyond any simulated history, written onto a literal tape and
+handed to the raw machine, reproduce every forecast exactly, step
+counts included. This is predictive emulation --- certify the law,
+verify forecasts --- standing, for the first time in this program,
+on a state space of growing dimension.
+
+The classification also carries a quantitative signature worth
+recording. The abstract backward cone of dossier-3 --- the tree of
+renewal-level states dying within $k$ steps --- has level counts
+$9, 19, 31, 50, 81, \ldots$ satisfying $L(k) = L(k{-}1) + L(k{-}2)$
+\emph{exactly} from depth two on: a Fibonacci tree, branching at the
+golden ratio, and the same $\varphi \approx 1.618$ appears
+independently as the forward factor complexity. The mechanism is
+visible: a terminate step flips a parity, so no branch word contains
+two consecutive terminates --- precisely the constraint that
+generates Fibonacci counting. The standing, falsifiable prediction
+for the array class: each machine's death tree satisfies a small
+integer recurrence with a Pisot-like constant determined by its
+episode-alternation rules, the golden ratio being the founding case.
 
 \section{The verification spectrum: where this sits, and the goal}
 It is useful to place this work on a spectrum of what ``verifying a

@@ -67,8 +67,11 @@ constants (plastic, supergolden, …).
 
 ## Roadmap
 
-1. Fail-closed word-rewrite calculus for the rank-1 machine
-   (trisection + companions, with exact step costs).
+1. **DONE (2026-08-27)** — fail-closed word-rewrite calculus for the
+   rank-1 machine (trisection + companions, with exact step costs):
+   see `2026-08-27-dossier5-trisection-calculus.md`. The dynamics is
+   a two-phase odometer on {1,3}-words with a cursor and two derived
+   laws; validated exactly on held-out horizons.
 2. Substitution-system abstract map (word ↦ word) and its death tree —
    the recurrence prediction gets its first test.
 3. Episode compiler re-target: plans over (prefix, middle, suffix)
@@ -77,7 +80,7 @@ constants (plastic, supergolden, …).
 
 ## Honest scope
 
-One machine decoded at entry-vector level; the trisection calculus is
-observed, not yet fail-closed-validated; the Lean layer is a
+One machine decoded at entry-vector level; the Lean layer is a
 foundation, not yet an episode engine; the recurrence prediction is a
-prediction.
+prediction. (The step-1 calculus graduated from "observed" to
+fail-closed-validated — numbers and scope in its own document.)
