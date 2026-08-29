@@ -141,6 +141,18 @@ def _process2(t0, t1, snap0, snap1, seg_turns, kind0, kind1):
 class Calculus2(_C1):
     """v2: kinds, floor-finding, per-kind heads, kinded tail values."""
 
+    @staticmethod
+    def _look(s, i):
+        """20-cell decision window; when the window is saturated
+        clean alternation ('#.'*10) the decision additionally
+        depends on proximity to the input end -- append the
+        remaining-length bucket (exact below 64, else FAR)."""
+        w = s[i:i + 20].ljust(20, '_')
+        if w == '#.' * 10:
+            rem = len(s) - i
+            return w + (f"|{rem}" if rem < 64 else "|FAR")
+        return w
+
     def learn(self, segs):
         for sg in segs:
             rec = sg['rec']

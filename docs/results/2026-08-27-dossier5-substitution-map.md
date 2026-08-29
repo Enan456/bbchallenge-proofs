@@ -74,6 +74,26 @@ gives family counts by depth:
   reachable by one-bit noise, mirroring the narrow-danger-band
   structure of dossiers 2/3.
 
+## The exact inverse-branching law (2026-08-29)
+
+The cycle grammar inverts in closed form. A cycle emits
+`1^{m} (1,3)^{1+R} 1` where the `(1,3)`-train of length $t$ can be
+produced by the single insert plus **any ordered composition** of
+$R = t-1$ into regroup events ($r_k$ emits $(1,3)^{k+1}$; verified:
+$r_1$'s emission equals $r_0 r_0$'s exactly, from different inputs).
+The 1-run split (absorb · copies · crossing) is unique. Hence the
+number of one-sweep preimages of an interior word is exactly
+
+$$\prod_{\text{trains}} 2^{\max(0,\, t_i - 2)}$$
+
+— the abstract death tree branches **2-adically in wave-train
+lengths**. This sharpens the Pisot prediction for this machine: where
+dossier-3's tree branches at $\varphi$ (from the no-TT constraint),
+the rank-1 tree's generation growth is a power of 2 whose exponent is
+the total train-length excess of the cone's words; the algebraic
+constant, if one emerges, comes from the backward dynamics of train
+profiles, now an explicit combinatorial question.
+
 ## Status
 
 Step 2 opened: forward abstract map = cycle grammar (verified

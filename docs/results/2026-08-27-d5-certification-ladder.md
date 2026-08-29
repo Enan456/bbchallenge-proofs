@@ -47,6 +47,14 @@ parametrics) to the other ten EXACT array-class machines:
    dip-aware segmenter and the bidirectional segmenter are the two
    missing tools, each reusing the existing unit-tiling core).
 
+## Addendum (2026-08-29): the rejects stay rejected
+
+The 14 top-25 machines that failed the exact-spec gate were re-probed
+at 10× budget (OrbitFinder, 1.5M steps, cap 20,000): **all 14 remain
+REJECTED**. The EXACT cohort of 11 is therefore not an artifact of
+the 150k-step budget — under the record-orbit affine-spec criterion
+it is complete for the ranked candidates.
+
 ## Honest scope
 
 Horizons: 2M learn / 2M validate per machine (rank-1's numbers are
