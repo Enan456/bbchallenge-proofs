@@ -1,0 +1,110 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+
+\title{\bfseries Orbital Dragons to Hunt Cryptids:\\
+Utilizing Non-Euclidean Geometry to Solve Busy Beaver}
+\author{Enan Srivastava}
+\date{DeepMath 2026 One-Page Abstract}
+
+\newtheorem{theorem}{Theorem}
+\newcommand{\Halts}{\mathsf{RawHalts}}
+\newcommand{\Safe}{\mathsf{SafeMetaOrbit}}
+
+\begin{document}
+\maketitle
+
+\noindent
+The busy beaver value $BB(n)$ is the longest finite runtime of any
+$n$-state Turing machine started on a blank tape. $BB(5)$ was settled
+in 2024 with a computer-checked proof. $BB(6)$ is blocked by a handful
+of machines whose tapes secretly run Collatz-style arithmetic; nobody
+can prove whether they stop. This paper studies two of these
+machines and surveys the rest. The approach is empirical first: the
+machine's behavior is logged as a
+sequence of events, the event data embedded in logarithmic, simplex, and
+hyperbolic coordinates, and the dynamics found to be piecewise
+affine in a five-integer state. The description is then proven
+correct in the Lean proof assistant, down to the machine's individual steps and
+with a minimal axiom footprint. The result is a machine-checked
+theorem: if a simple five-integer recurrence never enters an explicit
+finite set of bad configurations, the machine never halts. The
+converse pressure is also proven: entering a bad configuration forces the
+machine to halt. The open problem is thereby moved, without loss, from
+a Turing machine to a short arithmetic recurrence. The renewal map of the recurrence is then derived in closed form and shown
+to have a width-five fatal window around the diagonal, and the two mechanical
+proof routes with computational evidence: no congruence invariant up to
+modulus 384 excludes the window, and the branch dynamics has
+exponential factor complexity, so it is not conjugate to a rotation.
+Measuring the recurrence over its whole seed space shows the set of
+dying seeds has natural density zero at the Borel--Cantelli rate
+($\approx 12/X$), so the studied machines' seeds are typical
+survivors.
+Surveying the entire holdout set with a two-ended harness (forward
+orbit against backward halt cone, regimes fitted in between)
+classifies all $1{,}094$ open six-state machines: zero halts, zero
+alignments; four fixed-dimension machines, exactly the certified
+ones; an eleven-machine \emph{array class} whose state spaces grow in
+dimension, for whose leading member an exact word-rewrite calculus
+is constructed (a two-phase odometer with a block-trisection boundary rule)
+validated against $2 \times 10^{8}$ raw steps; and $307$ single-law
+machines among $346$ with regime structure. The program is framed
+on a verification spectrum whose proven endpoint is
+$\mathsf{MIP}^{*} = \mathsf{RE}$: kernel checking at the bottom,
+certified predictive emulation (this paper) in the middle, and
+entangled-prover verification of halting-type claims as the goal. Every
+empirical claim is validated against $10^{9}$ raw machine steps, and
+the recurrence is tested for $10^{8}$ iterations.
+
+\medskip
+\noindent The central certified statement, one per machine:
+
+\begin{theorem}
+Checked by the Lean kernel at axioms
+$\{\mathrm{propext},\mathrm{Quot.sound}\}$:
+$\ \Safe \rightarrow \lnot\Halts(\mathsf{blankStart})$,
+and configurations outside the guarded region halt within about
+fifty steps, so $\Safe$ is the halting problem restated as
+arithmetic.
+\end{theorem}
+
+\newpage
+
+\begin{thebibliography}{99}\small
+\bibitem{coqbb5} The bbchallenge Collaboration.
+Determination of the fifth Busy Beaver value. arXiv:2509.12337.
+\bibitem{deciders} The bbchallenge Collaboration.
+Turing machine deciders, part I. arXiv:2504.20563.
+\bibitem{michel} P.~Michel. The Busy Beaver Competition: a
+historical survey. arXiv:0906.3749.
+\bibitem{aaronson} S.~Aaronson. The Busy Beaver Frontier.
+\emph{SIGACT News} 51(3), 2020.
+\bibitem{tao-collatz} T.~Tao. Almost all orbits of the Collatz map
+attain almost bounded values. arXiv:1909.03562.
+\bibitem{moore} C.~Moore. Generalized shifts: unpredictability and
+undecidability in dynamical systems. \emph{Nonlinearity} 4 (1991).
+\bibitem{kurka} P.~K\r{u}rka. On topological dynamics of Turing
+machines. \emph{Theoret.\ Comput.\ Sci.} 174 (1997).
+\bibitem{viro} O.~Viro. Dequantization of real algebraic geometry on
+logarithmic paper. arXiv:math/0005163.
+\bibitem{litvinov} G.~Litvinov. The Maslov dequantization, idempotent
+and tropical mathematics. arXiv:math/0507014.
+\bibitem{nickel-kiela} M.~Nickel and D.~Kiela. Poincar\'e embeddings
+for learning hierarchical representations. NeurIPS 2017.
+\bibitem{series} C.~Series. The modular surface and continued
+fractions. \emph{J.\ London Math.\ Soc.} 31 (1985).
+\bibitem{mipre} Z.~Ji, A.~Natarajan, T.~Vidick, J.~Wright, and
+H.~Yuen. $\mathsf{MIP}^{*} = \mathsf{RE}$. arXiv:2001.04383;
+\emph{Comm.\ ACM} 64(11), 2021.
+\bibitem{mnyu} H.~Mousavi, S.~Nezhadi, and H.~Yuen. Nonlocal games,
+compression theorems, and the arithmetical hierarchy. STOC 2022;
+arXiv:2110.04651.
+\bibitem{etp} T.~Tao et al. The Equational Theories Project.
+arXiv:2512.07087.
+\bibitem{palomar} Palomar: a registry of Lean-verified
+mathematics, 2026. \texttt{palomar-registry.org}.
+\end{thebibliography}
+
+\end{document}
