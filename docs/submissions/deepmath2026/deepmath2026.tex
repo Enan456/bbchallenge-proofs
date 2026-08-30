@@ -8,7 +8,7 @@
 \title{\bfseries Orbital Dragons to Hunt Cryptids:\\
 Utilizing Non-Euclidean Geometry to Solve Busy Beaver}
 \author{Enan Srivastava}
-\date{DeepMath 2026 --- Extended Abstract}
+\date{DeepMath 2026 Extended Abstract}
 
 \newtheorem{theorem}{Theorem}
 \newcommand{\Halts}{\mathsf{RawHalts}}
@@ -45,7 +45,7 @@ dying seeds has natural density zero at the Borel--Cantelli rate
 Surveying the entire holdout set with a two-ended harness (forward
 orbit against backward halt cone, regimes fitted in between)
 classifies all $1{,}094$ open six-state machines: zero halts, zero
-alignments; four fixed-dimension machines --- exactly the certified
+alignments; four fixed-dimension machines, exactly the certified
 ones; an eleven-machine \emph{array class} whose state spaces grow in
 dimension, for whose leading member we construct an exact word-rewrite
 calculus (a two-phase odometer with a block-trisection boundary rule)
@@ -53,7 +53,7 @@ validated against $2 \times 10^{8}$ raw steps; and $307$ single-law
 machines among $346$ with regime structure. We
 frame the program on a verification spectrum whose proven endpoint is
 $\mathsf{MIP}^{*} = \mathsf{RE}$: kernel checking at the bottom,
-certified predictive emulation --- this paper --- in the middle, and
+certified predictive emulation (this paper) in the middle, and
 entangled-prover verification of halting-type claims as the goal. Every
 empirical claim is validated against $10^{9}$ raw machine steps, and
 the recurrence is tested for $10^{8}$ iterations.
@@ -61,8 +61,8 @@ the recurrence is tested for $10^{8}$ iterations.
 
 \section{The problem, from zero}
 A Turing machine here is a finite table: six control states, a tape of
-0s and 1s, and for each (state, read symbol) pair an instruction ---
-write a bit, move left or right, change state --- or nothing. If the
+0s and 1s, and for each (state, read symbol) pair an instruction
+(write a bit, move left or right, change state) or nothing. If the
 table has no instruction for the current situation, the machine halts.
 $BB(n)$ asks: among all $n$-state tables that eventually halt from the
 all-zero tape, what is the longest runtime? The function is
@@ -74,8 +74,8 @@ proof checked in the Rocq proof assistant \cite{coqbb5,deciders}. At
 six states a residual set of machines defeats all known automated
 deciders. The community calls them cryptids. The reason they are hard
 is concrete: their tape dynamics implement iterated arithmetic maps of
-the same character as the Collatz ($3x{+}1$) map --- deterministic
-integer maps where parity decides the next move, and where the question
+the same character as the Collatz ($3x{+}1$) map: deterministic
+integer maps in which parity decides the next move, and where the question
 is whether one specific orbit ever hits a small bad set. The strongest
 known result for such maps is Tao's: \emph{almost all} Collatz orbits
 reach almost bounded values \cite{tao-collatz}. That theorem is about
@@ -150,7 +150,7 @@ left three cells twice (writing $1,1,0$ each time), then backs up four;
 the net effect is two cells of travel and a 0 that the walker carries
 along three cells behind itself. The danger state $C$ reads a 0
 \emph{only} inside terminate and fuse episodes, and there the theorems
-show the cell to its right always holds a 1 --- the probe event cannot
+show the cell to its right always holds a 1, so the probe event cannot
 fire. Plotted in raw coordinates, the event data looks like growth
 curves with no visible law (Figure~\ref{fig:std}). Plotted in the
 right coordinates the same data is piecewise linear: componentwise
@@ -160,7 +160,7 @@ renderings of those two charts expose the orbit's nested renewal
 structure (Figure~\ref{fig:charts}). Straight segments
 are one regime; corners are regime changes. These coordinate choices
 are standard elsewhere: the log map is the tropical limit of algebraic
-geometry --- historically, a dequantization, the $\hbar \to 0$ limit
+geometry, historically a dequantization: the $\hbar \to 0$ limit
 of a quantum calculus \cite{viro,litvinov}; the simplex normalization
 with its Fisher--Rao metric is the classical face of quantum state
 geometry, made literal by the amplitude map $p \mapsto \sqrt{p}$; and
@@ -182,10 +182,10 @@ row per step). Nothing about the long-run law is visible here.}
 \includegraphics[height=2.55in]{fig5_poincare.png}\hfill
 \includegraphics[height=2.55in]{fig6_fisher_rao.png}
 \caption{The same machine, 100{,}050 events, in two non-Euclidean
-coordinate systems. Left: the Poincar\'e disk --- shape runs along the
+coordinate systems. Left: the Poincar\'e disk. Shape runs along the
 boundary direction, log-scale is hyperbolic depth, and each renewal
 generation of the orbit sits one nested arc deeper. Right: the
-amplitude octant --- the normalized state $(a,b,c)/(a{+}b{+}c)$ mapped
+amplitude octant. The normalized state $(a,b,c)/(a{+}b{+}c)$ mapped
 by $p \mapsto \sqrt{p}$ onto the Fisher--Rao sphere, so the orbit
 becomes a path whose geodesic length measures statistical
 distinguishability. Straight arcs are single regimes; corners are
@@ -196,8 +196,8 @@ regime changes.}
 \textbf{Certify.} The picture suggests a law; the law must then be
 proven about the actual machine, or it is only a picture. We first
 validate it empirically and fail-closed: a predictor that knows the
-conjectured law must reproduce every event --- exact positions, exact
-tape --- over $10^{9}$ raw steps per machine, and any miss aborts. It
+conjectured law must reproduce every event, with exact positions and exact
+tape, over $10^{9}$ raw steps per machine, and any miss aborts. It
 reproduces all of them. We then prove the law in Lean~4, using only the
 kernel's minimal axioms (\textsf{propext}, \textsf{Quot.sound}; no
 classical choice). The certified account consists of: seven theorems,
@@ -225,23 +225,22 @@ $\ \Safe \rightarrow \lnot\Halts(\mathsf{blankStart})$.
 Two facts make this reduction meaningful rather than cosmetic. First,
 it is complete: startup, one exceptional episode, and every future
 step of the machine are covered by theorems, so nothing about the
-machine remains to be understood --- only the arithmetic. Second, it is
+machine remains to be understood except the arithmetic. Second, it is
 sharp: we constructed the configurations just outside the guarded
 region and ran the machine from them; it halts within about fifty
 steps. Leaving the region is not merely unproven-safe. It is fatal.
 So $\Safe$ \emph{is} the halting problem, restated as arithmetic.
 
-What kind of arithmetic? Inside the main regime the iteration is
+The arithmetic is explicit. Inside the main regime the iteration is
 $(a,b,c) \mapsto (a{+}6,\,b{-}2,\,c{-}2)$, so $\gamma = c - b$ is
 conserved while the counters drain. When $b$ or $c$ runs out, a
 renewal move re-seeds the triple by subtracting and swapping counters,
-with parity choosing the branch --- part Euclidean algorithm, part
+with parity choosing the branch: part Euclidean algorithm, part
 Collatz. Figure~\ref{fig:gamma} shows the renewal process as its own
 dynamical system: the return map of $\gamma$, with the fatal values
 $\gamma \in \{1,3,5\}$ marked. The recurrence avoids the band for $10^{8}$
 iterations (about $10^{15}$ machine steps). Proving it does so forever
-is the open problem, now in a form a number theorist can hold in one
-hand.
+is the open problem, stated entirely in elementary arithmetic.
 
 We characterized that problem further. Sampling the orbit at its
 renewal section reduces the whole dynamics to a two-counter map,
@@ -258,13 +257,13 @@ two boundary cases). Two mechanical proof routes are then closed by
 computation. A sound residue-abstraction search finds a genuine mod-3
 conservation law but shows that no congruence invariant up to modulus
 $384$ excludes the fatal window. And the branch-symbol sequence has
-factor complexity growing like $1.6^{n}$ --- a rotation coding would
-give $n+1$ --- so the dynamics is not conjugate to a rigid system, and
+factor complexity growing like $1.6^{n}$, where a rotation coding
+would give $n+1$, so the dynamics is not conjugate to a rigid system, and
 continued-fraction rigidity arguments do not apply as stated. Over
 $10^{5}$ renewals the orbit's minimum distance above the fatal window
 is $4$: it grazes death and survives, so no proof can rely on a
 structural buffer. What remains is a pointwise avoidance statement for
-a pseudorandom multiplicative map --- the Collatz situation --- with
+a pseudorandom multiplicative map, the Collatz situation, with
 three mitigations: the map is explicit and total, the fatal set is a
 finite union of lines near the diagonal, and the certified reduction
 stands under any future argument. The natural next language is
@@ -282,24 +281,24 @@ heuristic predicts. The mechanism is visible in the data. Every
 observed death occurs within the first fifty renewals; the offset
 $b - \beta$ at the diagonal is uniformly distributed, fatal values
 included; and sizes grow by a factor $e^{0.134}$ per renewal, so the
-per-renewal hazard $\approx 6/\mathrm{size}$ sums geometrically ---
+per-renewal hazard $\approx 6/\mathrm{size}$ sums geometrically:
 death is an early-game phenomenon, and survival compounds. Our
 machines' seeds are therefore \emph{typical survivors}, not
-exceptions. (One measurement artifact is worth recording: an early
+exceptions. (We record one measurement artifact. An early
 instrument logged offsets only on steps actually taken and reported
-zero fatal offsets in $2 \times 10^5$ events --- survivorship bias in
-its textbook form, since a fatal offset is a death and never generates
+zero fatal offsets in $2 \times 10^5$ events; this is survivorship
+bias in textbook form, since a fatal offset is a death and never generates
 a step. Corrected instrumentation restored exact agreement with the
 uniform prediction.) A rigorous almost-all theorem needs one missing
 piece: the tail-hazard bound along orbits, an invariant-measure
-argument in the style of Tao's Collatz result --- with the advantage
+argument in the style of Tao's Collatz result, with the advantage
 that $R$ is explicit, total, piecewise affine, and its hazard is
 measured uniform.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.62\textwidth]{fig8_returnmap.png}
-\caption{The reduced problem, as a dynamical system in its own right:
+\caption{The reduced problem as a dynamical system:
 the return map of the renewal invariant, $\gamma_{k+1}$ against
 $\gamma_k$ (symlog axes), over the first fifty renewals. The red bands
 are the values proven fatal. The conjecture: the map's orbit never
@@ -310,7 +309,7 @@ lands in a band.}
 \section{The census: what the remaining 1{,}094 machines are}
 The pipeline above certifies individual machines. We also ran it, in
 survey form, across the entire BB(6) holdout set, and the result is a
-classification --- the first structural census, to our knowledge, of
+classification: to our knowledge, the first structural census of
 everything that remains open at six states.
 
 The instrument is a three-part harness modeled on a two-prover
@@ -323,16 +322,16 @@ the piecewise laws a run moves through, using second differences of
 extreme-event times. A machine halts if and only if its forward orbit
 ever aligns with its backward cone, so the verdict compiles from the
 three reports. Across all $1{,}094$ holdouts: zero halts, and zero
-alignments --- at every sampled instant, every holdout is at least
+alignments; at every sampled instant, every holdout is at least
 $18$ raw steps from any halting event. (For dossier-3 the two ends
 are provably incompatible in a stronger sense: all $134$ backward
 families at depth $24$ require three $0$s within a six-cell window,
-a pattern no certified forward shape can produce --- a finite,
-checkable statement.) The census then splits the set:
+a pattern no certified forward shape can produce; the statement is
+finite and checkable.) The census then splits the set:
 
 \begin{itemize}
 \item \textbf{4 machines} (Antihydra and our dossiers 1--3) reduce to
-  \emph{fixed-dimension} integer maps --- a bounded tuple of counters
+  \emph{fixed-dimension} integer maps, a bounded tuple of counters
   with certified episode theorems. These are the machines the previous
   sections certify, and the sweep found no others: ranked by regime
   cleanliness, the top $25$ candidates yield $11$ machines with exact
@@ -342,7 +341,7 @@ checkable statement.) The census then splits the set:
   reach, the only fixed-dimension machines in the cohort.
 \item \textbf{The array class.} Those $11$ exact-but-unbounded
   machines are the new frontier: their tape shapes are growing
-  \emph{vectors} of blocks --- the state space itself gains a
+  \emph{vectors} of blocks; the state space itself gains a
   dimension every few regimes. Their orbit specifications are exact
   but fragment into hundreds of rules of support one or two; the law
   is real but lives on a space of growing dimension.
@@ -360,48 +359,47 @@ word of $1$-blocks of lengths $1$, $2$, $3$ with single-$0$ gaps; a
 sweep of the head is a sequential transducer over that word, and the
 whole dynamics compresses to five interior rules (copy, absorb,
 cursor, insert, and one parametric regroup family with cost $8+6k$),
-two parametric boundary families --- one of which is a literal
-\emph{block trisection}, $3 \mapsto 1{,}1{,}1$ --- and two derived
+two parametric boundary families, one of which is a literal
+\emph{block trisection} ($3 \mapsto 1{,}1{,}1$), and two derived
 laws: a deposited $2$-block acts as a \emph{cursor}, restarting the
 next pass at its own position, and whether a pass ends in a restart
 is read off the output word. Semantically the machine is a two-phase
 odometer on $\{1,3\}$-words: the $3$s are carries, the cursor is the
 carry boundary. The system is validated the way the certified
-machines were before their Lean compilation --- learn, freeze,
-verify exactly: rules learned on $4 \times 10^{7}$ raw steps
+machines were before their Lean compilation. Rules learned on $4 \times 10^{7}$ raw steps
 reproduce $2{,}180$ of $2{,}186$ held-out segments over the next
 $1.6 \times 10^{8}$ steps \emph{exactly} (output word, arrival
 type, step count, head position), with zero chaining violations;
 the six exceptions are localized boundary-window events, each
-caught --- never silently absorbed --- by the fail-closed design.
+caught, never silently absorbed, by the fail-closed design.
 The sharpest check runs the machine itself on the calculus's own
 \emph{predictions}: configurations forecast up to $139$ sweeps
 beyond any simulated history, written onto a literal tape and
 handed to the raw machine, reproduce every forecast exactly, step
-counts included. This is predictive emulation --- certify the law,
-verify forecasts --- standing, for the first time in this program,
+counts included. This is predictive emulation (certify the law, then
+verify forecasts) standing, for the first time in this program,
 on a state space of growing dimension.
 
-The classification also carries a quantitative signature worth
-recording. The abstract backward cone of dossier-3 --- the tree of
-renewal-level states dying within $k$ steps --- has level counts
+The classification also carries a quantitative signature. The
+abstract backward cone of dossier-3, the tree of renewal-level
+states dying within $k$ steps, has level counts
 $9, 19, 31, 50, 81, \ldots$ satisfying $L(k) = L(k{-}1) + L(k{-}2)$
 \emph{exactly} from depth two on: a Fibonacci tree, branching at the
 golden ratio, and the same $\varphi \approx 1.618$ appears
 independently as the forward factor complexity. The mechanism is
 visible: a terminate step flips a parity, so no branch word contains
-two consecutive terminates --- precisely the constraint that
+two consecutive terminates, precisely the constraint that
 generates Fibonacci counting. The standing, falsifiable prediction
 for the array class: each machine's death tree satisfies a small
 integer recurrence with a Pisot-like constant determined by its
 episode-alternation rules, the golden ratio being the founding case.
 
 \section{The verification spectrum: where this sits, and the goal}
-It is useful to place this work on a spectrum of what ``verifying a
-machine'' can mean, because the endpoints are now both theorems.
+We place this work on a spectrum of what ``verifying a machine''
+can mean; both endpoints of the spectrum are now theorems.
 
 \emph{Starting verification} is the ground-up kind: replay and check
-every step. Our Lean development is this, industrialized --- the
+every step. Our Lean development is this, industrialized: the
 kernel checks each of the $10^{4}$ startup steps individually, and the
 trust surface is two axioms and a proof checker. It is complete and
 unconditional, but it can never outrun the machine: verifying $n$
@@ -409,22 +407,22 @@ steps costs $n$.
 
 \emph{Predictive emulation} is the middle of the spectrum and the
 substance of this paper. Instead of replaying steps, certify the
-machine's \emph{law} --- the episode theorems and the five-integer
-map --- and then verify \emph{forecasts}: where the next probe event
+machine's \emph{law}, the episode theorems and the five-integer
+map, and then verify \emph{forecasts}: where the next probe event
 can occur, what the configuration will be $10^{6}$ steps from now,
 whether halting is reachable from the current shape. One certified
 episode theorem covers unboundedly many raw steps; the certified
 recurrence covers all of them. Verification cost decouples from
 runtime. This is what lets two machines' entire futures be checked
-against a conjecture a number theorist can hold.
+against one explicit arithmetic conjecture.
 
 \emph{Ending verification} is the horizon, and we take it as the
 program's goal: $\mathsf{MIP}^{*} = \mathsf{RE}$
 \cite{mipre}. A classical polynomial-time verifier, interacting with
 two entangled provers, can verify \emph{any} recursively enumerable
-statement --- including ``this Turing machine halts'' for machines far
-beyond any budget --- with the provers, not the verifier, bearing the
-unbounded cost. Non-halting statements such as ours live one level up
+statement, including ``this Turing machine halts'' for machines far
+beyond any budget, with the provers rather than the verifier bearing
+the unbounded cost. Non-halting statements such as ours live one level up
 (they are $\Pi_{1}$; zero-gap variants of $\mathsf{MIP}^{*}$ reach
 $\Pi_{2}^{0}$ \cite{mnyu}), so the entangled-prover frame in
 principle spans exactly the class of claims the busy beaver program
@@ -435,17 +433,17 @@ verification of halting-type claims is possible \emph{in principle}
 with entanglement as the resource. Our quantum-inspired toolkit
 (reversible vector maps, state-space geometry) borrows disciplines
 from that endpoint; the open engineering-of-mathematics question is
-how much of the middle rung --- certified forecasts --- can be pushed
+how much of the middle rung, certified forecasts, can be pushed
 toward it, replacing replay with interaction. Nothing in our results
 depends on this framing; it states the destination the pipeline is
 pointed at.
 
 \section{Why this may interest this community}
-Two reasons. The first is the workflow. This project is an instance of
-the emerging human--AI--kernel pattern in mathematics --- AI systems
-draft and compile proofs at scale, a proof kernel arbitrates, humans
-own claims --- the pattern of Tao's Equational Theories Project and the
-new Palomar registry for Lean-verified results \cite{etp,palomar}. All
+We offer two reasons. The first is the workflow. This project is an instance of
+the emerging human--AI--kernel pattern in mathematics, in which AI
+systems draft and compile proofs at scale, a proof kernel
+arbitrates, and humans own claims; this is the pattern of Tao's
+Equational Theories Project and the new Palomar registry for Lean-verified results \cite{etp,palomar}. All
 of our Lean was drafted by an AI assistant from validated empirical
 specifications; the kernel checked roughly fifteen thousand lines; the
 generators are convenience, not trust surface. The second reason is
