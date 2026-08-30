@@ -151,17 +151,25 @@ parametric rules + bounded literals). Horizons are what we ran:
 200M raw steps (≈ 4,000 segments, words to ~24,000 cells). The
 startup segment is anchored concretely, as in D2/D3.
 
-The known limitation is quantified, not hidden: the *rule set*
-(interior + parametric boundary rules) has been stable since the
-first 800k steps, but the *decision function* is keyed by literal
-20-cell lookahead windows. A learn-on-everything probe over the
-full 200M horizon (3,955 segments) pins the residue exactly:
-**one** aliasing key — the all-clean window
-`('D1', '#.#.#.#.#.#.#.#.#.#.')`, where regroup-vs-boundary-dance
-is decided by proximity to the input end *beyond* 20 cells; every
-other frozen-phase failure was resolvable novelty (absorbed by
-continued learning, final tables 3/206/6). Closing this last gap
-means one distance-to-end feature in the decision key (equivalently
-the finite-state form of the transducer's decision function) —
-bounded work, and the natural first move of the step-3 episode
-compiler.
+The known limitation is quantified, not hidden — and was then
+partially closed (2026-08-29). The *rule set* (interior + parametric
+boundary rules) has been stable since the first 800k steps; the
+*decision function* is keyed by literal 20-cell lookahead windows.
+The original residue was one aliasing key (the all-clean window
+`('D1', '#.#.'×10)`, where regroup-vs-dance is decided by proximity
+to the input end beyond 20 cells). Adding a distance-to-end bucket
+to saturated-clean windows fixes it: a learn-on-everything probe
+over the full 200M horizon (3,956 segments) now reports **zero
+decision conflicts** (tables 3/248/6) — every unit-decision key is
+single-valued across the whole horizon. The frozen 40M→200M rerun
+scores 2,179/2,186 with a sharper failure taxonomy: five honest
+novelty flags (near-end bucket keys and relic windows unseen before
+40M — the fail-closed design predicting nothing), and **two events
+of a second, now-identified mechanism**: a literal tail key
+(prev-label + exact remaining string) coincidentally matching a
+mid-segment position where the true behavior continues with units —
+a tail-vs-continue ambiguity *across* the two rule tables, which
+per-table determinism cannot see. The bounded fix is a cross-table
+consistency check at learning time (flag any (prev, rest) stored as
+a tail whose window key also continues as a unit elsewhere);
+frequency: 2 events in 3,956 segments over 200M steps.
