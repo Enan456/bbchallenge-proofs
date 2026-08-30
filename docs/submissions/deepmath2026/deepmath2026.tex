@@ -109,11 +109,16 @@ The single empty entry is the only way to halt: the machine must be in
 state $E$ reading a 0. Working backward through the table, state $E$
 is only entered from state $C$ reading a 0, so any halt must pass
 through the configuration ``$C$ reads 0 with another 0 to its right.''
-We call this the \emph{probe event}. Everything that follows is one
-long argument that the probe event never happens.
+We call this the \emph{probe event}. The reader should hold on to
+this configuration: every theorem below is, in the end, a statement
+about it, and the whole paper is one long argument that the probe
+event never happens.
 
 \section{What we do}
-Our method has three stages. Watch, compress, certify.
+Our method has three stages: watch, compress, certify. One
+principle recurs throughout. Every empirical discovery must
+eventually be either proven exactly or discarded; nothing in the
+pipeline is permitted to remain approximately true.
 
 \textbf{Watch.} We run the machine and record only the moments that
 matter. For these machines there is a natural clock: a recurring
@@ -240,8 +245,10 @@ machine forever.
 Halting, for these machines, can only happen one way: a specific
 control state must read a 0 with another 0 beside it. The certified
 episode theorems show this situation never arises while the
-five-integer iteration stays inside an explicit guarded region. Writing
-$\Safe$ for the statement that the iteration never leaves that region:
+five-integer iteration stays inside an explicit guarded region.
+Writing $\Safe$ for the statement that the iteration never leaves
+that region, and $\Halts(\mathsf{blankStart})$ for the statement
+that the machine halts from the all-zero tape:
 
 \begin{theorem}
 For each machine, checked by the Lean kernel at axioms
@@ -250,7 +257,8 @@ $\ \Safe \rightarrow \lnot\Halts(\mathsf{blankStart})$.
 \end{theorem}
 
 Two facts make this reduction meaningful rather than cosmetic. First,
-it is complete: startup, one exceptional episode, and every future
+it is complete: startup, one exceptional (individually certified)
+episode, and every future
 step of the machine are covered by theorems, so nothing about the
 machine remains to be understood except the arithmetic. Second, it is
 sharp: we constructed the configurations just outside the guarded
@@ -270,7 +278,8 @@ iterations (about $10^{15}$ machine steps). Proving it does so forever
 is the open problem, stated entirely in elementary arithmetic.
 
 We characterized that problem further. Sampling the orbit at its
-renewal section reduces the whole dynamics to a two-counter map,
+renewal section (a Poincar\'e section of the dynamics) reduces the
+whole dynamics to a two-counter map,
 verified exactly against the certified orbit: with
 $(\alpha,\beta) = (6, a{-}1)$ or $(9, a{-}2)$ by the parity of $a$,
 $$R(a,b) = \begin{cases}
@@ -359,9 +368,11 @@ a pattern no certified forward shape can produce; the statement is
 finite and checkable.) The census then splits the set:
 
 \begin{itemize}
-\item \textbf{4 machines} (Antihydra and our dossiers 1--3) reduce to
+\item \textbf{4 machines} reduce to
   \emph{fixed-dimension} integer maps, a bounded tuple of counters
-  with certified episode theorems. These are the machines the previous
+  with certified episode theorems: the pair of this paper, an
+  earlier machine of ours (dossier-1), and Antihydra, the
+  community's best-known cryptid. These are the machines the previous
   sections certify, and the sweep found no others: ranked by regime
   cleanliness, the top $25$ candidates yield $11$ machines with exact
   fail-closed orbit specifications, and \emph{every one of the eleven}
@@ -372,7 +383,8 @@ finite and checkable.) The census then splits the set:
   machines are the new frontier: their tape shapes are growing
   \emph{vectors} of blocks; the state space itself gains a
   dimension every few regimes. Their orbit specifications are exact
-  but fragment into hundreds of rules of support one or two; the law
+  but fragment into hundreds of rules, each witnessed by only one
+  or two observed transitions; the law
   is real but lives on a space of growing dimension.
 \item \textbf{307 machines} are governed by a single affine law in
   the regime harness (the structured third of the cohort, $346$ with
@@ -382,7 +394,8 @@ finite and checkable.) The census then splits the set:
 
 For the top array-class machine
 (\texttt{1RB1RD\_1LC0LC\_0RD0LB\_1RF0LE\_0RD---\_0RA1RC}) we then
-built the array-class analogue of the interaction calculus: an exact
+built the array-class analogue of the episode calculus of the
+previous sections: an exact
 \emph{word-rewrite system}. Its tape at each canonical event is a
 word of $1$-blocks of lengths $1$, $2$, $3$ with single-$0$ gaps; a
 sweep of the head is a sequential transducer over that word, and the
@@ -395,7 +408,12 @@ next pass at its own position, and whether a pass ends in a restart
 is read off the output word. Semantically the machine is a two-phase
 odometer on $\{1,3\}$-words: the $3$s are carries, the cursor is the
 carry boundary. The system is validated the way the certified
-machines were before their Lean compilation. Rules learned on
+machines were before their Lean compilation. A \emph{segment} is
+one full pass of the head between successive returns to the growing
+end of the tape; the words at those returns are the states of the
+rewrite system, and validation is out-of-sample: the rules are
+frozen after a training prefix and must reproduce every later
+segment. Rules learned on
 $4 \times 10^{7}$ raw steps reproduce $2{,}179$ of $2{,}186$
 held-out segments over the next $1.6 \times 10^{8}$ steps
 \emph{exactly} (output word, arrival type, step count, head
