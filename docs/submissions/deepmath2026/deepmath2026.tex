@@ -66,7 +66,8 @@ A Turing machine here is a finite table: six control states, a tape of
 table has no instruction for the current situation, the machine halts.
 $BB(n)$ asks: among all $n$-state tables that eventually halt from the
 all-zero tape, what is the longest runtime? The function is
-noncomputable, so each new value is won machine by machine: every table
+noncomputable \cite{aaronson,michel}, so each new value is won
+machine by machine: every table
 either halts (run it) or must be \emph{proven} to run forever.
 
 The bbchallenge collaboration settled $BB(5)=47{,}176{,}870$ with a
@@ -251,6 +252,8 @@ $$R(a,b) = \begin{cases}
 (\alpha + 3(b-3),\ \beta - (b-3)) & b \text{ odd},\ b < \beta,\\
 (\alpha + 3\beta + 3,\ b - \beta - 4) & b \text{ odd},\ b > \beta.
 \end{cases}$$
+The case $b = \beta$ never occurs on the verified orbit, against
+which the map is checked transition by transition.
 Its fatal set is geometrically simple: death occurs exactly when the
 two counters arrive almost equal ($b - \beta \in \{1,3,5\}$, plus
 two boundary cases). Two mechanical proof routes are then closed by
@@ -366,19 +369,29 @@ next pass at its own position, and whether a pass ends in a restart
 is read off the output word. Semantically the machine is a two-phase
 odometer on $\{1,3\}$-words: the $3$s are carries, the cursor is the
 carry boundary. The system is validated the way the certified
-machines were before their Lean compilation. Rules learned on $4 \times 10^{7}$ raw steps
-reproduce $2{,}180$ of $2{,}186$ held-out segments over the next
-$1.6 \times 10^{8}$ steps \emph{exactly} (output word, arrival
-type, step count, head position), with zero chaining violations;
-the six exceptions are localized boundary-window events, each
-caught, never silently absorbed, by the fail-closed design.
+machines were before their Lean compilation. Rules learned on
+$4 \times 10^{7}$ raw steps reproduce $2{,}179$ of $2{,}186$
+held-out segments over the next $1.6 \times 10^{8}$ steps
+\emph{exactly} (output word, arrival type, step count, head
+position), with zero chaining violations; every exception is a
+flagged boundary-window event, never a silent misprediction, and
+re-learning over the full horizon leaves every decision key
+single-valued (zero conflicts across $3{,}956$ segments).
 The sharpest check runs the machine itself on the calculus's own
 \emph{predictions}: configurations forecast up to $139$ sweeps
 beyond any simulated history, written onto a literal tape and
 handed to the raw machine, reproduce every forecast exactly, step
 counts included. This is predictive emulation (certify the law, then
 verify forecasts) standing, for the first time in this program,
-on a state space of growing dimension.
+on a state space of growing dimension. The cohort boundary is
+sharp on both sides: a tenfold budget increase changes no verdict
+(all fourteen ranked candidates that failed the exact-spec gate
+still fail it, so the eleven-machine array class is complete under
+this criterion), and porting the formalism without machine-specific
+rules across the other ten machines places one at a $99.8\%$
+architecture match with $82.4\%$ of held-out segments reproduced
+from literal rules alone, and two more at $99.3\%$ and $98.6\%$
+exactness where extraction succeeds.
 
 The classification also carries a quantitative signature. The
 abstract backward cone of dossier-3, the tree of renewal-level
@@ -393,6 +406,11 @@ generates Fibonacci counting. The standing, falsifiable prediction
 for the array class: each machine's death tree satisfies a small
 integer recurrence with a Pisot-like constant determined by its
 episode-alternation rules, the golden ratio being the founding case.
+The rank-1 machine supplies the second data point. Its cycle
+grammar inverts in closed form: the number of one-sweep preimages
+of an interior word equals $\prod_i 2^{\max(0,\,t_i-2)}$ over its
+$(1,3)$-train lengths $t_i$, so this death tree branches 2-adically
+in train lengths where dossier-3's branches at $\varphi$.
 
 \section{The verification spectrum: where this sits, and the goal}
 We place this work on a spectrum of what ``verifying a machine''
@@ -464,34 +482,96 @@ validation, and proof generators were built in collaboration with an AI
 assistant (Claude, Anthropic). Every proof is checked by the Lean~4
 kernel at the stated axioms.
 
-\begin{thebibliography}{9}\small
+\begin{thebibliography}{99}\small
 \bibitem{coqbb5} The bbchallenge Collaboration.
 Determination of the fifth Busy Beaver value. arXiv:2509.12337.
+``Our result marks the first determination of a new Busy Beaver
+value in over 40 years and the first Busy Beaver value ever to be
+formally verified.'' The kernel-checked standard our Lean
+developments follow; source of the BB(6) holdout set our census
+classifies.
 \bibitem{deciders} The bbchallenge Collaboration.
 Turing machine deciders, part I. arXiv:2504.20563.
+``Each decider is specialised in recognising a particular type of
+non-halting behavior.'' The automated paradigm whose residue at six
+states is our 1{,}094-machine cohort.
+\bibitem{michel} P.~Michel. The Busy Beaver Competition: a
+historical survey. arXiv:0906.3749.
+``He used Turing machines to give explicit definitions for some
+functions that are not computable and grow faster than any
+computable function.'' The historical record, including early
+observations of Collatz-like champions.
+\bibitem{aaronson} S.~Aaronson. The Busy Beaver Frontier.
+\emph{SIGACT News} 51(3), 2020.
+``The BB function makes the concepts of computability and
+uncomputability more vivid than anything else ever invented.''
+The open-problem landscape this submission addresses.
 \bibitem{tao-collatz} T.~Tao. Almost all orbits of the Collatz map
 attain almost bounded values. arXiv:1909.03562.
+``One has $\mathrm{Col}_{\min}(N) \le f(N)$ for almost all $N$''
+(for any $f$ diverging to infinity). The strongest known result for
+the map class our machines implement; our almost-all-seeds
+measurement mirrors its shape, and the missing tail-hazard bound we
+identify is an invariant-measure argument of this kind.
 \bibitem{moore} C.~Moore. Generalized shifts: unpredictability and
 undecidability in dynamical systems. \emph{Nonlinearity} 4 (1991).
+``Many simple questions about their dynamics are undecidable.''
+The founding statement of the machine-as-dynamical-system view our
+coordinate charts operationalize.
 \bibitem{kurka} P.~K\r{u}rka. On topological dynamics of Turing
 machines. \emph{Theoret.\ Comput.\ Sci.} 174 (1997).
-\bibitem{viro} O.~Viro. On basic concepts of tropical geometry.
-\emph{Proc.\ Steklov Inst.\ Math.} 273 (2011).
-\bibitem{litvinov} G.~Litvinov. Maslov dequantization, idempotent and
-tropical mathematics. \emph{J.\ Math.\ Sci.} 140 (2007).
+The topological-dynamics formalism (moving-head and moving-tape
+models) underlying the modern study of machine trajectories.
+\bibitem{viro} O.~Viro. Dequantization of real algebraic geometry on
+logarithmic paper. arXiv:math/0005163.
+``On logarithmic paper some real algebraic curves look like smoothed
+broken lines.'' Why the log chart straightens our regimes: the
+piecewise-linear law is the tropical limit of the machine's
+arithmetic.
+\bibitem{litvinov} G.~Litvinov. The Maslov dequantization, idempotent
+and tropical mathematics. arXiv:math/0507014.
+``Tropical mathematics can be treated as a result of the so-called
+Maslov dequantization of the traditional mathematics over numerical
+fields as the Planck constant $\hbar$ tends to zero taking imaginary
+values.'' Names the limit precisely; our quantum-inspired toolkit
+borrows a discipline, not a metaphor.
 \bibitem{nickel-kiela} M.~Nickel and D.~Kiela. Poincar\'e embeddings
 for learning hierarchical representations. NeurIPS 2017.
+``The underlying hyperbolic geometry\ldots allows us to learn
+parsimonious representations of symbolic data by simultaneously
+capturing hierarchy and similarity.'' The machine-learning precedent
+for our hyperbolic chart; nested renewal generations are
+hierarchical data.
 \bibitem{series} C.~Series. The modular surface and continued
 fractions. \emph{J.\ London Math.\ Soc.} 31 (1985).
+The geodesic-coding dictionary behind our restatement of the
+five-integer conjecture as horoball avoidance.
 \bibitem{mipre} Z.~Ji, A.~Natarajan, T.~Vidick, J.~Wright, and
 H.~Yuen. $\mathsf{MIP}^{*} = \mathsf{RE}$. arXiv:2001.04383;
 \emph{Comm.\ ACM} 64(11), 2021.
+``There is an efficient reduction from the Halting Problem to the
+problem of deciding whether a two-player nonlocal game has entangled
+value 1 or at most 1/2.'' The proven endpoint of our verification
+spectrum and the bridge motivating the two-prover census harness.
 \bibitem{mnyu} H.~Mousavi, S.~Nezhadi, and H.~Yuen. Nonlocal games,
-compression theorems, and the arithmetical hierarchy. STOC 2022.
+compression theorems, and the arithmetical hierarchy. STOC 2022;
+arXiv:2110.04651.
+``Deciding whether the quantum value of a two-player nonlocal game
+is exactly equal to 1 is complete for $\Pi_2$.'' Places non-halting
+claims within reach of the zero-gap entangled-prover frame.
 \bibitem{etp} T.~Tao et al. The Equational Theories Project.
 arXiv:2512.07087.
-\bibitem{palomar} T.~Tao. Palomar: a registry of Lean-verified
+``The project successfully determined all 22\,028\,942 edges of the
+implication graph between the 4694 simplest equational laws on
+magmas.'' The flagship instance of the human--AI--kernel workflow
+this project follows.
+\bibitem{palomar} Palomar: a registry of Lean-verified
 mathematics, 2026. \texttt{palomar-registry.org}.
+``Palomar records mathematical claims from fixed versions of their
+source files, checks their proofs with Lean, and publishes the exact
+statement, the libraries it uses, and the review's comments.'' The
+channel where our certified reductions are externally checkable at a
+pinned commit.
 \end{thebibliography}
 
 \end{document}
