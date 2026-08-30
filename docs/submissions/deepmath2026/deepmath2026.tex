@@ -71,15 +71,18 @@ machine by machine: every table
 either halts (run it) or must be \emph{proven} to run forever.
 
 The bbchallenge collaboration settled $BB(5)=47{,}176{,}870$ with a
-proof checked in the Rocq proof assistant \cite{coqbb5,deciders}. At
+proof checked in the Rocq proof assistant, ``the first determination
+of a new Busy Beaver value in over 40 years and the first Busy
+Beaver value ever to be formally verified'' \cite{coqbb5,deciders}. At
 six states a residual set of machines defeats all known automated
 deciders. The community calls them cryptids. The reason they are hard
 is concrete: their tape dynamics implement iterated arithmetic maps of
 the same character as the Collatz ($3x{+}1$) map: deterministic
 integer maps in which parity decides the next move, and where the question
 is whether one specific orbit ever hits a small bad set. The strongest
-known result for such maps is Tao's: \emph{almost all} Collatz orbits
-reach almost bounded values \cite{tao-collatz}. That theorem is about
+known result for such maps is Tao's theorem that
+``$\mathrm{Col}_{\min}(N) \le f(N)$ for almost all $N$,'' for any
+function $f$ diverging to infinity \cite{tao-collatz}. That theorem is about
 typical orbits. Busy beaver questions need the worst case: one orbit,
 followed forever. No general tool exists for that, which is why each
 cryptid is studied on its own terms.
@@ -159,16 +162,39 @@ $\log(1{+}x)$ straightens each regime, the projective simplex
 $(a,b,c)/(a{+}b{+}c)$ removes scale, and hyperbolic and spherical
 renderings of those two charts expose the orbit's nested renewal
 structure (Figure~\ref{fig:charts}). Straight segments
-are one regime; corners are regime changes. These coordinate choices
-are standard elsewhere: the log map is the tropical limit of algebraic
-geometry, historically a dequantization: the $\hbar \to 0$ limit
-of a quantum calculus \cite{viro,litvinov}; the simplex normalization
-with its Fisher--Rao metric is the classical face of quantum state
-geometry, made literal by the amplitude map $p \mapsto \sqrt{p}$; and
-shape-versus-scale is the hyperbolic geometry used for hierarchical
-data \cite{nickel-kiela}. The underlying view of
-a Turing machine as a dynamical system goes back to Moore and
-K\r{u}rka \cite{moore,kurka}.
+are one regime; corners are regime changes.
+
+These coordinate choices are quantum-inspired data science in a
+precise, bounded sense, and each has published lineage. The log
+chart is a dequantization: in Viro's words, ``on logarithmic paper
+some real algebraic curves look like smoothed broken lines''
+\cite{viro}, and Litvinov states the limit exactly: ``tropical
+mathematics can be treated as a result of the so-called Maslov
+dequantization of the traditional mathematics over numerical fields
+as the Planck constant $\hbar$ tends to zero taking imaginary
+values'' \cite{litvinov}. Our piecewise-linear regimes are that
+classical limit, observed in a Turing machine's arithmetic. The
+simplex chart with its Fisher--Rao metric is the classical face of
+quantum state geometry, made literal by the amplitude map
+$p \mapsto \sqrt{p}$ onto the positive octant of the sphere. The
+hyperbolic chart follows the machine-learning use of negative
+curvature for hierarchies, which ``allows us to learn parsimonious
+representations of symbolic data by simultaneously capturing
+hierarchy and similarity'' \cite{nickel-kiela}; our nested renewal
+generations are exactly such a hierarchy. Two further disciplines
+carried over from quantum simulation practice: our vector encodings
+of Collatz-like steps are \emph{reversible} maps (the circuit-model
+requirement that every operation be invertible), which is what makes
+backward orbit search, the classical analogue of uncomputation,
+available for the halt cones of the census below; and candidate
+states are evolved in ensembles. We state the boundary plainly: no
+quantum computation is performed anywhere in this pipeline, and no
+quantum advantage is claimed; ``quantum-inspired'' names the origin
+of the geometries and the disciplines, not a resource. The
+underlying view of a Turing machine as a dynamical system goes back
+to Moore, for whose generalized shifts ``many simple questions about
+their dynamics are undecidable'' \cite{moore}, and to K\r{u}rka
+\cite{kurka}.
 
 \begin{figure}[t]
 \centering
@@ -438,9 +464,11 @@ against one explicit arithmetic conjecture.
 program's goal: $\mathsf{MIP}^{*} = \mathsf{RE}$
 \cite{mipre}. A classical polynomial-time verifier, interacting with
 two entangled provers, can verify \emph{any} recursively enumerable
-statement, including ``this Turing machine halts'' for machines far
-beyond any budget, with the provers rather than the verifier bearing
-the unbounded cost. Non-halting statements such as ours live one level up
+statement, with the provers rather than the verifier bearing the
+unbounded cost; in the authors' words, ``there is an efficient
+reduction from the Halting Problem to the problem of deciding
+whether a two-player nonlocal game has entangled value 1 or at most
+1/2'' \cite{mipre}. Non-halting statements such as ours live one level up
 (they are $\Pi_{1}$; zero-gap variants of $\mathsf{MIP}^{*}$ reach
 $\Pi_{2}^{0}$ \cite{mnyu}), so the entangled-prover frame in
 principle spans exactly the class of claims the busy beaver program
@@ -461,7 +489,10 @@ We offer two reasons. The first is the workflow. This project is an instance of
 the emerging human--AI--kernel pattern in mathematics, in which AI
 systems draft and compile proofs at scale, a proof kernel
 arbitrates, and humans own claims; this is the pattern of Tao's
-Equational Theories Project and the new Palomar registry for Lean-verified results \cite{etp,palomar}. All
+Equational Theories Project, which ``successfully determined all
+22\,028\,942 edges of the implication graph between the 4694
+simplest equational laws on magmas,'' and of the new Palomar
+registry for Lean-verified results \cite{etp,palomar}. All
 of our Lean was drafted by an AI assistant from validated empirical
 specifications; the kernel checked roughly fifteen thousand lines; the
 generators are convenience, not trust surface. The second reason is
