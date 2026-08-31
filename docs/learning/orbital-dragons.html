@@ -1,0 +1,536 @@
+<title>Orbital Dragons</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,600;9..144,900&family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+  :root{
+    --ground:#0B0E14; --panel:#121826; --panel2:#0E1420;
+    --ink:#E8E6DC; --dim:#8A94A6; --line:#232B3D;
+    --green:#7FD98C; --cyan:#6FC3DF; --red:#E4574C; --amber:#F0A93B;
+    --serif:"Fraunces",Georgia,serif;
+    --body:"Atkinson Hyperlegible",-apple-system,Helvetica,Arial,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  }
+  html{background:var(--ground)}
+  body{margin:0;background:var(--ground);color:var(--ink);
+       font-family:var(--body);line-height:1.55;font-size:16px}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 20px 80px}
+  header{position:relative;padding:64px 0 34px;border-bottom:1px solid var(--line)}
+  #heroCanvas{position:absolute;inset:0;width:100%;height:100%;opacity:.34}
+  .heroInner{position:relative}
+  h1{font-family:var(--serif);font-weight:900;font-size:clamp(30px,5.4vw,54px);
+     margin:0 0 8px;line-height:1.06;text-wrap:balance}
+  .sub{color:var(--dim);max-width:62ch;margin:0}
+  .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.18em;
+          text-transform:uppercase;color:var(--green);margin-bottom:14px}
+  section{margin-top:52px}
+  .stn{display:flex;gap:14px;align-items:baseline;border-bottom:1px solid var(--line);
+       padding-bottom:8px;margin-bottom:18px}
+  .stn .no{font-family:var(--mono);color:var(--green);font-size:14px}
+  .stn h2{font-family:var(--serif);font-weight:600;font-size:26px;margin:0;text-wrap:balance}
+  .grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:22px}
+  @media(max-width:820px){.grid{grid-template-columns:1fr}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;
+         padding:14px;overflow-x:auto}
+  .prose{max-width:65ch;color:var(--ink)}
+  .prose p{margin:0 0 12px}
+  .prose .m{font-family:var(--mono);font-size:.92em;color:var(--cyan)}
+  canvas{display:block;background:var(--panel2);border:1px solid var(--line);
+         border-radius:4px;max-width:100%}
+  table.tm{border-collapse:collapse;font-family:var(--mono);font-size:13px;margin:0 auto}
+  table.tm td,table.tm th{border:1px solid var(--line);padding:5px 12px;text-align:center}
+  table.tm th{color:var(--dim);font-weight:600}
+  .halt{color:var(--red);font-weight:600}
+  .readout{font-family:var(--mono);font-size:13px;color:var(--green);
+           white-space:pre;line-height:1.7;background:var(--panel2);
+           border:1px solid var(--line);border-radius:4px;padding:10px 12px;
+           overflow-x:auto}
+  .bars{display:grid;gap:10px;margin-top:6px}
+  .bar{display:grid;grid-template-columns:190px 1fr 74px;gap:10px;align-items:center;
+       font-family:var(--mono);font-size:12.5px}
+  .bar .tr{background:var(--panel2);border:1px solid var(--line);border-radius:3px;height:16px}
+  .bar .fl{height:100%;border-radius:2px}
+  .btn{font-family:var(--mono);font-size:13px;background:var(--panel2);
+       color:var(--green);border:1px solid var(--green);border-radius:4px;
+       padding:7px 14px;cursor:pointer}
+  .btn.red{color:var(--amber);border-color:var(--amber)}
+  .btn:hover{background:#18202f}
+  .btn:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+  .ctl{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 0 12px;
+       font-family:var(--mono);font-size:13px;color:var(--dim)}
+  input[type=range]{accent-color:#7FD98C;width:180px}
+  .gamelog{font-family:var(--mono);font-size:12px;height:150px;overflow-y:auto;
+           background:var(--panel2);border:1px solid var(--line);border-radius:4px;
+           padding:8px 10px;line-height:1.6}
+  .gamelog .ok{color:var(--green)} .gamelog .bad{color:var(--red)}
+  .gamelog .hd{color:var(--dim)}
+  footer{margin-top:64px;border-top:1px solid var(--line);padding-top:18px;
+         color:var(--dim);font-size:13.5px}
+  footer .m{font-family:var(--mono)}
+  .legend{font-family:var(--mono);font-size:12px;color:var(--dim);margin-top:8px}
+  .sw{display:inline-block;width:10px;height:10px;border-radius:2px;
+      vertical-align:-1px;margin:0 4px 0 10px}
+</style>
+
+<div class="wrap">
+<header>
+  <canvas id="heroCanvas"></canvas>
+  <div class="heroInner">
+    <div class="kicker">bbchallenge-proofs &middot; the BB(6) program, live</div>
+    <h1>Orbital Dragons</h1>
+    <p class="sub">Six-state Turing machines that secretly run Collatz-style
+    arithmetic, watched, compressed into certified laws, reduced to open
+    number theory, and verified by a two-prover game. Everything below is
+    computed live in this page from the real transition tables.</p>
+  </div>
+</header>
+
+<section>
+  <div class="stn"><span class="no">01</span><h2>Watch: the cryptid itself</h2></div>
+  <div class="grid">
+    <div class="panel">
+      <canvas id="spacetime" width="960" height="330"></canvas>
+      <div class="legend">dossier-2 from the blank tape, one row per step
+        <span class="sw" style="background:#7FD98C"></span>1
+        <span class="sw" style="background:#0E1420;border:1px solid #232B3D"></span>0
+        <span class="sw" style="background:#E4574C"></span>head</div>
+    </div>
+    <div class="prose">
+      <p>Dossier-2, <span class="m">1RB1RC_1LC1LC_1RE0LD_1LB1RF_---1RA_0RD1RD</span>,
+      halts only if state <span class="m">E</span> reads a 0, which requires the
+      <em>probe event</em>: state <span class="m">C</span> reading a 0 with a 0 to its
+      right. The whole program is one argument that this never happens.</p>
+      <table class="tm">
+        <tr><th>state</th><th>reads 0</th><th>reads 1</th></tr>
+        <tr><td>A</td><td>1,R,B</td><td>1,R,C</td></tr>
+        <tr><td>B</td><td>1,L,C</td><td>1,L,C</td></tr>
+        <tr><td>C</td><td>1,R,E</td><td>0,L,D</td></tr>
+        <tr><td>D</td><td>1,L,B</td><td>1,R,F</td></tr>
+        <tr><td>E</td><td class="halt">halt</td><td>1,R,A</td></tr>
+        <tr><td>F</td><td>0,R,D</td><td>1,R,D</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="stn"><span class="no">02</span><h2>Compress: five integers, certified</h2></div>
+  <div class="grid">
+    <div class="panel">
+      <canvas id="holetape" width="960" height="64"></canvas>
+      <div id="msReadout" class="readout" style="margin-top:10px"></div>
+      <canvas id="logchart" width="960" height="240" style="margin-top:10px"></canvas>
+      <div class="legend">componentwise log(1+x) of the gaps (a,b,c): the
+        tropical chart where every regime is a straight line
+        <span class="sw" style="background:#7FD98C"></span>a
+        <span class="sw" style="background:#6FC3DF"></span>b
+        <span class="sw" style="background:#F0A93B"></span>c</div>
+    </div>
+    <div class="prose">
+      <p>At every spawn entry the tape is a solid block of 1s with exactly two
+      holes: five integers <span class="m">(l, h&#8321;, h&#8322;, r)</span> plus a tag.
+      The bar above is that certified shape, animated by iterating
+      <span class="m">metaStep</span>, the five-integer function proven in Lean 4
+      (axioms <span class="m">{propext, Quot.sound}</span>) to predict the machine
+      forever after a 235-step anchor.</p>
+      <p>Seven episode theorems with exact step counts cover everything the
+      machine can do. In logarithmic coordinates the orbit of the gaps
+      <span class="m">(a,b,c)</span> is piecewise linear: the law that no plot of the
+      raw tape shows.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="stn"><span class="no">03</span><h2>Reduce: the fatal diagonal</h2></div>
+  <div class="grid">
+    <div class="panel">
+      <canvas id="gammamap" width="960" height="320"></canvas>
+      <div class="legend">renewal return map: offset b&minus;&beta; at each
+        renewal; red band = the provably fatal values {1,3,5}</div>
+    </div>
+    <div class="prose">
+      <p>Sampling at renewals reduces everything to a closed-form two-counter
+      map <span class="m">R(a,b)</span>. Death happens exactly when the counters
+      arrive almost equal: <span class="m">b&minus;&beta; &isin; {1,3,5}</span>.
+      Configurations inside the band provably halt (6&ndash;12 raw steps,
+      observed live in station 06); the orbit grazes the band with minimum
+      margin 4 over 10&#8309; renewals and never enters.</p>
+      <p>Whether it stays out forever is the open problem: the machine, restated
+      as elementary arithmetic.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="stn"><span class="no">04</span><h2>The census: all 1,094 holdouts</h2></div>
+  <div class="grid">
+    <div class="panel">
+      <div class="bars" id="censusBars"></div>
+    </div>
+    <div class="prose">
+      <p>A three-part harness (forward orbit, backward halt cone, fitted
+      regimes) ran over every open six-state machine: zero halts, zero
+      forward&ndash;backward alignments. The four certified machines are the
+      only fixed-dimension ones; eleven form the <em>array class</em>, whose
+      state spaces grow in dimension; a tenfold budget increase changes no
+      verdict.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="stn"><span class="no">05</span><h2>The array class: trisection waves</h2></div>
+  <div class="grid">
+    <div class="panel">
+      <canvas id="wordrows" width="960" height="340"></canvas>
+      <div class="legend">rank-1 machine, one row per arrival word
+        <span class="sw" style="background:#3D5A45"></span>1-block
+        <span class="sw" style="background:#F0A93B"></span>2-block (cursor)
+        <span class="sw" style="background:#6FC3DF"></span>3-block (carry)</div>
+    </div>
+    <div class="prose">
+      <p>The leading array-class machine,
+      <span class="m">1RB1RD_1LC0LC_0RD0LB_1RF0LE_0RD---_0RA1RC</span>, keeps its
+      state as a growing word of blocks. Its certified-grade calculus is a
+      two-phase odometer: 3-blocks are carries traveling in
+      <span class="m">1010&hellip;</span> wave trains, a deposited 2-block is a cursor
+      that restarts the next pass, and the boundary rule is a literal block
+      trisection, <span class="m">3 &rarr; 1,1,1</span>. Frozen rules reproduce
+      2,179 of 2,186 held-out segments exactly over 2&times;10&#8312; raw steps;
+      the death tree branches 2-adically in train lengths where dossier-3's
+      branches at the golden ratio.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="stn"><span class="no">06</span><h2>The halting game: play the verifier</h2></div>
+  <div class="grid">
+    <div class="panel">
+      <div class="ctl">
+        <label for="rSlider">law checks r = <span id="rVal">64</span></label>
+        <input type="range" id="rSlider" min="0" max="20" value="6" step="1"
+               aria-label="number of law checks (power of two)">
+        <span id="bound"></span>
+      </div>
+      <div class="ctl">
+        <button class="btn" id="btnHonest">honest provers</button>
+        <button class="btn red" id="btnForge">run 200 forgeries</button>
+      </div>
+      <canvas id="gameChart" width="960" height="140"></canvas>
+      <div class="gamelog" id="gameLog" aria-live="polite"></div>
+    </div>
+    <div class="prose">
+      <p>The MIP*&#8239;=&#8239;RE mechanism, played classically over the certified
+      reduction. Two isolated provers commit to a renewal history and a halt
+      index; the verifier samples <span class="m">r</span> law checks
+      <span class="m">R(s&#11388;)&#8239;=&#8239;s&#11388;&#8330;&#8321;</span> at
+      constant cost each and demands a terminal state in the fatal band.</p>
+      <p>Honest provers cannot even name a halt index: the true orbit contains
+      no fatal state. A forger splices one seam, and the seam is caught at
+      rate <span class="m">&asymp;2/K</span> per sample. Same verifier, three
+      state-space classes: renewal pairs, certified five-integer states,
+      growing words.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>Machine-checked reductions at axioms <span class="m">{propext, Quot.sound}</span> &middot;
+  empirical claims validated against 10&#8313; raw steps per machine &middot;
+  recurrence tested 10&#8312; iterations &middot; census horizons in
+  <span class="m">docs/results/</span> of <span class="m">Enan456/bbchallenge-proofs</span>.
+  Charts and games on this page run the true transition tables; nothing is prerecorded.</p>
+</footer>
+</div>
+
+<script>
+"use strict";
+const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ---------- shared: parse a machine code ---------- */
+function parseTM(code){
+  const tbl = {};
+  code.split("_").forEach((blk,i)=>{
+    const st = String.fromCharCode(65+i);
+    for(const b of [0,1]){
+      const e = blk.slice(3*b,3*b+3);
+      tbl[st+b] = e==="---" ? null : [ +e[0], e[1], e[2] ];
+    }
+  });
+  return tbl;
+}
+const D2 = parseTM("1RB1RC_1LC1LC_1RE0LD_1LB1RF_---1RA_0RD1RD");
+const R1 = parseTM("1RB1RD_1LC0LC_0RD0LB_1RF0LE_0RD---_0RA1RC");
+
+/* ---------- 00 hero + 01 spacetime ---------- */
+function spacetimeRun(canvas, alpha){
+  const ctx = canvas.getContext("2d");
+  const W = canvas.width, H = canvas.height, cell = 3;
+  const cols = Math.floor(W/cell);
+  let tape = {}, pos = 0, st = "A", row = 0;
+  ctx.fillStyle = "#0E1420"; ctx.fillRect(0,0,W,H);
+  function step(){
+    const b = tape[pos]|0, tr = D2[st+b];
+    if(!tr) return false;
+    tape[pos]=tr[0]; pos += tr[1]==="R"?1:-1; st = tr[2];
+    return true;
+  }
+  function drawRow(){
+    const off = Math.floor(cols/2);
+    const y = (row % Math.floor(H/cell))*cell;
+    ctx.fillStyle = "#0E1420"; ctx.fillRect(0,y,W,cell);
+    for(let c=-off;c<cols-off;c++){
+      if(tape[c]){ ctx.fillStyle = "#7FD98C";
+        ctx.fillRect((c+off)*cell,y,cell-1,cell-1); }
+    }
+    ctx.fillStyle = "#E4574C";
+    ctx.fillRect((pos+off)*cell,y,cell-1,cell-1);
+    row++;
+  }
+  let stopped=false;
+  function frame(){
+    if(stopped) return;
+    for(let i=0;i<2;i++){ if(!step()){stopped=true;break;} drawRow(); }
+    if(row*cell > H*8){ tape={};pos=0;st="A";row=0;
+      ctx.fillStyle="#0E1420";ctx.fillRect(0,0,W,H); }
+    requestAnimationFrame(frame);
+  }
+  if(REDUCED){ for(let i=0;i<Math.floor(H/cell);i++){step();drawRow();} }
+  else frame();
+}
+const hero = document.getElementById("heroCanvas");
+hero.width = 1200; hero.height = 240;
+spacetimeRun(hero);
+spacetimeRun(document.getElementById("spacetime"));
+
+/* ---------- 02 metaStep + holeTape + log chart ---------- */
+function metaStep(s){
+  const [three,l,h1,h2,r] = s;
+  if(three){
+    if(l<=h1 && h1+4<=h2 && h2+6<=r && (r-h2)%2===0 && (h2-h1)%2===0)
+      return [false,l,h1+6,h2+4,r+1];
+    if(l<=h1 && h2===h1+2 && h2+7<=r && (r-h2)%2===0)
+      return [false,l,h1+9,r+1,r+2];
+    return null;
+  }
+  if(h2===r-1){ return (l<=h1&&h1<=r-4) ? [false,l,h1,r-2,r+1] : null; }
+  if(h2===r-3){
+    if((r-h1)%2===1) return (l<=h1&&h1+7<=r)?[false,l,h1+6,r+1,r+2]:null;
+    if((h1-l)%2===1) return (l+3<=h1&&h1+6<=r)?[false,l-1,l+5,h1+4,r+1]:null;
+    return (l+5<=h1&&h1+6<=r)?[false,l-3,l+6,h1+4,r+1]:null;
+  }
+  return (l<=h1&&h1+1<=h2&&h2<=r-4) ? [true,l,h1,h2,r+1] : null;
+}
+let ms = [false,-8,-2,12,13], msHist = [], epi = 0;
+const htC = document.getElementById("holetape").getContext("2d");
+const lcC = document.getElementById("logchart").getContext("2d");
+const msOut = document.getElementById("msReadout");
+function drawHoleTape(){
+  const [three,l,h1,h2,r] = ms, W=960,H=64;
+  htC.fillStyle="#0E1420"; htC.fillRect(0,0,W,H);
+  const span=r-l+4, x = q => 20+(q-l+2)/span*(W-40);
+  htC.fillStyle="#3D5A45";
+  htC.fillRect(x(l),22,Math.max(2,x(r-1)-x(l)+2),20);
+  const holes=[h1,h2]; if(three) holes.push(r-3);
+  htC.fillStyle="#0B0E14";
+  holes.forEach(h=>htC.fillRect(x(h),22,Math.max(2,(W-40)/span),20));
+  htC.fillStyle="#E4574C"; htC.fillRect(x(r),18,3,28);
+  msOut.textContent =
+    `episode ${String(epi).padStart(6)}   tag=${ms[0]?"three":"norm "}\n`+
+    `l=${l}  h1=${h1}  h2=${h2}  r=${r}   `+
+    `a=${h1-l} b=${h2-h1} c=${r-h2}`;
+}
+function drawLogChart(){
+  const W=960,H=240; lcC.fillStyle="#0E1420"; lcC.fillRect(0,0,W,H);
+  if(msHist.length<2) return;
+  const n=msHist.length;
+  const series=[["#7FD98C",0],["#6FC3DF",1],["#F0A93B",2]];
+  let mx=0; msHist.forEach(v=>v.forEach(x=>{if(x>mx)mx=x;}));
+  series.forEach(([col,k])=>{
+    lcC.strokeStyle=col; lcC.lineWidth=1.4; lcC.beginPath();
+    msHist.forEach((v,i)=>{
+      const px=20+i/(n-1)*(W-40), py=H-16-(v[k]/mx)*(H-32);
+      i?lcC.lineTo(px,py):lcC.moveTo(px,py);
+    });
+    lcC.stroke();
+  });
+}
+function tickMeta(){
+  for(let i=0;i<6;i++){
+    const nxt = metaStep(ms); if(!nxt) break;
+    ms = nxt; epi++;
+    const [_,l,h1,h2,r]=ms;
+    msHist.push([Math.log1p(h1-l),Math.log1p(h2-h1),Math.log1p(r-h2)]);
+    if(msHist.length>900) msHist.shift();
+  }
+  drawHoleTape(); drawLogChart();
+  if(!REDUCED) requestAnimationFrame(()=>setTimeout(tickMeta,50));
+}
+if(REDUCED){ for(let i=0;i<600;i++){const nx=metaStep(ms);if(!nx)break;ms=nx;epi++;
+  const[,l,h1,h2,r]=ms;msHist.push([Math.log1p(h1-l),Math.log1p(h2-h1),Math.log1p(r-h2)]);}
+  drawHoleTape(); drawLogChart(); }
+else tickMeta();
+
+/* ---------- 03 renewal map + fatal band ---------- */
+function Rmap(a,b){
+  if(b%2===0) return [a+6,b-3];
+  const odd = a%2===1, alpha = odd?6:9, beta = odd?a-1:a-2;
+  if(b<beta) return [alpha+3*(b-3), beta-(b-3)];
+  return [alpha+3*beta+3, b-beta-4];
+}
+function betaOf(a){ return a%2===1 ? a-1 : a-2; }
+(function gammaMap(){
+  const c = document.getElementById("gammamap").getContext("2d");
+  const W=960,H=320; c.fillStyle="#0E1420"; c.fillRect(0,0,W,H);
+  const y0=H-30, sy=6;
+  c.fillStyle="rgba(228,87,76,.28)";
+  [1,3,5].forEach(v=>c.fillRect(0,y0-(v+0.5)*sy,W,sy));
+  c.fillStyle="#8A94A6"; c.font="12px IBM Plex Mono";
+  c.fillText("offset b−β at renewal (fatal band in red)",14,18);
+  [0,5,10,20,40].forEach(v=>{
+    c.fillStyle="#232B3D"; c.fillRect(0,y0-v*sy,W,1);
+    c.fillStyle="#8A94A6"; c.fillText(String(v),4,y0-v*sy-3);
+  });
+  let a=6,b=13,i=0,x=30;
+  function pt(){
+    for(let k=0;k<3;k++){
+      const off = b - betaOf(a);
+      if(b%2===1){
+        const y = y0 - Math.min(Math.max(off,0),46)*sy;
+        c.fillStyle = (off===1||off===3||off===5) ? "#E4574C" : "#6FC3DF";
+        c.beginPath(); c.arc(x,y,2.1,0,7); c.fill();
+        x += 2.2; if(x>W-20){x=30;}
+      }
+      [a,b]=Rmap(a,b); i++;
+      if(a>1e15){a=6;b=13;}
+    }
+    if(i<40000 && !REDUCED) requestAnimationFrame(pt);
+  }
+  if(REDUCED){ for(let k=0;k<1200;k++) pt(); } else pt();
+})();
+
+/* ---------- 04 census ---------- */
+(function census(){
+  const rows = [
+    ["certified fixed-dimension", 4,  "#7FD98C"],
+    ["array class (exact specs)", 11, "#6FC3DF"],
+    ["single-law regimes",        307,"#F0A93B"],
+    ["regime-structured (other)", 39, "#B08BC9"],
+    ["no structure at horizon",   733,"#4A5568"],
+  ];
+  const el = document.getElementById("censusBars");
+  const mx = 733;
+  rows.forEach(([lab,n,col])=>{
+    const d=document.createElement("div"); d.className="bar";
+    d.innerHTML = `<span style="color:#8A94A6">${lab}</span>
+      <span class="tr"><span class="fl" style="width:${Math.max(1.2,n/mx*100)}%;background:${col}"></span></span>
+      <span style="color:${col};text-align:right">${n}</span>`;
+    el.appendChild(d);
+  });
+})();
+
+/* ---------- 05 rank-1 word rows ---------- */
+(function wordRows(){
+  const c = document.getElementById("wordrows").getContext("2d");
+  const W=960,H=340; c.fillStyle="#0E1420"; c.fillRect(0,0,W,H);
+  let tape={},pos=0,st="A",mx=-1e9,lastd=null,rows=[],lo=0;
+  const MAXROWS=44;
+  for(let t=0;t<400000 && rows.length<MAXROWS;t++){
+    const b=tape[pos]|0, tr=R1[st+b];
+    if(!tr) break;
+    const d=tr[1];
+    if(st==="B"&&b===0&&lastd==="R"&&pos>mx){
+      const row=[]; let q=lo,run=0;
+      const hi=pos;
+      for(;q<=hi;q++){ if(tape[q]){run++;} else {if(run)row.push(run);run=0;} }
+      if(run)row.push(run);
+      if(row.length>4) rows.push(row);
+    }
+    mx=Math.max(mx,pos);
+    tape[pos]=tr[0]; lo=Math.min(lo,pos); lastd=d;
+    pos+=d==="R"?1:-1; st=tr[2];
+  }
+  const rh=Math.floor(H/MAXROWS);
+  rows.forEach((row,i)=>{
+    const total=row.reduce((s,v)=>s+v+1,0);
+    let x=8;
+    row.forEach(v=>{
+      const w=Math.max(2, v/total*(W-16));
+      c.fillStyle = v>=3?"#6FC3DF": v===2?"#F0A93B":"#3D5A45";
+      c.fillRect(x, 6+i*rh, w, rh-2);
+      x += w + Math.max(1,(W-16)/total);
+    });
+  });
+})();
+
+/* ---------- 06 the game ---------- */
+(function game(){
+  const K=5000;
+  const orbit=[[6,13]];
+  for(let i=0;i<K;i++){ const s=orbit[orbit.length-1];
+    orbit.push(Rmap(s[0],s[1])); }
+  function fatal(a,b){
+    if(b<=2) return true;
+    if(b%2===0) return b===4;
+    const beta=betaOf(a); return b>beta && (b-beta===1||b-beta===3||b-beta===5);
+  }
+  const slider=document.getElementById("rSlider"),
+        rVal=document.getElementById("rVal"),
+        bound=document.getElementById("bound"),
+        log=document.getElementById("gameLog"),
+        chart=document.getElementById("gameChart").getContext("2d");
+  const results=[];
+  function rNow(){ return 2**(+slider.value); }
+  function showBound(){
+    rVal.textContent=rNow();
+    bound.textContent="seam bound (1-1/K)^r = "+((1-1/K)**rNow()).toFixed(4);
+  }
+  slider.addEventListener("input",showBound); showBound();
+  function say(cls,msg){
+    const d=document.createElement("div"); d.className=cls; d.textContent=msg;
+    log.prepend(d); while(log.children.length>60) log.lastChild.remove();
+  }
+  function drawChart(){
+    const W=960,H=140; chart.fillStyle="#0E1420"; chart.fillRect(0,0,W,H);
+    chart.fillStyle="#8A94A6"; chart.font="11px IBM Plex Mono";
+    chart.fillText("forgery acceptance vs r (dots = your runs, line = seam bound)",10,14);
+    chart.strokeStyle="#3D5A45"; chart.beginPath();
+    for(let p=0;p<=20;p+=.25){
+      const x=20+p/20*(W-40), y=H-14-((1-1/K)**(2**p))*(H-34);
+      p?chart.lineTo(x,y):chart.moveTo(x,y);
+    }
+    chart.stroke();
+    results.forEach(([p,rate])=>{
+      chart.fillStyle="#E4574C";
+      chart.beginPath();
+      chart.arc(20+p/20*(W-40), H-14-rate*(H-34), 3.5,0,7); chart.fill();
+    });
+  }
+  drawChart();
+  document.getElementById("btnHonest").addEventListener("click",()=>{
+    const hasFatal = orbit.some(s=>fatal(s[0],s[1]));
+    say("ok",`honest provers: true orbit has ${hasFatal?"a":"no"} fatal state`+
+        ` in K=${K}; verdict: no-halt-claim (cannot forge a terminal)`);
+  });
+  document.getElementById("btnForge").addEventListener("click",()=>{
+    const r=rNow(); let acc=0; const trials=200;
+    for(let t=0;t<trials;t++){
+      const m=(Math.random()*(K-1))|0;
+      let caught=false;
+      for(let i=0;i<r;i++){
+        const j=(Math.random()*K)|0;
+        if(j===m||j===m+1){caught=true;break;}
+      }
+      if(!caught) acc++;
+    }
+    const rate=acc/trials;
+    results.push([+slider.value,rate]); drawChart();
+    say(rate>0?"bad":"ok",
+      `forger (seam spliced to a fatal state): r=${r}, accepted `+
+      `${acc}/${trials} = ${rate.toFixed(3)}  `+
+      `(bound ${((1-1/K)**r).toFixed(3)})`);
+  });
+  say("hd","the verifier is live: pick r, then run forgeries. every check is one");
+  say("hd","closed-form evaluation of R; a seam is caught at rate about 2/K per sample.");
+})();
+</script>
