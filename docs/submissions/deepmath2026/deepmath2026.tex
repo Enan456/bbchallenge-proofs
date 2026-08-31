@@ -515,7 +515,14 @@ at $r = 2^{18}$ and $2^{20}$, where the analytic bound is below
 $3 \times 10^{-5}$). The verifier's total work is $r$ integer
 checks on five-integer states whose raw-tape realizations at that
 depth are astronomically long: verification cost decoupled from
-runtime, played as a game.
+runtime, played as a game. The same game runs unchanged over the
+array-class word calculus, with one rewrite-system evaluation as the
+law check and raw execution of the materialized word as the terminal
+check; forged terminals built from the machine's own depth-24 halt
+cone (stamped into true orbit words of about $10^4$ cells) genuinely
+halt, and are then caught by law sampling at the identical seam
+rate, 0 acceptances in all trials at $r \ge 2048$ over a
+346-segment word history.
 
 The alignment is this: kernel verification anchors
 truth at the bottom; predictive emulation compresses it in the middle;

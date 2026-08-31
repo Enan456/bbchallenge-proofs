@@ -54,6 +54,34 @@ breaks the law on both of its sides, so the effective catch rate is
 about 2/K). At r = 2^20 the analytic failure bound is
 (1-1/K)^r < 3·10^-5 and no forgery survived.
 
+## The same game over the dossier-5 word calculus
+
+`qgkit/bb6/halting_game5.py` plays G on the rank-1 array-class
+machine with word configurations as states, one calc.step evaluation
+as the law check (fail-closed: an Unexplained context rejects), and
+raw execution of the materialized word as the terminal check. The
+forged terminals come from the machine's own backward halt cone:
+depth-24 constraint patterns with control state B (618 families),
+stamped around the head of a true orbit word, halt by construction
+when fully in range. Prover B of a forgery is literally the end
+machine.
+
+Measured (word orbit iterated 346 segments past raw validation to
+its fail-closed frontier, widths 9,899 to 11,855 cells):
+
+- zero fatal words on the true orbit (raw-verified sample);
+  honest provers cannot name a halt index;
+- fully stamped cone forgeries pass the terminal check (they
+  genuinely halt) and are then caught by law sampling:
+  accept 0.980 at r=4, 0.813 at r=32, 0.242 at r=256, 0 in all
+  trials at r=2048 and r=8192, tracking the two-sided seam rate
+  (1-2/K)^r at K=346.
+
+The game generalizes across state-space classes unchanged: the same
+verifier code plays over five-integer states and over words of
+growing dimension, because all it needs is a certified law, a seed,
+and a checkable fatal predicate.
+
 ## Reading
 
 The verifier's work is r constant-cost arithmetic checks on
