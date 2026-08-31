@@ -1,13 +1,13 @@
 # DeepMath 2026 — OpenReview form fields
 
 **Title**
-Orbital Dragons to Hunt Cryptids: Utilizing Non-Euclidean Geometry to Solve Busy Beaver
+Orbital Dragons to Hunt Cryptids: Neural Networks, Quantum-Inspired Data Science, and the Busy Beaver Problem
 
 **Authors**
 Enan Srivastava (OpenReview profile required before submitting)
 
 **Keywords**
-busy beaver, BB(6), formal verification, Lean 4, Turing machines, Collatz-like systems, certified emulation, non-Euclidean embeddings, dynamical systems, AI-assisted theorem proving, interactive proofs, MIP*=RE
+busy beaver, BB(6), representation learning, formal verification, Lean 4, Turing machines, Collatz-like systems, certified emulation, non-Euclidean embeddings, quantum-inspired geometry, benchmarks, interactive proofs, MIP*=RE
 
 **TL;DR**
 Two of the Turing machines blocking BB(6) run hidden Collatz-style arithmetic; we find their law empirically in non-Euclidean coordinates, prove it exactly in Lean, and reduce each machine's halting problem to a five-integer recurrence avoiding a provably fatal set.

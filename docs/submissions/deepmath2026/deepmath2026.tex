@@ -6,7 +6,8 @@
 \usepackage{microtype}
 
 \title{\bfseries Orbital Dragons to Hunt Cryptids:\\
-Utilizing Non-Euclidean Geometry to Solve Busy Beaver}
+Neural Networks, Quantum-Inspired Data Science,\\
+and the Busy Beaver Problem}
 \author{Enan Srivastava}
 \date{DeepMath 2026 Extended Abstract}
 
@@ -57,7 +58,12 @@ $\mathsf{MIP}^{*} = \mathsf{RE}$: kernel checking at the bottom,
 certified predictive emulation (this paper) in the middle, and
 entangled-prover verification of halting-type claims as the goal. Every
 empirical claim is validated against $10^{9}$ raw machine steps, and
-the recurrence is tested for $10^{8}$ iterations.
+the recurrence is tested for $10^{8}$ iterations. For the theory of
+learning, the pipeline is representation learning carried to a
+proof, and it is offered as a benchmark: unbounded, exactly labeled,
+law-governed sequence data on which a learned representation has a
+provable ground truth, with a two-prover game that verifies the
+forecasts of any learned emulator at constant cost per check.
 \end{abstract}
 
 \section{The problem, from zero}
@@ -525,8 +531,9 @@ results
 depends on this framing; it states the destination the pipeline is
 pointed at.
 
-\section{Why this may interest this community}
-There are two reasons. The first is the workflow. This project is an instance of
+\section{A benchmark for the theory of learning}
+There are three reasons this may interest this community. The first
+is the workflow. This project is an instance of
 the emerging human--AI--kernel pattern in mathematics, in which AI
 systems draft and compile proofs at scale, a proof kernel
 arbitrates, and humans own claims; this is the pattern of Tao's
@@ -543,8 +550,27 @@ governed by a low-dimensional piecewise-affine law, by choosing
 coordinates in which the structure is linear, is the daily business of
 representation learning. Here the same move is carried one step
 further: the discovered representation is not evaluated on held-out
-data but proven exactly correct, step by step, against the system that
-generated it.
+data but proven exactly correct, step by step, against the system
+that generated it. Each pipeline stage has a standard learning-theory
+name. Event extraction is feature engineering; the coordinate charts
+are the representation; the piecewise-affine law is a linear model in
+the right representation; fail-closed validation is a generalization
+test with a zero-tolerance loss; the kernel proof replaces the test
+set.
+
+The third reason is a concrete offer. Busy beaver machines generate
+unbounded, exactly labeled, law-governed sequence data, and the
+census grades them: fixed-dimension machines whose ground-truth
+representation is a proven five-integer state, array-class machines
+whose ground truth is a word-rewrite system of growing dimension,
+and a structured remainder with fitted regime laws. A network
+trained to emulate one of these machines can be scored not against
+samples but against certainty: slot it in as prover A of the halting
+game and every forecast it makes is checked at constant cost, with
+any deviation from the certified law caught at the seam rate. What a
+feature learner should discover here is known exactly, chart by
+chart, which is precisely the situation the mathematical theory of
+deep networks lacks in natural data.
 
 \paragraph{Scope.} No unconditional non-halting claim is made. The
 coordinate charts guide discovery and exposition; no theorem depends on
