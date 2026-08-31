@@ -54,6 +54,24 @@ breaks the law on both of its sides, so the effective catch rate is
 about 2/K). At r = 2^20 the analytic failure bound is
 (1-1/K)^r < 3·10^-5 and no forgery survived.
 
+## The same game at the certified five-integer layer (dossier-2)
+
+`qgkit/bb6/halting_game23.py` upgrades the renewal-level game to the
+full certified abstraction: the law check is one metaStep evaluation
+(the exact mirror of the Lean-certified map), and the terminal check
+materializes the claimed five-integer state through the certified
+holeTape realization and runs the raw machine. Forged terminals are
+danger-band corner states (collapsed inter-hole gap, renewal-adjacent
+offsets); the lethality result is observed live: every constructed
+corner state halts in 6 to 12 raw steps. Measured at K = 200,000
+episodes: zero raw-halting states on the sampled true orbit; forgery
+acceptance 1.000 at r=64, 0.963 at r=4096, 0.475 at r=65,536, and 0
+in all trials at r=2^19 and 2^21. A robustness finding en route:
+20,000 random small hole-perturbations of mid-orbit states produced
+zero halting configurations; only constructed corner states die, the
+same narrow-band geometry the word machine showed under single-cell
+mutation.
+
 ## The same game over the dossier-5 word calculus
 
 `qgkit/bb6/halting_game5.py` plays G on the rank-1 array-class
