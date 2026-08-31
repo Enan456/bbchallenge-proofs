@@ -485,7 +485,33 @@ whether a two-player nonlocal game has entangled value 1 or at most
 (they are $\Pi_{1}$; zero-gap variants of $\mathsf{MIP}^{*}$ reach
 $\Pi_{2}^{0}$ \cite{mnyu}), so the entangled-prover frame in
 principle spans exactly the class of claims the busy beaver program
-generates. The alignment is this: kernel verification anchors
+generates.
+
+This mapping is not only a framing; the certified reduction plays as
+an actual game. Define $G(K, r)$, verifying the claim ``the machine
+halts within $K$ renewals'': two isolated provers commit to a
+history $(s_0, \ldots, s_K)$ of renewal states and a halt index
+$k^*$; the verifier checks the seed, samples $r$ indices $j$ and
+requires cross-consistency of the provers' snapshots together with
+$R(s_j) = s_{j+1}$ (one constant-cost arithmetic check each, which
+the certified theorems entitle in place of replay), and requires
+$s_{k^*}$ to lie in the fatal set, whose members provably halt
+within about fifty raw steps. A halting machine gives honest provers
+a probability-1 win. Since $R$ is deterministic with fixed seed, the
+only law-consistent history is the true orbit, which stays at
+distance at least 4 above the fatal window over the tested horizon,
+so any winning strategy needs a seam, caught per sample with
+probability $1/K$. Played at $K = 10^5$: the true orbit contains
+zero fatal states, so no false acceptance is possible on the real
+history; spliced forgeries are accepted at the rate the seam bound
+predicts (0.998 at $r = 64$, 0.745 at $r = 2^{14}$, 0 in all trials
+at $r = 2^{18}$ and $2^{20}$, where the analytic bound is below
+$3 \times 10^{-5}$). The verifier's total work is $r$ integer
+checks on five-integer states whose raw-tape realizations at that
+depth are astronomically long: verification cost decoupled from
+runtime, played as a game.
+
+The alignment is this: kernel verification anchors
 truth at the bottom; predictive emulation compresses it in the middle;
 and $\mathsf{MIP}^{*} = \mathsf{RE}$ says that at the top,
 verification of halting-type claims is possible \emph{in principle}
