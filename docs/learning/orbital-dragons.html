@@ -4,7 +4,7 @@
   :root{
     --ground:#0B0E14; --panel:#121826; --panel2:#0E1420;
     --ink:#E8E6DC; --dim:#8A94A6; --line:#232B3D;
-    --green:#7FD98C; --cyan:#6FC3DF; --red:#E4574C; --amber:#F0A93B;
+    --green:#7FD98C; --cyan:#6FC3DF; --red:#E4574C; --amber:#C792EA;
     --serif:"Fraunces",Georgia,serif;
     --body:"Atkinson Hyperlegible",-apple-system,Helvetica,Arial,sans-serif;
     --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
@@ -122,7 +122,7 @@
         tropical chart where every regime is a straight line
         <span class="sw" style="background:#7FD98C"></span>a
         <span class="sw" style="background:#6FC3DF"></span>b
-        <span class="sw" style="background:#F0A93B"></span>c</div>
+        <span class="sw" style="background:#C792EA"></span>c</div>
     </div>
     <div class="prose">
       <p>At every spawn entry the tape is a solid block of 1s with exactly two
@@ -184,7 +184,7 @@
       <canvas id="wordrows" width="960" height="340"></canvas>
       <div class="legend">rank-1 machine, one row per arrival word
         <span class="sw" style="background:#3D5A45"></span>1-block
-        <span class="sw" style="background:#F0A93B"></span>2-block (cursor)
+        <span class="sw" style="background:#C792EA"></span>2-block (cursor)
         <span class="sw" style="background:#6FC3DF"></span>3-block (carry)</div>
     </div>
     <div class="prose">
@@ -344,7 +344,7 @@ function drawLogChart(){
   const W=960,H=240; lcC.fillStyle="#0E1420"; lcC.fillRect(0,0,W,H);
   if(msHist.length<2) return;
   const n=msHist.length;
-  const series=[["#7FD98C",0],["#6FC3DF",1],["#F0A93B",2]];
+  const series=[["#7FD98C",0],["#6FC3DF",1],["#C792EA",2]];
   let mx=0; msHist.forEach(v=>v.forEach(x=>{if(x>mx)mx=x;}));
   series.forEach(([col,k])=>{
     lcC.strokeStyle=col; lcC.lineWidth=1.4; lcC.beginPath();
@@ -414,7 +414,7 @@ function betaOf(a){ return a%2===1 ? a-1 : a-2; }
   const rows = [
     ["certified fixed-dimension", 4,  "#7FD98C"],
     ["array class (exact specs)", 11, "#6FC3DF"],
-    ["single-law regimes",        307,"#F0A93B"],
+    ["single-law regimes",        307,"#C792EA"],
     ["regime-structured (other)", 39, "#B08BC9"],
     ["no structure at horizon",   733,"#4A5568"],
   ];
@@ -456,7 +456,7 @@ function betaOf(a){ return a%2===1 ? a-1 : a-2; }
     let x=8;
     row.forEach(v=>{
       const w=Math.max(2, v/total*(W-16));
-      c.fillStyle = v>=3?"#6FC3DF": v===2?"#F0A93B":"#3D5A45";
+      c.fillStyle = v>=3?"#6FC3DF": v===2?"#C792EA":"#3D5A45";
       c.fillRect(x, 6+i*rh, w, rh-2);
       x += w + Math.max(1,(W-16)/total);
     });
