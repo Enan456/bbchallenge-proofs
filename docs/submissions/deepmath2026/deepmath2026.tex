@@ -47,8 +47,9 @@ survivors.
 Surveying the entire holdout set with a two-ended harness (forward
 orbit against backward halt cone, regimes fitted in between)
 classifies all $1{,}094$ open six-state machines: zero halts, zero
-alignments; four fixed-dimension machines, exactly the certified
-ones; an eleven-machine \emph{array class} whose state spaces grow in
+alignments; a fixed-dimension class holding the certified four and,
+found by a tenfold-deeper sweep, three new members with derived
+conditional laws; an \emph{array class} whose state spaces grow in
 dimension, for whose leading member an exact word-rewrite calculus
 is constructed (a two-phase odometer with a block-trisection boundary rule)
 validated against $2 \times 10^{8}$ raw steps; and $307$ single-law
@@ -374,12 +375,15 @@ finite and checkable.) The census then splits the set:
   with certified episode theorems: the pair of this paper, an
   earlier machine of ours (dossier-1), and Antihydra, the
   community's best-known cryptid. These are the machines the previous
-  sections certify, and the sweep found no others: ranked by regime
-  cleanliness, the top $25$ candidates yield $11$ machines with exact
-  fail-closed orbit specifications, and \emph{every one of the eleven}
-  fails both fixed-shape gates (bounded hole count, bounded
-  run-length dimension). The certified four are, up to this ranking's
-  reach, the only fixed-dimension machines in the cohort.
+  sections certify. The initial ranked sweep found no others among
+  its top $25$; a subsequent tenfold-deeper sweep of the full
+  structured pool falsified that boundary in the best direction,
+  blindly re-deriving the certified four (with the smallest specs in
+  the pool, an instrument validation) and surfacing \emph{three new
+  fixed-dimension machines}, each now carrying a derived conditional
+  law validated fail-closed at $2 \times 10^{7}$ steps; the leading
+  one is governed by five branch rules with a mod-3 divide branch, a
+  new Collatz-like two-counter hybrid.
 \item \textbf{The array class.} Those $11$ exact-but-unbounded
   machines are the new frontier: their tape shapes are growing
   \emph{vectors} of blocks; the state space itself gains a
@@ -455,7 +459,13 @@ The rank-1 machine supplies the second data point. Its cycle
 grammar inverts in closed form: the number of one-sweep preimages
 of an interior word equals $\prod_i 2^{\max(0,\,t_i-2)}$ over its
 $(1,3)$-train lengths $t_i$, so this death tree branches 2-adically
-in train lengths where dossier-3's branches at $\varphi$.
+in train lengths where dossier-3's branches at $\varphi$. Antihydra
+supplies the third: its abstract cone grows linearly (branching
+constant exactly 1, backward merges throttled by a counter guard),
+while $1/\varphi$ reappears in its seed-space hazard as the ruin
+root of $r^{3} - 2r + 1$. Three machines, three constants, each
+derived from its episode-alternation rules; the golden ratio sits in
+one machine's cone and another machine's hazard.
 
 \section{The verification spectrum: where this sits, and the goal}
 This work sits on a spectrum of what ``verifying a machine'' can
