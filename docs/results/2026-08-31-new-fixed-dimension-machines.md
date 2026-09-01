@@ -55,6 +55,19 @@ at record level with a multiplicative renewal: a new Collatz-like
 two-counter hybrid, and the most tractable certification target
 identified since dossier-1.
 
+## Correction (later the same day)
+
+The full law derivations (docs/results/2026-08-31-dossier7-dossier8-
+laws.md) show the 1M-step gate verdicts on the two larger machines
+were horizon artifacts in one direction and right in another: their
+literal RLE dimension is unbounded (the state carries a unary-coded
+ladder (1 0)^k whose k grows), so the strict RLE gate eventually
+fails; but the macro state is nevertheless a fixed integer vector
+((a, b, k) and (a, b, k, g)), so the fixed-dimension classification
+stands at the counter level, which is the level the certified four
+are classified at. The five-rule machine (Dvisetu) is fixed-dimension
+in the strict sense.
+
 ## Honest scope
 
 Shape gates: hole-count and RLE maxima compared between the first and
