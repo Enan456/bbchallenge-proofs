@@ -1,0 +1,776 @@
+{
+ "results": [
+  {
+   "code": "1RB1LC_1RC---_1LD1LC_1RE0LC_1RF0RE_1RA0RD",
+   "segments": 1112,
+   "tiled": 1112,
+   "arch": 1.0,
+   "by_kind": {
+    "X": [
+     143,
+     143
+    ],
+    "B": [
+     969,
+     969
+    ]
+   },
+   "direct": 102,
+   "shoot_nonlin": 876,
+   "march_breaks": 318,
+   "long_units": 3969,
+   "tot_units": 6387,
+   "conflicts": 3153,
+   "heads": 565,
+   "ctx": 271,
+   "tails": 145,
+   "directs": 15,
+   "validated": 324,
+   "exact": 3,
+   "val_by_kind": {
+    "B": [
+     3,
+     318
+    ],
+    "X": [
+     0,
+     6
+    ]
+   },
+   "trav": {
+    "total": 142,
+    "tiled": 142,
+    "validated": 6,
+    "exact": 0
+   },
+   "untiled_reasons": {},
+   "val_fail": {
+    "B:no-head": 177,
+    "B:no-ctx": 106,
+    "B:cons-mismatch": 26,
+    "X:cons-mismatch": 5,
+    "B:mismatch:kindnext": 6,
+    "X:no-head": 1
+   },
+   "untiled_samples": [],
+   "fail_samples": [
+    {
+     "t0": 2006214,
+     "why": "no-head",
+     "kind": "B",
+     "side": "L",
+     "n": 2220,
+     "dt": 4204,
+     "floor": 1072,
+     "win": "#.####.#.#.#.#.#.#.#.#.#.#.#"
+    },
+    {
+     "t0": 2010418,
+     "why": "no-ctx",
+     "kind": "B",
+     "side": "L",
+     "n": 2222,
+     "dt": 4456,
+     "floor": 1460,
+     "win": "#.#.#..#.#.#.#..#.#.#.#.#.#."
+    },
+    {
+     "t0": 2014874,
+     "why": "no-head",
+     "kind": "B",
+     "side": "L",
+     "n": 2224,
+     "dt": 3392,
+     "floor": 1298,
+     "win": "#.#.##.#.#.#.#.#.#.#.#.#.#.#"
+    },
+    {
+     "t0": 2018266,
+     "why": "no-head",
+     "kind": "B",
+     "side": "L",
+     "n": 2226,
+     "dt": 5250,
+     "floor": 1271,
+     "win": "#.#.#..#.#.#.#.#.#.#.#.#.#.#"
+    },
+    {
+     "t0": 2023516,
+     "why": "cons-mismatch",
+     "kind": "B",
+     "side": "L",
+     "n": 2228,
+     "dt": 6798,
+     "floor": 719,
+     "win": "#.#.#..#.#.#.#.#.#.##.#.#.#."
+    },
+    {
+     "t0": 2030314,
+     "why": "no-ctx",
+     "kind": "B",
+     "side": "L",
+     "n": 2230,
+     "dt": 4480,
+     "floor": 1464,
+     "win": "#.#.#..#.#.#.#..#.#.#.#.#.#."
+    },
+    {
+     "t0": 2034794,
+     "why": "no-head",
+     "kind": "B",
+     "side": "L",
+     "n": 2232,
+     "dt": 3416,
+     "floor": 1298,
+     "win": "#.####.#.#.#.#.#.#.#.#.#.#.#"
+    },
+    {
+     "t0": 2038210,
+     "why": "no-head",
+     "kind": "B",
+     "side": "L",
+     "n": 2234,
+     "dt": 12076,
+     "floor": 475,
+     "win": "#.#.#..#.#.#.#.#.#.##.#.#.#."
+    }
+   ],
+   "halted": false
+  },
+  {
+   "code": "1RB0RA_1RC0RF_1RD1LE_1RE---_1LF1LE_1RA0LE",
+   "segments": 1128,
+   "tiled": 1128,
+   "arch": 1.0,
+   "by_kind": {
+    "X": [
+     131,
+     131
+    ],
+    "B": [
+     997,
+     997
+    ]
+   },
+   "direct": 98,
+   "shoot_nonlin": 903,
+   "march_breaks": 327,
+   "long_units": 3482,
+   "tot_units": 6534,
+   "conflicts": 3124,
+   "heads": 585,
+   "ctx": 285,
+   "tails": 143,
+   "directs": 8,
+   "validated": 321,
+   "exact": 2,
+   "val_by_kind": {
+    "B": [
+     2,
+     317
+    ],
+    "X": [
+     0,
+     4
+    ]
+   },
+   "trav": {
+    "total": 130,
+    "tiled": 130,
+    "validated": 4,
+    "exact": 0
+   },
+   "untiled_reasons": {},
+   "val_fail": {
+    "B:no-head": 176,
+    "B:no-ctx": 107,
+    "B:cons-mismatch": 28,
+    "X:no-head": 1,
+    "B:mismatch:kindnext": 4,
+    "X:cons-mismatch": 3
+   },
+   "untiled_samples": [],
+   "fail_samples": [
+    {
+     "t0": 2002650,
+     "why": "no-head",
+     "kind": "B",
+     "side": "L",
+     "n": 2253,
+     "dt": 3868,
+     "floor": 1117,
+     "win": "#.#.#..#.#.#.#.#.#.#.#.#.#.#"
+    },
+    {
+     "t0": 2006518,
+     "why": "no-head",
+     "kind": "B",
+     "side": "L",
+     "n": 2255,
+     "dt": 5138,
+     "floor": 1324,
+     "win": "#.####.#.#.#.#.#.#.#.#.#.#.#"
+    },
+    {
+     "t0": 2011656,
+     "why": "no-head",
+     "kind": "B",
+     "side": "L",
+     "n": 2257,
+     "dt": 7116,
+     "floor": 690,
+     "win": "#.####.#.#.#.#.#.#.#.#.#.#.#"
+    },
+    {
+     "t0": 2018772,
+     "why": "no-ctx",
+     "kind": "B",
+     "side": "L",
+     "n": 2259,
+     "dt": 4344,
+     "floor": 1521,
+     "win": "#.#.#..#.#.#.#..#.#.#.#.#.#."
+    },
+    {
+     "t0": 2023116,
+     "why": "cons-mismatch",
+     "kind": "B",
+     "side": "L",
+     "n": 2261,
+     "dt": 4184,
+     "floor": 1119,
+     "win": "#.#.#..#.#.#.#.#.#.#.#.#.#.#"
+    },
+    {
+     "t0": 2027300,
+     "why": "no-ctx",
+     "kind": "B",
+     "side": "L",
+     "n": 2263,
+     "dt": 7512,
+     "floor": 1158,
+     "win": "#.####.#.#.#.#.#.#..#.#.#.#."
+    },
+    {
+     "t0": 2034812,
+     "why": "no-head",
+     "kind": "B",
+     "side": "L",
+     "n": 2265,
+     "dt": 4172,
+     "floor": 1121,
+     "win": "#.####.#.#.#.#.#.#.#.#.#.#.#"
+    },
+    {
+     "t0": 2038984,
+     "why": "no-ctx",
+     "kind": "B",
+     "side": "L",
+     "n": 2267,
+     "dt": 4368,
+     "floor": 1525,
+     "win": "#.#.#..#.#.#.#..#.#.#.#.#.#."
+    }
+   ],
+   "halted": false
+  },
+  {
+   "code": "1RB1RA_1LC0RA_1LD0LC_0LE0LB_1LF1RF_1LA---",
+   "segments": 1276,
+   "tiled": 1276,
+   "arch": 1.0,
+   "by_kind": {
+    "X": [
+     192,
+     192
+    ],
+    "B": [
+     1084,
+     1084
+    ]
+   },
+   "direct": 234,
+   "shoot_nonlin": 918,
+   "march_breaks": 783,
+   "long_units": 2538,
+   "tot_units": 4480,
+   "conflicts": 1744,
+   "heads": 226,
+   "ctx": 244,
+   "tails": 384,
+   "directs": 12,
+   "validated": 372,
+   "exact": 32,
+   "val_by_kind": {
+    "B": [
+     32,
+     339
+    ],
+    "X": [
+     0,
+     33
+    ]
+   },
+   "trav": {
+    "total": 191,
+    "tiled": 191,
+    "validated": 33,
+    "exact": 1
+   },
+   "untiled_reasons": {},
+   "val_fail": {
+    "X:no-head": 21,
+    "B:cons-mismatch": 182,
+    "X:no-ctx": 12,
+    "B:no-head": 83,
+    "B:no-ctx": 30,
+    "B:mismatch:kindnext": 12
+   },
+   "untiled_samples": [],
+   "fail_samples": [
+    {
+     "t0": 2000311,
+     "why": "no-head",
+     "kind": "X",
+     "side": "L",
+     "n": 1803,
+     "dt": 4468,
+     "floor": 0,
+     "win": ".##.##.##.#.##.#.#.#.##."
+    },
+    {
+     "t0": 2004779,
+     "why": "cons-mismatch",
+     "kind": "B",
+     "side": "R",
+     "n": 1805,
+     "dt": 4390,
+     "floor": 1047,
+     "win": "..#.#..#.#.#.#.#.#.#.#..#.#."
+    },
+    {
+     "t0": 2009169,
+     "why": "cons-mismatch",
+     "kind": "B",
+     "side": "R",
+     "n": 1807,
+     "dt": 3492,
+     "floor": 848,
+     "win": "#.#.#..#.#.#.#.##.#.#.#.#.#."
+    },
+    {
+     "t0": 2012661,
+     "why": "no-ctx",
+     "kind": "X",
+     "side": "R",
+     "n": 1813,
+     "dt": 6184,
+     "floor": 0,
+     "win": ".#.#.##.#.#.#.#.#.#.#.#."
+    },
+    {
+     "t0": 2018845,
+     "why": "no-ctx",
+     "kind": "X",
+     "side": "L",
+     "n": 1815,
+     "dt": 11138,
+     "floor": 0,
+     "win": ".##.##.##.#..#.##.#.##.#"
+    },
+    {
+     "t0": 2029983,
+     "why": "cons-mismatch",
+     "kind": "B",
+     "side": "R",
+     "n": 1817,
+     "dt": 3492,
+     "floor": 858,
+     "win": "#.#.#..#.#.#.#.##.#.#.#.#.#."
+    },
+    {
+     "t0": 2033475,
+     "why": "cons-mismatch",
+     "kind": "B",
+     "side": "R",
+     "n": 1819,
+     "dt": 4414,
+     "floor": 1057,
+     "win": ".##.#..#.#.#.#.#.#.#.#..#.#."
+    },
+    {
+     "t0": 2037889,
+     "why": "no-head",
+     "kind": "B",
+     "side": "R",
+     "n": 1821,
+     "dt": 3336,
+     "floor": 907,
+     "win": "#.#.##.#.#.#.#.#.#.#.#.#.#.#"
+    }
+   ],
+   "halted": false
+  },
+  {
+   "code": "1RB0RD_1RC1LE_1LD---_1RF0LE_1LD1LE_1RA0RF",
+   "segments": 1090,
+   "tiled": 1090,
+   "arch": 1.0,
+   "by_kind": {
+    "X": [
+     233,
+     233
+    ],
+    "B": [
+     857,
+     857
+    ]
+   },
+   "direct": 6,
+   "shoot_nonlin": 845,
+   "march_breaks": 369,
+   "long_units": 3333,
+   "tot_units": 7843,
+   "conflicts": 2714,
+   "heads": 553,
+   "ctx": 672,
+   "tails": 191,
+   "directs": 6,
+   "validated": 314,
+   "exact": 0,
+   "val_by_kind": {
+    "B": [
+     0,
+     290
+    ],
+    "X": [
+     0,
+     24
+    ]
+   },
+   "trav": {
+    "total": 232,
+    "tiled": 232,
+    "validated": 24,
+    "exact": 0
+   },
+   "untiled_reasons": {},
+   "val_fail": {
+    "B:cons-mismatch": 120,
+    "B:no-head": 154,
+    "B:no-ctx": 16,
+    "X:cons-mismatch": 19,
+    "X:no-head": 5
+   },
+   "untiled_samples": [],
+   "fail_samples": [
+    {
+     "t0": 2003660,
+     "why": "cons-mismatch",
+     "kind": "B",
+     "side": "L",
+     "n": 1980,
+     "dt": 3596,
+     "floor": 944,
+     "win": "#.#.#..#.#.#.#.#.#.#.#.#.#.#"
+    },
+    {
+     "t0": 2007256,
+     "why": "no-head",
+     "kind": "B",
+     "side": "L",
+     "n": 1982,
+     "dt": 4962,
+     "floor": 1067,
+     "win": "#.####.#.#.#.#.#.#.#.#.#.#.#"
+    },
+    {
+     "t0": 2012218,
+     "why": "no-head",
+     "kind": "B",
+     "side": "L",
+     "n": 1984,
+     "dt": 9976,
+     "floor": 303,
+     "win": "..#.#..#.#.#.#.#.#.#.#.#.#.#"
+    },
+    {
+     "t0": 2022194,
+     "why": "no-ctx",
+     "kind": "B",
+     "side": "L",
+     "n": 1986,
+     "dt": 4136,
+     "floor": 1284,
+     "win": "..#.#..#.#.#.#..#.#.#.#.#.#."
+    },
+    {
+     "t0": 2026330,
+     "why": "no-head",
+     "kind": "B",
+     "side": "L",
+     "n": 1988,
+     "dt": 6310,
+     "floor": 423,
+     "win": "#.#.#..#.#.#.#.#.#.#.#.#.#.#"
+    },
+    {
+     "t0": 2032640,
+     "why": "no-head",
+     "kind": "B",
+     "side": "L",
+     "n": 1990,
+     "dt": 10712,
+     "floor": 353,
+     "win": "#.#.#..#.#.#.#.#.#.#.#.#.#.#"
+    },
+    {
+     "t0": 2043352,
+     "why": "no-ctx",
+     "kind": "B",
+     "side": "L",
+     "n": 1992,
+     "dt": 7458,
+     "floor": 222,
+     "win": "#.#.#..#.#.#.#..#.#.#.#.#.#."
+    },
+    {
+     "t0": 2050810,
+     "why": "no-ctx",
+     "kind": "B",
+     "side": "L",
+     "n": 1994,
+     "dt": 4160,
+     "floor": 1288,
+     "win": ".##.#..#.#.#.#..#.#.#.#.#.#."
+    }
+   ],
+   "halted": false
+  },
+  {
+   "code": "1RB1LD_1LC---_1RE0LD_1LC1LD_1RF0RE_1RA0RC",
+   "segments": 1101,
+   "tiled": 1101,
+   "arch": 1.0,
+   "by_kind": {
+    "X": [
+     185,
+     185
+    ],
+    "B": [
+     916,
+     916
+    ]
+   },
+   "direct": 12,
+   "shoot_nonlin": 902,
+   "march_breaks": 361,
+   "long_units": 3343,
+   "tot_units": 6748,
+   "conflicts": 2673,
+   "heads": 535,
+   "ctx": 706,
+   "tails": 195,
+   "directs": 10,
+   "validated": 320,
+   "exact": 0,
+   "val_by_kind": {
+    "X": [
+     0,
+     21
+    ],
+    "B": [
+     0,
+     299
+    ]
+   },
+   "trav": {
+    "total": 184,
+    "tiled": 184,
+    "validated": 20,
+    "exact": 0
+   },
+   "untiled_reasons": {},
+   "val_fail": {
+    "X:cons-mismatch": 16,
+    "B:no-ctx": 90,
+    "B:no-head": 168,
+    "B:cons-mismatch": 41,
+    "X:no-head": 4,
+    "X:no-ctx": 1
+   },
+   "untiled_samples": [],
+   "fail_samples": [
+    {
+     "t0": 2003728,
+     "why": "cons-mismatch",
+     "kind": "X",
+     "side": "R",
+     "n": 2001,
+     "dt": 7180,
+     "floor": 0,
+     "win": ".####.##.#.#.#.##.##.#.#"
+    },
+    {
+     "t0": 2010908,
+     "why": "no-ctx",
+     "kind": "B",
+     "side": "L",
+     "n": 2003,
+     "dt": 4072,
+     "floor": 1309,
+     "win": "..#.#..#.#.#.#..#.#.#.#.#.#."
+    },
+    {
+     "t0": 2014980,
+     "why": "no-head",
+     "kind": "B",
+     "side": "L",
+     "n": 2005,
+     "dt": 5914,
+     "floor": 479,
+     "win": "#.#.#..#.#.#.#.#.#.#.#.#.#.#"
+    },
+    {
+     "t0": 2020894,
+     "why": "cons-mismatch",
+     "kind": "B",
+     "side": "L",
+     "n": 2007,
+     "dt": 8748,
+     "floor": 697,
+     "win": "#.#.#..#.#.#.#.#.#.#.#.#.#.#"
+    },
+    {
+     "t0": 2029642,
+     "why": "no-head",
+     "kind": "B",
+     "side": "L",
+     "n": 2009,
+     "dt": 5328,
+     "floor": 579,
+     "win": "#.#.#..#.#.#.#.#.#.#.#.#.#.#"
+    },
+    {
+     "t0": 2034970,
+     "why": "no-ctx",
+     "kind": "B",
+     "side": "L",
+     "n": 2011,
+     "dt": 4096,
+     "floor": 1313,
+     "win": ".##.#..#.#.#.#..#.#.#.#.#.#."
+    },
+    {
+     "t0": 2039066,
+     "why": "no-head",
+     "kind": "B",
+     "side": "L",
+     "n": 2013,
+     "dt": 3176,
+     "floor": 1115,
+     "win": "#.#.##.#.#.#.#.#.#.#.#.#.#.#"
+    },
+    {
+     "t0": 2042242,
+     "why": "no-head",
+     "kind": "B",
+     "side": "L",
+     "n": 2015,
+     "dt": 4986,
+     "floor": 1100,
+     "win": "#.#.#..#.#.#.#.#.#..#.#.#.#."
+    }
+   ],
+   "halted": false
+  }
+ ],
+ "twin": {
+  "n_trav": [
+   143,
+   131
+  ],
+  "shift": -12,
+  "aligned": 131,
+  "same_burst_run": 129,
+  "dlen_top": [
+   [
+    -52,
+    127
+   ],
+   [
+    -57,
+    3
+   ],
+   [
+    -58,
+    1
+   ]
+  ],
+  "ddt_top": [
+   [
+    -52,
+    34
+   ],
+   [
+    -124,
+    13
+   ],
+   [
+    -228,
+    10
+   ]
+  ],
+  "same_word": 0,
+  "cap_top": [
+   [
+    [
+     "R",
+     2,
+     5
+    ],
+    1
+   ],
+   [
+    [
+     "L",
+     10,
+     3
+    ],
+    1
+   ],
+   [
+    [
+     "R",
+     4,
+     11
+    ],
+    1
+   ],
+   [
+    [
+     "L",
+     4,
+     16
+    ],
+    1
+   ],
+   [
+    [
+     "R",
+     19,
+     11
+    ],
+    1
+   ],
+   [
+    [
+     "L",
+     18,
+     15
+    ],
+    1
+   ]
+  ]
+ }
+}

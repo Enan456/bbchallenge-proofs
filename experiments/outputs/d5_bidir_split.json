@@ -1,0 +1,747 @@
+{
+ "results": [
+  {
+   "code": "1RB1LC_1RC---_1LD1LC_1RE0LC_1RF0RE_1RA0RD",
+   "segments": 1112,
+   "tiled": 1112,
+   "arch": 1.0,
+   "by_kind": {
+    "X": [
+     143,
+     143
+    ],
+    "B": [
+     969,
+     969
+    ]
+   },
+   "direct": 102,
+   "shoot_nonlin": 876,
+   "march_breaks": 318,
+   "long_units": 3969,
+   "tot_units": 6387,
+   "conflicts": 118271,
+   "heads": 33,
+   "ctx": 3086,
+   "tails": 145,
+   "directs": 15,
+   "validated": 324,
+   "exact": 3,
+   "val_by_kind": {
+    "B": [
+     3,
+     318
+    ],
+    "X": [
+     0,
+     6
+    ]
+   },
+   "trav": {
+    "total": 142,
+    "tiled": 142,
+    "validated": 6,
+    "exact": 0
+   },
+   "untiled_reasons": {},
+   "val_fail": {
+    "B:mismatch:word+dt+poff+kindnext": 198,
+    "B:no-ctx": 107,
+    "B:mismatch:word+dt+poff": 3,
+    "X:no-ctx": 6,
+    "B:mismatch:kindnext": 6,
+    "B:no-head": 1
+   },
+   "untiled_samples": [],
+   "fail_samples": [
+    {
+     "t0": 2006214,
+     "why": "mismatch:word+dt+poff+kindnext",
+     "kind": "B",
+     "side": "L",
+     "n": 2220,
+     "dt": 4204,
+     "dt_pred": 87784
+    },
+    {
+     "t0": 2010418,
+     "why": "mismatch:word+dt+poff+kindnext",
+     "kind": "B",
+     "side": "L",
+     "n": 2222,
+     "dt": 4456,
+     "dt_pred": 1641
+    },
+    {
+     "t0": 2014874,
+     "why": "mismatch:word+dt+poff+kindnext",
+     "kind": "B",
+     "side": "L",
+     "n": 2224,
+     "dt": 3392,
+     "dt_pred": 2463
+    },
+    {
+     "t0": 2018266,
+     "why": "no-ctx",
+     "kind": "B",
+     "side": "L",
+     "n": 2226,
+     "dt": 5250,
+     "floor": 1271,
+     "win": "#.#.#..#.#.#.#.#.#.#.#.#.#.#"
+    },
+    {
+     "t0": 2023516,
+     "why": "mismatch:word+dt+poff+kindnext",
+     "kind": "B",
+     "side": "L",
+     "n": 2228,
+     "dt": 6798,
+     "dt_pred": 70775
+    },
+    {
+     "t0": 2030314,
+     "why": "mismatch:word+dt+poff+kindnext",
+     "kind": "B",
+     "side": "L",
+     "n": 2230,
+     "dt": 4480,
+     "dt_pred": 1649
+    },
+    {
+     "t0": 2034794,
+     "why": "mismatch:word+dt+poff+kindnext",
+     "kind": "B",
+     "side": "L",
+     "n": 2232,
+     "dt": 3416,
+     "dt_pred": 2479
+    },
+    {
+     "t0": 2038210,
+     "why": "mismatch:word+dt+poff+kindnext",
+     "kind": "B",
+     "side": "L",
+     "n": 2234,
+     "dt": 12076,
+     "dt_pred": 95567
+    }
+   ],
+   "halted": false
+  },
+  {
+   "code": "1RB0RA_1RC0RF_1RD1LE_1RE---_1LF1LE_1RA0LE",
+   "segments": 1128,
+   "tiled": 1128,
+   "arch": 1.0,
+   "by_kind": {
+    "X": [
+     131,
+     131
+    ],
+    "B": [
+     997,
+     997
+    ]
+   },
+   "direct": 98,
+   "shoot_nonlin": 903,
+   "march_breaks": 327,
+   "long_units": 3482,
+   "tot_units": 6534,
+   "conflicts": 120658,
+   "heads": 31,
+   "ctx": 3092,
+   "tails": 142,
+   "directs": 8,
+   "validated": 321,
+   "exact": 2,
+   "val_by_kind": {
+    "B": [
+     2,
+     317
+    ],
+    "X": [
+     0,
+     4
+    ]
+   },
+   "trav": {
+    "total": 130,
+    "tiled": 130,
+    "validated": 4,
+    "exact": 0
+   },
+   "untiled_reasons": {},
+   "val_fail": {
+    "B:no-ctx": 109,
+    "B:mismatch:word+dt+poff+kindnext": 199,
+    "B:mismatch:word+dt+poff": 2,
+    "X:no-ctx": 4,
+    "B:mismatch:kindnext": 4,
+    "B:no-head": 1
+   },
+   "untiled_samples": [],
+   "fail_samples": [
+    {
+     "t0": 2002650,
+     "why": "no-ctx",
+     "kind": "B",
+     "side": "L",
+     "n": 2253,
+     "dt": 3868,
+     "floor": 1117,
+     "win": "#.#.#..#.#.#.#.#.#.#.#.#.#.#"
+    },
+    {
+     "t0": 2006518,
+     "why": "mismatch:word+dt+poff+kindnext",
+     "kind": "B",
+     "side": "L",
+     "n": 2255,
+     "dt": 5138,
+     "dt_pred": 2385
+    },
+    {
+     "t0": 2011656,
+     "why": "mismatch:word+dt+poff+kindnext",
+     "kind": "B",
+     "side": "L",
+     "n": 2257,
+     "dt": 7116,
+     "dt_pred": 3688
+    },
+    {
+     "t0": 2018772,
+     "why": "mismatch:word+dt+poff+kindnext",
+     "kind": "B",
+     "side": "L",
+     "n": 2259,
+     "dt": 4344,
+     "dt_pred": 1721
+    },
+    {
+     "t0": 2023116,
+     "why": "no-ctx",
+     "kind": "B",
+     "side": "L",
+     "n": 2261,
+     "dt": 4184,
+     "floor": 1119,
+     "win": "#.#.#..#.#.#.#.#.#.#.#.#.#.#"
+    },
+    {
+     "t0": 2027300,
+     "why": "mismatch:word+dt+poff+kindnext",
+     "kind": "B",
+     "side": "L",
+     "n": 2263,
+     "dt": 7512,
+     "dt_pred": 2759
+    },
+    {
+     "t0": 2034812,
+     "why": "mismatch:word+dt+poff+kindnext",
+     "kind": "B",
+     "side": "L",
+     "n": 2265,
+     "dt": 4172,
+     "dt_pred": 2649
+    },
+    {
+     "t0": 2038984,
+     "why": "mismatch:word+dt+poff+kindnext",
+     "kind": "B",
+     "side": "L",
+     "n": 2267,
+     "dt": 4368,
+     "dt_pred": 1729
+    }
+   ],
+   "halted": false
+  },
+  {
+   "code": "1RB1RA_1LC0RA_1LD0LC_0LE0LB_1LF1RF_1LA---",
+   "segments": 1276,
+   "tiled": 1276,
+   "arch": 1.0,
+   "by_kind": {
+    "X": [
+     192,
+     192
+    ],
+    "B": [
+     1084,
+     1084
+    ]
+   },
+   "direct": 234,
+   "shoot_nonlin": 918,
+   "march_breaks": 783,
+   "long_units": 2538,
+   "tot_units": 4480,
+   "conflicts": 70486,
+   "heads": 55,
+   "ctx": 2892,
+   "tails": 383,
+   "directs": 12,
+   "validated": 372,
+   "exact": 32,
+   "val_by_kind": {
+    "B": [
+     32,
+     339
+    ],
+    "X": [
+     0,
+     33
+    ]
+   },
+   "trav": {
+    "total": 191,
+    "tiled": 191,
+    "validated": 33,
+    "exact": 1
+   },
+   "untiled_reasons": {},
+   "val_fail": {
+    "X:no-ctx": 21,
+    "B:mismatch:word+dt+poff": 130,
+    "B:mismatch:word+dt+poff+kindnext": 131,
+    "B:no-ctx": 28,
+    "B:mismatch:kindnext": 12,
+    "B:no-head": 6,
+    "X:no-head": 12
+   },
+   "untiled_samples": [],
+   "fail_samples": [
+    {
+     "t0": 2000311,
+     "why": "no-ctx",
+     "kind": "X",
+     "side": "L",
+     "n": 1803,
+     "dt": 4468,
+     "floor": 0,
+     "win": ".##.##.##.#.##.#.#.#.##."
+    },
+    {
+     "t0": 2004779,
+     "why": "mismatch:word+dt+poff",
+     "kind": "B",
+     "side": "R",
+     "n": 1805,
+     "dt": 4390,
+     "dt_pred": 1652
+    },
+    {
+     "t0": 2009169,
+     "why": "mismatch:word+dt+poff",
+     "kind": "B",
+     "side": "R",
+     "n": 1807,
+     "dt": 3492,
+     "dt_pred": 2061
+    },
+    {
+     "t0": 2012661,
+     "why": "no-ctx",
+     "kind": "X",
+     "side": "R",
+     "n": 1813,
+     "dt": 6184,
+     "floor": 0,
+     "win": ".#.#.##.#.#.#.#.#.#.#.#."
+    },
+    {
+     "t0": 2018845,
+     "why": "no-ctx",
+     "kind": "X",
+     "side": "L",
+     "n": 1815,
+     "dt": 11138,
+     "floor": 0,
+     "win": ".##.##.##.#..#.##.#.##.#"
+    },
+    {
+     "t0": 2029983,
+     "why": "mismatch:word+dt+poff+kindnext",
+     "kind": "B",
+     "side": "R",
+     "n": 1817,
+     "dt": 3492,
+     "dt_pred": 2036
+    },
+    {
+     "t0": 2033475,
+     "why": "mismatch:word+dt+poff",
+     "kind": "B",
+     "side": "R",
+     "n": 1819,
+     "dt": 4414,
+     "dt_pred": 1660
+    },
+    {
+     "t0": 2037889,
+     "why": "mismatch:word+dt+poff+kindnext",
+     "kind": "B",
+     "side": "R",
+     "n": 1821,
+     "dt": 3336,
+     "dt_pred": 3192
+    }
+   ],
+   "halted": false
+  },
+  {
+   "code": "1RB0RD_1RC1LE_1LD---_1RF0LE_1LD1LE_1RA0RF",
+   "segments": 1090,
+   "tiled": 1090,
+   "arch": 1.0,
+   "by_kind": {
+    "X": [
+     233,
+     233
+    ],
+    "B": [
+     857,
+     857
+    ]
+   },
+   "direct": 6,
+   "shoot_nonlin": 845,
+   "march_breaks": 369,
+   "long_units": 3333,
+   "tot_units": 7843,
+   "conflicts": 125975,
+   "heads": 69,
+   "ctx": 5859,
+   "tails": 190,
+   "directs": 6,
+   "validated": 314,
+   "exact": 0,
+   "val_by_kind": {
+    "B": [
+     0,
+     290
+    ],
+    "X": [
+     0,
+     24
+    ]
+   },
+   "trav": {
+    "total": 232,
+    "tiled": 232,
+    "validated": 24,
+    "exact": 0
+   },
+   "untiled_reasons": {},
+   "val_fail": {
+    "B:mismatch:word+dt+poff+kindnext": 233,
+    "B:no-ctx": 40,
+    "B:mismatch:word+dt+poff": 12,
+    "X:no-ctx": 24,
+    "B:no-head": 5
+   },
+   "untiled_samples": [],
+   "fail_samples": [
+    {
+     "t0": 2003660,
+     "why": "mismatch:word+dt+poff+kindnext",
+     "kind": "B",
+     "side": "L",
+     "n": 1980,
+     "dt": 3596,
+     "dt_pred": 2180
+    },
+    {
+     "t0": 2007256,
+     "why": "mismatch:word+dt+poff+kindnext",
+     "kind": "B",
+     "side": "L",
+     "n": 1982,
+     "dt": 4962,
+     "dt_pred": 2091
+    },
+    {
+     "t0": 2012218,
+     "why": "mismatch:word+dt+poff+kindnext",
+     "kind": "B",
+     "side": "L",
+     "n": 1984,
+     "dt": 9976,
+     "dt_pred": 4021
+    },
+    {
+     "t0": 2022194,
+     "why": "mismatch:word+dt+poff+kindnext",
+     "kind": "B",
+     "side": "L",
+     "n": 1986,
+     "dt": 4136,
+     "dt_pred": 1441
+    },
+    {
+     "t0": 2026330,
+     "why": "no-ctx",
+     "kind": "B",
+     "side": "L",
+     "n": 1988,
+     "dt": 6310,
+     "floor": 423,
+     "win": "#.#.#..#.#.#.#.#.#.#.#.#.#.#"
+    },
+    {
+     "t0": 2032640,
+     "why": "mismatch:word+dt+poff+kindnext",
+     "kind": "B",
+     "side": "L",
+     "n": 1990,
+     "dt": 10712,
+     "dt_pred": 3757
+    },
+    {
+     "t0": 2043352,
+     "why": "no-ctx",
+     "kind": "B",
+     "side": "L",
+     "n": 1992,
+     "dt": 7458,
+     "floor": 222,
+     "win": "#.#.#..#.#.#.#..#.#.#.#.#.#."
+    },
+    {
+     "t0": 2050810,
+     "why": "mismatch:word+dt+poff+kindnext",
+     "kind": "B",
+     "side": "L",
+     "n": 1994,
+     "dt": 4160,
+     "dt_pred": 1449
+    }
+   ],
+   "halted": false
+  },
+  {
+   "code": "1RB1LD_1LC---_1RE0LD_1LC1LD_1RF0RE_1RA0RC",
+   "segments": 1101,
+   "tiled": 1101,
+   "arch": 1.0,
+   "by_kind": {
+    "X": [
+     185,
+     185
+    ],
+    "B": [
+     916,
+     916
+    ]
+   },
+   "direct": 12,
+   "shoot_nonlin": 902,
+   "march_breaks": 361,
+   "long_units": 3343,
+   "tot_units": 6748,
+   "conflicts": 114162,
+   "heads": 72,
+   "ctx": 6168,
+   "tails": 193,
+   "directs": 10,
+   "validated": 320,
+   "exact": 0,
+   "val_by_kind": {
+    "X": [
+     0,
+     21
+    ],
+    "B": [
+     0,
+     299
+    ]
+   },
+   "trav": {
+    "total": 184,
+    "tiled": 184,
+    "validated": 20,
+    "exact": 0
+   },
+   "untiled_reasons": {},
+   "val_fail": {
+    "X:no-ctx": 21,
+    "B:mismatch:word+dt+poff+kindnext": 207,
+    "B:no-ctx": 81,
+    "B:mismatch:word+dt+poff": 7,
+    "B:no-head": 4
+   },
+   "untiled_samples": [],
+   "fail_samples": [
+    {
+     "t0": 2003728,
+     "why": "no-ctx",
+     "kind": "X",
+     "side": "R",
+     "n": 2001,
+     "dt": 7180,
+     "floor": 0,
+     "win": ".####.##.#.#.#.##.##.#.#"
+    },
+    {
+     "t0": 2010908,
+     "why": "mismatch:word+dt+poff+kindnext",
+     "kind": "B",
+     "side": "L",
+     "n": 2003,
+     "dt": 4072,
+     "dt_pred": 1513
+    },
+    {
+     "t0": 2014980,
+     "why": "mismatch:word+dt+poff+kindnext",
+     "kind": "B",
+     "side": "L",
+     "n": 2005,
+     "dt": 5914,
+     "dt_pred": 3328
+    },
+    {
+     "t0": 2020894,
+     "why": "mismatch:word+dt+poff+kindnext",
+     "kind": "B",
+     "side": "L",
+     "n": 2007,
+     "dt": 8748,
+     "dt_pred": 3176
+    },
+    {
+     "t0": 2029642,
+     "why": "no-ctx",
+     "kind": "B",
+     "side": "L",
+     "n": 2009,
+     "dt": 5328,
+     "floor": 579,
+     "win": "#.#.#..#.#.#.#.#.#.#.#.#.#.#"
+    },
+    {
+     "t0": 2034970,
+     "why": "mismatch:word+dt+poff+kindnext",
+     "kind": "B",
+     "side": "L",
+     "n": 2011,
+     "dt": 4096,
+     "dt_pred": 1521
+    },
+    {
+     "t0": 2039066,
+     "why": "no-ctx",
+     "kind": "B",
+     "side": "L",
+     "n": 2013,
+     "dt": 3176,
+     "floor": 1115,
+     "win": "#.#.##.#.#.#.#.#.#.#.#.#.#.#"
+    },
+    {
+     "t0": 2042242,
+     "why": "mismatch:word+dt+poff+kindnext",
+     "kind": "B",
+     "side": "L",
+     "n": 2015,
+     "dt": 4986,
+     "dt_pred": 2299
+    }
+   ],
+   "halted": false
+  }
+ ],
+ "twin": {
+  "n_trav": [
+   143,
+   131
+  ],
+  "shift": -12,
+  "aligned": 131,
+  "same_burst_run": 129,
+  "dlen_top": [
+   [
+    -52,
+    127
+   ],
+   [
+    -57,
+    3
+   ],
+   [
+    -58,
+    1
+   ]
+  ],
+  "ddt_top": [
+   [
+    -52,
+    34
+   ],
+   [
+    -124,
+    13
+   ],
+   [
+    -228,
+    10
+   ]
+  ],
+  "same_word": 0,
+  "cap_top": [
+   [
+    [
+     "R",
+     2,
+     5
+    ],
+    1
+   ],
+   [
+    [
+     "L",
+     10,
+     3
+    ],
+    1
+   ],
+   [
+    [
+     "R",
+     4,
+     11
+    ],
+    1
+   ],
+   [
+    [
+     "L",
+     4,
+     16
+    ],
+    1
+   ],
+   [
+    [
+     "R",
+     19,
+     11
+    ],
+    1
+   ],
+   [
+    [
+     "L",
+     18,
+     15
+    ],
+    1
+   ]
+  ]
+ }
+}
