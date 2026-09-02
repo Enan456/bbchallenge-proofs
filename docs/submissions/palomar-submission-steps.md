@@ -9,7 +9,7 @@ step must be done by you (I never enter your credentials).
 
 Per entry, fill:
 - **Repository**: `Enan456/bbchallenge-proofs`
-- **Commit** (full SHA, pinned): `d500444bf7fd99cee6e3644999a86006a63f6899`
+- **Commit** (full SHA, pinned): `453158180bb55ad2e9588483801a64946a0ae734`
 - **Project directory**: `packages/dossier1`
 - **Comparator configuration** (one submission per entry):
   1. `packages/dossier1/comparator-antihydra.json`
