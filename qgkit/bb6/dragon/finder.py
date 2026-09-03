@@ -34,6 +34,8 @@ def _solve_affine(samples):
     mat, piv = [r[:] for r in rows], []
     r0 = 0
     for c in range(cols):
+        if r0 == len(mat):
+            break              # no rows left: no further pivots possible
         pr = next((r for r in range(r0, len(mat)) if mat[r][c] != 0), None)
         if pr is None:
             continue
@@ -47,9 +49,11 @@ def _solve_affine(samples):
     sol = [Fraction(0)] * cols
     for i, c in enumerate(piv):
         sol[c] = mat[i][cols]
-    # verify on ALL samples (fail-closed)
+    # verify on ALL samples (fail-closed); zero coefficients contribute
+    # nothing to the sum and are skipped (identical algebra, sparse cost)
+    nz = [i for i in range(n) if sol[i] != 0]
     for inp, out in samples:
-        val = sum(s * Fraction(x) for s, x in zip(sol[:n], inp)) + sol[n]
+        val = sum(sol[i] * inp[i] for i in nz) + sol[n]
         if val != out:
             return None
     return tuple(sol)
@@ -95,16 +99,17 @@ class OrbitFinder:
                 return None
             rules[key] = {"maps": maps, "cost": cost,
                           "support": len(samples)}
-        # final fail-closed replay of every observed transition
+        # final fail-closed replay of every observed transition (zero
+        # coefficients skipped: identical algebra, sparse cost)
         for bin_, bout, dstep in self.pairs:
             rule = rules[self._key(bin_, bout)]
             n = len(bin_)
             for t, m in enumerate(rule["maps"]):
-                val = sum(c * Fraction(x) for c, x in zip(m[:n], bin_)) + m[n]
+                val = sum(c * x for c, x in zip(m[:n], bin_) if c) + m[n]
                 if val != bout[t]:
                     return None
-            cval = (sum(c * Fraction(x)
-                        for c, x in zip(rule["cost"][:n], bin_))
+            cval = (sum(c * x
+                        for c, x in zip(rule["cost"][:n], bin_) if c)
                     + rule["cost"][n])
             if cval != dstep:
                 return None
