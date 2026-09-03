@@ -80,3 +80,28 @@ and consistent with the July 2x10^8-step checkpoint sequence; the
 mod-9 sub-rule rests on two events. Nothing here is proven; the
 shape family and branch structure are the empirical substrate the
 Lean layer would certify.
+
+
+## The complete timed abstract map (2026-09-02, closure substrate)
+
+Validated fail-closed against 20M raw steps: 2,746 of 2,746 record
+transitions exact, states and step counts both.
+
+- drift: (a, b) -> (a+4, b-3), dt = (32b-41)/3
+- collapse: (a, 1) -> (a+3), dt = 5
+- micro: (m) -> (m+1), dt = 1 (the source of the July n, n+1 pairs)
+- renewal from n = m+1, branched on n mod 3:
+  - n = 1: (4, n-3), dt = (32n-41)/3 (the drift law itself)
+  - n = 2: (2, n-1), dt = (16n+1)/3
+  - n = 0: the recursive divide branch: divide n by 3 while the
+    quotient is 0 mod 9 (d divisions), reach m* = 3 or 6 mod 9;
+    y = (m*-9)/3 or (m*-3)/3 respectively; x = n + 2 + d - y.
+    Verified on all four orbit events to n = 2,976; the in-orbit
+    renewal step counts match synthetic block materializations
+    exactly (15,155 / 36,581 / 498,299), so the realization is
+    faithful. The dt law for this branch is quadratic-scale
+    (about 0.6 n^2) with its exact form pending more events.
+
+Target theorem: SafeCheckpointOrbit -> not RawHalts blankStart,
+with SafeCheckpointOrbit the statement that the timed map above
+never reaches a state outside its guards.
