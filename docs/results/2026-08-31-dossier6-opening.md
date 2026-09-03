@@ -96,10 +96,12 @@ transitions exact, states and step counts both.
   - n = 0: the recursive divide branch: divide n by 3 while the
     quotient is 0 mod 9 (d divisions), reach m* = 3 or 6 mod 9;
     y = (m*-9)/3 or (m*-3)/3 respectively; x = n + 2 + d - y.
-    Verified on all four orbit events to n = 2,976; the in-orbit
-    renewal step counts match synthetic block materializations
-    exactly (15,155 / 36,581 / 498,299), so the realization is
-    faithful. The dt law for this branch is quadratic-scale
+    Verified on all five harvested events to n = 18,648, covering
+    recursion depths d = 0 (three events), d = 1 (n = 18,648:
+    predicted and observed (16,580, 2,071)), and d = 2 (n = 918);
+    the in-orbit renewal step counts match synthetic block
+    materializations exactly (15,155 / 36,581 / 498,299), so the
+    realization is faithful. The dt law for this branch is quadratic-scale
     (about 0.6 n^2) with its exact form pending more events.
 
 Target theorem: SafeCheckpointOrbit -> not RawHalts blankStart,
