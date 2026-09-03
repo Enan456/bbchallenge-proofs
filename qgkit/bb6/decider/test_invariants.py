@@ -42,3 +42,12 @@ bad = AffineSystem(
 assert congruence_search(bad, moduli=[2]) == []
 print("congruence: fatal-entering system correctly rejected (ok)")
 print("ALL PASS")
+
+# 5. fractional branch: congruence search must refuse entirely
+from fractions import Fraction
+frac = AffineSystem(
+    branches=[Branch(matrix=((Fraction(1,3),0),(0,1)),
+                     offset=(0,0), name="f")],
+    dim=2, seed=(6, 7), fatal_residues={2: {(1, 1)}})
+assert congruence_search(frac, moduli=[2, 3, 6]) == []
+print("congruence: fractional system correctly refused (ok)")

@@ -75,6 +75,17 @@ def congruence_search(sys_: AffineSystem, moduli=range(2, 65)):
     non-integral images at some residue in S disqualify the modulus
     (the abstraction cannot follow them)."""
     hits = []
+    # Soundness guard: applying an affine map to a residue
+    # representative is well-defined mod m only when the map's
+    # coefficients are integers (division does not commute with
+    # reduction mod m; x/d mod m depends on x mod d*m, not x mod m).
+    # Reject any modulus outright when a branch carries a fractional
+    # coefficient: conservative, sound.
+    def _fractional(br):
+        return any(Fraction(a).denominator != 1
+                   for row in br.matrix for a in row) or                any(Fraction(b).denominator != 1 for b in br.offset)
+    if any(_fractional(br) for br in sys_.branches):
+        return []
     for m in moduli:
         fatal = sys_.fatal_residues.get(m, set())
         # grow S from the seed by closure; reject if it meets fatal
