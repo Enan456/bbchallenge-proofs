@@ -367,4 +367,755 @@ theorem dprobe_safe_prefix {c d : Config} {M : Nat}
     rw [hsplit, stepN_add, hM] at hn
     exact hpost e ⟨n - M, hn⟩ hD hread
 
+/-!
+## The list foundation — words as `List Bool`
+
+The dossier-5 abstract state is an unboundedly growing word.  Unlike
+the fixed-integer grammars of dossiers 2/3/6, the tape here is pinned
+by a *list* of cells laid out from a base position, with blank tape
+outside.  (`ArrayShape`'s `List Nat` block-length language is the
+grammar of on-orbit words; mid-orbit words carry bounded gap relics,
+so the certified layer works one level down, on the raw cell list —
+exactly the state of the validated trisection calculus.)  `getD`
+with default `false` makes trailing blanks semantically invisible.
+-/
+
+theorem getD_oob :
+    ∀ (l : List Bool) (n : Nat), l.length ≤ n → l.getD n false = false := by
+  intro l
+  induction l with
+  | nil => intro n _; simp
+  | cons a t ih =>
+      intro n h
+      cases n with
+      | zero => simp at h
+      | succ n =>
+          rw [List.getD_cons_succ]
+          exact ih n (by simp at h; omega)
+
+theorem getD_drop :
+    ∀ (n : Nat) (l : List Bool) (j : Nat),
+      (l.drop n).getD j false = l.getD (n + j) false := by
+  intro n
+  induction n with
+  | zero => intro l j; simp
+  | succ n ih =>
+      intro l j
+      cases l with
+      | nil => simp
+      | cons a t =>
+          rw [show (a :: t).drop (n + 1) = t.drop n from rfl,
+              show n + 1 + j = (n + j) + 1 by omega, List.getD_cons_succ]
+          exact ih t j
+
+theorem getD_app_lt :
+    ∀ (l1 l2 : List Bool) (i : Nat), i < l1.length →
+      (l1 ++ l2).getD i false = l1.getD i false := by
+  intro l1
+  induction l1 with
+  | nil => intro l2 i h; simp at h
+  | cons a t ih =>
+      intro l2 i h
+      cases i with
+      | zero => rfl
+      | succ i =>
+          rw [show (a :: t) ++ l2 = a :: (t ++ l2) from rfl,
+              List.getD_cons_succ, List.getD_cons_succ]
+          exact ih l2 i (by simp at h; omega)
+
+theorem getD_app_ge :
+    ∀ (l1 l2 : List Bool) (i : Nat),
+      (l1 ++ l2).getD (l1.length + i) false = l2.getD i false := by
+  intro l1
+  induction l1 with
+  | nil => intro l2 i; simp
+  | cons a t ih =>
+      intro l2 i
+      rw [show (a :: t) ++ l2 = a :: (t ++ l2) from rfl,
+          show (a :: t).length + i = (t.length + i) + 1 by simp; omega,
+          List.getD_cons_succ]
+      exact ih l2 i
+
+theorem getD_app_ge' (l1 l2 : List Bool) (i : Nat) (h : l1.length ≤ i) :
+    (l1 ++ l2).getD i false = l2.getD (i - l1.length) false := by
+  have hg := getD_app_ge l1 l2 (i - l1.length)
+  rw [show l1.length + (i - l1.length) = i by omega] at hg
+  exact hg
+
+theorem getD_rev :
+    ∀ (l : List Bool) (k : Nat), k < l.length →
+      l.reverse.getD k false = l.getD (l.length - 1 - k) false := by
+  intro l
+  induction l with
+  | nil => intro k h; simp at h
+  | cons a t ih =>
+      intro k h
+      rw [List.reverse_cons]
+      by_cases hk : k < t.length
+      · rw [getD_app_lt _ _ _ (by simpa using hk), ih k hk,
+            show (a :: t).length - 1 - k = (t.length - 1 - k) + 1 by
+              simp; omega,
+            List.getD_cons_succ]
+      · have hke : k = t.length := by simp at h; omega
+        subst hke
+        rw [show t.length = t.reverse.length + 0 by simp, getD_app_ge,
+            show (a :: t).length - 1 - (t.reverse.length + 0) = 0 by simp]
+        rfl
+
+theorem getD_take :
+    ∀ (n : Nat) (l : List Bool) (i : Nat), i < n →
+      (l.take n).getD i false = l.getD i false := by
+  intro n
+  induction n with
+  | zero => intro l i h; omega
+  | succ n ih =>
+      intro l i h
+      cases l with
+      | nil => simp
+      | cons a t =>
+          cases i with
+          | zero => rfl
+          | succ i =>
+              rw [show (a :: t).take (n + 1) = a :: t.take n from rfl,
+                  List.getD_cons_succ, List.getD_cons_succ]
+              exact ih t i (by omega)
+
+/-!
+## The pass invariant
+
+Mid-sweep, the machine's whole configuration is pinned by two lists
+and a base position: `em` — the cells *below* the head, nearest
+first (a stack of everything the pass has laid down plus the
+untouched prefix), and `rest` — the cells from the head upward
+(head cell included, `rest.getD 0`).  All four sweep micro-moves are
+local surgery on these two lists.
+-/
+
+/-- The mid-sweep configuration invariant: state `st`, head at
+`base + em.length`, cells below the head read `em` (nearest first,
+blank below `base` — subsumed by `getD`'s default), cells from the
+head upward read `rest`. -/
+def Inv (st : State) (base : Int) (em rest : List Bool) (cfg : Config) : Prop :=
+  cfg.state = st ∧ cfg.head = base + em.length ∧
+  (∀ k : Nat, cfg.tape (base + em.length - 1 - k) = em.getD k false) ∧
+  (∀ j : Nat, cfg.tape (base + em.length + j) = rest.getD j false)
+
+/-- An arrival configuration: state `B` at offset `poff` into the word
+`w` laid out from `base`, blank tape strictly below `base`. -/
+def ArrivalInv (base : Int) (w : List Bool) (poff : Nat) (cfg : Config) : Prop :=
+  cfg.state = State.B ∧ cfg.head = base + poff ∧
+  (∀ x : Int, x < base → cfg.tape x = false) ∧
+  (∀ i : Nat, cfg.tape (base + i) = w.getD i false)
+
+theorem inv_below {st : State} {base : Int} {em rest : List Bool}
+    {cfg : Config} (h : Inv st base em rest cfg) :
+    ∀ x : Int, x < base → cfg.tape x = false := by
+  intro x hx
+  obtain ⟨-, -, hdown, -⟩ := h
+  have hk := hdown (em.length + (base - 1 - x).toNat)
+  rw [show base + (em.length : Int) - 1 -
+        ((em.length + (base - 1 - x).toNat : Nat) : Int) = x by omega] at hk
+  rw [hk]
+  exact getD_oob _ _ (by omega)
+
+/-- `Inv` only sees `rest` through `getD`: representations differing
+by list surgery that preserves every read are interchangeable. -/
+theorem inv_congr_rest {st : State} {base : Int} {em rest1 rest2 : List Bool}
+    {cfg : Config} (hg : ∀ j : Nat, rest1.getD j false = rest2.getD j false)
+    (h : Inv st base em rest1 cfg) : Inv st base em rest2 cfg := by
+  obtain ⟨h1, h2, h3, h4⟩ := h
+  exact ⟨h1, h2, h3, fun j => (h4 j).trans (hg j)⟩
+
+/-- Converting a completed sweep back to an arrival word: the word is
+`em.reverse ++ rest`, the head offset is `em.length`. -/
+theorem inv_to_arrival {base : Int} {em rest : List Bool} {cfg : Config}
+    (h : Inv State.B base em rest cfg) :
+    ArrivalInv base (em.reverse ++ rest) em.length cfg := by
+  obtain ⟨h1, h2, hdown, hup⟩ := h
+  refine ⟨h1, h2, inv_below ⟨h1, h2, hdown, hup⟩, ?_⟩
+  intro i
+  by_cases hi : i < em.length
+  · rw [getD_app_lt _ _ _ (by simpa using hi), getD_rev _ _ (by simpa using hi)]
+    have hk := hdown (em.length - 1 - i)
+    rw [show base + (em.length : Int) - 1 -
+          ((em.length - 1 - i : Nat) : Int) = base + i by omega] at hk
+    rw [hk]
+  · rw [getD_app_ge' _ _ _ (by simp; omega)]
+    have hj := hup (i - em.length)
+    rw [show base + (em.length : Int) + ((i - em.length : Nat) : Int)
+          = base + i by omega] at hj
+    rw [hj, List.length_reverse]
+
+/-- Converting an arrival into the mid-sweep representation: below the
+head the word prefix reversed, above it the suffix (head cell first,
+reading `0`). -/
+theorem arrival_to_inv {base : Int} {w : List Bool} {poff : Nat} {cfg : Config}
+    (h : ArrivalInv base w poff cfg) (hle : poff ≤ w.length)
+    (hread : w.getD poff false = false) :
+    Inv State.B base ((w.take poff).reverse) (false :: w.drop (poff + 1)) cfg := by
+  obtain ⟨h1, h2, hbelow, hat⟩ := h
+  have hlen : ((w.take poff).reverse).length = poff := by
+    simp [List.length_take]; omega
+  refine ⟨h1, by rw [h2, hlen], ?_, ?_⟩
+  · intro k
+    rw [hlen]
+    by_cases hk : k < poff
+    · rw [getD_rev _ _ (by simp [List.length_take]; omega)]
+      rw [show (w.take poff).length - 1 - k = poff - 1 - k by
+            simp [List.length_take]; omega]
+      rw [getD_take _ _ _ (by omega)]
+      have hi := hat (poff - 1 - k)
+      rw [show base + ((poff - 1 - k : Nat) : Int)
+            = base + poff - 1 - k by omega] at hi
+      exact hi
+    · rw [getD_oob _ _ (by rw [hlen]; omega)]
+      exact hbelow _ (by omega)
+  · intro j
+    cases j with
+    | zero =>
+        rw [hlen, List.getD_cons_zero,
+            show base + (poff : Int) + ((0 : Nat) : Int) = base + poff by omega]
+        have hi := hat poff
+        rw [hi, hread]
+    | succ j =>
+        rw [hlen, List.getD_cons_succ, getD_drop]
+        have hi := hat (poff + 1 + j)
+        rw [show base + ((poff + 1 + j : Nat) : Int)
+              = base + (poff : Int) + ((j + 1 : Nat) : Int) by omega] at hi
+        exact hi
+
+/-!
+## One-step evaluator lemmas and term-mode chaining
+
+Never rewrite on a `stepN` goal: chains are glued in term mode from
+single-step evaluator lemmas (the standing proof-engineering
+convention of this repository).
+-/
+
+theorem stepN_zero (c : Config) : stepN 0 c = some c := rfl
+
+theorem stepN_succ_of_step {c d e : Config} {n : Nat}
+    (h1 : step c = some d) (h2 : stepN n d = some e) :
+    stepN (n + 1) c = some e := by
+  rw [show stepN (n + 1) c = (step c).bind (stepN n) from rfl, h1]
+  exact h2
+
+theorem step_A0 {t : Int → Bool} {h : Int} (hr : t h = false) :
+    step ⟨State.A, h, t⟩ = some ⟨State.B, h + 1, writeAt t h true⟩ := by
+  simp [step, instr, hr, move]
+
+theorem step_A1 {t : Int → Bool} {h : Int} (hr : t h = true) :
+    step ⟨State.A, h, t⟩ = some ⟨State.D, h + 1, writeAt t h true⟩ := by
+  simp [step, instr, hr, move]
+
+theorem step_B {t : Int → Bool} {h : Int} {r : Bool} (hr : t h = r) :
+    step ⟨State.B, h, t⟩ = some ⟨State.C, h - 1, writeAt t h (!r)⟩ := by
+  cases r <;> simp [step, instr, hr, move]
+
+theorem step_C0 {t : Int → Bool} {h : Int} (hr : t h = false) :
+    step ⟨State.C, h, t⟩ = some ⟨State.D, h + 1, writeAt t h false⟩ := by
+  simp [step, instr, hr, move]
+
+theorem step_C1 {t : Int → Bool} {h : Int} (hr : t h = true) :
+    step ⟨State.C, h, t⟩ = some ⟨State.B, h - 1, writeAt t h false⟩ := by
+  simp [step, instr, hr, move]
+
+theorem step_D0 {t : Int → Bool} {h : Int} (hr : t h = false) :
+    step ⟨State.D, h, t⟩ = some ⟨State.F, h + 1, writeAt t h true⟩ := by
+  simp [step, instr, hr, move]
+
+theorem step_D1 {t : Int → Bool} {h : Int} (hr : t h = true) :
+    step ⟨State.D, h, t⟩ = some ⟨State.E, h - 1, writeAt t h false⟩ := by
+  simp [step, instr, hr, move]
+
+theorem step_E0 {t : Int → Bool} {h : Int} (hr : t h = false) :
+    step ⟨State.E, h, t⟩ = some ⟨State.D, h + 1, writeAt t h false⟩ := by
+  simp [step, instr, hr, move]
+
+theorem step_F0 {t : Int → Bool} {h : Int} (hr : t h = false) :
+    step ⟨State.F, h, t⟩ = some ⟨State.A, h + 1, writeAt t h false⟩ := by
+  simp [step, instr, hr, move]
+
+theorem step_F1 {t : Int → Bool} {h : Int} (hr : t h = true) :
+    step ⟨State.F, h, t⟩ = some ⟨State.C, h + 1, writeAt t h true⟩ := by
+  simp [step, instr, hr, move]
+
+/-!
+## The sweep micro-episodes (phase 3, fine grain)
+
+Instrumentation of 400k–20M raw steps (`instrument_rank1.py`,
+`wstep_mirror.py`: 1249/1249 segments exact at 20M) shows every sweep
+tiles into exactly five bounded micro-moves plus a parametric descent:
+
+* `dip_step`     — `D` reads `1`: the 2-step `E`-probe dip.  The only
+  place state `E` ever occurs; the guard `em.getD 0 = false` is
+  exactly the D-probe-safety cell.
+* `chunkA_step`  — `D` over `(0,0,1) ↦ (1,0,1)`, 3 steps (`D F A`).
+* `chunkC_step`  — `D` over `(0,1,0) ↦ (1,1,0)`, 3 steps (`D F C`).
+* `aterm_step`   — `D` over `(0,0,0) ↦ (1,0,1)`, 3 steps, ending in a
+  `B` maximum-turn (the next word-level unit boundary or arrival).
+* `c1turn_step`  — `D` over `(0,1,1) ↦ (1,1,0)`, 3 steps, ending in
+  `B` one cell above the start (the `C1`-dance entry).
+* `descend_*` / `descendExec` — the parametric leftward `B/C`
+  alternation: the arrival shoot, every interior 6-step dance prefix,
+  and the mini-arrival floor are all instances.
+
+The classical unit rules of the trisection calculus (B-copy 12,
+B-absorb 8, D-insert 12, D-regroup 8+6k) are proved below as
+compositions of these.
+-/
+
+/-- Push three written cells below the head: the shared tape-algebra
+of `chunkA`/`chunkC`/`aterm` (writes `v0 v1 v2` at `h, h+1, h+2`,
+head to `h+3`). -/
+theorem inv_push3 {st : State} {base : Int} {em rest : List Bool}
+    {t : Int → Bool}
+    (hdown : ∀ k : Nat, t (base + em.length - 1 - k) = em.getD k false)
+    (hup : ∀ j : Nat, t (base + em.length + j) = rest.getD j false)
+    (v0 v1 v2 : Bool) :
+    Inv st base (v2 :: v1 :: v0 :: em) (rest.drop 3)
+      ⟨st, base + em.length + 2 + 1,
+        writeAt (writeAt (writeAt t (base + em.length) v0)
+          (base + em.length + 1) v1) (base + em.length + 2) v2⟩ := by
+  have hh : base + (em.length : Int) + 2 + 1
+      = base + ((v2 :: v1 :: v0 :: em).length : Int) := by
+    simp only [List.length_cons]; omega
+  have hdown' : ∀ k : Nat,
+      (writeAt (writeAt (writeAt t (base + (em.length : Int)) v0)
+        (base + (em.length : Int) + 1) v1) (base + (em.length : Int) + 2) v2)
+        (base + ((v2 :: v1 :: v0 :: em).length : Int) - 1 - (k : Int))
+        = (v2 :: v1 :: v0 :: em).getD k false := by
+    intro k
+    simp only [List.length_cons]
+    by_cases hk : k < 3
+    · have hcase : k = 0 ∨ k = 1 ∨ k = 2 := by omega
+      rcases hcase with rfl | rfl | rfl
+      · rw [show base + ((em.length + 1 + 1 + 1 : Nat) : Int) - 1 - ((0 : Nat) : Int)
+              = base + (em.length : Int) + 2 by omega, writeAt_same]
+        rfl
+      · rw [show base + ((em.length + 1 + 1 + 1 : Nat) : Int) - 1 - ((1 : Nat) : Int)
+              = base + (em.length : Int) + 1 by omega,
+            writeAt_other _ _ _ _ (by omega), writeAt_same]
+        rfl
+      · rw [show base + ((em.length + 1 + 1 + 1 : Nat) : Int) - 1 - ((2 : Nat) : Int)
+              = base + (em.length : Int) by omega,
+            writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_same]
+        rfl
+    · obtain ⟨k', rfl⟩ : ∃ k', k = k' + 3 := ⟨k - 3, by omega⟩
+      rw [show base + ((em.length + 1 + 1 + 1 : Nat) : Int) - 1 - ((k' + 3 : Nat) : Int)
+            = base + (em.length : Int) - 1 - (k' : Int) by omega,
+          writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega),
+          List.getD_cons_succ, List.getD_cons_succ, List.getD_cons_succ]
+      exact hdown k'
+  have hup' : ∀ j : Nat,
+      (writeAt (writeAt (writeAt t (base + (em.length : Int)) v0)
+        (base + (em.length : Int) + 1) v1) (base + (em.length : Int) + 2) v2)
+        (base + ((v2 :: v1 :: v0 :: em).length : Int) + (j : Int))
+        = (rest.drop 3).getD j false := by
+    intro j
+    simp only [List.length_cons]
+    rw [show base + ((em.length + 1 + 1 + 1 : Nat) : Int) + (j : Int)
+          = base + (em.length : Int) + ((3 + j : Nat) : Int) by omega,
+        writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega), hup (3 + j), getD_drop]
+  exact ⟨rfl, hh, hdown', hup'⟩
+
+/-- The `E`-probe dip: `D` reads `1`, dips left through `E`, returns.
+2 steps; the probed cell (`em.getD 0`) must be `0` — this is the
+machine's entire mortality, localized. -/
+theorem dip_step {base : Int} {em rest : List Bool} {cfg : Config}
+    (hInv : Inv State.D base em rest cfg)
+    (hc0 : rest.getD 0 false = true)
+    (hguard : em.getD 0 false = false) :
+    ∃ cfg', stepN 2 cfg = some cfg' ∧
+      Inv State.D base em (false :: rest.drop 1) cfg' ∧ DSafeSeg cfg 2 := by
+  obtain ⟨hst, hhd, hdown, hup⟩ := hInv
+  obtain ⟨st, hd, t⟩ := cfg
+  simp only at hst hhd hdown hup
+  subst hst
+  subst hhd
+  have r0 : t (base + (em.length : Int)) = true := by
+    have h := hup 0
+    rw [show base + (em.length : Int) + ((0 : Nat) : Int)
+          = base + (em.length : Int) by omega] at h
+    rw [h]; exact hc0
+  have rp : t (base + (em.length : Int) - 1) = false := by
+    have h := hdown 0
+    rw [show base + (em.length : Int) - 1 - ((0 : Nat) : Int)
+          = base + (em.length : Int) - 1 by omega] at h
+    rw [h]; exact hguard
+  have s1 := step_D1 r0
+  have rE : (writeAt t (base + (em.length : Int)) false)
+      (base + (em.length : Int) - 1) = false := by
+    rw [writeAt_other _ _ _ _ (by omega)]; exact rp
+  have s2 := step_E0 rE
+  rw [show base + (em.length : Int) - 1 + 1 = base + (em.length : Int) by omega] at s2
+  have hdown' : ∀ k : Nat,
+      (writeAt (writeAt t (base + (em.length : Int)) false)
+        (base + (em.length : Int) - 1) false)
+        (base + (em.length : Int) - 1 - (k : Int)) = em.getD k false := by
+    intro k
+    cases k with
+    | zero =>
+        rw [show base + (em.length : Int) - 1 - ((0 : Nat) : Int)
+              = base + (em.length : Int) - 1 by omega, writeAt_same]
+        exact hguard.symm
+    | succ k =>
+        rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+        exact hdown (k + 1)
+  have hup' : ∀ j : Nat,
+      (writeAt (writeAt t (base + (em.length : Int)) false)
+        (base + (em.length : Int) - 1) false)
+        (base + (em.length : Int) + (j : Int))
+        = (false :: rest.drop 1).getD j false := by
+    intro j
+    cases j with
+    | zero =>
+        rw [show base + (em.length : Int) + ((0 : Nat) : Int)
+              = base + (em.length : Int) by omega,
+            writeAt_other _ _ _ _ (by omega), writeAt_same]
+        rfl
+    | succ j =>
+        rw [List.getD_cons_succ, getD_drop, Nat.add_comm 1 j,
+            writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+        exact hup (j + 1)
+  refine ⟨_, stepN_succ_of_step s1 (stepN_succ_of_step s2 (stepN_zero _)),
+    ⟨rfl, rfl, hdown', hup'⟩, ?_⟩
+  intro k d hk hkd hD hread
+  have hcase : k = 0 ∨ k = 1 := by omega
+  rcases hcase with rfl | rfl
+  · have hdd : (⟨State.D, base + (em.length : Int), t⟩ : Config) = d := by
+      simpa [stepN] using hkd
+    rw [← hdd]
+    exact rp
+  · have hk1 : stepN 1 (⟨State.D, base + (em.length : Int), t⟩ : Config)
+        = some ⟨State.E, base + (em.length : Int) - 1,
+            writeAt t (base + (em.length : Int)) false⟩ :=
+      stepN_succ_of_step s1 (stepN_zero _)
+    rw [hk1] at hkd
+    rw [← Option.some_inj.mp hkd] at hD
+    simp at hD
+
+/-- Rise chunk `dfa`: `D` over `(0,0,1) ↦ (1,0,1)` in 3 steps
+(`D0 F0 A1`), staying in `D`. -/
+theorem chunkA_step {base : Int} {em rest : List Bool} {cfg : Config}
+    (hInv : Inv State.D base em rest cfg)
+    (h0 : rest.getD 0 false = false) (h1 : rest.getD 1 false = false)
+    (h2 : rest.getD 2 false = true) :
+    ∃ cfg', stepN 3 cfg = some cfg' ∧
+      Inv State.D base (true :: false :: true :: em) (rest.drop 3) cfg' ∧
+      DSafeSeg cfg 3 := by
+  obtain ⟨hst, hhd, hdown, hup⟩ := hInv
+  obtain ⟨st, hd, t⟩ := cfg
+  simp only at hst hhd hdown hup
+  subst hst
+  subst hhd
+  have r0 : t (base + (em.length : Int)) = false := by
+    have h := hup 0
+    rw [show base + (em.length : Int) + ((0 : Nat) : Int)
+          = base + (em.length : Int) by omega] at h
+    rw [h]; exact h0
+  have r1 : t (base + (em.length : Int) + 1) = false := by
+    have h := hup 1
+    rw [show base + (em.length : Int) + ((1 : Nat) : Int)
+          = base + (em.length : Int) + 1 by omega] at h
+    rw [h]; exact h1
+  have r2 : t (base + (em.length : Int) + 2) = true := by
+    have h := hup 2
+    rw [show base + (em.length : Int) + ((2 : Nat) : Int)
+          = base + (em.length : Int) + 2 by omega] at h
+    rw [h]; exact h2
+  have s1 := step_D0 r0
+  have w1 : (writeAt t (base + (em.length : Int)) true)
+      (base + (em.length : Int) + 1) = false := by
+    rw [writeAt_other _ _ _ _ (by omega)]; exact r1
+  have s2 := step_F0 w1
+  rw [show base + (em.length : Int) + 1 + 1 = base + (em.length : Int) + 2 by omega] at s2
+  have w2 : (writeAt (writeAt t (base + (em.length : Int)) true)
+      (base + (em.length : Int) + 1) false) (base + (em.length : Int) + 2) = true := by
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+    exact r2
+  have s3 := step_A1 w2
+  refine ⟨_, stepN_succ_of_step s1 (stepN_succ_of_step s2
+      (stepN_succ_of_step s3 (stepN_zero _))),
+    inv_push3 hdown hup true false true, ?_⟩
+  intro k d hk hkd hD hread
+  have hcase : k = 0 ∨ k = 1 ∨ k = 2 := by omega
+  rcases hcase with rfl | rfl | rfl
+  · have hdd : (⟨State.D, base + (em.length : Int), t⟩ : Config) = d := by
+      simpa [stepN] using hkd
+    rw [← hdd] at hread
+    simp only at hread
+    rw [r0] at hread
+    exact absurd hread (by simp)
+  · have hk1 : stepN 1 (⟨State.D, base + (em.length : Int), t⟩ : Config)
+        = some ⟨State.F, base + (em.length : Int) + 1,
+            writeAt t (base + (em.length : Int)) true⟩ :=
+      stepN_succ_of_step s1 (stepN_zero _)
+    rw [hk1] at hkd
+    rw [← Option.some_inj.mp hkd] at hD
+    simp at hD
+  · have hk2 : stepN 2 (⟨State.D, base + (em.length : Int), t⟩ : Config)
+        = some ⟨State.A, base + (em.length : Int) + 2,
+            writeAt (writeAt t (base + (em.length : Int)) true)
+              (base + (em.length : Int) + 1) false⟩ :=
+      stepN_succ_of_step s1 (stepN_succ_of_step s2 (stepN_zero _))
+    rw [hk2] at hkd
+    rw [← Option.some_inj.mp hkd] at hD
+    simp at hD
+
+/-- Rise chunk `dfc`: `D` over `(0,1,0) ↦ (1,1,0)` in 3 steps
+(`D0 F1 C0`), staying in `D`. -/
+theorem chunkC_step {base : Int} {em rest : List Bool} {cfg : Config}
+    (hInv : Inv State.D base em rest cfg)
+    (h0 : rest.getD 0 false = false) (h1 : rest.getD 1 false = true)
+    (h2 : rest.getD 2 false = false) :
+    ∃ cfg', stepN 3 cfg = some cfg' ∧
+      Inv State.D base (false :: true :: true :: em) (rest.drop 3) cfg' ∧
+      DSafeSeg cfg 3 := by
+  obtain ⟨hst, hhd, hdown, hup⟩ := hInv
+  obtain ⟨st, hd, t⟩ := cfg
+  simp only at hst hhd hdown hup
+  subst hst
+  subst hhd
+  have r0 : t (base + (em.length : Int)) = false := by
+    have h := hup 0
+    rw [show base + (em.length : Int) + ((0 : Nat) : Int)
+          = base + (em.length : Int) by omega] at h
+    rw [h]; exact h0
+  have r1 : t (base + (em.length : Int) + 1) = true := by
+    have h := hup 1
+    rw [show base + (em.length : Int) + ((1 : Nat) : Int)
+          = base + (em.length : Int) + 1 by omega] at h
+    rw [h]; exact h1
+  have r2 : t (base + (em.length : Int) + 2) = false := by
+    have h := hup 2
+    rw [show base + (em.length : Int) + ((2 : Nat) : Int)
+          = base + (em.length : Int) + 2 by omega] at h
+    rw [h]; exact h2
+  have s1 := step_D0 r0
+  have w1 : (writeAt t (base + (em.length : Int)) true)
+      (base + (em.length : Int) + 1) = true := by
+    rw [writeAt_other _ _ _ _ (by omega)]; exact r1
+  have s2 := step_F1 w1
+  rw [show base + (em.length : Int) + 1 + 1 = base + (em.length : Int) + 2 by omega] at s2
+  have w2 : (writeAt (writeAt t (base + (em.length : Int)) true)
+      (base + (em.length : Int) + 1) true) (base + (em.length : Int) + 2) = false := by
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+    exact r2
+  have s3 := step_C0 w2
+  refine ⟨_, stepN_succ_of_step s1 (stepN_succ_of_step s2
+      (stepN_succ_of_step s3 (stepN_zero _))),
+    inv_push3 hdown hup true true false, ?_⟩
+  intro k d hk hkd hD hread
+  have hcase : k = 0 ∨ k = 1 ∨ k = 2 := by omega
+  rcases hcase with rfl | rfl | rfl
+  · have hdd : (⟨State.D, base + (em.length : Int), t⟩ : Config) = d := by
+      simpa [stepN] using hkd
+    rw [← hdd] at hread
+    simp only at hread
+    rw [r0] at hread
+    exact absurd hread (by simp)
+  · have hk1 : stepN 1 (⟨State.D, base + (em.length : Int), t⟩ : Config)
+        = some ⟨State.F, base + (em.length : Int) + 1,
+            writeAt t (base + (em.length : Int)) true⟩ :=
+      stepN_succ_of_step s1 (stepN_zero _)
+    rw [hk1] at hkd
+    rw [← Option.some_inj.mp hkd] at hD
+    simp at hD
+  · have hk2 : stepN 2 (⟨State.D, base + (em.length : Int), t⟩ : Config)
+        = some ⟨State.C, base + (em.length : Int) + 2,
+            writeAt (writeAt t (base + (em.length : Int)) true)
+              (base + (em.length : Int) + 1) true⟩ :=
+      stepN_succ_of_step s1 (stepN_succ_of_step s2 (stepN_zero _))
+    rw [hk2] at hkd
+    rw [← Option.some_inj.mp hkd] at hD
+    simp at hD
+
+/-- The arrival terminator: `D` over `(0,0,0) ↦ (1,0,1)` in 3 steps
+(`D0 F0 A0`), ending in a `B` maximum-turn at `+3` — the boundary at
+which the sweep either continues with a bounded dance or stops at the
+next arrival. -/
+theorem aterm_step {base : Int} {em rest : List Bool} {cfg : Config}
+    (hInv : Inv State.D base em rest cfg)
+    (h0 : rest.getD 0 false = false) (h1 : rest.getD 1 false = false)
+    (h2 : rest.getD 2 false = false) :
+    ∃ cfg', stepN 3 cfg = some cfg' ∧
+      Inv State.B base (true :: false :: true :: em) (rest.drop 3) cfg' ∧
+      DSafeSeg cfg 3 := by
+  obtain ⟨hst, hhd, hdown, hup⟩ := hInv
+  obtain ⟨st, hd, t⟩ := cfg
+  simp only at hst hhd hdown hup
+  subst hst
+  subst hhd
+  have r0 : t (base + (em.length : Int)) = false := by
+    have h := hup 0
+    rw [show base + (em.length : Int) + ((0 : Nat) : Int)
+          = base + (em.length : Int) by omega] at h
+    rw [h]; exact h0
+  have r1 : t (base + (em.length : Int) + 1) = false := by
+    have h := hup 1
+    rw [show base + (em.length : Int) + ((1 : Nat) : Int)
+          = base + (em.length : Int) + 1 by omega] at h
+    rw [h]; exact h1
+  have r2 : t (base + (em.length : Int) + 2) = false := by
+    have h := hup 2
+    rw [show base + (em.length : Int) + ((2 : Nat) : Int)
+          = base + (em.length : Int) + 2 by omega] at h
+    rw [h]; exact h2
+  have s1 := step_D0 r0
+  have w1 : (writeAt t (base + (em.length : Int)) true)
+      (base + (em.length : Int) + 1) = false := by
+    rw [writeAt_other _ _ _ _ (by omega)]; exact r1
+  have s2 := step_F0 w1
+  rw [show base + (em.length : Int) + 1 + 1 = base + (em.length : Int) + 2 by omega] at s2
+  have w2 : (writeAt (writeAt t (base + (em.length : Int)) true)
+      (base + (em.length : Int) + 1) false) (base + (em.length : Int) + 2) = false := by
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+    exact r2
+  have s3 := step_A0 w2
+  refine ⟨_, stepN_succ_of_step s1 (stepN_succ_of_step s2
+      (stepN_succ_of_step s3 (stepN_zero _))),
+    inv_push3 hdown hup true false true, ?_⟩
+  intro k d hk hkd hD hread
+  have hcase : k = 0 ∨ k = 1 ∨ k = 2 := by omega
+  rcases hcase with rfl | rfl | rfl
+  · have hdd : (⟨State.D, base + (em.length : Int), t⟩ : Config) = d := by
+      simpa [stepN] using hkd
+    rw [← hdd] at hread
+    simp only at hread
+    rw [r0] at hread
+    exact absurd hread (by simp)
+  · have hk1 : stepN 1 (⟨State.D, base + (em.length : Int), t⟩ : Config)
+        = some ⟨State.F, base + (em.length : Int) + 1,
+            writeAt t (base + (em.length : Int)) true⟩ :=
+      stepN_succ_of_step s1 (stepN_zero _)
+    rw [hk1] at hkd
+    rw [← Option.some_inj.mp hkd] at hD
+    simp at hD
+  · have hk2 : stepN 2 (⟨State.D, base + (em.length : Int), t⟩ : Config)
+        = some ⟨State.A, base + (em.length : Int) + 2,
+            writeAt (writeAt t (base + (em.length : Int)) true)
+              (base + (em.length : Int) + 1) false⟩ :=
+      stepN_succ_of_step s1 (stepN_succ_of_step s2 (stepN_zero _))
+    rw [hk2] at hkd
+    rw [← Option.some_inj.mp hkd] at hD
+    simp at hD
+
+/-- The `C1` turn: `D` over `(0,1,1) ↦ (1,1,0)` in 3 steps
+(`D0 F1 C1`), ending in state `B` one cell *above* the start — the
+entry into the interior `C1`-dance (a shallow descent follows). -/
+theorem c1turn_step {base : Int} {em rest : List Bool} {cfg : Config}
+    (hInv : Inv State.D base em rest cfg)
+    (h0 : rest.getD 0 false = false) (h1 : rest.getD 1 false = true)
+    (h2 : rest.getD 2 false = true) :
+    ∃ cfg', stepN 3 cfg = some cfg' ∧
+      Inv State.B base (true :: em) (true :: false :: rest.drop 3) cfg' ∧
+      DSafeSeg cfg 3 := by
+  obtain ⟨hst, hhd, hdown, hup⟩ := hInv
+  obtain ⟨st, hd, t⟩ := cfg
+  simp only at hst hhd hdown hup
+  subst hst
+  subst hhd
+  have r0 : t (base + (em.length : Int)) = false := by
+    have h := hup 0
+    rw [show base + (em.length : Int) + ((0 : Nat) : Int)
+          = base + (em.length : Int) by omega] at h
+    rw [h]; exact h0
+  have r1 : t (base + (em.length : Int) + 1) = true := by
+    have h := hup 1
+    rw [show base + (em.length : Int) + ((1 : Nat) : Int)
+          = base + (em.length : Int) + 1 by omega] at h
+    rw [h]; exact h1
+  have r2 : t (base + (em.length : Int) + 2) = true := by
+    have h := hup 2
+    rw [show base + (em.length : Int) + ((2 : Nat) : Int)
+          = base + (em.length : Int) + 2 by omega] at h
+    rw [h]; exact h2
+  have s1 := step_D0 r0
+  have w1 : (writeAt t (base + (em.length : Int)) true)
+      (base + (em.length : Int) + 1) = true := by
+    rw [writeAt_other _ _ _ _ (by omega)]; exact r1
+  have s2 := step_F1 w1
+  rw [show base + (em.length : Int) + 1 + 1 = base + (em.length : Int) + 2 by omega] at s2
+  have w2 : (writeAt (writeAt t (base + (em.length : Int)) true)
+      (base + (em.length : Int) + 1) true) (base + (em.length : Int) + 2) = true := by
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+    exact r2
+  have s3 := step_C1 w2
+  rw [show base + (em.length : Int) + 2 - 1 = base + (em.length : Int) + 1 by omega] at s3
+  have hh : base + (em.length : Int) + 1 = base + (((true :: em).length : Nat) : Int) := by
+    simp only [List.length_cons]; omega
+  have hdown' : ∀ k : Nat,
+      (writeAt (writeAt (writeAt t (base + (em.length : Int)) true)
+        (base + (em.length : Int) + 1) true) (base + (em.length : Int) + 2) false)
+        (base + (((true :: em).length : Nat) : Int) - 1 - (k : Int))
+        = (true :: em).getD k false := by
+    intro k
+    simp only [List.length_cons]
+    cases k with
+    | zero =>
+        rw [show base + ((em.length + 1 : Nat) : Int) - 1 - ((0 : Nat) : Int)
+              = base + (em.length : Int) by omega,
+            writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_same]
+        rfl
+    | succ k =>
+        rw [show base + ((em.length + 1 : Nat) : Int) - 1 - ((k + 1 : Nat) : Int)
+              = base + (em.length : Int) - 1 - (k : Int) by omega,
+            writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega), List.getD_cons_succ]
+        exact hdown k
+  have hup' : ∀ j : Nat,
+      (writeAt (writeAt (writeAt t (base + (em.length : Int)) true)
+        (base + (em.length : Int) + 1) true) (base + (em.length : Int) + 2) false)
+        (base + (((true :: em).length : Nat) : Int) + (j : Int))
+        = (true :: false :: rest.drop 3).getD j false := by
+    intro j
+    simp only [List.length_cons]
+    by_cases hj : j < 2
+    · have hcase : j = 0 ∨ j = 1 := by omega
+      rcases hcase with rfl | rfl
+      · rw [show base + ((em.length + 1 : Nat) : Int) + ((0 : Nat) : Int)
+              = base + (em.length : Int) + 1 by omega,
+            writeAt_other _ _ _ _ (by omega), writeAt_same]
+        rfl
+      · rw [show base + ((em.length + 1 : Nat) : Int) + ((1 : Nat) : Int)
+              = base + (em.length : Int) + 2 by omega, writeAt_same]
+        rfl
+    · obtain ⟨j', rfl⟩ : ∃ j', j = j' + 2 := ⟨j - 2, by omega⟩
+      rw [show base + ((em.length + 1 : Nat) : Int) + ((j' + 2 : Nat) : Int)
+            = base + (em.length : Int) + ((3 + j' : Nat) : Int) by omega,
+          writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega), hup (3 + j'),
+          List.getD_cons_succ, List.getD_cons_succ, getD_drop]
+  refine ⟨_, stepN_succ_of_step s1 (stepN_succ_of_step s2
+      (stepN_succ_of_step s3 (stepN_zero _))), ⟨rfl, hh, hdown', hup'⟩, ?_⟩
+  intro k d hk hkd hD hread
+  have hcase : k = 0 ∨ k = 1 ∨ k = 2 := by omega
+  rcases hcase with rfl | rfl | rfl
+  · have hdd : (⟨State.D, base + (em.length : Int), t⟩ : Config) = d := by
+      simpa [stepN] using hkd
+    rw [← hdd] at hread
+    simp only at hread
+    rw [r0] at hread
+    exact absurd hread (by simp)
+  · have hk1 : stepN 1 (⟨State.D, base + (em.length : Int), t⟩ : Config)
+        = some ⟨State.F, base + (em.length : Int) + 1,
+            writeAt t (base + (em.length : Int)) true⟩ :=
+      stepN_succ_of_step s1 (stepN_zero _)
+    rw [hk1] at hkd
+    rw [← Option.some_inj.mp hkd] at hD
+    simp at hD
+  · have hk2 : stepN 2 (⟨State.D, base + (em.length : Int), t⟩ : Config)
+        = some ⟨State.C, base + (em.length : Int) + 2,
+            writeAt (writeAt t (base + (em.length : Int)) true)
+              (base + (em.length : Int) + 1) true⟩ :=
+      stepN_succ_of_step s1 (stepN_succ_of_step s2 (stepN_zero _))
+    rw [hk2] at hkd
+    rw [← Option.some_inj.mp hkd] at hD
+    simp at hD
+
 end QIG.Rank1RawTM
