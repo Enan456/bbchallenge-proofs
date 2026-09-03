@@ -1118,4 +1118,463 @@ theorem c1turn_step {base : Int} {em rest : List Bool} {cfg : Config}
     rw [← Option.some_inj.mp hkd] at hD
     simp at hD
 
+
+/-!
+## The parametric descent (the shoot, the dances, the mini floor)
+
+Leftward travel is a strict `B/C` alternation: `B` flips the cell it
+reads, `C` needs a `1` (writing `0`) to continue and turns right on a
+`0`.  `descendExec` executes it as list surgery on the stack `em`:
+the four constructor cases are the immediate turn, the two
+blank-region terminations below `base` (the *full-arrival* far end,
+extending the left extreme by 1 or 2), and the two-cell recursion.
+Every shoot, every interior 6-step dance prefix, and every
+mini-arrival floor stop is an instance of this one function.
+Cost: exactly one raw step per visited cell, plus the turn. -/
+def descendExec : List Bool → Bool → List Bool → Nat × Nat × List Bool × List Bool
+  | [], r, rest => (2, 1, [false], (!r) :: rest)
+  | [true], r, rest => (4, 2, [false], true :: false :: (!r) :: rest)
+  | false :: em2, r, rest => (2, 0, false :: em2, (!r) :: rest)
+  | true :: b :: em2, r, rest =>
+      ((descendExec em2 b (false :: (!r) :: rest)).1 + 2,
+       (descendExec em2 b (false :: (!r) :: rest)).2)
+
+theorem descend_nil {base : Int} {r : Bool} {rest : List Bool} {cfg : Config}
+    (hInv : Inv State.B base [] (r :: rest) cfg) :
+    ∃ cfg', stepN 2 cfg = some cfg' ∧
+      Inv State.D (base - 1) [false] ((!r) :: rest) cfg' ∧ DSafeSeg cfg 2 := by
+  obtain ⟨hst, hhd, hdown, hup⟩ := hInv
+  obtain ⟨st, hd, t⟩ := cfg
+  simp only at hst hhd hdown hup
+  simp only [List.length_nil] at hhd hdown hup
+  subst hst
+  subst hhd
+  rw [show base + ((0 : Nat) : Int) = base by omega]
+  have r0 : t base = r := by
+    have h := hup 0
+    rw [show base + ((0 : Nat) : Int) + ((0 : Nat) : Int) = base by omega] at h
+    exact h
+  have rd0 : t (base - 1) = false := by
+    have h := hdown 0
+    rw [show base + ((0 : Nat) : Int) - 1 - ((0 : Nat) : Int) = base - 1 by omega] at h
+    exact h
+  have s1 := step_B r0
+  have w1 : (writeAt t base (!r)) (base - 1) = false := by
+    rw [writeAt_other _ _ _ _ (by omega)]; exact rd0
+  have s2 := step_C0 w1
+  rw [show base - 1 + 1 = base by omega] at s2
+  have hh : base = base - 1 + (((false :: ([] : List Bool)).length : Nat) : Int) := by
+    simp only [List.length_cons, List.length_nil]; omega
+  have hdown' : ∀ k : Nat,
+      (writeAt (writeAt t base (!r)) (base - 1) false)
+        (base - 1 + (((false :: ([] : List Bool)).length : Nat) : Int) - 1 - (k : Int))
+        = (false :: ([] : List Bool)).getD k false := by
+    intro k
+    simp only [List.length_cons, List.length_nil]
+    cases k with
+    | zero =>
+        rw [show base - 1 + ((0 + 1 : Nat) : Int) - 1 - ((0 : Nat) : Int)
+              = base - 1 by omega, writeAt_same]
+        rfl
+    | succ k =>
+        rw [show base - 1 + ((0 + 1 : Nat) : Int) - 1 - ((k + 1 : Nat) : Int)
+              = base + ((0 : Nat) : Int) - 1 - ((k + 1 : Nat) : Int) by omega,
+            writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+        exact hdown (k + 1)
+  have hup' : ∀ j : Nat,
+      (writeAt (writeAt t base (!r)) (base - 1) false)
+        (base - 1 + (((false :: ([] : List Bool)).length : Nat) : Int) + (j : Int))
+        = ((!r) :: rest).getD j false := by
+    intro j
+    simp only [List.length_cons, List.length_nil]
+    cases j with
+    | zero =>
+        rw [show base - 1 + ((0 + 1 : Nat) : Int) + ((0 : Nat) : Int) = base by omega,
+            writeAt_other _ _ _ _ (by omega), writeAt_same]
+        rfl
+    | succ j =>
+        rw [show base - 1 + ((0 + 1 : Nat) : Int) + ((j + 1 : Nat) : Int)
+              = base + ((0 : Nat) : Int) + ((j + 1 : Nat) : Int) by omega,
+            writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+        exact hup (j + 1)
+  refine ⟨_, stepN_succ_of_step s1 (stepN_succ_of_step s2 (stepN_zero _)),
+    ⟨rfl, hh, hdown', hup'⟩, ?_⟩
+  intro k d hk hkd hD hread
+  have hcase : k = 0 ∨ k = 1 := by omega
+  rcases hcase with rfl | rfl
+  · have hdd : (⟨State.B, base, t⟩ : Config) = d := by
+      simpa [stepN] using hkd
+    rw [← hdd] at hD
+    simp at hD
+  · have hk1 : stepN 1 (⟨State.B, base, t⟩ : Config)
+        = some ⟨State.C, base - 1, writeAt t base (!r)⟩ :=
+      stepN_succ_of_step s1 (stepN_zero _)
+    rw [hk1] at hkd
+    rw [← Option.some_inj.mp hkd] at hD
+    simp at hD
+
+theorem descend_single {base : Int} {r : Bool} {rest : List Bool} {cfg : Config}
+    (hInv : Inv State.B base [true] (r :: rest) cfg) :
+    ∃ cfg', stepN 4 cfg = some cfg' ∧
+      Inv State.D (base - 2) [false] (true :: false :: (!r) :: rest) cfg' ∧
+      DSafeSeg cfg 4 := by
+  obtain ⟨hst, hhd, hdown, hup⟩ := hInv
+  obtain ⟨st, hd, t⟩ := cfg
+  simp only at hst hhd hdown hup
+  simp only [List.length_cons, List.length_nil] at hhd hdown hup
+  subst hst
+  subst hhd
+  rw [show base + ((0 + 1 : Nat) : Int) = base + 1 by omega]
+  have r0 : t (base + 1) = r := by
+    have h := hup 0
+    rw [show base + ((0 + 1 : Nat) : Int) + ((0 : Nat) : Int) = base + 1 by omega] at h
+    exact h
+  have rd0 : t base = true := by
+    have h := hdown 0
+    rw [show base + ((0 + 1 : Nat) : Int) - 1 - ((0 : Nat) : Int) = base by omega] at h
+    exact h
+  have rd1 : t (base - 1) = false := by
+    have h := hdown 1
+    rw [show base + ((0 + 1 : Nat) : Int) - 1 - ((1 : Nat) : Int) = base - 1 by omega] at h
+    exact h
+  have rd2 : t (base - 2) = false := by
+    have h := hdown 2
+    rw [show base + ((0 + 1 : Nat) : Int) - 1 - ((2 : Nat) : Int) = base - 2 by omega] at h
+    exact h
+  have s1 := step_B r0
+  rw [show base + 1 - 1 = base by omega] at s1
+  have w1 : (writeAt t (base + 1) (!r)) base = true := by
+    rw [writeAt_other _ _ _ _ (by omega)]; exact rd0
+  have s2 := step_C1 w1
+  have w2 : (writeAt (writeAt t (base + 1) (!r)) base false) (base - 1) = false := by
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+    exact rd1
+  have s3 := step_B w2
+  simp only [Bool.not_false] at s3
+  rw [show base - 1 - 1 = base - 2 by omega] at s3
+  have w3 : (writeAt (writeAt (writeAt t (base + 1) (!r)) base false) (base - 1) true)
+      (base - 2) = false := by
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega)]
+    exact rd2
+  have s4 := step_C0 w3
+  rw [show base - 2 + 1 = base - 1 by omega] at s4
+  have hh : base - 1 = base - 2 + (((false :: ([] : List Bool)).length : Nat) : Int) := by
+    simp only [List.length_cons, List.length_nil]; omega
+  have hdown' : ∀ k : Nat,
+      (writeAt (writeAt (writeAt (writeAt t (base + 1) (!r)) base false)
+        (base - 1) true) (base - 2) false)
+        (base - 2 + (((false :: ([] : List Bool)).length : Nat) : Int) - 1 - (k : Int))
+        = (false :: ([] : List Bool)).getD k false := by
+    intro k
+    simp only [List.length_cons, List.length_nil]
+    cases k with
+    | zero =>
+        rw [show base - 2 + ((0 + 1 : Nat) : Int) - 1 - ((0 : Nat) : Int)
+              = base - 2 by omega, writeAt_same]
+        rfl
+    | succ k =>
+        rw [show base - 2 + ((0 + 1 : Nat) : Int) - 1 - ((k + 1 : Nat) : Int)
+              = base + ((0 + 1 : Nat) : Int) - 1 - ((k + 3 : Nat) : Int) by omega,
+            writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+        exact hdown (k + 3)
+  have hup' : ∀ j : Nat,
+      (writeAt (writeAt (writeAt (writeAt t (base + 1) (!r)) base false)
+        (base - 1) true) (base - 2) false)
+        (base - 2 + (((false :: ([] : List Bool)).length : Nat) : Int) + (j : Int))
+        = (true :: false :: (!r) :: rest).getD j false := by
+    intro j
+    simp only [List.length_cons, List.length_nil]
+    by_cases hj : j < 3
+    · have hcase : j = 0 ∨ j = 1 ∨ j = 2 := by omega
+      rcases hcase with rfl | rfl | rfl
+      · rw [show base - 2 + ((0 + 1 : Nat) : Int) + ((0 : Nat) : Int)
+              = base - 1 by omega,
+            writeAt_other _ _ _ _ (by omega), writeAt_same]
+        rfl
+      · rw [show base - 2 + ((0 + 1 : Nat) : Int) + ((1 : Nat) : Int)
+              = base by omega,
+            writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_same]
+        rfl
+      · rw [show base - 2 + ((0 + 1 : Nat) : Int) + ((2 : Nat) : Int)
+              = base + 1 by omega,
+            writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+            writeAt_other _ _ _ _ (by omega), writeAt_same]
+        rfl
+    · obtain ⟨j', rfl⟩ : ∃ j', j = j' + 3 := ⟨j - 3, by omega⟩
+      rw [show base - 2 + ((0 + 1 : Nat) : Int) + ((j' + 3 : Nat) : Int)
+            = base + ((0 + 1 : Nat) : Int) + ((j' + 1 : Nat) : Int) by omega,
+          writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+      exact hup (j' + 1)
+  refine ⟨_, stepN_succ_of_step s1 (stepN_succ_of_step s2 (stepN_succ_of_step s3
+      (stepN_succ_of_step s4 (stepN_zero _)))),
+    ⟨rfl, hh, hdown', hup'⟩, ?_⟩
+  intro k d hk hkd hD hread
+  have hcase : k = 0 ∨ k = 1 ∨ k = 2 ∨ k = 3 := by omega
+  rcases hcase with rfl | rfl | rfl | rfl
+  · have hdd : (⟨State.B, base + 1, t⟩ : Config) = d := by
+      simpa [stepN] using hkd
+    rw [← hdd] at hD
+    simp at hD
+  · have hk1 : stepN 1 (⟨State.B, base + 1, t⟩ : Config)
+        = some ⟨State.C, base, writeAt t (base + 1) (!r)⟩ :=
+      stepN_succ_of_step s1 (stepN_zero _)
+    rw [hk1] at hkd
+    rw [← Option.some_inj.mp hkd] at hD
+    simp at hD
+  · have hk2 : stepN 2 (⟨State.B, base + 1, t⟩ : Config)
+        = some ⟨State.B, base - 1, writeAt (writeAt t (base + 1) (!r)) base false⟩ :=
+      stepN_succ_of_step s1 (stepN_succ_of_step s2 (stepN_zero _))
+    rw [hk2] at hkd
+    rw [← Option.some_inj.mp hkd] at hD
+    simp at hD
+  · have hk3 : stepN 3 (⟨State.B, base + 1, t⟩ : Config)
+        = some ⟨State.C, base - 2,
+            writeAt (writeAt (writeAt t (base + 1) (!r)) base false) (base - 1) true⟩ :=
+      stepN_succ_of_step s1 (stepN_succ_of_step s2 (stepN_succ_of_step s3 (stepN_zero _)))
+    rw [hk3] at hkd
+    rw [← Option.some_inj.mp hkd] at hD
+    simp at hD
+
+theorem descend_stop {base : Int} {em2 : List Bool} {r : Bool} {rest : List Bool}
+    {cfg : Config}
+    (hInv : Inv State.B base (false :: em2) (r :: rest) cfg) :
+    ∃ cfg', stepN 2 cfg = some cfg' ∧
+      Inv State.D base (false :: em2) ((!r) :: rest) cfg' ∧ DSafeSeg cfg 2 := by
+  obtain ⟨hst, hhd, hdown, hup⟩ := hInv
+  obtain ⟨st, hd, t⟩ := cfg
+  simp only at hst hhd hdown hup
+  simp only [List.length_cons] at hhd hdown hup
+  subst hst
+  subst hhd
+  have r0 : t (base + ((em2.length + 1 : Nat) : Int)) = r := by
+    have h := hup 0
+    rw [show base + ((em2.length + 1 : Nat) : Int) + ((0 : Nat) : Int)
+          = base + ((em2.length + 1 : Nat) : Int) by omega] at h
+    exact h
+  have rd0 : t (base + ((em2.length + 1 : Nat) : Int) - 1) = false := by
+    have h := hdown 0
+    rw [show base + ((em2.length + 1 : Nat) : Int) - 1 - ((0 : Nat) : Int)
+          = base + ((em2.length + 1 : Nat) : Int) - 1 by omega] at h
+    exact h
+  have s1 := step_B r0
+  have w1 : (writeAt t (base + ((em2.length + 1 : Nat) : Int)) (!r))
+      (base + ((em2.length + 1 : Nat) : Int) - 1) = false := by
+    rw [writeAt_other _ _ _ _ (by omega)]; exact rd0
+  have s2 := step_C0 w1
+  rw [show base + ((em2.length + 1 : Nat) : Int) - 1 + 1
+        = base + ((em2.length + 1 : Nat) : Int) by omega] at s2
+  have hdown' : ∀ k : Nat,
+      (writeAt (writeAt t (base + ((em2.length + 1 : Nat) : Int)) (!r))
+        (base + ((em2.length + 1 : Nat) : Int) - 1) false)
+        (base + (((false :: em2).length : Nat) : Int) - 1 - (k : Int))
+        = (false :: em2).getD k false := by
+    intro k
+    simp only [List.length_cons]
+    cases k with
+    | zero =>
+        rw [show base + ((em2.length + 1 : Nat) : Int) - 1 - ((0 : Nat) : Int)
+              = base + ((em2.length + 1 : Nat) : Int) - 1 by omega, writeAt_same]
+        rfl
+    | succ k =>
+        rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+        exact hdown (k + 1)
+  have hup' : ∀ j : Nat,
+      (writeAt (writeAt t (base + ((em2.length + 1 : Nat) : Int)) (!r))
+        (base + ((em2.length + 1 : Nat) : Int) - 1) false)
+        (base + (((false :: em2).length : Nat) : Int) + (j : Int))
+        = ((!r) :: rest).getD j false := by
+    intro j
+    simp only [List.length_cons]
+    cases j with
+    | zero =>
+        rw [show base + ((em2.length + 1 : Nat) : Int) + ((0 : Nat) : Int)
+              = base + ((em2.length + 1 : Nat) : Int) by omega,
+            writeAt_other _ _ _ _ (by omega), writeAt_same]
+        rfl
+    | succ j =>
+        rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+        exact hup (j + 1)
+  refine ⟨_, stepN_succ_of_step s1 (stepN_succ_of_step s2 (stepN_zero _)),
+    ⟨rfl, by simp only [List.length_cons], hdown', hup'⟩, ?_⟩
+  intro k d hk hkd hD hread
+  have hcase : k = 0 ∨ k = 1 := by omega
+  rcases hcase with rfl | rfl
+  · have hdd : (⟨State.B, base + ((em2.length + 1 : Nat) : Int), t⟩ : Config) = d := by
+      simpa [stepN] using hkd
+    rw [← hdd] at hD
+    simp at hD
+  · have hk1 : stepN 1 (⟨State.B, base + ((em2.length + 1 : Nat) : Int), t⟩ : Config)
+        = some ⟨State.C, base + ((em2.length + 1 : Nat) : Int) - 1,
+            writeAt t (base + ((em2.length + 1 : Nat) : Int)) (!r)⟩ :=
+      stepN_succ_of_step s1 (stepN_zero _)
+    rw [hk1] at hkd
+    rw [← Option.some_inj.mp hkd] at hD
+    simp at hD
+
+theorem descend_pair {base : Int} {b : Bool} {em2 : List Bool} {r : Bool}
+    {rest : List Bool} {cfg : Config}
+    (hInv : Inv State.B base (true :: b :: em2) (r :: rest) cfg) :
+    ∃ cfg', stepN 2 cfg = some cfg' ∧
+      Inv State.B base em2 (b :: false :: (!r) :: rest) cfg' ∧ DSafeSeg cfg 2 := by
+  obtain ⟨hst, hhd, hdown, hup⟩ := hInv
+  obtain ⟨st, hd, t⟩ := cfg
+  simp only at hst hhd hdown hup
+  simp only [List.length_cons] at hhd hdown hup
+  subst hst
+  subst hhd
+  have r0 : t (base + ((em2.length + 1 + 1 : Nat) : Int)) = r := by
+    have h := hup 0
+    rw [show base + ((em2.length + 1 + 1 : Nat) : Int) + ((0 : Nat) : Int)
+          = base + ((em2.length + 1 + 1 : Nat) : Int) by omega] at h
+    exact h
+  have rd0 : t (base + ((em2.length + 1 + 1 : Nat) : Int) - 1) = true := by
+    have h := hdown 0
+    rw [show base + ((em2.length + 1 + 1 : Nat) : Int) - 1 - ((0 : Nat) : Int)
+          = base + ((em2.length + 1 + 1 : Nat) : Int) - 1 by omega] at h
+    exact h
+  have s1 := step_B r0
+  have w1 : (writeAt t (base + ((em2.length + 1 + 1 : Nat) : Int)) (!r))
+      (base + ((em2.length + 1 + 1 : Nat) : Int) - 1) = true := by
+    rw [writeAt_other _ _ _ _ (by omega)]; exact rd0
+  have s2 := step_C1 w1
+  rw [show base + ((em2.length + 1 + 1 : Nat) : Int) - 1 - 1
+        = base + ((em2.length : Nat) : Int) by omega] at s2
+  have hdown' : ∀ k : Nat,
+      (writeAt (writeAt t (base + ((em2.length + 1 + 1 : Nat) : Int)) (!r))
+        (base + ((em2.length + 1 + 1 : Nat) : Int) - 1) false)
+        (base + ((em2.length : Nat) : Int) - 1 - (k : Int))
+        = em2.getD k false := by
+    intro k
+    have hdk := hdown (k + 2)
+    rw [show base + ((em2.length + 1 + 1 : Nat) : Int) - 1 - ((k + 2 : Nat) : Int)
+          = base + ((em2.length : Nat) : Int) - 1 - (k : Int) by omega] at hdk
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+    exact hdk
+  have hup' : ∀ j : Nat,
+      (writeAt (writeAt t (base + ((em2.length + 1 + 1 : Nat) : Int)) (!r))
+        (base + ((em2.length + 1 + 1 : Nat) : Int) - 1) false)
+        (base + ((em2.length : Nat) : Int) + (j : Int))
+        = (b :: false :: (!r) :: rest).getD j false := by
+    intro j
+    by_cases hj : j < 3
+    · have hcase : j = 0 ∨ j = 1 ∨ j = 2 := by omega
+      rcases hcase with rfl | rfl | rfl
+      · have hd1 := hdown 1
+        rw [show base + ((em2.length + 1 + 1 : Nat) : Int) - 1 - ((1 : Nat) : Int)
+              = base + ((em2.length : Nat) : Int) by omega] at hd1
+        rw [show base + ((em2.length : Nat) : Int) + ((0 : Nat) : Int)
+              = base + ((em2.length : Nat) : Int) by omega,
+            writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+        exact hd1
+      · rw [show base + ((em2.length : Nat) : Int) + ((1 : Nat) : Int)
+              = base + ((em2.length + 1 + 1 : Nat) : Int) - 1 by omega,
+            writeAt_same]
+        rfl
+      · rw [show base + ((em2.length : Nat) : Int) + ((2 : Nat) : Int)
+              = base + ((em2.length + 1 + 1 : Nat) : Int) by omega,
+            writeAt_other _ _ _ _ (by omega), writeAt_same]
+        rfl
+    · obtain ⟨j', rfl⟩ : ∃ j', j = j' + 3 := ⟨j - 3, by omega⟩
+      rw [show base + ((em2.length : Nat) : Int) + ((j' + 3 : Nat) : Int)
+            = base + ((em2.length + 1 + 1 : Nat) : Int) + ((j' + 1 : Nat) : Int) by omega,
+          writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+      exact hup (j' + 1)
+  refine ⟨_, stepN_succ_of_step s1 (stepN_succ_of_step s2 (stepN_zero _)),
+    ⟨rfl, rfl, hdown', hup'⟩, ?_⟩
+  intro k d hk hkd hD hread
+  have hcase : k = 0 ∨ k = 1 := by omega
+  rcases hcase with rfl | rfl
+  · have hdd : (⟨State.B, base + ((em2.length + 1 + 1 : Nat) : Int), t⟩ : Config) = d := by
+      simpa [stepN] using hkd
+    rw [← hdd] at hD
+    simp at hD
+  · have hk1 : stepN 1 (⟨State.B, base + ((em2.length + 1 + 1 : Nat) : Int), t⟩ : Config)
+        = some ⟨State.C, base + ((em2.length + 1 + 1 : Nat) : Int) - 1,
+            writeAt t (base + ((em2.length + 1 + 1 : Nat) : Int)) (!r)⟩ :=
+      stepN_succ_of_step s1 (stepN_zero _)
+    rw [hk1] at hkd
+    rw [← Option.some_inj.mp hkd] at hD
+    simp at hD
+
+/-- Faithfulness of the executed descent, by strong induction on the
+stack.  The raw machine runs exactly `(descendExec em r rest).1` steps
+from any realization and lands in state `D` on the returned
+configuration, with the base shifted by the returned extreme
+extension; no `D`-probe occurs anywhere in a descent. -/
+theorem descendExec_faithful :
+    ∀ (n : Nat) (em : List Bool), em.length ≤ n →
+      ∀ (r : Bool) (rest : List Bool) (base : Int) (cfg : Config),
+        Inv State.B base em (r :: rest) cfg →
+        ∃ cfg', stepN (descendExec em r rest).1 cfg = some cfg' ∧
+          Inv State.D (base - (((descendExec em r rest).2.1 : Nat) : Int))
+            (descendExec em r rest).2.2.1 (descendExec em r rest).2.2.2 cfg' ∧
+          DSafeSeg cfg (descendExec em r rest).1 := by
+  intro n
+  induction n with
+  | zero =>
+      intro em hlen r rest base cfg hInv
+      cases em with
+      | nil =>
+          obtain ⟨cfg', h1, h2, h3⟩ := descend_nil hInv
+          simp only [descendExec]
+          rw [show base - ((1 : Nat) : Int) = base - 1 by omega]
+          exact ⟨cfg', h1, h2, h3⟩
+      | cons c em2 => simp at hlen
+  | succ n ih =>
+      intro em hlen r rest base cfg hInv
+      rcases em with _ | ⟨c, em2⟩
+      · obtain ⟨cfg', h1, h2, h3⟩ := descend_nil hInv
+        simp only [descendExec]
+        rw [show base - ((1 : Nat) : Int) = base - 1 by omega]
+        exact ⟨cfg', h1, h2, h3⟩
+      · cases c
+        · obtain ⟨cfg', h1, h2, h3⟩ := descend_stop hInv
+          simp only [descendExec]
+          rw [show base - ((0 : Nat) : Int) = base by omega]
+          exact ⟨cfg', h1, h2, h3⟩
+        · rcases em2 with _ | ⟨b, em3⟩
+          · obtain ⟨cfg', h1, h2, h3⟩ := descend_single hInv
+            simp only [descendExec]
+            rw [show base - ((2 : Nat) : Int) = base - 2 by omega]
+            exact ⟨cfg', h1, h2, h3⟩
+          · obtain ⟨cfg₂, h1, h2, h3⟩ := descend_pair hInv
+            obtain ⟨cfg', h1', h2', h3'⟩ :=
+              ih em3 (by simp at hlen; omega) b (false :: (!r) :: rest) base cfg₂ h2
+            simp only [descendExec]
+            refine ⟨cfg', ?_, h2', ?_⟩
+            · rw [show (descendExec em3 b (false :: (!r) :: rest)).1 + 2
+                    = 2 + (descendExec em3 b (false :: (!r) :: rest)).1 by omega,
+                  stepN_add, h1]
+              exact h1'
+            · rw [show (descendExec em3 b (false :: (!r) :: rest)).1 + 2
+                    = 2 + (descendExec em3 b (false :: (!r) :: rest)).1 by omega]
+              exact dsafe_compose h1 h3 h3'
+
+/-- The descent, packaged: every `B`-turn's leftward excursion runs
+faithfully. -/
+theorem descend_run {em : List Bool} {r : Bool} {rest : List Bool} {base : Int}
+    {cfg : Config} (hInv : Inv State.B base em (r :: rest) cfg) :
+    ∃ cfg', stepN (descendExec em r rest).1 cfg = some cfg' ∧
+      Inv State.D (base - (((descendExec em r rest).2.1 : Nat) : Int))
+        (descendExec em r rest).2.2.1 (descendExec em r rest).2.2.2 cfg' ∧
+      DSafeSeg cfg (descendExec em r rest).1 :=
+  descendExec_faithful em.length em (Nat.le_refl _) r rest base cfg hInv
+
+theorem descendExec_steps_pos :
+    ∀ (em : List Bool) (r : Bool) (rest : List Bool),
+      0 < (descendExec em r rest).1 := by
+  intro em r rest
+  rcases em with _ | ⟨c, em2⟩
+  · simp [descendExec]
+  · cases c
+    · simp [descendExec]
+    · rcases em2 with _ | ⟨b, em3⟩
+      · simp [descendExec]
+      · simp only [descendExec]
+        omega
+
 end QIG.Rank1RawTM
