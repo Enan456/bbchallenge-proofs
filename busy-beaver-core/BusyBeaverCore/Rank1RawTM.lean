@@ -1577,4 +1577,182 @@ theorem descendExec_steps_pos :
       · simp only [descendExec]
         omega
 
+
+/-!
+## The classical unit rules (phase 3, word grain)
+
+The interior transducer rules of the validated trisection calculus,
+with their exact frozen costs, as compositions of the micro-episodes.
+`bcopy_step` is simultaneously the B-copy *and* the B-cursor unit —
+instrumentation shows the two share one 12-step cell-level
+choreography (they differ only in word-level bookkeeping).  The
+`em`-stack prefix `[1,0,1,1,0]` is the interior flux invariant
+(`'.##.#'` read outward), re-established by every unit.
+-/
+
+/-- B-copy / B-cursor: the 12-step interior dance
+(descent 6 + `dfa` 3 + terminator 3), advancing the maximum-turn two
+cells and re-establishing the flux. -/
+theorem bcopy_step {base : Int} {em5 rest : List Bool} {cfg : Config}
+    (hInv : Inv State.B base
+      (true :: false :: true :: true :: false :: em5)
+      (true :: false :: rest) cfg) :
+    ∃ cfg', stepN 12 cfg = some cfg' ∧
+      Inv State.B base
+        (true :: false :: true :: true :: false :: true :: false :: em5)
+        rest cfg' ∧
+      DSafeSeg cfg 12 := by
+  obtain ⟨cfgd, hd1, hd2, hd3⟩ := descend_run hInv
+  simp only [descendExec, Bool.not_true, Bool.not_false] at hd1 hd2 hd3
+  rw [show base - ((0 : Nat) : Int) = base by omega] at hd2
+  obtain ⟨cfga, ha1, ha2, ha3⟩ := chunkA_step hd2 rfl rfl rfl
+  simp only [List.drop_succ_cons, List.drop_zero] at ha2
+  obtain ⟨cfgb, hb1, hb2, hb3⟩ := aterm_step ha2 rfl rfl rfl
+  simp only [List.drop_succ_cons, List.drop_zero] at hb2
+  rw [show (2 : Nat) + 2 + 2 = 6 by omega] at hd1 hd3
+  refine ⟨cfgb, ?_, hb2, ?_⟩
+  · rw [show (12 : Nat) = 6 + (3 + 3) by omega, stepN_add, hd1,
+        show Option.bind (some cfgd) (stepN (3 + 3)) = stepN (3 + 3) cfgd from rfl,
+        stepN_add, ha1]
+    exact hb1
+  · rw [show (12 : Nat) = 6 + (3 + 3) by omega]
+    exact dsafe_compose hd1 hd3 (dsafe_compose ha1 ha3 hb3)
+
+/-- B-absorb: the 8-step interior unit (dip 2 + `dfa` 3 +
+terminator 3).  The word-level rule `'#.###.' → '#.'`. -/
+theorem babsorb_step {base : Int} {em rest : List Bool} {cfg : Config}
+    (hguard : em.getD 0 false = false)
+    (hInv : Inv State.D base em
+      (true :: false :: true :: false :: false :: false :: rest) cfg) :
+    ∃ cfg', stepN 8 cfg = some cfg' ∧
+      Inv State.B base
+        (true :: false :: true :: true :: false :: true :: em) rest cfg' ∧
+      DSafeSeg cfg 8 := by
+  obtain ⟨cfgp, hp1, hp2, hp3⟩ := dip_step hInv rfl hguard
+  simp only [List.drop_succ_cons, List.drop_zero] at hp2
+  obtain ⟨cfga, ha1, ha2, ha3⟩ := chunkA_step hp2 rfl rfl rfl
+  simp only [List.drop_succ_cons, List.drop_zero] at ha2
+  obtain ⟨cfgb, hb1, hb2, hb3⟩ := aterm_step ha2 rfl rfl rfl
+  simp only [List.drop_succ_cons, List.drop_zero] at hb2
+  refine ⟨cfgb, ?_, hb2, ?_⟩
+  · rw [show (8 : Nat) = 2 + (3 + 3) by omega, stepN_add, hp1,
+        show Option.bind (some cfgp) (stepN (3 + 3)) = stepN (3 + 3) cfgp from rfl,
+        stepN_add, ha1]
+    exact hb1
+  · rw [show (8 : Nat) = 2 + (3 + 3) by omega]
+    exact dsafe_compose hp1 hp3 (dsafe_compose ha1 ha3 hb3)
+
+/-- D-insert: the 12-step interior unit (descent 6 + `dfa` 3 +
+`dfc` 3).  The word-level rule `'#.' → '#.###.'`. -/
+theorem dinsert_step {base : Int} {em5 rest : List Bool} {cfg : Config}
+    (hInv : Inv State.B base
+      (true :: false :: true :: true :: false :: em5)
+      (false :: false :: rest) cfg) :
+    ∃ cfg', stepN 12 cfg = some cfg' ∧
+      Inv State.D base
+        (false :: true :: true :: true :: false :: true :: false :: em5)
+        rest cfg' ∧
+      DSafeSeg cfg 12 := by
+  obtain ⟨cfgd, hd1, hd2, hd3⟩ := descend_run hInv
+  simp only [descendExec, Bool.not_true, Bool.not_false] at hd1 hd2 hd3
+  rw [show base - ((0 : Nat) : Int) = base by omega] at hd2
+  obtain ⟨cfga, ha1, ha2, ha3⟩ := chunkA_step hd2 rfl rfl rfl
+  simp only [List.drop_succ_cons, List.drop_zero] at ha2
+  obtain ⟨cfgc, hc1, hc2, hc3⟩ := chunkC_step ha2 rfl rfl rfl
+  simp only [List.drop_succ_cons, List.drop_zero] at hc2
+  rw [show (2 : Nat) + 2 + 2 = 6 by omega] at hd1 hd3
+  refine ⟨cfgc, ?_, hc2, ?_⟩
+  · rw [show (12 : Nat) = 6 + (3 + 3) by omega, stepN_add, hd1,
+        show Option.bind (some cfgd) (stepN (3 + 3)) = stepN (3 + 3) cfgd from rfl,
+        stepN_add, ha1]
+    exact hc1
+  · rw [show (12 : Nat) = 6 + (3 + 3) by omega]
+    exact dsafe_compose hd1 hd3 (dsafe_compose ha1 ha3 hc3)
+
+/-- The regroup wave input pattern: `k` repetitions of the six cells
+`'.#...#'` (a `dfc`+`dfa` pair). -/
+def waves : Nat → List Bool
+  | 0 => []
+  | k + 1 => false :: true :: false :: false :: false :: true :: waves k
+
+/-- The regroup wave output (as `em`-stack cells, nearest first):
+`k` repetitions of the push `[1,0,1,0,1,1]`. -/
+def wavesOut : Nat → List Bool
+  | 0 => []
+  | k + 1 => true :: false :: true :: false :: true :: true :: wavesOut k
+
+theorem wavesOut_shift : ∀ (k : Nat) (em : List Bool),
+    wavesOut k ++ (true :: false :: true :: false :: true :: true :: em)
+      = true :: false :: true :: false :: true :: true :: (wavesOut k ++ em) := by
+  intro k
+  induction k with
+  | zero => intro em; rfl
+  | succ k ih => intro em; simp only [wavesOut, List.cons_append, ih]
+
+/-- The parametric wave train: `k` `dfc`+`dfa` pairs and the closing
+`dfc`, in `6k + 3` steps. -/
+theorem rise_waves : ∀ (k : Nat) {base : Int} {em rest : List Bool} {cfg : Config},
+    Inv State.D base em (waves k ++ (false :: true :: false :: rest)) cfg →
+    ∃ cfg', stepN (6 * k + 3) cfg = some cfg' ∧
+      Inv State.D base (false :: true :: true :: wavesOut k ++ em) rest cfg' ∧
+      DSafeSeg cfg (6 * k + 3) := by
+  intro k
+  induction k with
+  | zero =>
+      intro base em rest cfg hInv
+      rw [show waves 0 ++ (false :: true :: false :: rest)
+            = false :: true :: false :: rest from rfl] at hInv
+      obtain ⟨cfg', h1, h2, h3⟩ := chunkC_step hInv rfl rfl rfl
+      simp only [List.drop_succ_cons, List.drop_zero] at h2
+      exact ⟨cfg', h1, h2, h3⟩
+  | succ k ih =>
+      intro base em rest cfg hInv
+      rw [show waves (k + 1) ++ (false :: true :: false :: rest)
+            = false :: true :: false :: false :: false :: true ::
+              (waves k ++ (false :: true :: false :: rest)) from by
+            simp only [waves, List.cons_append]] at hInv
+      obtain ⟨cfgc, hc1, hc2, hc3⟩ := chunkC_step hInv rfl rfl rfl
+      simp only [List.drop_succ_cons, List.drop_zero] at hc2
+      obtain ⟨cfga, ha1, ha2, ha3⟩ := chunkA_step hc2 rfl rfl rfl
+      simp only [List.drop_succ_cons, List.drop_zero] at ha2
+      obtain ⟨cfg', h1, h2, h3⟩ := ih ha2
+      simp only [List.cons_append] at h2
+      rw [wavesOut_shift] at h2
+      refine ⟨cfg', ?_, ?_, ?_⟩
+      · rw [show 6 * (k + 1) + 3 = 3 + (3 + (6 * k + 3)) by omega, stepN_add, hc1,
+            show Option.bind (some cfgc) (stepN (3 + (6 * k + 3)))
+              = stepN (3 + (6 * k + 3)) cfgc from rfl,
+            stepN_add, ha1]
+        exact h1
+      · simp only [wavesOut, List.cons_append]
+        exact h2
+      · rw [show 6 * (k + 1) + 3 = 3 + (3 + (6 * k + 3)) by omega]
+        exact dsafe_compose hc1 hc3 (dsafe_compose ha1 ha3 h3)
+
+/-- D-regroup, the parametric family: the word-level rule
+`'#.#.(###.#.)^k#.' → '(#.###.)^{k+1}'` at its exact frozen cost
+`8 + 6k` (dip 2 + `dfa` 3 + wave train `6k+3`). -/
+theorem dregroup_step (k : Nat) {base : Int} {em rest : List Bool} {cfg : Config}
+    (hguard : em.getD 0 false = false)
+    (hInv : Inv State.D base em
+      (true :: false :: true :: (waves k ++ (false :: true :: false :: rest))) cfg) :
+    ∃ cfg', stepN (8 + 6 * k) cfg = some cfg' ∧
+      Inv State.D base
+        (false :: true :: true :: wavesOut k ++ (true :: false :: true :: em))
+        rest cfg' ∧
+      DSafeSeg cfg (8 + 6 * k) := by
+  obtain ⟨cfgp, hp1, hp2, hp3⟩ := dip_step hInv rfl hguard
+  simp only [List.drop_succ_cons, List.drop_zero] at hp2
+  obtain ⟨cfga, ha1, ha2, ha3⟩ := chunkA_step hp2 rfl rfl rfl
+  simp only [List.drop_succ_cons, List.drop_zero] at ha2
+  obtain ⟨cfg', h1, h2, h3⟩ := rise_waves k ha2
+  refine ⟨cfg', ?_, h2, ?_⟩
+  · rw [show 8 + 6 * k = 2 + (3 + (6 * k + 3)) by omega, stepN_add, hp1,
+        show Option.bind (some cfgp) (stepN (3 + (6 * k + 3)))
+          = stepN (3 + (6 * k + 3)) cfgp from rfl,
+        stepN_add, ha1]
+    exact h1
+  · rw [show 8 + 6 * k = 2 + (3 + (6 * k + 3)) by omega]
+    exact dsafe_compose hp1 hp3 (dsafe_compose ha1 ha3 h3)
+
 end QIG.Rank1RawTM
