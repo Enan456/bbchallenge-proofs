@@ -1321,4 +1321,540 @@ theorem renew2_step {cfg : Config} {L : Int} (n : Nat)
       simpa [stepN] using hjd
     rw [← hdd]; simp
 
+/-!
+## The concrete startup anchor
+
+Six raw steps take the blank tape to the first checkpoint: `1^3` with
+the head on the fresh right frontier in state `A` — the abstract state
+`oneA 3`, the seed of the checkpoint orbit.  The prefix is certified
+safe by the executable checker.
+-/
+
+/-- Executable probe-safety check for one configuration. -/
+def safeCfg (c : Config) : Bool :=
+  match c.state with
+  | State.E => c.tape c.head || c.tape (c.head + 1)
+  | _ => true
+
+def checkSafe : Nat → Config → Bool
+  | 0, _ => true
+  | k + 1, c =>
+      safeCfg c &&
+        (match step c with
+         | none => true
+         | some c' => checkSafe k c')
+
+theorem safeCfg_spec {c : Config} (hE : c.state = State.E)
+    (h : safeCfg c = true) (hr : c.tape c.head = false) :
+    c.tape (c.head + 1) = true := by
+  obtain ⟨s, hd, t⟩ := c
+  simp only at hE hr ⊢
+  subst hE
+  simp only [safeCfg] at h
+  simp [hr] at h
+  exact h
+
+theorem esafe_of_checkSafe :
+    ∀ (N : Nat) (c : Config), checkSafe N c = true → ESafeSeg c N := by
+  intro N
+  induction N with
+  | zero =>
+      intro c _ k d hk _ _ _
+      exact absurd hk (by omega)
+  | succ N ih =>
+      intro c h k d hk hkd hE hread
+      rw [show checkSafe (N + 1) c
+            = (safeCfg c &&
+                (match step c with
+                 | none => true
+                 | some c' => checkSafe N c')) from rfl] at h
+      have h1 : safeCfg c = true := by
+        cases hsc : safeCfg c
+        · rw [hsc] at h; simp at h
+        · rfl
+      have h2 : (match step c with
+                 | none => true
+                 | some c' => checkSafe N c') = true := by
+        rw [h1] at h; simpa using h
+      cases k with
+      | zero =>
+          have hdd : c = d := by simpa [stepN] using hkd
+          subst hdd
+          exact safeCfg_spec hE h1 hread
+      | succ j =>
+          cases hstep : step c with
+          | none =>
+              rw [show stepN (j + 1) c = (step c).bind (stepN j) from rfl,
+                  hstep] at hkd
+              simp at hkd
+          | some c1 =>
+              rw [hstep] at h2
+              rw [show stepN (j + 1) c = (step c).bind (stepN j) from rfl,
+                  hstep] at hkd
+              exact ih c1 h2 j d (by omega) hkd hE hread
+
+/-- The concrete 6-step startup tape, in execution order:
+`A0 B0 B1 C0 D0 E1` from the blank tape. -/
+def startTape : Int → Bool :=
+  writeAt (writeAt (writeAt (writeAt (writeAt (writeAt blankTape
+    0 true) 1 true) 0 false) (-1 : Int) true) 0 true) 1 true
+
+theorem startup_run :
+    stepN 6 blankStart = some ⟨State.A, 2, startTape⟩ := by
+  rfl
+
+theorem startup_safe : ESafeSeg blankStart 6 := by
+  apply esafe_of_checkSafe
+  rfl
+
+theorem startTape_blank_left : ∀ x : Int, x < -1 → startTape x = false := by
+  intro x hx
+  unfold startTape
+  rw [writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+      writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+      writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega)]
+  rfl
+
+theorem startTape_blank_right : ∀ x : Int, 2 ≤ x → startTape x = false := by
+  intro x hx
+  unfold startTape
+  rw [writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+      writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega),
+      writeAt_other _ _ x _ (by omega), writeAt_other _ _ x _ (by omega)]
+  rfl
+
+/-!
+## The abstract checkpoint orbit
+
+The checkpoint state space has three shapes: two-block records
+`1^a 0 1^b` (head at the right frontier, state `B`), post-collapse
+one-block checkpoints `1^m` (state `A`), and post-micro one-block
+checkpoints `1^n` (state `B`).  The timed abstract map of 2026-09-02:
+
+* `twoBlock a 1 → oneA (a+3)` (collapse, 5 steps);
+* `twoBlock a b → twoBlock (a+4) (b-3)` for `b ≡ 1 (mod 3)`, `b ≥ 4`
+  (drift, `(32b-41)/3` steps);
+* `oneA m → oneB (m+1)` (micro, 1 step);
+* `oneB n → twoBlock 4 (n-3)` for `n ≡ 1 (mod 3)`, `n ≥ 4` (the drift
+  law replayed with an empty left block);
+* `oneB n → twoBlock 2 (n-1)` for `n ≡ 2 (mod 3)` (`(16n+1)/3` steps);
+* `oneB n → divideStep n` for `n ≡ 0 (mod 3)`: the recursive divide
+  branch — divide by 3 while the quotient stays `0 (mod 9)` (`d`
+  divisions) reaching `m* ≡ 3` or `6 (mod 9)`; then `y = (m*-9)/3` or
+  `(m*-3)/3` respectively and `x = n + 2 + d - y`.
+
+Every branch except the divide has a proven episode theorem; the divide
+branch (quadratic-time, recursive; validated on all four raw orbit
+events to `n = 2,976`) enters the conjecture through `DivideFaithful`
+below.  All other guard failures (`none`) mark exactly the value
+patterns whose absence from the orbit is the Dvisetu checkpoint
+conjecture.
+-/
+
+inductive CState where
+  | twoBlock (a b : Nat)
+  | oneA (m : Nat)
+  | oneB (n : Nat)
+deriving Repr, DecidableEq
+
+/-- Iterated division for the divide renewal: divide by 3 while the
+value is `0 (mod 9)`, returning the terminal value and the division
+count.  Fuel-driven; called with fuel `n ≥ n`'s division depth. -/
+def divCount : Nat → Nat → Nat × Nat
+  | 0, m => (m, 0)
+  | fuel + 1, m =>
+      if m % 9 = 0 then
+        let p := divCount fuel (m / 3)
+        (p.1, p.2 + 1)
+      else (m, 0)
+
+/-- The divide renewal branch: `n ≡ 0 (mod 3)` splits into
+`(n + 2 + d - y, y)` with `y` read off the terminal value of the
+division cascade.  Guarded fail-closed. -/
+def divideStep (n : Nat) : Option CState :=
+  let m := (divCount n n).1
+  let d := (divCount n n).2
+  let y := if m % 9 = 3 then (m - 9) / 3 else (m - 3) / 3
+  if 1 ≤ y ∧ y + 1 ≤ n + 2 + d then
+    some (CState.twoBlock (n + 2 + d - y) y)
+  else none
+
+/-- The abstract checkpoint transition.  `none` marks exactly the value
+patterns whose absence from the orbit is the checkpoint conjecture. -/
+def cstep : CState → Option CState
+  | CState.twoBlock a b =>
+      if b = 1 then some (CState.oneA (a + 3))
+      else if b % 3 = 1 then some (CState.twoBlock (a + 4) (b - 3))
+      else none
+  | CState.oneA m => some (CState.oneB (m + 1))
+  | CState.oneB n =>
+      if n % 3 = 1 then
+        if 4 ≤ n then some (CState.twoBlock 4 (n - 3)) else none
+      else if n % 3 = 2 then some (CState.twoBlock 2 (n - 1))
+      else divideStep n
+
+/-- The checkpoint orbit from the startup anchor `oneA 3` (the tape
+`1^3` reached six raw steps from blank). -/
+def corbit : Nat → Option CState
+  | 0 => some (CState.oneA 3)
+  | k + 1 => match corbit k with
+      | none => none
+      | some s => cstep s
+
+/-- A configuration realizing an abstract checkpoint state: the tape
+grammar pinning every cell from at most two integers and an anchor.
+Two-block records anchor at the gap `g`; one-block checkpoints at the
+left end `L`.  The head always sits on the fresh right frontier. -/
+def Realizes : CState → Config → Prop
+  | CState.twoBlock a b, cfg =>
+      1 ≤ a ∧ 1 ≤ b ∧ cfg.state = State.B ∧
+      ∃ g : Int,
+        (∀ x : Int, x < g - a → cfg.tape x = false) ∧
+        (∀ i : Nat, i < a → cfg.tape (g - a + i) = true) ∧
+        cfg.tape g = false ∧
+        (∀ i : Nat, i < b → cfg.tape (g + 1 + i) = true) ∧
+        (∀ x : Int, g + b + 1 ≤ x → cfg.tape x = false) ∧
+        cfg.head = g + b + 1
+  | CState.oneA m, cfg =>
+      1 ≤ m ∧ cfg.state = State.A ∧
+      ∃ L : Int,
+        (∀ x : Int, x < L → cfg.tape x = false) ∧
+        (∀ i : Nat, i < m → cfg.tape (L + i) = true) ∧
+        (∀ x : Int, L + m ≤ x → cfg.tape x = false) ∧
+        cfg.head = L + m
+  | CState.oneB n, cfg =>
+      1 ≤ n ∧ cfg.state = State.B ∧
+      ∃ L : Int,
+        (∀ x : Int, x < L → cfg.tape x = false) ∧
+        (∀ i : Nat, i < n → cfg.tape (L + i) = true) ∧
+        (∀ x : Int, L + n ≤ x → cfg.tape x = false) ∧
+        cfg.head = L + n
+
+/-- The divide-episode assumption: whenever a one-block checkpoint
+`1^n` with `n ≡ 0 (mod 3)` is realized on the tape and the abstract
+divide branch produces an output, the raw machine reaches a
+configuration realizing that output through a probe-safe segment.
+
+This is the one episode of the timed abstract map without a proof in
+this file: the divide renewal is quadratic-time with a recursive
+sub-structure (its `dt` law is still empirical).  It is validated
+fail-closed on every raw divide event observed (four events, to
+`n = 2,976`, including a depth-2 cascade), and enters the final theorem
+only through `SafeCheckpointOrbit`. -/
+def DivideFaithful : Prop :=
+  ∀ (n : Nat) (s : CState) (cfg : Config), n % 3 = 0 →
+    divideStep n = some s → Realizes (CState.oneB n) cfg →
+    ∃ (N : Nat) (cfg' : Config), 0 < N ∧ stepN N cfg = some cfg' ∧
+      Realizes s cfg' ∧ ESafeSeg cfg N
+
+/-- **The Dvisetu checkpoint conjecture**, in the exact form the machine
+needs: (i) the abstract checkpoint orbit never dies — no renewal at
+`n = 1`, no divide with an undersized terminal value, no two-block
+record off the `b ≡ 1 (mod 3)` lattice — and (ii) the divide renewals
+realize their abstract outputs on the tape (`DivideFaithful`).
+
+Component (i) is a statement about a sequence of integer states with no
+tape, no head, no machine.  Component (ii) is the assumed episode for
+the one branch whose choreography is not yet certified.  Everything
+else in this file converts the machine's fate into exactly this
+sentence. -/
+def SafeCheckpointOrbit : Prop :=
+  (∀ k : Nat, corbit k ≠ none) ∧ DivideFaithful
+
+theorem realizes_start : Realizes (CState.oneA 3) ⟨State.A, 2, startTape⟩ := by
+  refine ⟨by omega, rfl, -1, ?_, ?_, ?_,
+    by show (2 : Int) = -1 + ((3 : Nat) : Int); omega⟩
+  · intro x hx
+    exact startTape_blank_left x hx
+  · intro i hi
+    have hcase : i = 0 ∨ i = 1 ∨ i = 2 := by omega
+    rcases hcase with rfl | rfl | rfl
+    · rw [show (-1 : Int) + ((0 : Nat) : Int) = -1 by omega]
+      rfl
+    · rw [show (-1 : Int) + ((1 : Nat) : Int) = 0 by omega]
+      rfl
+    · rw [show (-1 : Int) + ((2 : Nat) : Int) = 1 by omega]
+      rfl
+  · intro x hx
+    refine startTape_blank_right x (by omega)
+
+/-- The raw-side orbit invariant: the configuration realizes some live
+state of the checkpoint orbit. -/
+def OrbitInv (cfg : Config) : Prop :=
+  ∃ (k : Nat) (s : CState), corbit k = some s ∧ Realizes s cfg
+
+theorem orbitInv_start : OrbitInv ⟨State.A, 2, startTape⟩ :=
+  ⟨0, CState.oneA 3, rfl, realizes_start⟩
+
+theorem corbit_succ {k : Nat} {s : CState} (horb : corbit k = some s) :
+    corbit (k + 1) = cstep s := by
+  rw [show corbit (k + 1) = (match corbit k with
+      | none => none
+      | some s => cstep s) from rfl, horb]
+
+/-!
+## Transport — the abstract map, played on the tape
+
+Each proven episode theorem is lifted through the `Realizes` grammar:
+given a configuration realizing an abstract state whose guard holds, the
+episode runs and the grammar conjuncts are re-established for the
+successor state — cell-by-cell bookkeeping, no new ideas.
+-/
+
+/-- Transport for drift: `twoBlock a b → twoBlock (a+4) (b-3)` for
+`b ≡ 1 (mod 3)`, `b ≥ 4`. -/
+theorem transport_drift {cfg : Config} {a b : Nat}
+    (hb3 : b % 3 = 1) (hb4 : 4 ≤ b)
+    (h : Realizes (CState.twoBlock a b) cfg) :
+    ∃ (N : Nat) (cfg' : Config), 0 < N ∧ stepN N cfg = some cfg' ∧
+      Realizes (CState.twoBlock (a + 4) (b - 3)) cfg' ∧ ESafeSeg cfg N := by
+  obtain ⟨ha, hb, hsB, g, hbl, haones, hgap, hbones, hbr, hhead⟩ := h
+  obtain ⟨n, rfl⟩ : ∃ n : Nat, b = 3 * n + 1 := ⟨(b - 1) / 3, by omega⟩
+  obtain ⟨hrun, hsafe⟩ := drift_step (cfg := cfg) (g := g) n (by omega) hsB
+    (by rw [hhead]; omega)
+    hgap
+    (fun i hi => hbones i (by omega))
+    (by have := hbr (g + 3 * n + 2) (by omega); exact this)
+  refine ⟨32 * n - 3, _, by omega, hrun, ?_, hsafe⟩
+  refine ⟨by omega, by omega, rfl, g + 4, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  · intro x hx
+    show (writeAt (writeAt (writeAt cfg.tape (g + 3 * n + 2) true) g true) (g + 4) false) x = false
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega)]
+    exact hbl x (by omega)
+  · intro i hi
+    show (writeAt (writeAt (writeAt cfg.tape (g + 3 * n + 2) true) g true) (g + 4) false) (g + 4 - ((a + 4 : Nat) : Int) + (i : Int)) = true
+    have hcase : i < a ∨ i = a ∨ i = a + 1 ∨ i = a + 2 ∨ i = a + 3 := by omega
+    rcases hcase with hia | rfl | rfl | rfl | rfl
+    · rw [show g + 4 - ((a + 4 : Nat) : Int) + (i : Int)
+            = g - (a : Nat) + (i : Int) by omega]
+      rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega)]
+      exact haones i hia
+    · rw [show g + 4 - ((i + 4 : Nat) : Int) + (i : Int) = g by omega]
+      rw [writeAt_other _ _ _ _ (by omega)]
+      exact writeAt_same _ _ _
+    · rw [show g + 4 - ((a + 4 : Nat) : Int) + ((a + 1 : Nat) : Int) = g + 1 by omega]
+      rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega)]
+      have := hbones 0 (by omega)
+      rwa [show g + 1 + ((0 : Nat) : Int) = g + 1 by omega] at this
+    · rw [show g + 4 - ((a + 4 : Nat) : Int) + ((a + 2 : Nat) : Int) = g + 2 by omega]
+      rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega)]
+      have := hbones 1 (by omega)
+      rwa [show g + 1 + ((1 : Nat) : Int) = g + 2 by omega] at this
+    · rw [show g + 4 - ((a + 4 : Nat) : Int) + ((a + 3 : Nat) : Int) = g + 3 by omega]
+      rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega)]
+      have := hbones 2 (by omega)
+      rwa [show g + 1 + ((2 : Nat) : Int) = g + 3 by omega] at this
+  · show (writeAt (writeAt (writeAt cfg.tape (g + 3 * n + 2) true) g true) (g + 4) false) (g + 4) = false
+    exact writeAt_same _ _ _
+  · intro i hi
+    show (writeAt (writeAt (writeAt cfg.tape (g + 3 * n + 2) true) g true) (g + 4) false) (g + 4 + 1 + i) = true
+    by_cases hif : g + 4 + 1 + (i : Int) = g + 3 * (n : Int) + 2
+    · rw [hif]
+      rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+      exact writeAt_same _ _ _
+    · rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ hif]
+      have := hbones (i + 4) (by omega)
+      rwa [show g + 1 + ((i + 4 : Nat) : Int) = g + 4 + 1 + i by omega] at this
+  · intro x hx
+    show (writeAt (writeAt (writeAt cfg.tape (g + 3 * n + 2) true) g true) (g + 4) false) x = false
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega)]
+    exact hbr x (by omega)
+  · show g + 3 * (n : Int) + 3 = g + 4 + ((3 * n + 1 - 3 : Nat) : Int) + 1
+    omega
+
+/-- Transport for collapse: `twoBlock a 1 → oneA (a+3)`. -/
+theorem transport_collapse {cfg : Config} {a : Nat}
+    (h : Realizes (CState.twoBlock a 1) cfg) :
+    ∃ (N : Nat) (cfg' : Config), 0 < N ∧ stepN N cfg = some cfg' ∧
+      Realizes (CState.oneA (a + 3)) cfg' ∧ ESafeSeg cfg N := by
+  obtain ⟨ha, _hb, hsB, g, hbl, haones, hgap, hbones, hbr, hhead⟩ := h
+  obtain ⟨hrun, hsafe⟩ := collapse_step (cfg := cfg) (g := g) hsB
+    (by rw [hhead]; omega)
+    hgap
+    (by have := hbones 0 (by omega)
+        rwa [show g + 1 + ((0 : Nat) : Int) = g + 1 by omega] at this)
+    (hbr (g + 2) (by omega))
+  refine ⟨5, _, by omega, hrun, ?_, hsafe⟩
+  refine ⟨by omega, rfl, g - a, ?_, ?_, ?_, ?_⟩
+  · intro x hx
+    show (writeAt (writeAt cfg.tape (g + 2) true) g true) x = false
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+    exact hbl x (by omega)
+  · intro i hi
+    show (writeAt (writeAt cfg.tape (g + 2) true) g true) (g - a + i) = true
+    have hcase : i < a ∨ i = a ∨ i = a + 1 ∨ i = a + 2 := by omega
+    rcases hcase with hia | rfl | rfl | rfl
+    · rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+      exact haones i hia
+    · rw [show g - (i : Int) + (i : Int) = g by omega]
+      exact writeAt_same _ _ _
+    · rw [show g - ((a : Nat) : Int) + ((a + 1 : Nat) : Int) = g + 1 by omega]
+      rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+      have := hbones 0 (by omega)
+      rwa [show g + 1 + ((0 : Nat) : Int) = g + 1 by omega] at this
+    · rw [show g - ((a : Nat) : Int) + ((a + 2 : Nat) : Int) = g + 2 by omega]
+      rw [writeAt_other _ _ _ _ (by omega)]
+      exact writeAt_same _ _ _
+  · intro x hx
+    show (writeAt (writeAt cfg.tape (g + 2) true) g true) x = false
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+    exact hbr x (by omega)
+  · show g + 3 = g - (a : Nat) + ((a + 3 : Nat) : Int)
+    omega
+
+/-- Transport for micro: `oneA m → oneB (m+1)`. -/
+theorem transport_micro {cfg : Config} {m : Nat}
+    (h : Realizes (CState.oneA m) cfg) :
+    ∃ (N : Nat) (cfg' : Config), 0 < N ∧ stepN N cfg = some cfg' ∧
+      Realizes (CState.oneB (m + 1)) cfg' ∧ ESafeSeg cfg N := by
+  obtain ⟨hm, hsA, L, hbl, hones, hbr, hhead⟩ := h
+  obtain ⟨hrun, hsafe⟩ := micro_step (cfg := cfg) (h := L + m) hsA hhead
+    (hbr (L + m) (by omega))
+  refine ⟨1, _, by omega, hrun, ?_, hsafe⟩
+  refine ⟨by omega, rfl, L, ?_, ?_, ?_, ?_⟩
+  · intro x hx
+    show (writeAt cfg.tape (L + m) true) x = false
+    rw [writeAt_other _ _ _ _ (by omega)]
+    exact hbl x hx
+  · intro i hi
+    show (writeAt cfg.tape (L + m) true) (L + i) = true
+    by_cases him : i = m
+    · subst him
+      exact writeAt_same _ _ _
+    · rw [writeAt_other _ _ _ _ (by omega)]
+      exact hones i (by omega)
+  · intro x hx
+    show (writeAt cfg.tape (L + m) true) x = false
+    rw [writeAt_other _ _ _ _ (by omega)]
+    exact hbr x (by omega)
+  · show L + (m : Int) + 1 = L + ((m + 1 : Nat) : Int)
+    omega
+
+/-- Transport for the `n ≡ 1 (mod 3)` renewal: `oneB n → twoBlock 4 (n-3)`
+for `n ≥ 4` — the drift episode replayed with an empty left block. -/
+theorem transport_renew1 {cfg : Config} {n : Nat}
+    (hn3 : n % 3 = 1) (hn4 : 4 ≤ n)
+    (h : Realizes (CState.oneB n) cfg) :
+    ∃ (N : Nat) (cfg' : Config), 0 < N ∧ stepN N cfg = some cfg' ∧
+      Realizes (CState.twoBlock 4 (n - 3)) cfg' ∧ ESafeSeg cfg N := by
+  obtain ⟨hn1, hsB, L, hbl, hones, hbr, hhead⟩ := h
+  obtain ⟨u, rfl⟩ : ∃ u : Nat, n = 3 * u + 1 := ⟨(n - 1) / 3, by omega⟩
+  obtain ⟨hrun, hsafe⟩ := drift_step (cfg := cfg) (g := L - 1) u (by omega) hsB
+    (by rw [hhead]; omega)
+    (hbl (L - 1) (by omega))
+    (fun i hi => by
+      have := hones i (by omega)
+      rwa [show L + (i : Int) = L - 1 + 1 + i by omega] at this)
+    (by have := hbr (L - 1 + 3 * u + 2) (by omega); exact this)
+  rw [show L - 1 + 3 * (u : Int) + 2 = L + 3 * u + 1 by omega,
+      show L - 1 + 4 = L + 3 by omega,
+      show L - 1 + 3 * (u : Int) + 3 = L + 3 * u + 2 by omega] at hrun
+  refine ⟨32 * u - 3, _, by omega, hrun, ?_, hsafe⟩
+  refine ⟨by omega, by omega, rfl, L + 3, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  · intro x hx
+    show (writeAt (writeAt (writeAt cfg.tape (L + 3 * u + 1) true) (L - 1) true) (L + 3) false) x = false
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega)]
+    exact hbl x (by omega)
+  · intro i hi
+    show (writeAt (writeAt (writeAt cfg.tape (L + 3 * u + 1) true) (L - 1) true) (L + 3) false) (L + 3 - (4 : Nat) + i) = true
+    have hcase : i = 0 ∨ i = 1 ∨ i = 2 ∨ i = 3 := by omega
+    rcases hcase with rfl | rfl | rfl | rfl
+    · rw [show L + 3 - ((4 : Nat) : Int) + ((0 : Nat) : Int) = L - 1 by omega]
+      rw [writeAt_other _ _ _ _ (by omega)]
+      exact writeAt_same _ _ _
+    · rw [show L + 3 - ((4 : Nat) : Int) + ((1 : Nat) : Int) = L by omega]
+      rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega)]
+      have := hones 0 (by omega)
+      rwa [show L + ((0 : Nat) : Int) = L by omega] at this
+    · rw [show L + 3 - ((4 : Nat) : Int) + ((2 : Nat) : Int) = L + 1 by omega]
+      rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega)]
+      have := hones 1 (by omega)
+      rwa [show L + ((1 : Nat) : Int) = L + 1 by omega] at this
+    · rw [show L + 3 - ((4 : Nat) : Int) + ((3 : Nat) : Int) = L + 2 by omega]
+      rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega)]
+      have := hones 2 (by omega)
+      rwa [show L + ((2 : Nat) : Int) = L + 2 by omega] at this
+  · show (writeAt (writeAt (writeAt cfg.tape (L + 3 * u + 1) true) (L - 1) true) (L + 3) false) (L + 3) = false
+    exact writeAt_same _ _ _
+  · intro i hi
+    show (writeAt (writeAt (writeAt cfg.tape (L + 3 * u + 1) true) (L - 1) true) (L + 3) false) (L + 3 + 1 + i) = true
+    by_cases hif : L + 3 + 1 + (i : Int) = L + 3 * (u : Int) + 1
+    · rw [hif]
+      rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+      exact writeAt_same _ _ _
+    · rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ hif]
+      have := hones (i + 4) (by omega)
+      rwa [show L + ((i + 4 : Nat) : Int) = L + 3 + 1 + i by omega] at this
+  · intro x hx
+    show (writeAt (writeAt (writeAt cfg.tape (L + 3 * u + 1) true) (L - 1) true) (L + 3) false) x = false
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega)]
+    exact hbr x (by omega)
+  · show L + 3 * (u : Int) + 2 = L + 3 + ((3 * u + 1 - 3 : Nat) : Int) + 1
+    omega
+
+/-- Transport for the `n ≡ 2 (mod 3)` renewal: `oneB n → twoBlock 2 (n-1)`. -/
+theorem transport_renew2 {cfg : Config} {n : Nat}
+    (hn3 : n % 3 = 2)
+    (h : Realizes (CState.oneB n) cfg) :
+    ∃ (N : Nat) (cfg' : Config), 0 < N ∧ stepN N cfg = some cfg' ∧
+      Realizes (CState.twoBlock 2 (n - 1)) cfg' ∧ ESafeSeg cfg N := by
+  obtain ⟨hn1, hsB, L, hbl, hones, hbr, hhead⟩ := h
+  obtain ⟨u, rfl⟩ : ∃ u : Nat, n = 3 * u + 2 := ⟨(n - 2) / 3, by omega⟩
+  obtain ⟨hrun, hsafe⟩ := renew2_step (cfg := cfg) (L := L) u hsB
+    (by rw [hhead]; omega)
+    (hbl (L - 1) (by omega))
+    (fun i hi => hones i (by omega))
+    (by have := hbr (L + 3 * u + 2) (by omega); exact this)
+  refine ⟨16 * u + 11, _, by omega, hrun, ?_, hsafe⟩
+  refine ⟨by omega, by omega, rfl, L + 1, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  · intro x hx
+    show (writeAt (writeAt (writeAt cfg.tape (L + 3 * u + 2) true) (L - 1) true) (L + 1) false) x = false
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega)]
+    exact hbl x (by omega)
+  · intro i hi
+    show (writeAt (writeAt (writeAt cfg.tape (L + 3 * u + 2) true) (L - 1) true) (L + 1) false) (L + 1 - (2 : Nat) + i) = true
+    have hcase : i = 0 ∨ i = 1 := by omega
+    rcases hcase with rfl | rfl
+    · rw [show L + 1 - ((2 : Nat) : Int) + ((0 : Nat) : Int) = L - 1 by omega]
+      rw [writeAt_other _ _ _ _ (by omega)]
+      exact writeAt_same _ _ _
+    · rw [show L + 1 - ((2 : Nat) : Int) + ((1 : Nat) : Int) = L by omega]
+      rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ (by omega)]
+      have := hones 0 (by omega)
+      rwa [show L + ((0 : Nat) : Int) = L by omega] at this
+  · show (writeAt (writeAt (writeAt cfg.tape (L + 3 * u + 2) true) (L - 1) true) (L + 1) false) (L + 1) = false
+    exact writeAt_same _ _ _
+  · intro i hi
+    show (writeAt (writeAt (writeAt cfg.tape (L + 3 * u + 2) true) (L - 1) true) (L + 1) false) (L + 1 + 1 + i) = true
+    by_cases hif : L + 1 + 1 + (i : Int) = L + 3 * (u : Int) + 2
+    · rw [hif]
+      rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega)]
+      exact writeAt_same _ _ _
+    · rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+          writeAt_other _ _ _ _ hif]
+      have := hones (i + 2) (by omega)
+      rwa [show L + ((i + 2 : Nat) : Int) = L + 1 + 1 + i by omega] at this
+  · intro x hx
+    show (writeAt (writeAt (writeAt cfg.tape (L + 3 * u + 2) true) (L - 1) true) (L + 1) false) x = false
+    rw [writeAt_other _ _ _ _ (by omega), writeAt_other _ _ _ _ (by omega),
+        writeAt_other _ _ _ _ (by omega)]
+    exact hbr x (by omega)
+  · show L + 3 * (u : Int) + 3 = L + 1 + ((3 * u + 2 - 1 : Nat) : Int) + 1
+    omega
+
 end QIG.DvisetuRawTM
