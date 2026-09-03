@@ -474,7 +474,15 @@ fail-closed validated conditional laws); and each of the remaining
 nine carries either a law that is exact wherever extraction succeeds
 or a solved segmentation whose blocking step is named and bounded.
 Nothing in the exact-spec cohort remains uncharacterized; what
-remains is work.
+remains is work. One negative result bounds that work from below: a
+sound invariant search (congruence closures to modulus 64, monotone
+integer functionals, verified in exact rational arithmetic, run by
+two independent implementations that first cross-audited each
+other's soundness) over every learned law in the cohort and over
+258 single-law regime machines found no closed invariant excluding
+any fatal set. The holdout cohort has no invariant-decidable
+residue at that depth; conditional reduction is not a stopgap but
+the frontier.
 
 \section{The verification spectrum: where this sits, and the goal}
 This work sits on a spectrum of what ``verifying a machine'' can
