@@ -2011,4 +2011,116 @@ theorem wstep_faithful {w : List Bool} {poff : Nat} {w' : List Bool}
         omega
   · simp at hw
 
+
+/-!
+## Startup anchor, the word orbit, and the keystone (phases 6–7)
+
+One raw step from blank reaches the first arrival: state `B` at
+position 1 over the word `1` — `worbit`'s seed `([true], 1)`
+(python: first arrival at `t = 1`, `arr = (B,0)`, `kind = full`).
+The word orbit is `wstep` iterated; `SafeWordOrbit` — the whole
+conjecture — is the single clause that it never dies.
+-/
+
+theorem startup_run :
+    stepN 1 blankStart = some ⟨State.B, 1, writeAt blankTape 0 true⟩ :=
+  stepN_succ_of_step (step_A0 rfl) (stepN_zero _)
+
+theorem startup_safe : DSafeSeg blankStart 1 := by
+  intro k d hk hkd hD hread
+  have hk0 : k = 0 := by omega
+  subst hk0
+  have hdd : blankStart = d := by simpa [stepN] using hkd
+  rw [← hdd] at hD
+  simp [blankStart] at hD
+
+theorem anchor_realizes :
+    ArrivalInv 0 [true] 1 ⟨State.B, 1, writeAt blankTape 0 true⟩ := by
+  have hh : (1 : Int) = 0 + ((1 : Nat) : Int) := by omega
+  have hbelow : ∀ x : Int, x < 0 → (writeAt blankTape 0 true) x = false := by
+    intro x hx
+    rw [writeAt_other _ _ _ _ (by omega)]
+    rfl
+  have hat : ∀ i : Nat, (writeAt blankTape 0 true) (0 + (i : Int))
+      = [true].getD i false := by
+    intro i
+    cases i with
+    | zero =>
+        rw [show (0 : Int) + ((0 : Nat) : Int) = 0 by omega, writeAt_same]
+        rfl
+    | succ i =>
+        rw [writeAt_other _ _ _ _ (by omega)]
+        rfl
+  exact ⟨rfl, hh, hbelow, hat⟩
+
+/-- The word orbit: `wstep` iterated from the anchor `([1], 1)`. -/
+def worbit : Nat → Option (List Bool × Nat)
+  | 0 => some ([true], 1)
+  | k + 1 =>
+      match worbit k with
+      | none => none
+      | some s => (wstep s.1 s.2).map (fun r => (r.1, r.2.1))
+
+/-- **The rank-1 word-orbit conjecture**, in the exact form the
+machine needs: the fail-closed word orbit never dies — no sweep ever
+meets a fatal `D`-probe, a malformed arrival, a `C`-state arrival, or
+fuel exhaustion.  A statement about a sequence of words with no tape,
+no head, no machine; every clause of the sweep dynamics behind it is
+proven, so — unlike the dossier-6 closure — *no* `Faithful` component
+accompanies it. -/
+def SafeWordOrbit : Prop := ∀ k : Nat, worbit k ≠ none
+
+/-- The raw-side orbit invariant: the configuration realizes some live
+state of the word orbit. -/
+def OrbitInv (cfg : Config) : Prop :=
+  ∃ (k : Nat) (w : List Bool) (poff : Nat) (base : Int),
+    worbit k = some (w, poff) ∧ ArrivalInv base w poff cfg
+
+theorem orbitInv_start : OrbitInv ⟨State.B, 1, writeAt blankTape 0 true⟩ :=
+  ⟨0, [true], 1, 0, rfl, anchor_realizes⟩
+
+theorem worbit_succ {k : Nat} {s : List Bool × Nat}
+    (horb : worbit k = some s) :
+    worbit (k + 1) = (wstep s.1 s.2).map (fun r => (r.1, r.2.1)) := by
+  rw [show worbit (k + 1) = (match worbit k with
+      | none => none
+      | some s => (wstep s.1 s.2).map (fun r => (r.1, r.2.1))) from rfl, horb]
+
+/-- Segment step: from any configuration realizing a live orbit state,
+the next sweep runs probe-safely to a configuration realizing the next
+orbit state. -/
+theorem orbit_segment (hso : SafeWordOrbit) (cfg : Config)
+    (hinv : OrbitInv cfg) :
+    ∃ n : Nat, 0 < n ∧ ∃ cfg' : Config, stepN n cfg = some cfg' ∧
+      OrbitInv cfg' ∧ DSafeSeg cfg n := by
+  obtain ⟨k, w, poff, base, horb, harr⟩ := hinv
+  have hlive := hso (k + 1)
+  rw [worbit_succ horb] at hlive
+  cases hws : wstep w poff with
+  | none => exact absurd (by simp [hws]) hlive
+  | some r =>
+      obtain ⟨w', poff', d⟩ := r
+      obtain ⟨cfg', base', h1, h2, h3, h4⟩ := wstep_faithful hws base cfg harr
+      refine ⟨d, h4, cfg', h1, ?_, h3⟩
+      exact ⟨k + 1, w', poff', base',
+        by rw [worbit_succ horb, hws]; rfl, h2⟩
+
+/-- **The conditional closure**: the rank-1 word-orbit conjecture
+implies the machine never halts from blank.
+
+Informally: one startup step lands on the word `1`; from every
+realized orbit word the certified sweep runs probe-safely to the next;
+segment induction turns the faithful sweep into
+`DProbeSafe blankStart`; and the halt corridor `D1 → E1` is closed
+forever.  The seventh closure — and the first whose abstract state
+grows without bound. -/
+theorem safeWordOrbit_nonhalting (hso : SafeWordOrbit) :
+    ¬ RawHalts blankStart := by
+  apply blank_nonhalting_of_d_probe_safe
+  refine dprobe_safe_prefix startup_run startup_safe ?_
+  exact dprobe_safe_of_segments orbitInv_start
+    (fun c hinv => orbit_segment hso c hinv)
+
+#print axioms safeWordOrbit_nonhalting
+
 end QIG.Rank1RawTM
