@@ -1,0 +1,131 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+\usepackage{booktabs}
+
+\title{\bfseries The Closed Machines\\
+\large Six kernel-checked conditional closures for BB(6) cryptids:\\
+what was proven, how, and the path to external approval}
+\author{Enan Srivastava}
+\date{September 3, 2026 \quad (repository \texttt{Enan456/bbchallenge-proofs})}
+
+\begin{document}
+\maketitle
+
+\section*{The six closures}
+
+Each machine below carries a theorem checked by the Lean 4 kernel at
+axioms $\{\mathrm{propext}, \mathrm{Quot.sound}\}$, with no
+\texttt{sorry}: \emph{if its explicit arithmetic conjecture holds,
+the machine never halts from the blank tape}. Each reduction is
+complete (startup, every episode, and the transport to the abstract
+orbit are theorems) and, where tested, sharp (states violating the
+conjecture provably halt within tens of raw steps).
+
+\begin{center}\small
+\begin{tabular}{lllr}
+\toprule
+machine & keystone theorem & conjecture & lines \\
+\midrule
+Antihydra & \texttt{safeOrbitA\_nonhalting} & hydra orbit never dies & 2{,}130 \\
+dossier-1 & \texttt{dossier1\_nonhalting} & chain orbit never dies & 5{,}770 \\
+dossier-2 & \texttt{dossier2\_nonhalting} & \texttt{SafeMetaOrbit} (five integers) & 6{,}130 \\
+dossier-3 (mirror) & \texttt{dossier3\_nonhalting} & \texttt{SafeMetaOrbit} (mirrored) & 9{,}020 \\
+Dvisetu (dossier-6) & \texttt{safeDvisetuOrbit\_nonhalting} & \texttt{SafeCheckpointOrbit} & 1{,}942 \\
+rank-1 (dossier-5) & \texttt{safeWordOrbit\_nonhalting} & \texttt{SafeWordOrbit} (word orbit) & 2{,}126 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent Machine codes:
+\texttt{\footnotesize 1RB1RA\_0LC1LE\_1LD1LC\_1LA0LB\_1LF1RE\_---0RA} (Antihydra),
+\texttt{\footnotesize 1RB0LE\_1LB1RC\_0RF0RD\_1RE0LA\_1LA1RE\_---0RB} (d1),
+\texttt{\footnotesize 1RB1RC\_1LC1LC\_1RE0LD\_1LB1RF\_---1RA\_0RD1RD} (d2),
+\texttt{\footnotesize 1RB1RB\_1LC0RE\_---1LD\_0RA1LB\_1RA1LF\_0LE1LE} (d3),
+\texttt{\footnotesize 1RB0RB\_1LB0LC\_1RD1LC\_1RE0RA\_0RF1RA\_---1LB} (Dvisetu),
+\texttt{\footnotesize 1RB1RD\_1LC0LC\_0RD0LB\_1RF0LE\_0RD---\_0RA1RC} (rank-1).
+
+\section*{How each was closed}
+
+The method is uniform. \textbf{Watch}: sample the machine at a
+recurring configuration; the tape at those events has a bounded
+description (five integers for dossier-2/3, a hydra triple, one hole
+and two counters for Dvisetu, a word of blocks for rank-1).
+\textbf{Compress}: derive the exact law of that description
+empirically and fail-closed; every transition and its exact step
+count must be reproduced, any miss aborts. Evidence grades at
+freezing: dossier-2/3 validated to $10^{9}$ raw steps; Dvisetu
+2{,}746/2{,}746 timed transitions at $2\times10^{7}$; rank-1
+2{,}179/2{,}186 frozen at $2\times10^{8}$ with the residue
+characterized, plus exact reseed differentials. \textbf{Certify}:
+compile the law into Lean: raw semantics, a halt-localization
+corridor lemma (each machine funnels every halt through one probe
+pattern), gait-level episode theorems with exact step counts,
+inductions for the unbounded middles, a concrete startup anchor, and
+a transport theorem showing the abstract orbit predicts the machine
+forever. The conjecture is then a statement about an integer (or
+word) sequence, and the theorem converts it into non-halting.
+
+Two engineering results from the newest closures: Dvisetu's one
+genuinely hard branch (the recursive divide renewal) is folded into
+its conjecture as a named, documented assumption rather than proven;
+rank-1, by contrast, needed \emph{no} such fold: at cell-level grain
+its boundary families and decision function are subsumed and proven,
+making it the first closure on a state space of growing dimension.
+Dossiers 7 and 8 (laws already exact at $2\times10^{7}$ steps,
+5{,}251/5{,}251 and 3{,}879/3{,}879) are in compilation now by the
+same pipeline.
+
+\section*{What it takes to push, validate, and get approved}
+
+\paragraph{1. External formal validation (Palomar).} Prepared and
+pinned: five entries (a sixth and seventh to follow for Dvisetu and
+rank-1) with challenge/solution comparator pairs whose challenge
+files import Lean core only. Local intake: 0 failures, 0 warnings.
+\emph{Remaining action: one browser session by the author}
+(GitHub authentication; the registry re-checks the proofs at the
+pinned commit and publishes the exact statements). Effort: under an
+hour. This satisfies the formal-proof-validation requirement of the
+community process.
+
+\paragraph{2. Community publication and reproduction
+(bbchallenge.org).} The community's adopted process: publish on the
+forum, invite reproduction, formal validation by a non-author, with
+an announcement-and-objection convention. A forum post is drafted
+(\texttt{docs/submissions/bbchallenge-forum-post.md}): reduction
+framing, explicit non-claims (zero machines decided), and a
+one-command reproduction
+(\texttt{git checkout <pinned SHA> \&\& lake build}). \emph{Remaining
+actions: the author posts it; one independent person runs the build}
+(minutes of their time; the kernel does the validation). The
+scale criterion ($\ge$10\% of undecided machines) applies to bulk
+deciders, not cryptid results; a sound invariant search over every
+learned law in the cohort returned zero invariant-decidable
+machines, so conditional reduction is the demonstrated frontier for
+this class.
+
+\paragraph{3. Conference review (DeepMath 2026).} The extended
+abstract (v18) is complete with the census, the six closures, the
+verification-game results, and honest scope; form fields are
+prepared. \emph{Remaining actions: the author's OpenReview profile
+and submission click}; then peer review runs its course.
+
+\paragraph{4. What approval cannot mean.} No process turns these
+into unconditional results: each conjecture is a Collatz-class orbit
+avoidance statement, and the program's own negative results
+(no congruence invariant to modulus 384; ranking-class certificates
+exhaustively refuted on the true fatal model) show why. The honest
+end state of approval is: six machine-checked reductions, externally
+re-verified, publicly reproduced, with each machine's halting
+problem restated as one explicit arithmetic question.
+
+\paragraph{Verification for the reader.}
+\begin{verbatim}
+git clone https://github.com/Enan456/bbchallenge-proofs
+cd bbchallenge-proofs/busy-beaver-core && lake build
+# per-theorem axiom reports are printed by the build itself
+\end{verbatim}
+
+\end{document}
