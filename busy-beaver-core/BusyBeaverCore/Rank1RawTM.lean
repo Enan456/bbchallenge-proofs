@@ -1755,4 +1755,260 @@ theorem dregroup_step (k : Nat) {base : Int} {em rest : List Bool} {cfg : Config
   · rw [show 8 + 6 * k = 2 + (3 + (6 * k + 3)) by omega]
     exact dsafe_compose hp1 hp3 (dsafe_compose ha1 ha3 h3)
 
+
+/-!
+## The certified sweep (phases 4–5): `passGo` and `wstep`
+
+`wstep` is the certified-side mirror of the validated calculus's
+`Calculus2.step`, one level down: instead of the learned unit/tail
+tables it runs the underlying cell-level pass those tables were
+extracted from — dips, rise chunks, terminators, `C1` turns, and
+descents — as a fail-closed, fuel-driven executable function on the
+word.  Any would-halt (`E` reading `1`), any `C`-state arrival, any
+arrival reading `1`, and fuel exhaustion all return `none`.  Interior
+units, boundary tails, head rules and mini-arrival floors are all
+subsumed; a sweep stops exactly at the first `B` maximum-turn whose
+descent is deep (`≥ 8`, the calculus's `MINI_DEPTH`) or
+extreme-extending — the next arrival.
+
+`passGo_faithful` / `wstep_faithful`: every `some` output is realized
+by the raw machine in *exactly* the returned step count, D-probe-safe
+throughout.  Validated against raw segmentation: 1249/1249 segments
+exact over 20M raw steps (word, dt, head offset, extreme growth, and
+arrival kind), and mirrored in `tests/bb6/test_rank1_theorems.py`.
+-/
+
+/-- Descent scan: `some i` = the descent from a `B`-turn over this
+stack turns at stack index `2i` (depth `2i+1`); `none` = it runs off
+the bottom (extends the left extreme: a full arrival). -/
+def dScan : List Bool → Option Nat
+  | [] => none
+  | false :: _ => some 0
+  | true :: [] => none
+  | true :: _ :: t => (dScan t).map (· + 1)
+
+/-- A `B`-turn is the *next arrival* iff its descent is deep
+(`2i+1 ≥ 8`, i.e. `i ≥ 4` — the calculus's `MINI_DEPTH`) or
+extreme-extending. -/
+def stopDeep (em : List Bool) : Bool :=
+  match dScan em with
+  | none => true
+  | some i => decide (4 ≤ i)
+
+/-- The fail-closed pass: from state `D` at the boundary of `em`
+(below, nearest first) and `rest` (head cell first), run the sweep to
+the next arrival.  Returns `(word, head offset, steps)`. -/
+def passGo : Nat → List Bool → List Bool → Option (List Bool × Nat × Nat)
+  | 0, _, _ => none
+  | fuel + 1, em, rest =>
+    match rest.getD 0 false, em.getD 0 false, rest.getD 1 false, rest.getD 2 false with
+    | true, true, _, _ => none
+    | true, false, _, _ =>
+        (passGo fuel em (false :: rest.drop 1)).map
+          (fun r => (r.1, r.2.1, 2 + r.2.2))
+    | false, _, false, true =>
+        (passGo fuel (true :: false :: true :: em) (rest.drop 3)).map
+          (fun r => (r.1, r.2.1, 3 + r.2.2))
+    | false, _, true, false =>
+        (passGo fuel (false :: true :: true :: em) (rest.drop 3)).map
+          (fun r => (r.1, r.2.1, 3 + r.2.2))
+    | false, _, false, false =>
+        if stopDeep (true :: false :: true :: em) then
+          if (rest.drop 3).getD 0 false then none
+          else some ((true :: false :: true :: em).reverse ++ rest.drop 3,
+            em.length + 3, 3)
+        else
+          (passGo fuel
+            (descendExec (true :: false :: true :: em)
+              ((rest.drop 3).getD 0 false) ((rest.drop 3).drop 1)).2.2.1
+            (descendExec (true :: false :: true :: em)
+              ((rest.drop 3).getD 0 false) ((rest.drop 3).drop 1)).2.2.2).map
+            (fun r => (r.1, r.2.1,
+              3 + (descendExec (true :: false :: true :: em)
+                ((rest.drop 3).getD 0 false) ((rest.drop 3).drop 1)).1 + r.2.2))
+    | false, _, true, true =>
+        if stopDeep (true :: em) then none
+        else
+          (passGo fuel
+            (descendExec (true :: em) true (false :: rest.drop 3)).2.2.1
+            (descendExec (true :: em) true (false :: rest.drop 3)).2.2.2).map
+            (fun r => (r.1, r.2.1,
+              3 + (descendExec (true :: em) true (false :: rest.drop 3)).1 + r.2.2))
+
+theorem map_add_eq_some {o : Option (List Bool × Nat × Nat)} {c : Nat}
+    {w : List Bool} {p d : Nat}
+    (h : o.map (fun r => (r.1, r.2.1, c + r.2.2)) = some (w, p, d)) :
+    ∃ d', o = some (w, p, d') ∧ d = c + d' := by
+  cases o with
+  | none => simp at h
+  | some r =>
+      obtain ⟨w0, p0, d0⟩ := r
+      simp at h
+      obtain ⟨hw, hp, hd⟩ := h
+      exact ⟨d0, by rw [hw, hp], by omega⟩
+
+theorem getD_head_expand (l : List Bool) :
+    ∀ j : Nat, l.getD j false = ((l.getD 0 false) :: l.drop 1).getD j false := by
+  intro j
+  cases j with
+  | zero => rfl
+  | succ j =>
+      rw [List.getD_cons_succ, getD_drop, Nat.add_comm 1 j]
+
+/-- Faithfulness of the pass, by induction on fuel: every `some`
+output of `passGo` is realized by the raw machine in exactly the
+returned step count, probe-safely, landing on an arrival
+configuration of the returned word. -/
+theorem passGo_faithful :
+    ∀ (fuel : Nat) (em rest w : List Bool) (poff d : Nat),
+      passGo fuel em rest = some (w, poff, d) →
+      ∀ (base : Int) (cfg : Config), Inv State.D base em rest cfg →
+        ∃ (cfg' : Config) (base' : Int), stepN d cfg = some cfg' ∧
+          ArrivalInv base' w poff cfg' ∧ DSafeSeg cfg d := by
+  intro fuel
+  induction fuel with
+  | zero =>
+      intro em rest w poff d hpg base cfg hInv
+      simp [passGo] at hpg
+  | succ fuel ih =>
+      intro em rest w poff d hpg base cfg hInv
+      simp only [passGo] at hpg
+      split at hpg
+      · -- dip with a fatal probe: fail-closed
+        simp at hpg
+      · -- dip
+        next x1 x2 hc0 hg =>
+          obtain ⟨d', hrec, hd⟩ := map_add_eq_some hpg
+          subst hd
+          obtain ⟨cfg₂, h1, h2, h3⟩ := dip_step hInv hc0 hg
+          obtain ⟨cfg', base', h1', h2', h3'⟩ := ih _ _ _ _ _ hrec _ cfg₂ h2
+          refine ⟨cfg', base', ?_, h2', ?_⟩
+          · rw [stepN_add, h1]
+            exact h1'
+          · exact dsafe_compose h1 h3 h3'
+      · -- dfa chunk
+        next x1 hc0 hc1 hc2 =>
+          obtain ⟨d', hrec, hd⟩ := map_add_eq_some hpg
+          subst hd
+          obtain ⟨cfg₂, h1, h2, h3⟩ := chunkA_step hInv hc0 hc1 hc2
+          obtain ⟨cfg', base', h1', h2', h3'⟩ := ih _ _ _ _ _ hrec _ cfg₂ h2
+          refine ⟨cfg', base', ?_, h2', ?_⟩
+          · rw [stepN_add, h1]
+            exact h1'
+          · exact dsafe_compose h1 h3 h3'
+      · -- dfc chunk
+        next x1 hc0 hc1 hc2 =>
+          obtain ⟨d', hrec, hd⟩ := map_add_eq_some hpg
+          subst hd
+          obtain ⟨cfg₂, h1, h2, h3⟩ := chunkC_step hInv hc0 hc1 hc2
+          obtain ⟨cfg', base', h1', h2', h3'⟩ := ih _ _ _ _ _ hrec _ cfg₂ h2
+          refine ⟨cfg', base', ?_, h2', ?_⟩
+          · rw [stepN_add, h1]
+            exact h1'
+          · exact dsafe_compose h1 h3 h3'
+      · -- arrival terminator
+        next x1 hc0 hc1 hc2 =>
+          obtain ⟨cfgb, hb1, hb2, hb3⟩ := aterm_step hInv hc0 hc1 hc2
+          split at hpg
+          · -- deep or extreme-extending: the next arrival — stop
+            split at hpg
+            · simp at hpg
+            · obtain ⟨hw, hp, hd⟩ : (true :: false :: true :: em).reverse ++ rest.drop 3 = w
+                  ∧ em.length + 3 = poff ∧ 3 = d := by
+                simpa using hpg
+              subst hw
+              subst hp
+              subst hd
+              exact ⟨cfgb, base, hb1, inv_to_arrival hb2, hb3⟩
+          · -- shallow: execute the descent and continue
+            obtain ⟨d', hrec, hd⟩ := map_add_eq_some hpg
+            subst hd
+            have hb2' := inv_congr_rest (getD_head_expand (rest.drop 3)) hb2
+            obtain ⟨cfgd, hd1, hd2, hd3⟩ := descend_run hb2'
+            obtain ⟨cfg', base', h1', h2', h3'⟩ := ih _ _ _ _ _ hrec _ cfgd hd2
+            refine ⟨cfg', base', ?_, h2', ?_⟩
+            · rw [show 3 + (descendExec (true :: false :: true :: em)
+                    ((rest.drop 3).getD 0 false) ((rest.drop 3).drop 1)).1 + d'
+                  = 3 + ((descendExec (true :: false :: true :: em)
+                    ((rest.drop 3).getD 0 false) ((rest.drop 3).drop 1)).1 + d') by omega,
+                  stepN_add, hb1,
+                  show Option.bind (some cfgb) (stepN ((descendExec (true :: false :: true :: em)
+                    ((rest.drop 3).getD 0 false) ((rest.drop 3).drop 1)).1 + d'))
+                    = stepN ((descendExec (true :: false :: true :: em)
+                    ((rest.drop 3).getD 0 false) ((rest.drop 3).drop 1)).1 + d') cfgb from rfl,
+                  stepN_add, hd1]
+              exact h1'
+            · rw [show 3 + (descendExec (true :: false :: true :: em)
+                    ((rest.drop 3).getD 0 false) ((rest.drop 3).drop 1)).1 + d'
+                  = 3 + ((descendExec (true :: false :: true :: em)
+                    ((rest.drop 3).getD 0 false) ((rest.drop 3).drop 1)).1 + d') by omega]
+              exact dsafe_compose hb1 hb3 (dsafe_compose hd1 hd3 h3')
+      · -- C1 turn
+        next x1 hc0 hc1 hc2 =>
+          split at hpg
+          · simp at hpg
+          · obtain ⟨d', hrec, hd⟩ := map_add_eq_some hpg
+            subst hd
+            obtain ⟨cfgb, hb1, hb2, hb3⟩ := c1turn_step hInv hc0 hc1 hc2
+            obtain ⟨cfgd, hd1, hd2, hd3⟩ := descend_run hb2
+            obtain ⟨cfg', base', h1', h2', h3'⟩ := ih _ _ _ _ _ hrec _ cfgd hd2
+            refine ⟨cfg', base', ?_, h2', ?_⟩
+            · rw [show 3 + (descendExec (true :: em) true (false :: rest.drop 3)).1 + d'
+                  = 3 + ((descendExec (true :: em) true (false :: rest.drop 3)).1 + d') by omega,
+                  stepN_add, hb1,
+                  show Option.bind (some cfgb)
+                    (stepN ((descendExec (true :: em) true (false :: rest.drop 3)).1 + d'))
+                    = stepN ((descendExec (true :: em) true (false :: rest.drop 3)).1 + d')
+                      cfgb from rfl,
+                  stepN_add, hd1]
+              exact h1'
+            · rw [show 3 + (descendExec (true :: em) true (false :: rest.drop 3)).1 + d'
+                  = 3 + ((descendExec (true :: em) true (false :: rest.drop 3)).1 + d') by omega]
+              exact dsafe_compose hb1 hb3 (dsafe_compose hd1 hd3 h3')
+
+/-- Generous fuel: recursion depth is bounded by the raw step count of
+one sweep, comfortably quadratic in the word length.  Fail-closed —
+exhaustion is an orbit death, and the empirical margin is enormous. -/
+def passFuel (w : List Bool) : Nat := 64 * (w.length + 64) * (w.length + 64)
+
+/-- One certified sweep: from an arrival `(w, poff)` (state `B`
+reading `0`), execute the shoot (the initial descent, full or mini as
+the word dictates) and the pass.  Returns `(w', poff', steps)`. -/
+def wstep (w : List Bool) (poff : Nat) : Option (List Bool × Nat × Nat) :=
+  if poff ≤ w.length ∧ w.getD poff false = false then
+    (passGo (passFuel w)
+      (descendExec ((w.take poff).reverse) false (w.drop (poff + 1))).2.2.1
+      (descendExec ((w.take poff).reverse) false (w.drop (poff + 1))).2.2.2).map
+      (fun r => (r.1, r.2.1,
+        (descendExec ((w.take poff).reverse) false (w.drop (poff + 1))).1 + r.2.2))
+  else none
+
+/-- **The sweep is faithful**: whenever `wstep` yields a successor
+word, the raw machine, started on any realization of the input
+arrival, runs *exactly* the returned number of steps, stays
+D-probe-safe throughout, and lands on a realization of the successor
+arrival.  No `Faithful` assumption remains anywhere in this file. -/
+theorem wstep_faithful {w : List Bool} {poff : Nat} {w' : List Bool}
+    {poff' d : Nat} (hw : wstep w poff = some (w', poff', d)) :
+    ∀ (base : Int) (cfg : Config), ArrivalInv base w poff cfg →
+      ∃ (cfg' : Config) (base' : Int), stepN d cfg = some cfg' ∧
+        ArrivalInv base' w' poff' cfg' ∧ DSafeSeg cfg d ∧ 0 < d := by
+  intro base cfg harr
+  simp only [wstep] at hw
+  split at hw
+  · next hguard =>
+      obtain ⟨hle, hread⟩ := hguard
+      obtain ⟨d', hrec, hd⟩ := map_add_eq_some hw
+      subst hd
+      have hInvB := arrival_to_inv harr hle hread
+      obtain ⟨cfgd, hd1, hd2, hd3⟩ := descend_run hInvB
+      obtain ⟨cfg', base', h1', h2', h3'⟩ := passGo_faithful _ _ _ _ _ _ hrec _ cfgd hd2
+      refine ⟨cfg', base', ?_, h2', ?_, ?_⟩
+      · rw [stepN_add, hd1]
+        exact h1'
+      · exact dsafe_compose hd1 hd3 h3'
+      · have := descendExec_steps_pos ((w.take poff).reverse) false (w.drop (poff + 1))
+        omega
+  · simp at hw
+
 end QIG.Rank1RawTM
