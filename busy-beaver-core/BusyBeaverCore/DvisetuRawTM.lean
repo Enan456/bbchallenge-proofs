@@ -1857,4 +1857,86 @@ theorem transport_renew2 {cfg : Config} {n : Nat}
   · show L + 3 * (u : Int) + 3 = L + 1 + ((3 * u + 2 - 1 : Nat) : Int) + 1
     omega
 
+/-!
+## The keystone
+
+Segment induction over the checkpoint orbit: from any configuration
+realizing a live orbit state, some positive number of raw steps runs
+probe-safely to a configuration realizing the next orbit state.  With
+the 6-step startup prefix, `EProbeSafe blankStart` follows, and the halt
+corridor closes.
+-/
+
+theorem orbit_segment (hso : SafeCheckpointOrbit) (cfg : Config)
+    (hinv : OrbitInv cfg) :
+    ∃ k : Nat, 0 < k ∧ ∃ cfg' : Config, stepN k cfg = some cfg' ∧
+      OrbitInv cfg' ∧ ESafeSeg cfg k := by
+  obtain ⟨k, s, horb, hreal⟩ := hinv
+  have hlive : corbit (k + 1) ≠ none := hso.1 (k + 1)
+  rw [corbit_succ horb] at hlive
+  cases s with
+  | twoBlock a b =>
+      by_cases hb1 : b = 1
+      · subst hb1
+        obtain ⟨N, cfg', hN, hrun, hreal', hsafe⟩ := transport_collapse hreal
+        exact ⟨N, hN, cfg', hrun,
+          ⟨k + 1, CState.oneA (a + 3),
+            by rw [corbit_succ horb]; simp [cstep], hreal'⟩, hsafe⟩
+      · by_cases hb3 : b % 3 = 1
+        · have hb1le : 1 ≤ b := hreal.2.1
+          have hb4 : 4 ≤ b := by omega
+          obtain ⟨N, cfg', hN, hrun, hreal', hsafe⟩ := transport_drift hb3 hb4 hreal
+          exact ⟨N, hN, cfg', hrun,
+            ⟨k + 1, CState.twoBlock (a + 4) (b - 3),
+              by rw [corbit_succ horb]; simp [cstep, hb1, hb3], hreal'⟩, hsafe⟩
+        · exact absurd (by simp [cstep, hb1, hb3]) hlive
+  | oneA m =>
+      obtain ⟨N, cfg', hN, hrun, hreal', hsafe⟩ := transport_micro hreal
+      exact ⟨N, hN, cfg', hrun,
+        ⟨k + 1, CState.oneB (m + 1),
+          by rw [corbit_succ horb]; simp [cstep], hreal'⟩, hsafe⟩
+  | oneB n =>
+      by_cases hn1 : n % 3 = 1
+      · by_cases hn4 : 4 ≤ n
+        · obtain ⟨N, cfg', hN, hrun, hreal', hsafe⟩ := transport_renew1 hn1 hn4 hreal
+          exact ⟨N, hN, cfg', hrun,
+            ⟨k + 1, CState.twoBlock 4 (n - 3),
+              by rw [corbit_succ horb]; simp [cstep, hn1, hn4], hreal'⟩, hsafe⟩
+        · exact absurd (by simp [cstep, hn1, hn4]) hlive
+      · by_cases hn2 : n % 3 = 2
+        · obtain ⟨N, cfg', hN, hrun, hreal', hsafe⟩ := transport_renew2 hn2 hreal
+          exact ⟨N, hN, cfg', hrun,
+            ⟨k + 1, CState.twoBlock 2 (n - 1),
+              by rw [corbit_succ horb]; simp [cstep, hn2], hreal'⟩, hsafe⟩
+        · have hn0 : n % 3 = 0 := by omega
+          cases hdiv : divideStep n with
+          | none =>
+              refine absurd ?_ hlive
+              simp [cstep, hn1, hn2]
+              exact hdiv
+          | some s' =>
+              obtain ⟨N, cfg', hN, hrun, hreal', hsafe⟩ :=
+                hso.2 n s' cfg hn0 hdiv hreal
+              exact ⟨N, hN, cfg', hrun,
+                ⟨k + 1, s',
+                  by rw [corbit_succ horb]; simp [cstep, hn1, hn2]; exact hdiv,
+                  hreal'⟩, hsafe⟩
+
+/-- **The conditional closure**: the Dvisetu checkpoint conjecture
+implies the machine never halts from blank.
+
+Informally: the six-step startup lands on `oneA 3`; from every realized
+orbit state the proven (or, for the divide branch, assumed) episode runs
+probe-safely to the next; segment induction turns finitely many episode
+theorems into `EProbeSafe blankStart`; and the halt corridor `E0 → F0`
+is closed forever. -/
+theorem safeDvisetuOrbit_nonhalting (hso : SafeCheckpointOrbit) :
+    ¬ RawHalts blankStart := by
+  apply blank_nonhalting_of_e_probe_safe
+  refine eprobe_safe_prefix startup_run startup_safe ?_
+  exact eprobe_safe_of_segments orbitInv_start
+    (fun c hinv => orbit_segment hso c hinv)
+
+#print axioms safeDvisetuOrbit_nonhalting
+
 end QIG.DvisetuRawTM
