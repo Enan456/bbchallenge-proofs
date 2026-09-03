@@ -201,3 +201,33 @@ single-law; 4 refit to two laws and were excluded. Per searcher:
    to a residue representative and reducing mod m is not sound, and
    OrbitFinder specs have fractional coefficients routinely. The
    package was left unmodified.
+
+
+## Escalation (same day): ranking-class certificates on the true fatal model
+
+The pilot's certificate classes were escalated on the one system with
+a complete, proven fatal model: the dossier-2/3 renewal map R with
+fatal set b - beta in {1,3,5} plus boundary cases.
+
+- **Parity-indexed halfplane families** (shared normal, per-parity
+  offsets; the class that would express "stay a fixed linear distance
+  above the diagonal"): 33,551 candidate families fully checked
+  (exhaustive integer verification to 1,200 in each coordinate plus
+  4,000-point large-scale sampling; not a full recession-cone proof,
+  noted honestly): **zero hits**. The measured margin-4 grazing is
+  therefore a certificate-class obstruction, not only an observation:
+  no linear inequality family separates the orbit from the fatal
+  diagonal.
+- **Two-level lexicographic functionals** (coefficients to 2): 59
+  formal hits, all collapsing to the single fact that a + b strictly
+  increases under every branch (the second level never fires). This
+  is real monotonicity with zero decision content: the fatal window
+  scales with a, so no sublevel set of a + b contains it. The same
+  gap as population 2's 162 gap-growth functionals.
+
+The natural next class, certificates in offset coordinates
+(a, b - beta) where the fatal set IS bounded, is precisely the
+exclusion-recursion analyzed in the renewal-map study: the offset
+resets at every renewal, and the recursion of excluded values was
+shown there to deepen without closing. Ranking-class search
+confirms, rather than escapes, the Collatz-class character.
