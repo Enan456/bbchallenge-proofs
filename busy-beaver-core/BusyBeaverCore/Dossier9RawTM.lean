@@ -966,4 +966,92 @@ theorem wstep_faithful {st st' : State} {w w' : List Bool} {d : Nat}
         Inv st' base' [] w' cfg' ∧ BSafeSeg cfg d ∧ 0 < d :=
   fun base cfg hInv => go_faithful (wfuel w) st [] w st' w' d hw base cfg hInv
 
+/-!
+## The word orbit and the keystone
+
+The blank start itself realizes the virtual arrival `(A, [])` (head at
+its own right extreme over the empty word), so the orbit needs no raw
+startup prefix at all: `worbit 1` computes to the first true record
+`(B, [0,1])` at `t = 1`, matching the python extractor.  The word
+orbit is `wstep` iterated; `SafeD9Orbit` — the whole conjecture — is
+the single clause that it never dies.
+-/
+
+/-- The word orbit: `wstep` iterated from the blank anchor `(A, [])`. -/
+def worbit : Nat → Option (State × List Bool)
+  | 0 => some (State.A, [])
+  | k + 1 =>
+      match worbit k with
+      | none => none
+      | some s => (wstep s.1 s.2).map (fun r => (r.1, r.2.1))
+
+/-- **The dossier-9 record-orbit conjecture**, in the exact form the
+machine needs: the fail-closed record orbit never dies — no sweep ever
+meets the fatal `B1` probe or fuel exhaustion.  A statement about a
+sequence of `(state, word)` pairs with no tape, no head, no machine;
+every clause of the sweep dynamics behind it is proven, so no
+`Faithful` component accompanies it. -/
+def SafeD9Orbit : Prop := ∀ k : Nat, worbit k ≠ none
+
+/-- The raw-side orbit invariant: the configuration realizes some live
+state of the word orbit. -/
+def OrbitInv (cfg : Config) : Prop :=
+  ∃ (k : Nat) (st : State) (w : List Bool) (base : Int),
+    worbit k = some (st, w) ∧ Inv st base [] w cfg
+
+/-- The blank start realizes the anchor `(A, [])`. -/
+theorem blank_realizes : Inv State.A 0 [] [] blankStart := by
+  refine ⟨rfl, by simp [blankStart], ?_, ?_⟩
+  · intro k
+    exact (getD_nil k).symm
+  · intro j
+    exact (getD_nil j).symm
+
+theorem orbitInv_start : OrbitInv blankStart :=
+  ⟨0, State.A, [], 0, rfl, blank_realizes⟩
+
+theorem worbit_succ {k : Nat} {s : State × List Bool}
+    (horb : worbit k = some s) :
+    worbit (k + 1) = (wstep s.1 s.2).map (fun r => (r.1, r.2.1)) := by
+  rw [show worbit (k + 1) = (match worbit k with
+      | none => none
+      | some s => (wstep s.1 s.2).map (fun r => (r.1, r.2.1))) from rfl, horb]
+
+/-- Segment step: from any configuration realizing a live orbit state,
+the next sweep runs probe-safely to a configuration realizing the next
+orbit state. -/
+theorem orbit_segment (hso : SafeD9Orbit) (cfg : Config)
+    (hinv : OrbitInv cfg) :
+    ∃ n : Nat, 0 < n ∧ ∃ cfg' : Config, stepN n cfg = some cfg' ∧
+      OrbitInv cfg' ∧ BSafeSeg cfg n := by
+  obtain ⟨k, st, w, base, horb, hreal⟩ := hinv
+  have hlive := hso (k + 1)
+  rw [worbit_succ horb] at hlive
+  cases hws : wstep st w with
+  | none => exact absurd (by simp [hws]) hlive
+  | some r =>
+      obtain ⟨st2, w2, d⟩ := r
+      obtain ⟨cfg', base', h1, h2, h3, h4⟩ := wstep_faithful hws base cfg hreal
+      refine ⟨d, h4, cfg', h1, ?_, h3⟩
+      exact ⟨k + 1, st2, w2, base',
+        by rw [worbit_succ horb, hws]; rfl, h2⟩
+
+/-- **The conditional closure**: the dossier-9 record-orbit conjecture
+implies the machine never halts from blank.
+
+Informally: the blank start realizes the empty arrival; from every
+realized orbit word the certified sweep runs probe-safely to the next
+record; segment induction turns the faithful sweep into
+`BProbeSafe blankStart`; and the one-cell halt pattern `B1` is closed
+forever.  The tenth closure — the parametrics candidate, the first
+right-growing machine at the single-raw-step grain, and the first
+whose fatal probe is the halt transition itself. -/
+theorem safeD9Orbit_nonhalting (hso : SafeD9Orbit) :
+    ¬ RawHalts blankStart := by
+  apply blank_nonhalting_of_b_probe_safe
+  exact bprobe_safe_of_segments orbitInv_start
+    (fun c hinv => orbit_segment hso c hinv)
+
+#print axioms safeD9Orbit_nonhalting
+
 end QIG.Dossier9RawTM
