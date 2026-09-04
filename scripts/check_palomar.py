@@ -47,7 +47,7 @@ OPTIONAL_KEYS = {"definition_names", "enable_nanoda"}
 
 # Generated raw-step closures (phase-2.2 batch); grown incrementally as each
 # machine goes green.
-NEW_DOSSIERS: list[int] = [20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 33, 34, 35, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51]
+NEW_DOSSIERS: list[int] = [20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 33, 34, 35, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52]
 
 ENTRIES = [
     ("antihydra", "comparator-antihydra.json",
