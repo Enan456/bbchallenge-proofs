@@ -6,7 +6,7 @@
 \usepackage{booktabs}
 
 \title{\bfseries The Closed Machines\\
-\large Eight kernel-checked conditional closures for BB(6) cryptids:\\
+\large Eighteen kernel-checked conditional closures for BB(6) cryptids:\\
 what was proven, how, and the path to external approval}
 \author{Enan Srivastava}
 \date{September 3, 2026 \quad (repository \texttt{Enan456/bbchallenge-proofs})}
@@ -14,7 +14,7 @@ what was proven, how, and the path to external approval}
 \begin{document}
 \maketitle
 
-\section*{The eight closures}
+\section*{The eighteen closures}
 
 Each machine below carries a theorem checked by the Lean 4 kernel at
 axioms $\{\mathrm{propext}, \mathrm{Quot.sound}\}$, with no
@@ -37,6 +37,8 @@ Dvisetu (dossier-6) & \texttt{safeDvisetuOrbit\_nonhalting} & \texttt{SafeCheckp
 rank-1 (dossier-5) & \texttt{safeWordOrbit\_nonhalting} & \texttt{SafeWordOrbit} (word orbit) & 2{,}126 \\
 dossier-7 & \texttt{safeD7Orbit\_nonhalting} & \texttt{SafeD7Orbit} (word orbit) & 1{,}036 \\
 dossier-8 & \texttt{safeD8Orbit\_nonhalting} & \texttt{SafeD8Orbit} (word orbit) & 1{,}037 \\
+dossier-9 & \texttt{safeD9Orbit\_nonhalting} & word orbit & 1{,}059 \\
+dossiers 10--18 & \texttt{safeD10\ldots{}D18Orbit\_nonhalting} & word orbits (one clause each) & $\sim$1{,}000--1{,}100 ea. \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -78,20 +80,24 @@ its conjecture as a named, documented assumption rather than proven;
 rank-1, by contrast, needed \emph{no} such fold: at cell-level grain
 its boundary families and decision function are subsumed and proven,
 making it the first closure on a state space of growing dimension.
-Dossiers 7 and 8 landed by the same pipeline taken to its logical
-end: their certified engines run at single-raw-step grain, so every
+Dossiers 7 through 18 landed by the same pipeline taken to its
+logical end: their certified engines run at single-raw-step grain, so every
 branch of their record laws (including every residue case unobserved
 at the empirical horizon) is simulated exactly and proven faithful;
 no assumption is folded anywhere, and the only fail-closed exits are
-the two genuine halt patterns and fuel. Design mirrors validated at
-$2\times10^{7}$ raw steps (5{,}263/5{,}263 and 3{,}890/3{,}890
-record transitions exact) before a line of Lean was written.
+the two genuine halt patterns and fuel. Design mirrors validated at $2\times10^{7}$ raw steps per machine
+(from 3{,}890 to 10{,}909 record transitions each, all exact) before
+any Lean was written; the final tranche closed the dip-aware pair,
+both architecture variants (one mirror spanning a 13M-step regime
+shift), and the two-sided five including the twin pair, whose law is
+certified twice from one file. All eighteen keystones replay in a
+single build at the two axioms.
 
 \section*{What it takes to push, validate, and get approved}
 
 \paragraph{1. External formal validation (Palomar).} Prepared and
-pinned: five entries (four more to follow for Dvisetu, rank-1, and
-dossiers 7/8) with challenge/solution comparator pairs whose challenge
+pinned: nineteen entries (the original five plus one per new
+closure) with challenge/solution comparator pairs whose challenge
 files import Lean core only. Local intake: 0 failures, 0 warnings.
 \emph{Remaining action: one browser session by the author}
 (GitHub authentication; the registry re-checks the proofs at the
@@ -126,7 +132,7 @@ into unconditional results: each conjecture is a Collatz-class orbit
 avoidance statement, and the program's own negative results
 (no congruence invariant to modulus 384; ranking-class certificates
 exhaustively refuted on the true fatal model) show why. The honest
-end state of approval is: eight machine-checked reductions, externally
+end state of approval is: eighteen machine-checked reductions, externally
 re-verified, publicly reproduced, with each machine's halting
 problem restated as one explicit arithmetic question.
 
