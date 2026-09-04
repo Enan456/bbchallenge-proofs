@@ -45,6 +45,10 @@ REQUIRED_KEYS = {"challenge_module", "solution_module", "theorem_names",
                  "permitted_axioms"}
 OPTIONAL_KEYS = {"definition_names", "enable_nanoda"}
 
+# Generated raw-step closures (phase-2.2 batch); grown incrementally as each
+# machine goes green.
+NEW_DOSSIERS: list[int] = [20]
+
 ENTRIES = [
     ("antihydra", "comparator-antihydra.json",
      "palomar-meta/antihydra/formalization.yaml"),
@@ -63,7 +67,7 @@ ENTRIES = [
 ] + [
     (f"dossier{n}", f"comparator-dossier{n}.json",
      f"palomar-meta/dossier{n}/formalization.yaml")
-    for n in range(7, 19)
+    for n in list(range(7, 19)) + NEW_DOSSIERS
 ]
 
 failures: list[str] = []
