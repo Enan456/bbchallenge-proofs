@@ -913,6 +913,11 @@ def build_test(sp):
     text = text.replace(f"{tmpl_P}1", f"{P}{pr}")
     text = text.replace(f"{tmpl_P}Probe", f"{P}Probe")
     text = text.replace(f"{tmpl_P}-probe", f"{P}-probe")
+    # Re-pin TM_CODE last: the probe-label replace above ("{tmpl_P}1" ->
+    # "{P}{pr}") would otherwise corrupt any machine code containing that
+    # 2-char substring (e.g. the "B1" inside "1RB1LF...").  Setting the code
+    # after every letter/label replace makes it immune to that collision.
+    text = re.sub(r"TM_CODE = '[^']*'", f"TM_CODE = '{sp.code}'", text)
     return text
 
 
