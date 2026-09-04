@@ -1,5 +1,20 @@
 # Two-ended emulation for dossier-3: MIP*-inspired alignment
 
+> **Correction (2026-09-03).** The depth-24 statement below,
+> "all 134 families require three 0s within a six-cell window, a
+> pattern no certified forward shape can produce," is
+> necessary-not-sufficient and its literal shape-incompatibility form
+> is FALSE: an exact spawn-shape satisfiability check finds 11
+> wide-holeTape shapes that genuinely halt within 30 raw steps (the
+> six-cell window counts a spawn's exterior left-of-head zeros, which
+> every spawn carries; the sound criterion is the interior-zero
+> count, as Antihydra's cone uses). The sound replacement, verified
+> to depth 30, is orbit alignment: the certified dossier-3 orbit
+> registers zero alignments against the full depth-30 cone over
+> 100,000 renewal steps, so no reachable configuration comes within
+> 30 raw steps of the halt. See docs/results/2026-09-03-lethality-and-cones.md.
+
+
 **Date:** 2026-08-27 · **Script:** `docs/results/two_ended2.py`
 
 ## 1. The MIP* = RE read-through, and what we borrow

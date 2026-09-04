@@ -363,11 +363,11 @@ extreme-event times. A machine halts if and only if its forward orbit
 ever aligns with its backward cone, so the verdict compiles from the
 three reports. Across all $1{,}094$ holdouts: zero halts, and zero
 alignments; at every sampled instant, every holdout is at least
-$18$ raw steps from any halting event. (For dossier-3 the two ends
-are provably incompatible in a stronger sense: all $134$ backward
-families at depth $24$ require three $0$s within a six-cell window,
-a pattern no certified forward shape can produce; the statement is
-finite and checkable.) The census then splits the set:
+$18$ raw steps from any halting event. (For dossier-3 the margin is
+larger and finite-checkable: its certified orbit registers zero
+alignments against the entire backward halt cone to depth $30$
+over $10^5$ renewal steps, so no reachable configuration comes within
+$30$ raw steps of the halt.) The census then splits the set:
 
 \begin{itemize}
 \item \textbf{4 machines} reduce to
