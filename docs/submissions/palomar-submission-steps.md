@@ -1,7 +1,7 @@
 # Palomar submission — ready to fire (browser step is yours)
 
 Everything is prepared, validated (local intake: 0 failures / 0
-warnings across all five entries), built, and pushed. The registry's
+warnings across all NINETEEN entries), built, and pushed. The registry's
 submission is browser-only with GitHub authentication, so the final
 step must be done by you (I never enter your credentials).
 
@@ -9,14 +9,18 @@ step must be done by you (I never enter your credentials).
 
 Per entry, fill:
 - **Repository**: `Enan456/bbchallenge-proofs`
-- **Commit** (full SHA, pinned): `453158180bb55ad2e9588483801a64946a0ae734`
+- **Commit** (full SHA, pinned): `f8c07a3a1f8de73c66033e2daea1d1fa43e4e3ab`
 - **Project directory**: `packages/dossier1`
-- **Comparator configuration** (one submission per entry):
+- **Comparator configuration** (one submission per entry, 19 total):
   1. `packages/dossier1/comparator-antihydra.json`
   2. `packages/dossier1/comparator-dossier1.json`
   3. `packages/dossier1/comparator-incision.json`
-  4. `packages/dossier1/comparator-dossier2cryptid.json`  <- new
-  5. `packages/dossier1/comparator-dossier3cryptid.json`  <- new
+  4. `packages/dossier1/comparator-dossier2cryptid.json`
+  5. `packages/dossier1/comparator-dossier3cryptid.json`
+  6. `packages/dossier1/comparator-dvisetu.json`
+  7. `packages/dossier1/comparator-rank1.json`
+  8-19. `packages/dossier1/comparator-dossier7.json` through
+        `comparator-dossier18.json` (one per closure)
 - **Relationship**: "I am a responsible author or maintainer"
 - Authenticate with GitHub when prompted (token used once, not stored;
   session remembered 12h — so all five entries fit one sitting).
