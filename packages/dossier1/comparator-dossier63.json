@@ -1,0 +1,11 @@
+{
+    "challenge_module": "Palomar.Dossier63Challenge",
+    "solution_module": "Palomar.Dossier63Solution",
+    "theorem_names": [
+        "Dossier63Challenge.safeD63Orbit_nonhalting"
+    ],
+    "permitted_axioms": [
+        "propext",
+        "Quot.sound"
+    ]
+}

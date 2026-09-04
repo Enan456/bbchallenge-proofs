@@ -56,6 +56,30 @@ import BusyBeaverCore.Dossier56RawTM
 import BusyBeaverCore.Dossier57RawTM
 import BusyBeaverCore.Dossier58RawTM
 import BusyBeaverCore.Dossier59RawTM
+import BusyBeaverCore.Dossier60RawTM
+import BusyBeaverCore.Dossier61RawTM
+import BusyBeaverCore.Dossier62RawTM
+import BusyBeaverCore.Dossier63RawTM
+import BusyBeaverCore.Dossier64RawTM
+import BusyBeaverCore.Dossier65RawTM
+import BusyBeaverCore.Dossier66RawTM
+import BusyBeaverCore.Dossier67RawTM
+import BusyBeaverCore.Dossier68RawTM
+import BusyBeaverCore.Dossier69RawTM
+import BusyBeaverCore.Dossier70RawTM
+import BusyBeaverCore.Dossier71RawTM
+import BusyBeaverCore.Dossier72RawTM
+import BusyBeaverCore.Dossier73RawTM
+import BusyBeaverCore.Dossier74RawTM
+import BusyBeaverCore.Dossier75RawTM
+import BusyBeaverCore.Dossier76RawTM
+import BusyBeaverCore.Dossier77RawTM
+import BusyBeaverCore.Dossier78RawTM
+import BusyBeaverCore.Dossier79RawTM
+import BusyBeaverCore.Dossier80RawTM
+import BusyBeaverCore.Dossier81RawTM
+import BusyBeaverCore.Dossier82RawTM
+import BusyBeaverCore.Dossier83RawTM
 
 /-! The trust base: raw semantics and complete reductions for the five
 program machines.  Read the files in table order; each is self-contained. -/
