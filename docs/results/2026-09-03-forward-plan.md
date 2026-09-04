@@ -141,3 +141,25 @@ unconditionally, N reduced to explicit arithmetic." The plan
 maximizes N and the rigor of the reductions; it does not pretend to
 cross the Collatz wall, because the program's own negatives show
 that finite certificates cannot.
+
+## Parallelization (execution addendum, 2026-09-03)
+
+Band definition is now pinned in `qgkit/bb6/census_bands.py`
+(canonical counts: 262 structured, 39 multi-law, 793 unstructured,
+0 halts). Phase 0.1 is done. The rest is fired as a concurrent
+agent fleet, since the workstreams are independent:
+
+| stream | phase | agent | gated on |
+|---|---|---|---|
+| audit harness | 1.1 | A | 0.1 (done) |
+| raw-step Lean generator | 2.1 | B | uses tranche files as templates now; consumes audit later |
+| retire DivideFaithful | 3.1 | C | none (hand-built like the tranche) |
+| Fibonacci recurrence lemma | 4.1 | D | none |
+| cone-incompatibility + odd-c lethality lemmas | 4.2/4.3 | E | none |
+
+Phase 0.2 (external: Palomar session, forum post, non-author build)
+is the author's browser and cannot be delegated; it runs in parallel
+with everything by being handed off, not executed. Phase 2.2 (batch
+close) begins when A and B both land. Phase 5 (frontier) is
+deliberately not agent-fired: it is a months-scale mathematical
+project, not a code task, and is left for human-led collaboration.
