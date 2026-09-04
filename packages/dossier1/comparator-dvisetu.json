@@ -1,0 +1,6 @@
+{
+    "challenge_module": "Palomar.DvisetuChallenge",
+    "solution_module": "Palomar.DvisetuSolution",
+    "theorem_names": ["DvisetuChallenge.safeDvisetuOrbit_nonhalting"],
+    "permitted_axioms": ["propext", "Quot.sound"]
+}
