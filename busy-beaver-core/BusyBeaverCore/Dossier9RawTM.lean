@@ -21,8 +21,10 @@ move is one raw step of list surgery on the pair `(em, rest)` (`em` =
 cells *above* the head, nearest first; `rest` = the head cell
 downward), and an *arrival* is an above-base pop: the head stepping
 onto a fresh right extreme.  These are the machine's record events;
-the validated python mirror (`tests/bb6/test_d9_theorems.py`)
-reproduces every one of them exactly over the 20M-step horizon.
+the validated python mirror reproduces every one of them exactly —
+5,804/5,804 record transitions (state, word, step count) over 20M raw
+steps, B-probe safe at every step, with the left extent bounded at
+`-10` and a maximum fuel fraction of `0.00049` (margin above 2,000×).
 
 Halt anatomy note: this machine's undefined transition is `B1` — the
 halt happens *in* state `B`, on the probed cell itself, so the
@@ -69,7 +71,7 @@ tiling never covered — is simulated exactly rather than assumed.  The
 conjecture is exactly the empirical substrate validated by the
 record-mirror differential test (`tests/bb6/test_d9_theorems.py`:
 every record transition reproduced exactly — state, word, step count —
-over multi-million-step horizons).
+over multi-million-step horizons, with fuel margin above 2,000×).
 -/
 
 namespace QIG.Dossier9RawTM
