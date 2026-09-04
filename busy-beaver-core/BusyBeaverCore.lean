@@ -3,6 +3,7 @@ import BusyBeaverCore.AntihydraRawTM
 import BusyBeaverCore.Dossier2RawTM
 import BusyBeaverCore.Dossier3RawTM
 import BusyBeaverCore.DvisetuRawTM
+import BusyBeaverCore.DvisetuRawStepTM
 import BusyBeaverCore.Rank1RawTM
 import BusyBeaverCore.Dossier7RawTM
 import BusyBeaverCore.Dossier8RawTM
