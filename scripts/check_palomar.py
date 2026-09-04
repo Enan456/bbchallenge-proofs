@@ -56,6 +56,14 @@ ENTRIES = [
      "palomar-meta/dossier2cryptid/formalization.yaml"),
     ("dossier3cryptid", "comparator-dossier3cryptid.json",
      "palomar-meta/dossier3cryptid/formalization.yaml"),
+    ("dvisetu", "comparator-dvisetu.json",
+     "palomar-meta/dvisetu/formalization.yaml"),
+    ("rank1", "comparator-rank1.json",
+     "palomar-meta/rank1/formalization.yaml"),
+] + [
+    (f"dossier{n}", f"comparator-dossier{n}.json",
+     f"palomar-meta/dossier{n}/formalization.yaml")
+    for n in range(7, 19)
 ]
 
 failures: list[str] = []
