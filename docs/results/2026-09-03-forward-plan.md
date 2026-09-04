@@ -151,8 +151,8 @@ agent fleet, since the workstreams are independent:
 
 | stream | phase | agent | gated on |
 |---|---|---|---|
-| audit harness | 1.1 | A | 0.1 (done) |
-| raw-step Lean generator | 2.1 | B | uses tranche files as templates now; consumes audit later |
+| audit harness | 1.1 | A | DONE: 795 engine-ready / 0 halts (audit-openset doc) |
+| raw-step Lean generator | 2.1 | B | DONE: generator works, closed dossier-19 |
 | retire DivideFaithful | 3.1 | C | none (hand-built like the tranche) |
 | Fibonacci recurrence lemma | 4.1 | D | none |
 | cone-incompatibility + odd-c lethality lemmas | 4.2/4.3 | E | none |
