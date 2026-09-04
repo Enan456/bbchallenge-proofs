@@ -438,4 +438,532 @@ def Inv (st : State) (base : Int) (em rest : List Bool) (cfg : Config) : Prop :=
   (∀ k : Nat, cfg.tape (base - em.length + 1 + k) = em.getD k false) ∧
   (∀ j : Nat, cfg.tape (base - em.length - j) = rest.getD j false)
 
+/-!
+## The three one-step episodes
+
+The dossier-7/8 design, mirrored: the grain is a single raw step, so
+exactly three episode shapes cover the entire dynamics — push, interior
+pop, and extreme-extending pop — and *every* branch of the parametric
+calculus (both tail families, the growth unit, the floor and kind
+laws, and the untiled rebuild sweeps) is a composite of them,
+simulated rather than assumed. -/
+
+/-- Push: any left-moving instruction transfers the written head cell
+onto the stack `em`.  One raw step; trivially B-probe-safe because no
+left-moving instruction leaves state `B` (`B0` moves right and `B1` is
+the halt). -/
+theorem push_step {st st' : State} {wv : Bool} {base : Int} {em rest : List Bool}
+    {cfg : Config}
+    (hInv : Inv st base em rest cfg)
+    (hins : instr st (rest.getD 0 false) = some ⟨st', wv, Dir.L⟩)
+    (hnB : st ≠ State.B) :
+    ∃ cfg', stepN 1 cfg = some cfg' ∧
+      Inv st' base (wv :: em) (rest.drop 1) cfg' ∧ BSafeSeg cfg 1 := by
+  obtain ⟨hst, hhd, hup, hdown⟩ := hInv
+  obtain ⟨cs, hd, t⟩ := cfg
+  simp only at hst hhd hup hdown
+  subst hst
+  subst hhd
+  have r0 : t (base - (em.length : Int)) = rest.getD 0 false := by
+    have h := hdown 0
+    rw [show base - (em.length : Int) - ((0 : Nat) : Int)
+          = base - (em.length : Int) by omega] at h
+    exact h
+  have s1 : step ⟨cs, base - (em.length : Int), t⟩
+      = some ⟨st', base - (em.length : Int) - 1,
+          writeAt t (base - (em.length : Int)) wv⟩ := by
+    rw [show step ⟨cs, base - (em.length : Int), t⟩
+          = (instr cs (t (base - (em.length : Int)))).bind (fun ins =>
+              some ⟨ins.next, move (base - (em.length : Int)) ins.dir,
+                writeAt t (base - (em.length : Int)) ins.write⟩) from rfl,
+        r0, hins]
+    rfl
+  have hup' : ∀ k : Nat,
+      (writeAt t (base - (em.length : Int)) wv)
+        (base - ((em.length + 1 : Nat) : Int) + 1 + (k : Int))
+        = (wv :: em).getD k false := by
+    intro k
+    cases k with
+    | zero =>
+        rw [show base - ((em.length + 1 : Nat) : Int) + 1 + ((0 : Nat) : Int)
+              = base - (em.length : Int) by omega, writeAt_same]
+        rfl
+    | succ k =>
+        rw [show base - ((em.length + 1 : Nat) : Int) + 1 + ((k + 1 : Nat) : Int)
+              = base - (em.length : Int) + 1 + (k : Int) by omega,
+            writeAt_other _ _ _ _ (by omega), hup k, List.getD_cons_succ]
+  have hdown' : ∀ j : Nat,
+      (writeAt t (base - (em.length : Int)) wv)
+        (base - ((em.length + 1 : Nat) : Int) - (j : Int))
+        = (rest.drop 1).getD j false := by
+    intro j
+    rw [show base - ((em.length + 1 : Nat) : Int) - (j : Int)
+          = base - (em.length : Int) - ((1 + j : Nat) : Int) by omega,
+        writeAt_other _ _ _ _ (by omega), hdown (1 + j), getD_drop]
+  refine ⟨⟨st', base - (em.length : Int) - 1,
+      writeAt t (base - (em.length : Int)) wv⟩,
+    stepN_succ_of_step s1 (stepN_zero _),
+    ⟨rfl, show base - (em.length : Int) - 1
+        = base - ((em.length + 1 : Nat) : Int) by omega, hup', hdown'⟩, ?_⟩
+  intro k d hk hkd hB
+  have hk0 : k = 0 := by omega
+  subst hk0
+  have hdd : (⟨cs, base - (em.length : Int), t⟩ : Config) = d := by
+    simpa [stepN] using hkd
+  rw [← hdd] at hB
+  exact absurd hB hnB
+
+/-- Interior pop: any right-moving instruction with a nonempty stack
+transfers `em`'s top back onto `rest`.  One raw step; the safety
+hypothesis is exactly the machine's mortality, localized — when `B`
+moves, the probed cell must have been a `0` (which `hins` itself
+already forces, since `B1` is undefined). -/
+theorem pop_step_cons {st st' : State} {wv e0 : Bool} {base : Int}
+    {em2 rest : List Bool} {cfg : Config}
+    (hInv : Inv st base (e0 :: em2) rest cfg)
+    (hins : instr st (rest.getD 0 false) = some ⟨st', wv, Dir.R⟩)
+    (hBsafe : st = State.B → rest.getD 0 false = false) :
+    ∃ cfg', stepN 1 cfg = some cfg' ∧
+      Inv st' base em2 (e0 :: wv :: rest.drop 1) cfg' ∧ BSafeSeg cfg 1 := by
+  obtain ⟨hst, hhd, hup, hdown⟩ := hInv
+  obtain ⟨cs, hd, t⟩ := cfg
+  simp only at hst hhd hup hdown
+  simp only [List.length_cons] at hhd hup hdown
+  subst hst
+  subst hhd
+  have r0 : t (base - ((em2.length + 1 : Nat) : Int)) = rest.getD 0 false := by
+    have h := hdown 0
+    rw [show base - ((em2.length + 1 : Nat) : Int) - ((0 : Nat) : Int)
+          = base - ((em2.length + 1 : Nat) : Int) by omega] at h
+    exact h
+  have s1 : step ⟨cs, base - ((em2.length + 1 : Nat) : Int), t⟩
+      = some ⟨st', base - ((em2.length + 1 : Nat) : Int) + 1,
+          writeAt t (base - ((em2.length + 1 : Nat) : Int)) wv⟩ := by
+    rw [show step ⟨cs, base - ((em2.length + 1 : Nat) : Int), t⟩
+          = (instr cs (t (base - ((em2.length + 1 : Nat) : Int)))).bind (fun ins =>
+              some ⟨ins.next, move (base - ((em2.length + 1 : Nat) : Int)) ins.dir,
+                writeAt t (base - ((em2.length + 1 : Nat) : Int)) ins.write⟩) from rfl,
+        r0, hins]
+    rfl
+  have hup' : ∀ k : Nat,
+      (writeAt t (base - ((em2.length + 1 : Nat) : Int)) wv)
+        (base - (em2.length : Int) + 1 + (k : Int)) = em2.getD k false := by
+    intro k
+    rw [show base - (em2.length : Int) + 1 + (k : Int)
+          = base - ((em2.length + 1 : Nat) : Int) + 1 + ((k + 1 : Nat) : Int) by omega,
+        writeAt_other _ _ _ _ (by omega), hup (k + 1), List.getD_cons_succ]
+  have hdown' : ∀ j : Nat,
+      (writeAt t (base - ((em2.length + 1 : Nat) : Int)) wv)
+        (base - (em2.length : Int) - (j : Int))
+        = (e0 :: wv :: rest.drop 1).getD j false := by
+    intro j
+    cases j with
+    | zero =>
+        rw [show base - (em2.length : Int) - ((0 : Nat) : Int)
+              = base - ((em2.length + 1 : Nat) : Int) + 1 + ((0 : Nat) : Int) by omega,
+            writeAt_other _ _ _ _ (by omega), hup 0]
+        rfl
+    | succ j =>
+        cases j with
+        | zero =>
+            rw [show base - (em2.length : Int) - ((1 : Nat) : Int)
+                  = base - ((em2.length + 1 : Nat) : Int) by omega,
+                writeAt_same]
+            rfl
+        | succ j =>
+            rw [show base - (em2.length : Int) - ((j + 1 + 1 : Nat) : Int)
+                  = base - ((em2.length + 1 : Nat) : Int) - ((1 + j : Nat) : Int) by omega,
+                writeAt_other _ _ _ _ (by omega), hdown (1 + j),
+                List.getD_cons_succ, List.getD_cons_succ, getD_drop]
+  refine ⟨⟨st', base - ((em2.length + 1 : Nat) : Int) + 1,
+      writeAt t (base - ((em2.length + 1 : Nat) : Int)) wv⟩,
+    stepN_succ_of_step s1 (stepN_zero _),
+    ⟨rfl, show base - ((em2.length + 1 : Nat) : Int) + 1
+        = base - (em2.length : Int) by omega, hup', hdown'⟩, ?_⟩
+  intro k d hk hkd hB
+  have hk0 : k = 0 := by omega
+  subst hk0
+  have hdd : (⟨cs, base - ((em2.length + 1 : Nat) : Int), t⟩ : Config) = d := by
+    simpa [stepN] using hkd
+  rw [← hdd] at hB
+  have hrf : rest.getD 0 false = false := hBsafe hB
+  rw [← hdd]
+  show t (base - ((em2.length + 1 : Nat) : Int)) = false
+  rw [r0]
+  exact hrf
+
+/-- Extreme-extending pop: a right move with an empty stack steps above
+`base` onto blank tape — the *arrival*, a fresh right extreme, the
+record event.  One raw step; when `B` moves the probed cell was a `0`
+(the safety hypothesis, which `hins` itself already forces). -/
+theorem pop_step_nil {st st' : State} {wv : Bool} {base : Int}
+    {rest : List Bool} {cfg : Config}
+    (hInv : Inv st base [] rest cfg)
+    (hins : instr st (rest.getD 0 false) = some ⟨st', wv, Dir.R⟩)
+    (hBsafe : st = State.B → rest.getD 0 false = false) :
+    ∃ cfg', stepN 1 cfg = some cfg' ∧
+      Inv st' (base + 1) [] (false :: wv :: rest.drop 1) cfg' ∧ BSafeSeg cfg 1 := by
+  obtain ⟨hst, hhd, hup, hdown⟩ := hInv
+  obtain ⟨cs, hd, t⟩ := cfg
+  simp only at hst hhd hup hdown
+  simp only [List.length_nil] at hhd hup hdown
+  subst hst
+  subst hhd
+  rw [show base - ((0 : Nat) : Int) = base by omega]
+  have r0 : t base = rest.getD 0 false := by
+    have h := hdown 0
+    rw [show base - ((0 : Nat) : Int) - ((0 : Nat) : Int) = base by omega] at h
+    exact h
+  have s1 : step ⟨cs, base, t⟩
+      = some ⟨st', base + 1, writeAt t base wv⟩ := by
+    rw [show step ⟨cs, base, t⟩
+          = (instr cs (t base)).bind (fun ins =>
+              some ⟨ins.next, move base ins.dir, writeAt t base ins.write⟩) from rfl,
+        r0, hins]
+    rfl
+  have hup' : ∀ k : Nat,
+      (writeAt t base wv) (base + 1 - ((0 : Nat) : Int) + 1 + (k : Int))
+        = ([] : List Bool).getD k false := by
+    intro k
+    rw [show base + 1 - ((0 : Nat) : Int) + 1 + (k : Int)
+          = base - ((0 : Nat) : Int) + 1 + ((k + 1 : Nat) : Int) by omega,
+        writeAt_other _ _ _ _ (by omega), hup (k + 1)]
+    exact (getD_nil (k + 1)).trans (getD_nil k).symm
+  have hdown' : ∀ j : Nat,
+      (writeAt t base wv) (base + 1 - ((0 : Nat) : Int) - (j : Int))
+        = (false :: wv :: rest.drop 1).getD j false := by
+    intro j
+    cases j with
+    | zero =>
+        rw [show base + 1 - ((0 : Nat) : Int) - ((0 : Nat) : Int)
+              = base - ((0 : Nat) : Int) + 1 + ((0 : Nat) : Int) by omega,
+            writeAt_other _ _ _ _ (by omega), hup 0]
+        exact getD_nil 0
+    | succ j =>
+        cases j with
+        | zero =>
+            rw [show base + 1 - ((0 : Nat) : Int) - ((1 : Nat) : Int)
+                  = base by omega, writeAt_same]
+            rfl
+        | succ j =>
+            rw [show base + 1 - ((0 : Nat) : Int) - ((j + 1 + 1 : Nat) : Int)
+                  = base - ((0 : Nat) : Int) - ((1 + j : Nat) : Int) by omega,
+                writeAt_other _ _ _ _ (by omega), hdown (1 + j),
+                List.getD_cons_succ, List.getD_cons_succ, getD_drop]
+  refine ⟨⟨st', base + 1, writeAt t base wv⟩,
+    stepN_succ_of_step s1 (stepN_zero _),
+    ⟨rfl, show base + 1 = base + 1 - ((0 : Nat) : Int) by omega, hup', hdown'⟩, ?_⟩
+  intro k d hk hkd hB
+  have hk0 : k = 0 := by omega
+  subst hk0
+  have hdd : (⟨cs, base, t⟩ : Config) = d := by
+    simpa [stepN] using hkd
+  rw [← hdd] at hB
+  have hrf : rest.getD 0 false = false := hBsafe hB
+  rw [← hdd]
+  show t base = false
+  rw [r0]
+  exact hrf
+
+/-!
+## The certified sweep: `go` and `wstep`
+
+`go` is the fail-closed word machine: from `(st, em, rest)` it runs
+single-raw-step surgery until the first above-base pop — the next
+arrival, i.e. the next fresh-right-extreme record — and returns
+`(state, arrival word, raw steps)`.  It returns `none` exactly on the
+fatal `B`-probe (`B` reading `1` — which on this machine *is* the
+undefined halt transition) and on fuel exhaustion.  Nothing else
+fails: every other branch is the raw machine verbatim, so all
+parametric-calculus branches — observed or not — are simulated
+exactly.
+-/
+
+def go : Nat → State → List Bool → List Bool → Option (State × List Bool × Nat)
+  | 0, _, _, _ => none
+  | fuel + 1, st, em, rest =>
+    match st, rest.getD 0 false with
+    | State.A, false =>
+        match em with
+        | [] => some (State.B, false :: true :: rest.drop 1, 1)
+        | e0 :: em2 =>
+            (go fuel State.B em2 (e0 :: true :: rest.drop 1)).map
+              (fun r => (r.1, r.2.1, 1 + r.2.2))
+    | State.A, true =>
+        (go fuel State.F (false :: em) (rest.drop 1)).map
+          (fun r => (r.1, r.2.1, 1 + r.2.2))
+    | State.B, false =>
+        match em with
+        | [] => some (State.C, false :: true :: rest.drop 1, 1)
+        | e0 :: em2 =>
+            (go fuel State.C em2 (e0 :: true :: rest.drop 1)).map
+              (fun r => (r.1, r.2.1, 1 + r.2.2))
+    | State.B, true => none
+    | State.C, false =>
+        (go fuel State.D (true :: em) (rest.drop 1)).map
+          (fun r => (r.1, r.2.1, 1 + r.2.2))
+    | State.C, true =>
+        match em with
+        | [] => some (State.F, false :: false :: rest.drop 1, 1)
+        | e0 :: em2 =>
+            (go fuel State.F em2 (e0 :: false :: rest.drop 1)).map
+              (fun r => (r.1, r.2.1, 1 + r.2.2))
+    | State.D, false =>
+        match em with
+        | [] => some (State.A, false :: true :: rest.drop 1, 1)
+        | e0 :: em2 =>
+            (go fuel State.A em2 (e0 :: true :: rest.drop 1)).map
+              (fun r => (r.1, r.2.1, 1 + r.2.2))
+    | State.D, true =>
+        (go fuel State.E (false :: em) (rest.drop 1)).map
+          (fun r => (r.1, r.2.1, 1 + r.2.2))
+    | State.E, false =>
+        (go fuel State.D (false :: em) (rest.drop 1)).map
+          (fun r => (r.1, r.2.1, 1 + r.2.2))
+    | State.E, true =>
+        (go fuel State.D (true :: em) (rest.drop 1)).map
+          (fun r => (r.1, r.2.1, 1 + r.2.2))
+    | State.F, false =>
+        match em with
+        | [] => some (State.D, false :: false :: rest.drop 1, 1)
+        | e0 :: em2 =>
+            (go fuel State.D em2 (e0 :: false :: rest.drop 1)).map
+              (fun r => (r.1, r.2.1, 1 + r.2.2))
+    | State.F, true =>
+        match em with
+        | [] => some (State.B, false :: false :: rest.drop 1, 1)
+        | e0 :: em2 =>
+            (go fuel State.B em2 (e0 :: false :: rest.drop 1)).map
+              (fun r => (r.1, r.2.1, 1 + r.2.2))
+
+theorem map_add1_eq_some {o : Option (State × List Bool × Nat)} {st' : State}
+    {w : List Bool} {d : Nat}
+    (h : o.map (fun r => (r.1, r.2.1, 1 + r.2.2)) = some (st', w, d)) :
+    ∃ d', o = some (st', w, d') ∧ d = 1 + d' := by
+  cases o with
+  | none => simp at h
+  | some r =>
+      obtain ⟨s0, w0, d0⟩ := r
+      simp at h
+      obtain ⟨hs, hw, hd⟩ := h
+      exact ⟨d0, by rw [hs, hw], by omega⟩
+
+/-- Faithfulness of the sweep, by induction on fuel: every `some`
+output of `go` is realized by the raw machine in exactly the returned
+step count, B-probe-safely, landing on an arrival configuration of the
+returned word (head at the new base, the fresh right extreme). -/
+theorem go_faithful :
+    ∀ (fuel : Nat) (st : State) (em rest : List Bool) (st' : State)
+      (w' : List Bool) (d : Nat),
+      go fuel st em rest = some (st', w', d) →
+      ∀ (base : Int) (cfg : Config), Inv st base em rest cfg →
+        ∃ (cfg' : Config) (base' : Int), stepN d cfg = some cfg' ∧
+          Inv st' base' [] w' cfg' ∧ BSafeSeg cfg d ∧ 0 < d := by
+  intro fuel
+  induction fuel with
+  | zero =>
+      intro st em rest st' w' d hgo base cfg hInv
+      simp [go] at hgo
+  | succ fuel ih =>
+      intro st em rest st' w' d hgo base cfg hInv
+      simp only [go] at hgo
+      split at hgo
+      · -- A0: pop to B
+        next hr =>
+          split at hgo
+          · -- arrival
+            obtain ⟨hs, hw, hd⟩ : State.B = st' ∧
+                false :: true :: rest.drop 1 = w' ∧ 1 = d := by
+              simpa using hgo
+            subst hs; subst hw; subst hd
+            obtain ⟨cfg', h1, h2, h3⟩ := pop_step_nil hInv (by rw [hr]; rfl)
+              (fun h => absurd h (by decide))
+            exact ⟨cfg', base + 1, h1, h2, h3, by omega⟩
+          · next e0 em2 =>
+              obtain ⟨d', hrec, hd⟩ := map_add1_eq_some hgo
+              subst hd
+              obtain ⟨cfg₂, h1, h2, h3⟩ := pop_step_cons hInv (by rw [hr]; rfl)
+                (fun h => absurd h (by decide))
+              obtain ⟨cfg', base', h1', h2', h3', _⟩ := ih _ _ _ _ _ _ hrec base cfg₂ h2
+              refine ⟨cfg', base', ?_, h2', ?_, by omega⟩
+              · rw [stepN_add, h1]
+                exact h1'
+              · exact bsafe_compose h1 h3 h3'
+      · -- A1: push to F
+        next hr =>
+          obtain ⟨d', hrec, hd⟩ := map_add1_eq_some hgo
+          subst hd
+          obtain ⟨cfg₂, h1, h2, h3⟩ := push_step hInv (by rw [hr]; rfl) (by decide)
+          obtain ⟨cfg', base', h1', h2', h3', _⟩ := ih _ _ _ _ _ _ hrec base cfg₂ h2
+          refine ⟨cfg', base', ?_, h2', ?_, by omega⟩
+          · rw [stepN_add, h1]
+            exact h1'
+          · exact bsafe_compose h1 h3 h3'
+      · -- B0: pop to C — the safe probe, `B` reading `0`
+        next hr =>
+          split at hgo
+          · obtain ⟨hs, hw, hd⟩ : State.C = st' ∧
+                false :: true :: rest.drop 1 = w' ∧ 1 = d := by
+              simpa using hgo
+            subst hs; subst hw; subst hd
+            obtain ⟨cfg', h1, h2, h3⟩ := pop_step_nil hInv (by rw [hr]; rfl)
+              (fun _ => hr)
+            exact ⟨cfg', base + 1, h1, h2, h3, by omega⟩
+          · next e0 em2 =>
+              obtain ⟨d', hrec, hd⟩ := map_add1_eq_some hgo
+              subst hd
+              obtain ⟨cfg₂, h1, h2, h3⟩ := pop_step_cons hInv (by rw [hr]; rfl)
+                (fun _ => hr)
+              obtain ⟨cfg', base', h1', h2', h3', _⟩ := ih _ _ _ _ _ _ hrec base cfg₂ h2
+              refine ⟨cfg', base', ?_, h2', ?_, by omega⟩
+              · rw [stepN_add, h1]
+                exact h1'
+              · exact bsafe_compose h1 h3 h3'
+      · -- B1: the halt probe — fail-closed
+        simp at hgo
+      · -- C0: push to D
+        next hr =>
+          obtain ⟨d', hrec, hd⟩ := map_add1_eq_some hgo
+          subst hd
+          obtain ⟨cfg₂, h1, h2, h3⟩ := push_step hInv (by rw [hr]; rfl) (by decide)
+          obtain ⟨cfg', base', h1', h2', h3', _⟩ := ih _ _ _ _ _ _ hrec base cfg₂ h2
+          refine ⟨cfg', base', ?_, h2', ?_, by omega⟩
+          · rw [stepN_add, h1]
+            exact h1'
+          · exact bsafe_compose h1 h3 h3'
+      · -- C1: pop to F
+        next hr =>
+          split at hgo
+          · obtain ⟨hs, hw, hd⟩ : State.F = st' ∧
+                false :: false :: rest.drop 1 = w' ∧ 1 = d := by
+              simpa using hgo
+            subst hs; subst hw; subst hd
+            obtain ⟨cfg', h1, h2, h3⟩ := pop_step_nil hInv (by rw [hr]; rfl)
+              (fun h => absurd h (by decide))
+            exact ⟨cfg', base + 1, h1, h2, h3, by omega⟩
+          · next e0 em2 =>
+              obtain ⟨d', hrec, hd⟩ := map_add1_eq_some hgo
+              subst hd
+              obtain ⟨cfg₂, h1, h2, h3⟩ := pop_step_cons hInv (by rw [hr]; rfl)
+                (fun h => absurd h (by decide))
+              obtain ⟨cfg', base', h1', h2', h3', _⟩ := ih _ _ _ _ _ _ hrec base cfg₂ h2
+              refine ⟨cfg', base', ?_, h2', ?_, by omega⟩
+              · rw [stepN_add, h1]
+                exact h1'
+              · exact bsafe_compose h1 h3 h3'
+      · -- D0: pop to A
+        next hr =>
+          split at hgo
+          · obtain ⟨hs, hw, hd⟩ : State.A = st' ∧
+                false :: true :: rest.drop 1 = w' ∧ 1 = d := by
+              simpa using hgo
+            subst hs; subst hw; subst hd
+            obtain ⟨cfg', h1, h2, h3⟩ := pop_step_nil hInv (by rw [hr]; rfl)
+              (fun h => absurd h (by decide))
+            exact ⟨cfg', base + 1, h1, h2, h3, by omega⟩
+          · next e0 em2 =>
+              obtain ⟨d', hrec, hd⟩ := map_add1_eq_some hgo
+              subst hd
+              obtain ⟨cfg₂, h1, h2, h3⟩ := pop_step_cons hInv (by rw [hr]; rfl)
+                (fun h => absurd h (by decide))
+              obtain ⟨cfg', base', h1', h2', h3', _⟩ := ih _ _ _ _ _ _ hrec base cfg₂ h2
+              refine ⟨cfg', base', ?_, h2', ?_, by omega⟩
+              · rw [stepN_add, h1]
+                exact h1'
+              · exact bsafe_compose h1 h3 h3'
+      · -- D1: push to E
+        next hr =>
+          obtain ⟨d', hrec, hd⟩ := map_add1_eq_some hgo
+          subst hd
+          obtain ⟨cfg₂, h1, h2, h3⟩ := push_step hInv (by rw [hr]; rfl) (by decide)
+          obtain ⟨cfg', base', h1', h2', h3', _⟩ := ih _ _ _ _ _ _ hrec base cfg₂ h2
+          refine ⟨cfg', base', ?_, h2', ?_, by omega⟩
+          · rw [stepN_add, h1]
+            exact h1'
+          · exact bsafe_compose h1 h3 h3'
+      · -- E0: push to D
+        next hr =>
+          obtain ⟨d', hrec, hd⟩ := map_add1_eq_some hgo
+          subst hd
+          obtain ⟨cfg₂, h1, h2, h3⟩ := push_step hInv (by rw [hr]; rfl) (by decide)
+          obtain ⟨cfg', base', h1', h2', h3', _⟩ := ih _ _ _ _ _ _ hrec base cfg₂ h2
+          refine ⟨cfg', base', ?_, h2', ?_, by omega⟩
+          · rw [stepN_add, h1]
+            exact h1'
+          · exact bsafe_compose h1 h3 h3'
+      · -- E1: push to D
+        next hr =>
+          obtain ⟨d', hrec, hd⟩ := map_add1_eq_some hgo
+          subst hd
+          obtain ⟨cfg₂, h1, h2, h3⟩ := push_step hInv (by rw [hr]; rfl) (by decide)
+          obtain ⟨cfg', base', h1', h2', h3', _⟩ := ih _ _ _ _ _ _ hrec base cfg₂ h2
+          refine ⟨cfg', base', ?_, h2', ?_, by omega⟩
+          · rw [stepN_add, h1]
+            exact h1'
+          · exact bsafe_compose h1 h3 h3'
+      · -- F0: pop to D
+        next hr =>
+          split at hgo
+          · obtain ⟨hs, hw, hd⟩ : State.D = st' ∧
+                false :: false :: rest.drop 1 = w' ∧ 1 = d := by
+              simpa using hgo
+            subst hs; subst hw; subst hd
+            obtain ⟨cfg', h1, h2, h3⟩ := pop_step_nil hInv (by rw [hr]; rfl)
+              (fun h => absurd h (by decide))
+            exact ⟨cfg', base + 1, h1, h2, h3, by omega⟩
+          · next e0 em2 =>
+              obtain ⟨d', hrec, hd⟩ := map_add1_eq_some hgo
+              subst hd
+              obtain ⟨cfg₂, h1, h2, h3⟩ := pop_step_cons hInv (by rw [hr]; rfl)
+                (fun h => absurd h (by decide))
+              obtain ⟨cfg', base', h1', h2', h3', _⟩ := ih _ _ _ _ _ _ hrec base cfg₂ h2
+              refine ⟨cfg', base', ?_, h2', ?_, by omega⟩
+              · rw [stepN_add, h1]
+                exact h1'
+              · exact bsafe_compose h1 h3 h3'
+      · -- F1: pop to B
+        next hr =>
+          split at hgo
+          · obtain ⟨hs, hw, hd⟩ : State.B = st' ∧
+                false :: false :: rest.drop 1 = w' ∧ 1 = d := by
+              simpa using hgo
+            subst hs; subst hw; subst hd
+            obtain ⟨cfg', h1, h2, h3⟩ := pop_step_nil hInv (by rw [hr]; rfl)
+              (fun h => absurd h (by decide))
+            exact ⟨cfg', base + 1, h1, h2, h3, by omega⟩
+          · next e0 em2 =>
+              obtain ⟨d', hrec, hd⟩ := map_add1_eq_some hgo
+              subst hd
+              obtain ⟨cfg₂, h1, h2, h3⟩ := pop_step_cons hInv (by rw [hr]; rfl)
+                (fun h => absurd h (by decide))
+              obtain ⟨cfg', base', h1', h2', h3', _⟩ := ih _ _ _ _ _ _ hrec base cfg₂ h2
+              refine ⟨cfg', base', ?_, h2', ?_, by omega⟩
+              · rw [stepN_add, h1]
+                exact h1'
+              · exact bsafe_compose h1 h3 h3'
+
+/-- Generous fuel: raw steps per record gap, comfortably quadratic in
+the arrival word length.  Fail-closed — exhaustion is an orbit death,
+and the empirical margin is above 2,000× at the 20M horizon. -/
+def wfuel (w : List Bool) : Nat := 64 * (w.length + 64) * (w.length + 64)
+
+/-- One certified record-to-record sweep: from an arrival
+`(st, w)` (head at the right extreme, word `w` leftward), run the raw
+machine to the next fresh right extreme.  Returns
+`(state', word', steps)`. -/
+def wstep (st : State) (w : List Bool) : Option (State × List Bool × Nat) :=
+  go (wfuel w) st [] w
+
+/-- **The sweep is faithful**: whenever `wstep` yields a successor
+arrival, the raw machine, started on any realization of the input
+arrival, runs *exactly* the returned number of steps, stays
+B-probe-safe throughout, and lands on a realization of the successor
+arrival.  No `Faithful` assumption remains anywhere in this file. -/
+theorem wstep_faithful {st st' : State} {w w' : List Bool} {d : Nat}
+    (hw : wstep st w = some (st', w', d)) :
+    ∀ (base : Int) (cfg : Config), Inv st base [] w cfg →
+      ∃ (cfg' : Config) (base' : Int), stepN d cfg = some cfg' ∧
+        Inv st' base' [] w' cfg' ∧ BSafeSeg cfg d ∧ 0 < d :=
+  fun base cfg hInv => go_faithful (wfuel w) st [] w st' w' d hw base cfg hInv
+
 end QIG.Dossier9RawTM
