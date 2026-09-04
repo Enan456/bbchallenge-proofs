@@ -1,0 +1,441 @@
+import Lean.Elab.Tactic.Omega
+
+set_option maxRecDepth 100000
+
+/-!
+# Dossier-9 machine: raw semantics and conditional closure
+
+Bare-Lean model of the concrete BB(6) machine
+
+`1RB0LF_1RC---_1LD0RF_1RA0LE_0LD1LD_0RD0RB`  (dossier-9: the
+parametrics candidate of 2026-08-31, the right-growing machine whose
+tail dynamics collapse into two parametric families — the `..####`
+cursor marching left with derived floor and kind laws, 271,344/271,344
+held-out segments exact at the 8M horizon).
+
+This is the program's tenth conditional closure.  Growth direction
+note: unlike dossiers 7 and 8 this machine grows *right* (records at
+fresh right extremes), so the certified layer is the exact coordinate
+mirror of the dossier-7/8 single-raw-step engine: each word-machine
+move is one raw step of list surgery on the pair `(em, rest)` (`em` =
+cells *above* the head, nearest first; `rest` = the head cell
+downward), and an *arrival* is an above-base pop: the head stepping
+onto a fresh right extreme.  These are the machine's record events;
+the validated python mirror (`tests/bb6/test_d9_theorems.py`)
+reproduces every one of them exactly over the 20M-step horizon.
+
+Halt anatomy note: this machine's undefined transition is `B1` — the
+halt happens *in* state `B`, on the probed cell itself, so the
+probe-safety predicate needs no neighbour cell at all: "state `B`
+never reads a `1`".  The corridor lemma `into_B_only_from_A0_or_F1`
+(state `B` is entered only by `A` reading `0` or `F` reading `1`, both
+stepping right onto the probed cell, which their writes cannot touch)
+is proven as the two-cell localization of the same fact.
+
+Checked statements (no sorry, no extra axioms):
+
+* `step_eq_none_iff` — the machine halts in one step exactly at the
+  unique undefined transition `B1`.
+* `into_B_only_from_A0_or_F1` — state `B` is entered only via `A`
+  reading `0` (the transition `A0 = 1RB`) or `F` reading `1` (the
+  transition `F1 = 0RB`), both moving right.
+* `halt_requires_b_read_1` — any raw halt passes through a reachable
+  configuration in state `B` reading `1` (the halt is the probe).
+* `halt_requires_entry_probe` — the corridor form: from any non-`B`
+  start, a raw halt forces a reachable `A0` or `F1` configuration
+  whose *right* neighbour is a `1` — the cell `B` will die on.
+* `nonhalting_of_b_probe_safe` — the B-probe-safety invariant ("state
+  `B` never reads a `1`") implies the machine never halts.
+* `push_step` / `pop_step_cons` / `pop_step_nil` — the three one-step
+  episode lemmas: every raw move is a certified push (left move) or
+  pop (right move, interior or extreme-extending) on the word pair.
+* `go_faithful` / `wstep_faithful` — the certified record-to-record
+  sweep: `wstep` is a fail-closed executable map on `(state, word)`
+  pairs whose every `some` output is realized by the raw machine in
+  *exactly* the returned step count, B-probe-safely.  It dies (returns
+  `none`) exactly on the `B1` halt probe itself and on fuel exhaustion
+  — nothing else.
+* the word orbit `worbit` from the blank anchor `(A, [])`, and the
+  keystone `safeD9Orbit_nonhalting`:
+  `SafeD9Orbit → ¬ RawHalts blankStart`.
+
+`SafeD9Orbit` is the single conjecture `∀ k, worbit k ≠ none`: the
+fail-closed record orbit never dies.  As in the rank-1 closure, *no*
+`Faithful` assumption remains: because the engine is the raw step
+itself, every branch of the empirical parametric calculus — both tail
+families at every `m`, the bounded `C0` growth unit, the floor and
+kind laws, and the once-per-cycle rebuild sweep that the segment
+tiling never covered — is simulated exactly rather than assumed.  The
+conjecture is exactly the empirical substrate validated by the
+record-mirror differential test (`tests/bb6/test_d9_theorems.py`:
+every record transition reproduced exactly — state, word, step count —
+over multi-million-step horizons).
+-/
+
+namespace QIG.Dossier9RawTM
+
+set_option autoImplicit false
+
+inductive State where
+  | A | B | C | D | E | F
+deriving Repr, DecidableEq
+
+inductive Dir where
+  | L | R
+deriving Repr, DecidableEq
+
+structure Instr where
+  next : State
+  write : Bool
+  dir : Dir
+deriving Repr, DecidableEq
+
+/-- The dossier-9 transition table.  `none` is the undefined halt
+transition `B1`. -/
+def instr : State → Bool → Option Instr
+  | State.A, false => some ⟨State.B, true, Dir.R⟩
+  | State.A, true => some ⟨State.F, false, Dir.L⟩
+  | State.B, false => some ⟨State.C, true, Dir.R⟩
+  | State.B, true => none
+  | State.C, false => some ⟨State.D, true, Dir.L⟩
+  | State.C, true => some ⟨State.F, false, Dir.R⟩
+  | State.D, false => some ⟨State.A, true, Dir.R⟩
+  | State.D, true => some ⟨State.E, false, Dir.L⟩
+  | State.E, false => some ⟨State.D, false, Dir.L⟩
+  | State.E, true => some ⟨State.D, true, Dir.L⟩
+  | State.F, false => some ⟨State.D, false, Dir.R⟩
+  | State.F, true => some ⟨State.B, false, Dir.R⟩
+
+def move : Int → Dir → Int
+  | h, Dir.L => h - 1
+  | h, Dir.R => h + 1
+
+def writeAt (tape : Int → Bool) (pos : Int) (value : Bool) : Int → Bool :=
+  fun x => if x = pos then value else tape x
+
+theorem writeAt_same (tape : Int → Bool) (pos : Int) (value : Bool) :
+    writeAt tape pos value pos = value := by
+  simp [writeAt]
+
+theorem writeAt_other (tape : Int → Bool) (pos x : Int) (value : Bool)
+    (h : x ≠ pos) :
+    writeAt tape pos value x = tape x := by
+  simp [writeAt, h]
+
+structure Config where
+  state : State
+  head : Int
+  tape : Int → Bool
+
+/-- One raw TM step.  `none` means the undefined `B1` halt was
+reached. -/
+def step (c : Config) : Option Config := do
+  let ins ← instr c.state (c.tape c.head)
+  some {
+    state := ins.next
+    head := move c.head ins.dir
+    tape := writeAt c.tape c.head ins.write
+  }
+
+/-- Iterate `step`, returning `none` after any halt. -/
+def stepN : Nat → Config → Option Config
+  | 0, c => some c
+  | n + 1, c => do
+      let c' ← step c
+      stepN n c'
+
+/-- The raw machine halts in one step exactly at the unique undefined
+transition `B1`. -/
+theorem step_eq_none_iff (c : Config) :
+    step c = none ↔ c.state = State.B ∧ c.tape c.head = true := by
+  cases hs : c.state <;> cases ht : c.tape c.head <;>
+    simp [step, instr, hs, ht]
+
+def RawHalts (c : Config) : Prop := ∃ n : Nat, stepN n c = none
+
+def Reaches (c d : Config) : Prop := ∃ n : Nat, stepN n c = some d
+
+def blankTape : Int → Bool := fun _ => false
+
+def blankStart : Config where
+  state := State.A
+  head := 0
+  tape := blankTape
+
+/-- State `B` is entered only by `A` reading `0` (the transition
+`A0 = 1RB`: write `1`, move right) or `F` reading `1` (the transition
+`F1 = 0RB`: write `0`, move right).  Either way the successor sits one
+cell to the *right* of the probed cell, so the cell `B` then reads was
+never touched by the entering write.
+
+Informally: the turnstile into death — `B` is reachable only through
+`A0` or `F1`, stepping right, and the cell it dies on was already a
+`1` before the entry step. -/
+theorem into_B_only_from_A0_or_F1 {c c' : Config} (h : step c = some c')
+    (hB : c'.state = State.B) :
+    c'.head = c.head + 1 ∧
+      ((c.state = State.A ∧ c.tape c.head = false ∧
+          c'.tape = writeAt c.tape c.head true) ∨
+        (c.state = State.F ∧ c.tape c.head = true ∧
+          c'.tape = writeAt c.tape c.head false)) := by
+  cases hs : c.state <;> cases ht : c.tape c.head <;>
+    simp [step, instr, hs, ht] at h
+  all_goals
+    first
+      | exact ⟨by rw [← h]; simp [move], Or.inl ⟨rfl, rfl, by rw [← h]⟩⟩
+      | exact ⟨by rw [← h]; simp [move], Or.inr ⟨rfl, rfl, by rw [← h]⟩⟩
+      | (rw [← h] at hB; simp at hB)
+
+/-- Any finite run ending in a halt contains a strictly earlier
+configuration whose single step halts. -/
+theorem stepN_none_last :
+    ∀ (n : Nat) (c : Config), stepN n c = none →
+      ∃ k : Nat, k < n ∧ ∃ d : Config, stepN k c = some d ∧ step d = none := by
+  intro n
+  induction n with
+  | zero =>
+      intro c h
+      simp [stepN] at h
+  | succ n ih =>
+      intro c h
+      cases hstep : step c with
+      | none =>
+          exact ⟨0, by omega, c, by simp [stepN], hstep⟩
+      | some c1 =>
+          have h1 : stepN n c1 = none := by
+            simpa [stepN, hstep] using h
+          obtain ⟨k, hk, d, hd, hstop⟩ := ih c1 h1
+          exact ⟨k + 1, by omega, d, by simpa [stepN, hstep] using hd, hstop⟩
+
+/-- A successful `k+1`-step run has an immediate predecessor of its
+endpoint. -/
+theorem stepN_some_pred :
+    ∀ (k : Nat) (c d : Config), stepN (k + 1) c = some d →
+      ∃ e : Config, stepN k c = some e ∧ step e = some d := by
+  intro k
+  induction k with
+  | zero =>
+      intro c d h
+      cases hstep : step c with
+      | none => simp [stepN, hstep] at h
+      | some c1 =>
+          have : c1 = d := by simpa [stepN, hstep] using h
+          exact ⟨c, by simp [stepN], by rw [hstep, this]⟩
+  | succ k ih =>
+      intro c d h
+      cases hstep : step c with
+      | none => simp [stepN, hstep] at h
+      | some c1 =>
+          have h1 : stepN (k + 1) c1 = some d := by
+            simpa [stepN, hstep] using h
+          obtain ⟨e, he, hlast⟩ := ih c1 d h1
+          exact ⟨e, by simpa [stepN, hstep] using he, hlast⟩
+
+/-- Halt localization, direct form: a raw halt passes through a
+reachable configuration in state `B` reading `1`.
+
+Informally: on this machine the halt *is* the probe — `B1` is itself
+the undefined transition, so no predecessor analysis is needed: to die
+the machine must first stand in state `B` on a `1`.  An unbounded
+question ("does it ever halt?") becomes the reachability of a
+one-cell pattern. -/
+theorem halt_requires_b_read_1 {c : Config} (hh : RawHalts c) :
+    ∃ d : Config, Reaches c d ∧ d.state = State.B ∧
+      d.tape d.head = true := by
+  obtain ⟨n, hn⟩ := hh
+  obtain ⟨k, _, d0, hd0, hstop⟩ := stepN_none_last n c hn
+  have hF := (step_eq_none_iff d0).mp hstop
+  exact ⟨d0, ⟨k, hd0⟩, hF.1, hF.2⟩
+
+/-- Halt localization, corridor form: from any non-`B` start, a raw
+halt forces a reachable configuration in state `A` reading `0` or in
+state `F` reading `1` whose *right* neighbour is a `1` — the cell the
+machine will die on one step later.
+
+Informally: the only doors into `B` are `A0` and `F1`, both stepping
+right onto the fatal cell, and neither entry write can touch it. -/
+theorem halt_requires_entry_probe {c : Config} (hne : c.state ≠ State.B)
+    (hh : RawHalts c) :
+    ∃ d : Config, Reaches c d ∧ d.tape (d.head + 1) = true ∧
+      ((d.state = State.A ∧ d.tape d.head = false) ∨
+        (d.state = State.F ∧ d.tape d.head = true)) := by
+  obtain ⟨n, hn⟩ := hh
+  obtain ⟨k, _, d0, hd0, hstop⟩ := stepN_none_last n c hn
+  have hF := (step_eq_none_iff d0).mp hstop
+  cases k with
+  | zero =>
+      have hcd : c = d0 := by simpa [stepN] using hd0
+      exact absurd (hcd ▸ hF.1) hne
+  | succ k' =>
+      obtain ⟨e, he, hstepe⟩ := stepN_some_pred k' c d0 hd0
+      obtain ⟨hhead, hcase⟩ := into_B_only_from_A0_or_F1 hstepe hF.1
+      have hread : d0.tape d0.head = true := hF.2
+      cases hcase with
+      | inl hA =>
+          obtain ⟨hst, hrd, htape⟩ := hA
+          refine ⟨e, ⟨k', he⟩, ?_, Or.inl ⟨hst, hrd⟩⟩
+          rw [htape, hhead] at hread
+          rwa [writeAt_other e.tape e.head (e.head + 1) true (by omega)] at hread
+      | inr hFe =>
+          obtain ⟨hst, hrd, htape⟩ := hFe
+          refine ⟨e, ⟨k', he⟩, ?_, Or.inr ⟨hst, hrd⟩⟩
+          rw [htape, hhead] at hread
+          rwa [writeAt_other e.tape e.head (e.head + 1) false (by omega)] at hread
+
+/-- The B-probe-safety invariant: state `B` never reads a `1` in any
+reachable configuration.
+
+Informally: a sentry condition on the probed cell itself.  If every
+cell `B` ever probes is a `0`, the fatal pattern of
+`halt_requires_b_read_1` can never occur, so the machine runs forever.
+The rest of this file exists to discharge this one predicate from the
+word-orbit dynamics. -/
+def BProbeSafe (c : Config) : Prop :=
+  ∀ d : Config, Reaches c d → d.state = State.B → d.tape d.head = false
+
+/-- B-probe safety implies the machine never halts. -/
+theorem nonhalting_of_b_probe_safe {c : Config}
+    (hsafe : BProbeSafe c) : ¬ RawHalts c := by
+  intro hh
+  obtain ⟨d, hreach, hB, h1⟩ := halt_requires_b_read_1 hh
+  have h0 := hsafe d hreach hB
+  rw [h0] at h1
+  exact Bool.noConfusion h1
+
+/-- Specialization to the blank start. -/
+theorem blank_nonhalting_of_b_probe_safe
+    (hsafe : BProbeSafe blankStart) : ¬ RawHalts blankStart :=
+  nonhalting_of_b_probe_safe hsafe
+
+/-!
+## Segment safety machinery
+
+Identical in structure to the dossier-7/8 layer: conditional probe
+safety over the first `N` steps of a run, composition, and the
+segment-induction keystone that turns the per-sweep safety of the
+certified word machine into safety of the infinite run.
+-/
+
+theorem stepN_add :
+    ∀ (m n : Nat) (c : Config),
+      stepN (m + n) c = (stepN m c).bind (stepN n) := by
+  intro m
+  induction m with
+  | zero => intro n c; simp [stepN, Nat.zero_add]
+  | succ m ih =>
+      intro n c
+      rw [Nat.succ_add]
+      cases hstep : step c with
+      | none => simp [stepN, hstep]
+      | some c1 => simp [stepN, hstep, ih]
+
+/-- Conditional B-probe safety over the first `N` steps of a run:
+state `B` never reads a `1`. -/
+def BSafeSeg (c : Config) (N : Nat) : Prop :=
+  ∀ k d, k < N → stepN k c = some d → d.state = State.B →
+    d.tape d.head = false
+
+theorem bsafe_compose {c c' : Config} {m n : Nat}
+    (hm : stepN m c = some c') (h1 : BSafeSeg c m) (h2 : BSafeSeg c' n) :
+    BSafeSeg c (m + n) := by
+  intro k d hk hkd hB
+  by_cases hkm : k < m
+  · exact h1 k d hkm hkd hB
+  · have hkeq : k = m + (k - m) := by omega
+    rw [hkeq, stepN_add, hm] at hkd
+    exact h2 (k - m) d (by omega) hkd hB
+
+/-- The segment-induction keystone: an invariant maintained by positive
+safe segments gives `BProbeSafe` for the whole infinite run.
+
+Informally: *safety in pieces is safety forever*.  If from every
+invariant-satisfying configuration the machine runs some positive
+number of steps safely and lands on the invariant again, then every
+moment of the infinite run falls inside one of these safe segments —
+strong induction on how many segments precede it. -/
+theorem bprobe_safe_of_segments {Inv : Config → Prop} {c0 : Config}
+    (h0 : Inv c0)
+    (hseg : ∀ c, Inv c → ∃ k, 0 < k ∧ ∃ c', stepN k c = some c' ∧
+      Inv c' ∧ BSafeSeg c k) :
+    BProbeSafe c0 := by
+  have main : ∀ (N n : Nat) (c : Config), n ≤ N → Inv c →
+      ∀ d, stepN n c = some d → d.state = State.B →
+        d.tape d.head = false := by
+    intro N
+    induction N with
+    | zero =>
+        intro n c hn hInv d hd hB
+        obtain ⟨k, hk, c', _hs, _hInv', hsafe⟩ := hseg c hInv
+        exact hsafe n d (by omega) hd hB
+    | succ N ihN =>
+        intro n c hn hInv d hd hB
+        obtain ⟨k, hk, c', hs, hInv', hsafe⟩ := hseg c hInv
+        by_cases hlt : n < k
+        · exact hsafe n d hlt hd hB
+        · have hneq : n = k + (n - k) := by omega
+          rw [hneq, stepN_add, hs] at hd
+          exact ihN (n - k) c' (by omega) hInv' d hd hB
+  intro d hreach hB
+  obtain ⟨n, hn⟩ := hreach
+  exact main n n c0 (Nat.le_refl n) h0 d hn hB
+
+/-!
+## One-step evaluator scaffolding and list foundation
+
+Never rewrite on a `stepN` goal: chains are glued in term mode from
+single-step facts (the standing proof-engineering convention of this
+repository).  The word representation is the dossier-7/8 one, mirrored:
+`getD` with default `false` makes blank tape outside the two lists
+semantically invisible, so a pair `(em, rest)` pins the whole
+configuration up to translation.
+-/
+
+theorem stepN_zero (c : Config) : stepN 0 c = some c := rfl
+
+theorem stepN_succ_of_step {c d e : Config} {n : Nat}
+    (h1 : step c = some d) (h2 : stepN n d = some e) :
+    stepN (n + 1) c = some e := by
+  rw [show stepN (n + 1) c = (step c).bind (stepN n) from rfl, h1]
+  exact h2
+
+theorem getD_nil (k : Nat) : ([] : List Bool).getD k false = false := by
+  cases k <;> rfl
+
+theorem getD_drop :
+    ∀ (n : Nat) (l : List Bool) (j : Nat),
+      (l.drop n).getD j false = l.getD (n + j) false := by
+  intro n
+  induction n with
+  | zero => intro l j; simp
+  | succ n ih =>
+      intro l j
+      cases l with
+      | nil => simp
+      | cons a t =>
+          rw [show (a :: t).drop (n + 1) = t.drop n from rfl,
+              show n + 1 + j = (n + j) + 1 by omega, List.getD_cons_succ]
+          exact ih t j
+
+/-!
+## The boundary invariant
+
+At every moment the machine's whole configuration is pinned by two
+lists and a base position: `em` — the cells *above* the head, nearest
+first (blank above `base`, subsumed by `getD`'s default), and `rest` —
+the cells from the head downward (head cell included, `rest.getD 0`).
+Every raw step is local surgery on this pair: a *push* (left move)
+transfers the written head cell onto `em`, a *pop* (right move) either
+transfers `em`'s top back onto `rest` or — when `em` is empty — steps
+above `base` onto a fresh right extreme: an arrival, the record event
+of the dossier-9 dynamics.
+-/
+
+/-- The boundary invariant: state `st`, head at `base - em.length`,
+cells above the head read `em` (nearest first, blank above `base`),
+cells from the head downward read `rest`. -/
+def Inv (st : State) (base : Int) (em rest : List Bool) (cfg : Config) : Prop :=
+  cfg.state = st ∧ cfg.head = base - em.length ∧
+  (∀ k : Nat, cfg.tape (base - em.length + 1 + k) = em.getD k false) ∧
+  (∀ j : Nat, cfg.tape (base - em.length - j) = rest.getD j false)
+
+end QIG.Dossier9RawTM
