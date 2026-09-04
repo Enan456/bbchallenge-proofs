@@ -267,6 +267,177 @@ randomized episode plants \\
 \end{infobox}
 
 \clearpage
+\clearpage
+\section*{Anatomy of a closure: the seven layers}
+
+Every closure file, from dossier-2's 6{,}130 lines to dossier-9's
+1{,}059, is the same proof in seven layers. What changed across the
+program is only the \emph{grain} at which layer four is built.
+
+\paragraph{1. Raw semantics.} The machine table as an inductive
+definition, one-step and $n$-step relations, and \texttt{RawHalts}.
+Nothing imported beyond Lean core: the files are self-contained down
+to the kernel.
+
+\paragraph{2. Halt localization (the corridor lemma).} Each machine
+has exactly one undefined transition, and working backward through
+the table funnels every halt through a single \emph{probe pattern}.
+Verbatim from Dvisetu:
+\begin{small}
+\begin{verbatim}
+theorem halt_requires_e_probe_00 {c : Config} (hne : c.state <> State.F)
+    (hh : RawHalts c) :
+    exists d, Reaches c d /\ d.state = State.E /\
+      d.tape d.head = false /\ d.tape (d.head + 1) = false
+\end{verbatim}
+\end{small}
+Everything downstream reduces to: the probe never fires. Dossier-9's
+corridor is the degenerate ideal, where the probe \emph{is} the halt
+and safety is a one-cell predicate.
+
+\paragraph{3. Probe safety as an invariant over segments.} A
+predicate (\texttt{EProbeSafe}, \texttt{DProbeSafe},
+\texttt{BProbeSafe}, per machine) plus segment-induction machinery:
+if every certified episode preserves safety and covers the run, the
+probe never fires between anchors.
+
+\paragraph{4. Episode theorems: the certified choreography.} The
+heart of each file, and where the behaviour of the machine lives.
+An episode theorem states: from any configuration matching a shape
+(given by parameters), the machine runs an \emph{exact} number of
+steps, produces an \emph{exact} output shape, and is probe-safe
+throughout. Verbatim from Dvisetu's drift:
+\begin{small}
+\begin{verbatim}
+theorem drift_step {cfg : Config} {g : Int} (n : Nat) (hn : 1 <= n)
+    (hs : cfg.state = State.B) (hh : cfg.head = g + 3 * n + 2)
+    (hgap : cfg.tape g = false)
+    (hones : forall i, i < 3 * n + 1 -> cfg.tape (g + 1 + i) = true) : ...
+\end{verbatim}
+\end{small}
+The statement quantifies over the unbounded parameter ($n$, with
+$b = 3n+1$), so one theorem covers infinitely many raw-step runs;
+the proof is an induction whose base and step are bounded
+evaluations. This is the compression that lets verification outrun
+the machine.
+
+\paragraph{5. The startup anchor.} From the blank tape to the first
+abstract state, certified step by step (235 concrete steps for
+dossier-2; Dvisetu's is 6; dossiers 7--9 use a \emph{virtual anchor},
+the blank tape itself realizing the empty word, so no prefix at all).
+
+\paragraph{6. The abstract orbit and transport.} An executable step
+function on the abstract state (five integers, a checkpoint scalar,
+a word), iterated from the anchor; a \texttt{Realizes} grammar tying
+abstract states to literal tapes; and the transport theorem: if the
+abstract step yields a successor, the raw machine, started on any
+realization, reaches a realization of that successor in exactly the
+predicted number of steps, safely. Verbatim from dossier-7's engine:
+\begin{small}
+\begin{verbatim}
+def wfuel (w : List Bool) : Nat := 64 * (w.length + 64) * (w.length + 64)
+def wstep (st : State) (w : List Bool) : Option (State x List Bool x Nat)
+-- "The sweep is faithful": whenever wstep yields a successor arrival,
+-- the raw machine, started on any realization of the input, ...
+\end{verbatim}
+\end{small}
+
+\paragraph{7. The keystone.} \texttt{Safe} says the abstract orbit
+never returns \texttt{none}; the keystone composes layers 2--6 into
+$\mathsf{Safe} \rightarrow \lnot\mathsf{RawHalts}$. The kernel then
+replays the whole file; the build itself prints the axiom report.
+
+\section*{The grain ladder: three ways to build layer four}
+
+\textbf{Gait grain} (dossiers 1--3, Antihydra, Dvisetu): episodes are
+the machine's natural gaits, discovered by instrumentation (dossier-2
+walks in a fixed ten-step crawl; Dvisetu's drift is four passes over
+a five-step motif). Maximal legibility: the certified objects are
+recognizably \emph{behaviours}, and their exact step counts
+($10$ per crawl cycle, $(32b-41)/3$ per drift record) become theorem
+constants. Cost: every boundary case needs its own episode, and a
+genuinely hard one (Dvisetu's divide renewal) must either be proven
+or folded into the conjecture as a named assumption.
+
+\textbf{Cell grain} (rank-1): episodes are bounded-window
+micro-moves, one level below the learned calculus. The boundary
+families and even the decision function of the word calculus turn
+out to be \emph{consequences} at this grain, so nothing is folded.
+The certified layer no longer mentions trisection or cursors by
+name; the conjecture absorbs the law, and the law's legibility lives
+in the (validated, untrusted) empirical layer.
+
+\textbf{Raw-step grain} (dossiers 7--9): the terminus. Every raw
+move is one of three proven episodes on a boundary pair; a
+fail-closed sweep with quadratic fuel runs record to record. Every
+branch of the record law, including residue cases first occurring
+near $3\times10^{12}$ steps, is simulated exactly; the only
+\texttt{none} exits are the genuine halt patterns and fuel. Files
+shrink to $\sim$1{,}000 lines. The trade: the conjecture is about an
+orbit the file computes but does not explain; the \emph{explanation}
+(drift laws, ladders, renewals) stays in the empirical layer, which
+is where the mathematics of the conjecture gets done anyway.
+
+The progression is not merely stylistic. Gait grain proves the most
+\emph{about} the machine; raw-step grain proves the most
+\emph{coverage} for the least trust surface. The program now holds
+both ends, and the right choice per machine is: gait grain where the
+conjecture will be attacked analytically (dossier-2/3's renewal map
+feeds the invariant-measure program), raw-step grain where closure
+and external checkability are the goal.
+
+\section*{The trust chain, stated exactly}
+
+\emph{Trusted}: the Lean kernel, \textsf{propext},
+\textsf{Quot.sound}, and the machine table transcribed in layer 1.
+Nothing else. \emph{Untrusted but validated}: everything that found
+the proofs -- the finders, segmenters, calculus learners, the python
+mirrors, the AI that drafted the Lean. Their role is discovery; a
+wrong law would simply have failed to compile into theorems, and a
+wrong mirror is caught by the differential tests
+(\texttt{tests/bb6/test\_*\_theorems.py}: randomized episode plants
+checked cell-for-cell with exact step counts and probe ledgers, plus
+the abstract mirror replayed against millions of raw steps). The
+fail-closed discipline runs through every layer: learners abort on
+unexplained events, \texttt{wstep} returns \texttt{none} rather than
+guess, and the conjectures quantify over exactly the executable
+orbit, so there is no gap between what is conjectured and what is
+computed.
+
+\section*{The certified behaviours, as a bestiary}
+
+What the nine closures actually pin down, machine by machine, is a
+small zoo of arithmetic behaviours:
+
+\begin{itemize}
+\item \textbf{Drift-and-renewal two-counter maps} (dossier-2/3
+reduced form; Dvisetu at checkpoint level): a counter drains
+linearly while another grows, then a renewal reseeds by subtraction,
+swap, or division, with parity or residue choosing the branch. Death
+is a near-tie or a residue window; the orbits graze it (margin 4 for
+dossier-2/3) and survive.
+\item \textbf{Guarded random walks} (Antihydra): a counter with
+drift $+0.47$ per volley whose death is gambler's ruin at
+$1/\varphi$; deaths are early-game and confined to a bounded slab.
+\item \textbf{Odometers on words} (rank-1): carries as 3-blocks in
+wave trains, a cursor as the carry boundary, block trisection at the
+frontier; preimage multiplicity exactly $\prod 2^{\max(0,t_i-2)}$.
+\item \textbf{Unary-ladder counters} (dossiers 7--8): a $(10)^k$
+ladder drained and reloaded by minor and grand renewals at growth
+$\sim 3/2$; the state is a fixed integer vector wearing an
+unbounded unary coat.
+\item \textbf{Lethality, measured and proven}: the closures are
+sharp. Danger-band states of dossier-2 halt in 6--12 raw steps when
+materialized; Antihydra's dying family halts in exactly
+$(3c^2+44c+125)/4$ steps; 20{,}000 random hole-perturbations of live
+states produce zero halts. The conjectures are equivalences in
+practice: leaving the safe region is not unproven-safe, it is fatal.
+\item \textbf{The backward view}: death cones with per-machine
+branching constants ($\varphi$, 2-adic, exactly 1), each traceable
+to an alternation constraint; every record configuration provably
+$\ge 24$--$30$ raw steps from any halt.
+\end{itemize}
+
 \section*{What the conjectures have in common, and what remains}
 
 Every closure ends at a Collatz-class orbit-avoidance statement, and
