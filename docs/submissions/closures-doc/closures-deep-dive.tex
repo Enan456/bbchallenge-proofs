@@ -13,7 +13,7 @@
   {\bottomrule\end{tabular}\end{center}}
 
 \title{\bfseries The Closed Machines of BB(6)\\
-\large Eight kernel-checked conditional closures, machine by machine:\\
+\large Nine kernel-checked conditional closures, machine by machine:\\
 what each cryptid is, how it was closed, and what remains open}
 \author{Enan Srivastava \quad (with an AI assistant; every proof
 checked by the Lean 4 kernel)}
@@ -26,19 +26,18 @@ checked by the Lean 4 kernel)}
 residual set of 1{,}094 machines that defeat every known automated
 decider; the community calls them cryptids, because each hides an
 iterated arithmetic map of the Collatz kind. This document is a
-field guide to the eight that have been \emph{closed}: for each, a
+field guide to the nine that have been \emph{closed}: for each, a
 machine-checked theorem states that if one explicit arithmetic
 conjecture holds, the machine never halts from the blank tape. Every
 theorem is verified by the Lean 4 kernel at the minimal axiom set
 $\{\mathrm{propext}, \mathrm{Quot.sound}\}$ with no \texttt{sorry}.
-A ninth closure (dossier-9) is in compilation as this document is
-produced.
+All nine of the program's exact-law machines are now closed.
 
 \begin{center}
 \includegraphics[width=\textwidth]{fig_spacetimes.png}
 \end{center}
 
-\section*{The method, common to all eight}
+\section*{The method, common to all nine}
 
 \begin{center}
 \includegraphics[width=\textwidth]{fig_method.png}
@@ -249,16 +248,22 @@ the genuine halt patterns and fuel.
 \includegraphics[width=\textwidth]{fig_d7.png}
 \end{center}
 
-\entry{Dossier-9 (in compilation)}
+\entry{Dossier-9}
 \begin{infobox}
 code & \texttt{1RB0LF\_1RC---\_1LD0RF\_1RA0LE\_0LD1LD\_0RD0RB} \\
 \midrule
-status & law complete and exact; Lean compilation in progress \\
-law & parametric calculus at 100.00\% held-out
-(271{,}344/271{,}344 segments at $8\times10^6$ steps, zero
-conflicts); two parametric tail families; derived floor and kind
-laws \\
-target & \texttt{safeD9Orbit\_nonhalting}, the ninth closure \\
+status & closed (conditional); the ninth and final exact-law machine \\
+state space & words on a right-growing frontier; parametric calculus
+at 100.00\% held-out (271{,}344/271{,}344 segments at $8\times10^6$
+steps) preceded the closure \\
+keystone & \texttt{safeD9Orbit\_nonhalting} (1{,}059 lines),
+single-raw-step engine, zero folds \\
+conjecture & \texttt{SafeD9Orbit}: the word orbit never dies \\
+halt corridor & the simplest of the set: the fatal probe \emph{is}
+the halt ($B$ reads 1; $B$ entered only via $A0$ or $F1$) \\
+validation & mirror 5{,}804/5{,}804 record transitions exact at
+$2\times10^7$ steps; fuel margin 2{,}039$\times$; 20{,}000
+randomized episode plants \\
 \end{infobox}
 
 \clearpage
