@@ -13,7 +13,7 @@
   {\bottomrule\end{tabular}\end{center}}
 
 \title{\bfseries The Closed Machines of BB(6)\\
-\large Nine kernel-checked conditional closures, machine by machine:\\
+\large Eighteen kernel-checked conditional closures, machine by machine:\\
 what each cryptid is, how it was closed, and what remains open}
 \author{Enan Srivastava \quad (with an AI assistant; every proof
 checked by the Lean 4 kernel)}
@@ -26,18 +26,21 @@ checked by the Lean 4 kernel)}
 residual set of 1{,}094 machines that defeat every known automated
 decider; the community calls them cryptids, because each hides an
 iterated arithmetic map of the Collatz kind. This document is a
-field guide to the nine that have been \emph{closed}: for each, a
+field guide to the eighteen that have been \emph{closed}: for each, a
 machine-checked theorem states that if one explicit arithmetic
 conjecture holds, the machine never halts from the blank tape. Every
 theorem is verified by the Lean 4 kernel at the minimal axiom set
 $\{\mathrm{propext}, \mathrm{Quot.sound}\}$ with no \texttt{sorry}.
-All nine of the program's exact-law machines are now closed.
+All eighteen machines of the program's exact-specification cohort
+are now closed: every machine that ever earned an exact orbit
+specification carries a kernel-checked conditional non-halting
+theorem.
 
 \begin{center}
 \includegraphics[width=\textwidth]{fig_spacetimes.png}
 \end{center}
 
-\section*{The method, common to all nine}
+\section*{The method, common to all eighteen}
 
 \begin{center}
 \includegraphics[width=\textwidth]{fig_method.png}
@@ -267,6 +270,39 @@ randomized episode plants \\
 \end{infobox}
 
 \clearpage
+\entry{Dossiers 10--18: the raw-step tranche}
+\begin{infobox}
+scope & the nine remaining exact-spec machines, closed in one
+campaign by the single-raw-step engine: the dip-aware pair (d10,
+d11), the architecture variants (d12, d13), and the two-sided five
+(d14--d18, including the twin pair d14/d15) \\
+\midrule
+keystones & \texttt{safeD10Orbit\_nonhalting} \ldots
+\texttt{safeD18Orbit\_nonhalting}, each about 1{,}000--1{,}100
+lines, each conjecture a single clause: the word orbit never dies \\
+corridors & every machine in the tranche is a halt-is-the-probe
+case (the undefined transition is the probe read itself), so probe
+safety is a one-cell predicate; d16 alone has two doors into its
+halt state \\
+validation & python mirrors validated at $2\times10^7$ raw steps
+per machine before any Lean: 6{,}519 / 7{,}907 / 7{,}197 / 10{,}909
+/ 4{,}434 / 4{,}488 / 4{,}373 / 4{,}380 / 4{,}416 record
+transitions, all exact, probe-safe at every step; fuel margins
+1{,}900$\times$ to 7{,}877$\times$ on the uniform quadratic budget \\
+notable & d12's mirror spans both regimes of its 13M-step shift;
+d13's sparse-turn gaps grow only linearly (ratio 1.7), so quadratic
+fuel holds; the two-sided five needed no two-kind fallback (one
+side's records suffice, far-end growth absorbed by the engine's
+blank-default surgery); d15 is d14's file with the table swapped,
+certifying the twin law twice \\
+\end{infobox}
+
+\noindent The tranche settles the question the census opened: the
+machines once labeled architecture variants and two-sided resisters
+were never beyond reach; they were waiting for the engine to stop
+requiring their laws. Eighteen machines, eighteen conjectures,
+eighteen theorems, one build.
+
 \clearpage
 \section*{Anatomy of a closure: the seven layers}
 
