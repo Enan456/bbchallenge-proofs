@@ -6,7 +6,7 @@
 \usepackage{booktabs}
 
 \title{\bfseries The Closed Machines\\
-\large Six kernel-checked conditional closures for BB(6) cryptids:\\
+\large Eight kernel-checked conditional closures for BB(6) cryptids:\\
 what was proven, how, and the path to external approval}
 \author{Enan Srivastava}
 \date{September 3, 2026 \quad (repository \texttt{Enan456/bbchallenge-proofs})}
@@ -14,7 +14,7 @@ what was proven, how, and the path to external approval}
 \begin{document}
 \maketitle
 
-\section*{The six closures}
+\section*{The eight closures}
 
 Each machine below carries a theorem checked by the Lean 4 kernel at
 axioms $\{\mathrm{propext}, \mathrm{Quot.sound}\}$, with no
@@ -35,6 +35,8 @@ dossier-2 & \texttt{dossier2\_nonhalting} & \texttt{SafeMetaOrbit} (five integer
 dossier-3 (mirror) & \texttt{dossier3\_nonhalting} & \texttt{SafeMetaOrbit} (mirrored) & 9{,}020 \\
 Dvisetu (dossier-6) & \texttt{safeDvisetuOrbit\_nonhalting} & \texttt{SafeCheckpointOrbit} & 1{,}942 \\
 rank-1 (dossier-5) & \texttt{safeWordOrbit\_nonhalting} & \texttt{SafeWordOrbit} (word orbit) & 2{,}126 \\
+dossier-7 & \texttt{safeD7Orbit\_nonhalting} & \texttt{SafeD7Orbit} (word orbit) & 1{,}036 \\
+dossier-8 & \texttt{safeD8Orbit\_nonhalting} & \texttt{SafeD8Orbit} (word orbit) & 1{,}037 \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -45,7 +47,9 @@ rank-1 (dossier-5) & \texttt{safeWordOrbit\_nonhalting} & \texttt{SafeWordOrbit}
 \texttt{\footnotesize 1RB1RC\_1LC1LC\_1RE0LD\_1LB1RF\_---1RA\_0RD1RD} (d2),
 \texttt{\footnotesize 1RB1RB\_1LC0RE\_---1LD\_0RA1LB\_1RA1LF\_0LE1LE} (d3),
 \texttt{\footnotesize 1RB0RB\_1LB0LC\_1RD1LC\_1RE0RA\_0RF1RA\_---1LB} (Dvisetu),
-\texttt{\footnotesize 1RB1RD\_1LC0LC\_0RD0LB\_1RF0LE\_0RD---\_0RA1RC} (rank-1).
+\texttt{\footnotesize 1RB1RD\_1LC0LC\_0RD0LB\_1RF0LE\_0RD---\_0RA1RC} (rank-1),
+\texttt{\footnotesize 1RB1LA\_1LC0RE\_1LF1LD\_1RE0LC\_1LB1RA\_---0LA} (d7),
+\texttt{\footnotesize 1RB0LC\_1LC0RD\_1LF1LA\_1LB1RE\_1RB1LE\_---0LE} (d8).
 
 \section*{How each was closed}
 
@@ -74,15 +78,20 @@ its conjecture as a named, documented assumption rather than proven;
 rank-1, by contrast, needed \emph{no} such fold: at cell-level grain
 its boundary families and decision function are subsumed and proven,
 making it the first closure on a state space of growing dimension.
-Dossiers 7 and 8 (laws already exact at $2\times10^{7}$ steps,
-5{,}251/5{,}251 and 3{,}879/3{,}879) are in compilation now by the
-same pipeline.
+Dossiers 7 and 8 landed by the same pipeline taken to its logical
+end: their certified engines run at single-raw-step grain, so every
+branch of their record laws (including every residue case unobserved
+at the empirical horizon) is simulated exactly and proven faithful;
+no assumption is folded anywhere, and the only fail-closed exits are
+the two genuine halt patterns and fuel. Design mirrors validated at
+$2\times10^{7}$ raw steps (5{,}263/5{,}263 and 3{,}890/3{,}890
+record transitions exact) before a line of Lean was written.
 
 \section*{What it takes to push, validate, and get approved}
 
 \paragraph{1. External formal validation (Palomar).} Prepared and
-pinned: five entries (a sixth and seventh to follow for Dvisetu and
-rank-1) with challenge/solution comparator pairs whose challenge
+pinned: five entries (four more to follow for Dvisetu, rank-1, and
+dossiers 7/8) with challenge/solution comparator pairs whose challenge
 files import Lean core only. Local intake: 0 failures, 0 warnings.
 \emph{Remaining action: one browser session by the author}
 (GitHub authentication; the registry re-checks the proofs at the
@@ -117,7 +126,7 @@ into unconditional results: each conjecture is a Collatz-class orbit
 avoidance statement, and the program's own negative results
 (no congruence invariant to modulus 384; ranking-class certificates
 exhaustively refuted on the true fatal model) show why. The honest
-end state of approval is: six machine-checked reductions, externally
+end state of approval is: eight machine-checked reductions, externally
 re-verified, publicly reproduced, with each machine's halting
 problem restated as one explicit arithmetic question.
 
