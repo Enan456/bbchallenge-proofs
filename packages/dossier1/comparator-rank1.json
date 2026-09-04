@@ -1,0 +1,6 @@
+{
+    "challenge_module": "Palomar.Rank1Challenge",
+    "solution_module": "Palomar.Rank1Solution",
+    "theorem_names": ["Rank1Challenge.safeWordOrbit_nonhalting"],
+    "permitted_axioms": ["propext", "Quot.sound"]
+}
