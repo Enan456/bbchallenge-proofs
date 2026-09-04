@@ -84,6 +84,7 @@ import BusyBeaverCore.Dossier85RawTM
 import BusyBeaverCore.Dossier86RawTM
 import BusyBeaverCore.Dossier87RawTM
 import BusyBeaverCore.Dossier88RawTM
+import BusyBeaverCore.Dossier89RawTM
 
 /-! The trust base: raw semantics and complete reductions for the five
 program machines.  Read the files in table order; each is self-contained. -/
