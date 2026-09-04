@@ -69,12 +69,20 @@ statement:
 This is an equidistribution-of-a-linear-form statement, and the mixing
 already measured (`2026-09-04-invariant-measure-ergodic.md`: block
 entropy 0.423, short-range memory) is exactly the input such a lemma
-consumes. The parabolic generator T is what pushes the offset through
-its residues (each T does `b -> b-3`, sweeping the window), so the
-equidistribution is driven by the cusp generator acting on the offset
-— a horocycle-equidistribution flavor rather than a geodesic-excursion
-one. That is a known and provable *kind* of statement; proving it for
-this specific semigroup is the open work.
+consumes.
+
+**Mechanism correction (see `2026-09-04-offset-equidistribution.md`).**
+An earlier draft of this paragraph guessed that the parabolic generator
+T drives the equidistribution by sweeping the offset through residues
+(`b -> b-3` repeatedly). That is wrong: T fires only when `b` is even
+and returns `b-3`, which is odd, so T can **never** fire twice in a row
+(verified: T-run lengths are all singletons over ~4x10^5 events). There
+is no horocycle sweep. The offset instead equidistributes through the
+**full three-generator semigroup mixing** — measured directly and
+strongly (uniform to <0.3% in every modulus up to 384). So the lemma is
+of ordinary equidistribution type, but its mechanism is semigroup
+mixing, not a single parabolic flow; proving it for this specific
+semigroup is the open work.
 
 ## Honest verdict on the route
 
