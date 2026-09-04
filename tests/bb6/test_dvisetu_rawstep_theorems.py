@@ -40,12 +40,14 @@ TM_CODE = '1RB0RB_1LB0LC_1RD1LC_1RE0RA_0RF1RA_---1LB'
 ANCHOR = ('A', ())
 HORIZON = 31_000_000
 MIN_RECORDS = 100
-# Known divide renewals from the dossier-6 law set: (n, exact raw gap).
-# The four checked here (to n = 2976, incl. the depth-2 cascade at
-# n = 918) complete inside the 31M horizon; n = 18648 (raw gap ~2e8,
-# depth-1) is reached only past ~2.5e8 raw steps (July horizon) and is
-# validated separately.  See the header of DvisetuRawStepTM.lean.
-DIVIDE_RENEWALS = {120: 15155, 186: 36581, 918: 498299, 2976: 9195841}
+# Known divide renewals from the dossier-6 law set: (n, exact raw gap),
+# all reproduced exactly by the raw-step orbit.  The four checked here
+# (to n = 2976, incl. the depth-2 cascade at n = 918) complete inside the
+# 31M horizon; the depth-1 event n = 18648 (raw gap 263,365,015, reached
+# at t = 1,063,895,980) is reproduced by a separate deep run past ~1.06e9
+# raw steps.  See the header of DvisetuRawStepTM.lean.
+DIVIDE_RENEWALS = {120: 15155, 186: 36581, 918: 498299, 2976: 9195841,
+                   18648: 263365015}
 CHECKED_IN_HORIZON = (120, 186, 918, 2976)
 
 

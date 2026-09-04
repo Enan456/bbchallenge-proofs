@@ -77,8 +77,8 @@ count — over 31M raw steps (3,104 arrivals, all exact, F-probe-safe at
 every step), with the divide renewals reproduced exactly by the raw-step
 orbit — `n = 120, 186, 918, 2976` with raw gaps `15155, 36581, 498299,
 9195841` (including the depth-2 cascade at `n = 918`); the depth-1 event
-`n = 18,648` (raw gap `≈ 0.6·n²`, reached only past ~1.2·10⁹ raw steps)
-is validated by a separate deep run.
+`n = 18,648`, reached at `t = 1,063,895,980` raw steps, is reproduced
+exactly by a separate deep run — raw gap `263,365,015`.
 
 Fuel form.  The divide renewal is quadratic-time (`dt ≈ 1.0·n²` for the
 depth-0/1 branches, `≈ 0.6·n²` for the depth-2 cascade, in the block
