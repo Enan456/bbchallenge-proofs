@@ -10,6 +10,7 @@ import BusyBeaverCore.Dossier9RawTM
 import BusyBeaverCore.Dossier12RawTM
 import BusyBeaverCore.Dossier10RawTM
 import BusyBeaverCore.Dossier14RawTM
+import BusyBeaverCore.Dossier15RawTM
 import BusyBeaverCore.Dossier11RawTM
 import BusyBeaverCore.Dossier13RawTM
 
