@@ -73,20 +73,23 @@ simulated exactly rather than assumed.
 The conjecture is exactly the empirical substrate validated by the
 record-mirror differential test (`tests/bb6/test_dvisetu_rawstep_theorems.py`):
 every fresh-right-extreme record reproduced exactly — state, word, step
-count — over 22M raw steps (2,949 arrivals, all exact, F-probe-safe at
-every step), with the five divide renewals reproduced exactly by the
-raw-step orbit — `n = 120, 186, 918, 2976, 18648` with raw gaps
-`15155, 36581, 498299, 9195841, …`.
+count — over 31M raw steps (3,104 arrivals, all exact, F-probe-safe at
+every step), with the divide renewals reproduced exactly by the raw-step
+orbit — `n = 120, 186, 918, 2976` with raw gaps `15155, 36581, 498299,
+9195841` (including the depth-2 cascade at `n = 918`); the depth-1 event
+`n = 18,648` (raw gap `≈ 0.6·n²`, reached only past ~1.2·10⁹ raw steps)
+is validated by a separate deep run.
 
-Fuel form.  The divide renewal is quadratic-time (`dt ≈ 0.6 n²` in the
-block length `n`) and the sweep fuel `wfuel w = 64·(|w|+64)²` is also
-quadratic in the arrival word length, so their ratio is bounded (about
-`0.6/64 ≈ 0.0094`) independently of size: the maximum fuel fraction
-measured over the 22M horizon — including the depth-2 divide cascade at
-`n = 918` (raw gap 498,299) — is `0.00907`, a margin above `110×`.  The
-same margin holds at the depth-1 event `n = 18,648` (raw gap `≈ 0.6 n²`),
-so the quadratic fuel is empirically safe on the very long divide runs;
-exhaustion is fail-closed (an orbit death) regardless.
+Fuel form.  The divide renewal is quadratic-time (`dt ≈ 1.0·n²` for the
+depth-0/1 branches, `≈ 0.6·n²` for the depth-2 cascade, in the block
+length `n`) and the sweep fuel `wfuel w = 64·(|w|+64)²` is also quadratic
+in the arrival word length, so their ratio is bounded (about `1.0/64 ≈
+0.016`) independently of size: the maximum fuel fraction measured over
+the 31M horizon — including the depth-0 renewal at `n = 2976` (raw gap
+9,195,841) — is `0.0155`, a margin above `64×`.  The same bounded ratio
+holds at `n = 18,648`, so the quadratic fuel is empirically safe on the
+very long divide runs; exhaustion is fail-closed (an orbit death)
+regardless.
 -/
 
 namespace QIG.DvisetuRawStepTM
