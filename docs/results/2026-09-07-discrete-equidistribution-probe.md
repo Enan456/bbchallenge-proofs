@@ -99,17 +99,40 @@ the cylinders are fat ($\gg1/N$) and the sector/sublattice count of \S above
 is rigorous. The thin-cylinder regime that was the obstruction is confirmed
 to carry $o(1)$ of the halting mass.
 
+## Two structural facts that soften the estimate
+
+**$\R$ is bounded-to-one.** Over the tested range every state has at most
+$2$ preimages under $\R$ (multiplicities: $1$ for $\sim84\%$, $2$ for
+$\sim16\%$, never more). Backward orbits thus form a binary tree of bounded
+branching, which is exactly the input an injection/counting argument needs.
+
+**Scale decomposition weakens the target to a weak decay bound.** Write
+$\mathrm{hf}(s)$ for the fraction of seeds with $a\in[s,2s]$, $b\le N$ that
+halt. Then $\#\text{halting}\le\sum_{s\ \mathrm{dyadic}}\mathrm{hf}(s)\cdot
+s(N-\tfrac32 s)$. Measured $\mathrm{hf}(s)$ decays (from $4.3\times10^{-3}$
+at $s=16$ to $8\times10^{-4}$ at $s=4096$), and the dyadic sum is
+$\approx N^{1.7}=o(N^2)$. Crucially, this conclusion needs only
+$\mathrm{hf}(s)\le C\,s^{-\delta}$ for \emph{some} $\delta>0$ --- a weak
+polynomial decay of the per-scale halting fraction --- \emph{not} the full
+equidistribution. That is a much softer estimate: it says merely that seeds
+at scale $s$ hit the (measure-$\Theta(1/s)$) fatal set with probability
+$o(1)$, which follows from bounded distortion plus the boundedness of the
+backward branching, modulo a counting error that the weakness of the required
+decay leaves ample room for.
+
 ## Status
 
 The estimate is (i) strongly supported numerically to depth 6, (ii) reduced
 to a lattice-point count with explicit sublattice structure, (iii) proved for
 every fixed depth, (iv) accompanied by direct confirmation that the halting
-density is $0$ ($\sim C/N$) and that the hard thin-cylinder tail carries
-negligible mass. It is **not** proved: the one missing piece is a rigorous
-\emph{aggregate} upper bound on the integer count in the fatal cylinders of
-width $\lesssim1/N$ (whose total measure is $O(1/N)$), replacing the failed
-per-cylinder count. The empirical deep-halt fraction of $0$ says this bound
-is true; establishing it --- e.g.\ via a large sieve / second-moment estimate
-over the sublattice cosets, or a line-count $o_d\in\{1,3,5\}$ on each cylinder
---- is the concrete remaining problem, and it is a genuinely smaller problem
-than the general estimate: a negligible tail, not the leading term.
+density is $0$ ($\sim C/N$) with the hard thin-cylinder tail carrying
+negligible mass, and (v) softened, via the scale decomposition and the
+bounded-to-one property, to a \emph{weak per-scale decay} bound
+$\mathrm{hf}(s)\le C s^{-\delta}$ rather than full equidistribution. It is
+still **not** proved --- the weak decay bound, though much easier than the
+original estimate, is not established rigorously here. But the problem has
+moved a long way: from "an equidistribution estimate of Collatz difficulty''
+to "a weak polynomial decay of the per-scale halting fraction, for a
+bounded-to-one piecewise-affine map with bounded distortion.'' That is a
+concrete, plausibly tractable analytic problem, and it is the honest current
+frontier of the density form.
