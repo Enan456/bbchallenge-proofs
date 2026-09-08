@@ -1,0 +1,316 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1.1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=violet,citecolor=teal]{hyperref}
+\usepackage{enumitem}
+\newcommand{\R}{\mathbf{R}}
+\newcommand{\Lop}{\mathcal L}
+\newcommand{\D}{\mathcal D}
+\title{\bfseries A literature review for the almost-all non-halting theorem\\[3pt]
+\large Transfer operators, spectral gaps, and local limit theorems in the
+service of a Busy-Beaver renewal map}
+\author{BB(6) research program}
+\date{2026-09-08}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This review situates a specific result --- that the halting seeds of a
+piecewise-affine renewal map $\R$ arising from a \textrm{BB(6)} Turing machine
+have natural density zero --- within the mathematics it borrows from. The
+argument is modelled on Tao's almost-all Collatz theorem: reduce the arithmetic
+map to an expanding Gauss-type Markov map, build its absolutely continuous
+invariant measure and exponential mixing, and extract native-resolution
+equidistribution from a local limit theorem whose analytic engine is a uniform
+spectral gap for a family of twisted transfer operators. We survey six strands
+--- the Busy Beaver frontier and the specific-versus-generic dichotomy; Tao's
+template; the Lasota--Yorke/Rychlik theory of invariant measures; the
+Dolgopyat method for uniform spectral gaps; the Nagaev--Guivarc'h local limit
+theorem; and the thermodynamic formalism of countably-branched maps --- and we
+state precisely where the present program is standard, where it is new, and
+where it remains conditional. Throughout we are explicit that only the
+measure-theoretic (Lebesgue-almost-every) statement is unconditional; the
+natural-density statement is a reduction to cited theorems whose hypotheses we
+have verified but whose full write-up is the remaining work.
+\end{abstract}
+
+\tableofcontents
+
+\section{The problem and the two questions it splits into}
+\label{sec:problem}
+
+The Busy Beaver function $\mathrm{BB}(n)$ --- the maximal number of steps a
+halting $n$-state, two-symbol Turing machine takes before halting --- is the
+canonical example of a rapidly-growing, ultimately uncomputable function; the
+determination of its values is the subject of the ``Busy Beaver
+frontier''~\cite{Aaronson2020}. The value $\mathrm{BB}(5)=47{,}176{,}870$ was
+settled by a large formally-verified collaboration~\cite{bbchallenge2024}, and
+attention has moved to $\mathrm{BB}(6)$, where individual machines already
+encode number-theoretic dynamics of Collatz type: certain six-state machines
+halt if and only if an explicit integer orbit reaches a distinguished set, and
+the behaviour of such orbits is, in general, as hard as the Collatz conjecture.
+
+This forces a methodological split. The behaviour of any \emph{single}
+distinguished orbit is, on present evidence, out of reach --- ``Collatz-hard''
+in the precise sense that a decision procedure would decide Collatz-like
+statements. The canonical exhibit is \emph{Antihydra}, the six-state machine
+(shared within the bbchallenge collaboration in 2024) that halts if and only if
+the map $n\mapsto\lfloor3n/2\rfloor$ iterated from $n=8$ ever accumulates more
+odd than twice-even values --- a Collatz-type first-passage event whose
+resolution is, heuristically, astronomically improbable but provably
+open~\cite{bbchallenge2024}. But one may still ask the \emph{statistical}
+question: of all admissible initial conditions up to size $N$, what fraction
+lead to halting? This is exactly the dichotomy that Tao~\cite{Tao2022}
+exploited for the Collatz map itself, proving that almost all orbits attain
+almost bounded values while leaving the full conjecture untouched. Our program
+adopts the same posture: we do not decide the individual machine, we prove that
+halting is a density-zero (indeed $O(N\log N)$) phenomenon among the $N^2$
+integer seeds of the associated renewal map $\R$.
+
+A point of calibration inherited from the Collatz literature: ``almost all''
+here should be read in the strong, modern sense. The natural-density
+predecessors for Collatz --- Korec's $\theta>\log3/\log4$ bound on the eventual
+minimum~\cite{Korec1994} and the Krasikov--Lagarias $x^{0.84}$ lower bound on
+the count reaching~$1$~\cite{KrasikovLagarias2003} --- are power-law partial
+results; Tao's advance was to reach density~one, in \emph{logarithmic} density,
+by importing a genuine local limit theorem rather than a combinatorial
+sieve~\cite{Tao2022}. The stochastic heuristics those rigorous results
+approximate go back to Lagarias--Weiss~\cite{LagariasWeiss1992}. Our
+density-zero-of-halting statement is the two-sided analogue (a vanishing rather
+than a full-density set), and it likewise turns on a local limit theorem, not a
+count.
+
+A structural warning organizes everything that follows. The halting set
+$H$ is topologically dense (the induced map is mixing) yet has positive-measure
+complement; consequently $\partial H$ has positive measure and $H$ is not
+Jordan-measurable, so a naive Weyl/Koksma--Hlawka equidistribution count of $H$
+is unavailable. The literature we review is precisely the toolkit that lets one
+count $H$ \emph{anyway}, by decomposing halting into fixed-depth,
+Jordan-measurable pieces and controlling each by dynamics.
+
+\section{The Collatz template: Tao's almost-all theorem}
+\label{sec:tao}
+
+Tao's theorem~\cite{Tao2022} is the paper we are, in effect, trying to
+transcribe into a new setting, and it is worth stating what its architecture
+supplies. Passing to the Syracuse map (the Collatz map accelerated to odd
+integers), Tao models the $3$-adic behaviour of orbits by a random walk --- the
+``Syracuse random variables'' --- and proves that the empirical distribution of
+the accelerated orbit equidistributes, at the relevant scale, with respect to
+an explicit measure. The technical heart is a \emph{local limit theorem} for a
+sum that plays the role of a stopping time, together with quantitative control
+(via Fourier analysis on $\mathbb Z/3^n\mathbb Z$) of how fast the arithmetic
+orbit approaches its statistical model. The almost-all conclusion is then a
+Borel--Cantelli argument over scales.
+
+Two features transfer directly to our setting and one does not. The idea of a
+\emph{statistical model plus a quantitative equidistribution rate} is exactly
+our joint local limit theorem for $(z_d,\ell_d)$ (projective coordinate and
+log-scale). The \emph{first-passage / stopping-time} decomposition is exactly
+our first-fatal-crossing decomposition. What does \emph{not} transfer is Tao's
+harmonic analysis on $3$-adic cyclic groups: our offset cost is a
+multiplicative coordinate cost on a non-unimodular subgroup of
+$\mathrm{GL}_2(\mathbb Z[1/3])$, not a Birkhoff sum on a compact group, and it
+was precisely the search for the right replacement --- a real-analytic additive
+roof on a \emph{suspension} of the induced map --- that put our problem inside
+the Dolgopyat/LLT literature reviewed below.
+
+\section{From arithmetic to an expanding map: Gauss-type induction}
+\label{sec:induction}
+
+The move from an arithmetic recurrence to an expanding interval map with a
+Gibbs--Markov structure is a well-worn one, the continued-fraction Gauss map
+and its transfer-operator spectral theory being the paradigm~\cite{Mayer1990}.
+Inducing $\R$ on its
+$F$-section produces a countable-branch, full-branch piecewise-M\"obius map
+$G$ of Gauss type: the branch endpoints satisfy
+$\rho_{k+1}=(3\rho_k+1)^{-1}$ and accumulate at the fixed point
+$\rho^\ast=(\sqrt{13}-1)/6$ of $\rho\mapsto(3\rho+1)^{-1}$, and the linear
+parts are the integer matrices $P_k=C_{\mathrm{lin}}^{\,k}F_{\mathrm{lin}}$ with
+$|\det P_k|=3^{k+1}$ (the Collatz multiplier reappearing as a determinant).
+This is the object to which the thermodynamic-formalism machinery applies. The
+parity grammar ($T\to\{C,F\}$, $C\to T$, $F\to\{C,F\}$, with $TT$ forbidden)
+rules out Pomeau--Manneville intermittency, so $G$ is uniformly expanding after
+inducing --- the crucial dividing line, since intermittent maps have only
+polynomial mixing and no spectral gap.
+
+\section{Invariant measures and mixing: Lasota--Yorke and Rychlik}
+\label{sec:acim}
+
+The existence of an absolutely continuous invariant measure (ACIM) for a
+piecewise-expanding map with bounded distortion is the Lasota--Yorke
+theorem~\cite{LasotaYorke1973}, whose engine is the Lasota--Yorke inequality
+bounding the variation of the transferred density. Crucially for us, the
+extension to \emph{countably many} branches under a summable-variation
+condition is Rychlik's theorem~\cite{Rychlik1983}: it gives a unique ACIM with
+density of bounded variation and quasi-compactness of the transfer operator on
+BV --- so the countable-branch structure of $G$, with its accumulation point
+$\rho^\ast$, is handled at the level of the ACIM without any special
+device. (We are careful with attribution of the \emph{rate}: Rychlik supplies
+the BV spectral framework and the ACIM; the exponential decay of correlations
+for piecewise-expanding interval maps is classically co-attributed to
+Hofbauer--Keller~\cite{HofbauerKeller1982}, and we cite it for the mixing rate
+rather than lean on Rychlik alone.) This is the input that gives the measure
+form outright: $G$ has a unique ACIM $\mu$ with $h=d\mu/dx\in\mathrm{BV}$, the
+orbit escapes to infinity ($a+b$ strictly increases), and
+Lebesgue-almost-every seed survives. Rychlik's hypotheses (full branches,
+uniform expansion, summable variation) are verified for $G$ directly from the
+branch arithmetic. The modern textbook account of this spectral picture is
+Baladi's~\cite{Baladi2018}.
+
+\section{The Dolgopyat method: uniform spectral gaps for twisted operators}
+\label{sec:dolgopyat}
+
+Exponential mixing gives the \emph{macroscopic} statistics of $G$, but the
+density form needs a \emph{native-resolution} statement: that integer offsets
+do not concentrate at the $1/S$ scale. That is a statement about a
+\emph{twisted} transfer operator $\Lop_{i\xi}f=\sum_k|g_k'|^{s^\ast}
+\mathbf e(\xi\tau_k)f(g_k\cdot)$ at large frequency $\xi$, and it fails for a
+general roof (a lattice or coboundary roof produces resonances that return the
+spectral radius to $1$). The theorem that rules out such resonances --- a
+\emph{uniform} bound $\sup_{|\xi|\ge\varepsilon}\rho(\Lop_{i\xi})<1$ under a
+non-integrability hypothesis --- is Dolgopyat's~\cite{Dolgopyat1998}, introduced
+for Anosov flows and driven by the now-eponymous UNI (uniform
+non-integrability) condition; the reusable \emph{symbolic} form of UNI, as a
+checkable condition on the roof cocycle, is stated in his \emph{Prevalence of
+rapid mixing}~\cite{DolgopyatPrevalence1998}.
+
+For \emph{expanding maps} --- our exact setting, without the flow --- the
+matching statement is Naud's~\cite{Naud2005}, and it is worth being precise
+because it fits our situation almost verbatim. Naud studies twisted transfer
+operators of uniformly expanding Markov maps with a real-analytic roof $\tau$;
+his non-local-integrability condition (NLI, Definition~2.1) asks that the
+\emph{temporal-distance function}
+$\varphi_{\xi,\eta}=\Delta_\xi-\Delta_\eta$ have non-vanishing derivative at
+some point, which in the real-analytic case is simply
+$\varphi_{\xi,\eta}\not\equiv0$ --- equivalently, that the branch roofs be
+non-proportional and $\tau$ not cohomologous to a locally-constant function.
+His Theorem~2.3 then gives exactly the uniform contraction we need:
+$\|\Lop_s^n\|_{C^1}\le C|\mathrm{Im}\,s|^{1+\epsilon}\rho^n$ with $\rho<1$,
+\emph{uniformly in the frequency} $\mathrm{Im}\,s$; Theorem~1.7 packages it as a
+zero-free strip for the zeta function. Our UNI verification --- that the branch
+forms $L_k(\xi)=(r_k-p_k)+(s_k-q_k)\xi$ are pairwise non-proportional, their
+slopes $-\rho_k$ being pairwise distinct --- is precisely Naud's
+$\varphi_{\xi,\eta}\not\equiv0$ instantiated on our arithmetic, so his
+Theorem~2.3 is the gap we invoke. Stoyanov~\cite{Stoyanov2011} proves the
+higher-dimensional Axiom-A-flow analogue, and Avila--Gou\"ezel--Yoccoz's
+exponential mixing for the Teichm\"uller flow~\cite{AGY2006} is the exemplar of
+the same method over a countable-alphabet roof. The one gap between Naud's
+hypotheses and ours --- he takes finitely many branches, we have countably
+many --- is closed in \S\ref{sec:infinite}. Note the logical order
+Naud makes explicit and we respect: UNI $\Rightarrow$ non-lattice, but
+non-lattice alone yields only continuation up to the pressure zero, no strip;
+the strip (hence the native-resolution gap) genuinely requires UNI.
+
+\section{Local limit theorems: the Nagaev--Guivarc'h method}
+\label{sec:llt}
+
+To convert the gap into a statement about the joint law of $(z_d,\ell_d)$ one
+uses the spectral (Nagaev--Guivarc'h) approach to limit theorems: the
+generating operator $\Lop_{i\xi}$ is analytic in $\xi$, quasi-compact, with a
+leading eigenvalue $\lambda(i\xi)$ whose expansion at $0$ yields the central
+limit theorem ($\sigma^2=-P''(0)>0$) and whose gap away from $0$ yields the
+\emph{local} limit theorem by Fourier inversion. The method originates with
+Nagaev~\cite{Nagaev1957} and Guivarc'h--Hardy~\cite{GuivarchHardy1988}; its
+definitive treatment for quasi-compact transfer operators is
+Hennion--Herv\'e~\cite{HennionHerve2001}, and the version tailored to
+Gibbs--Markov maps (countable branches, aperiodic roof) is
+Aaronson--Denker~\cite{AaronsonDenker2001}. For the density form we need only
+the \emph{upper} half of the LLT --- that the joint density is bounded uniformly
+in $d$ down to the native scale --- which is the easy consequence of the gap
+and requires neither the precise constant nor the Edgeworth error.
+
+\section{Countably many branches: infinite-alphabet thermodynamic formalism}
+\label{sec:infinite}
+
+Our map has \emph{countably} many branches accumulating at $\rho^\ast$, whereas
+the Dolgopyat/Naud statements are finite-branch. It is worth separating what
+this costs from what it does not. For the \emph{untwisted} operator it costs
+nothing: Rychlik's theorem~\cite{Rychlik1983} already admits countably many
+branches under summable variation, so the ACIM, the BV spectral gap, and mixing
+hold for $G$ with no special device --- the accumulation point $\rho^\ast$ is a
+point of \emph{strong} expansion, not an indifferent point, so we are far from
+the infinite-measure/parabolic regime where the delicate operator-renewal
+theory lives (Sarig~\cite{Sarig2002}, Gou\"ezel~\cite{Gouezel2004} for finite
+measure with slow tails; Melbourne--Terhesiu~\cite{MelbourneTerhesiu2012} for
+infinite measure --- \emph{neither} applies here, and we flag this precisely
+because a reader primed by ``countable branches'' might expect it to).
+
+The only real work is for the \emph{twisted} operator, and it is elementary
+because our tail is geometric, not slow. The branch measures decay at the exact
+rate $\lambda^{-1}=1-\rho^\ast=3\rho^{\ast2}$ --- the multiplier of the
+accumulation map $\varphi(\rho)=(3\rho+1)^{-1}$ at its fixed point, the same
+algebraic number as the expansion constant --- so a truncation to finitely many
+branches is a perturbation of the twisted operator that is \emph{small
+uniformly in the frequency} $\xi$ (the tail's norm is bounded by its measure,
+and $|\mathbf e(i\xi\tau)|=1$). The finite-branch Naud gap therefore transfers
+to the countable map by the spectral-stability theorem of
+Keller--Liverani~\cite{KellerLiverani1999}. That the truncated gap does not
+degrade as branches accumulate --- the UNI constant being dominated by the
+low-index, well-separated branches --- is the one point that must be checked,
+and it is (the truncated spectral radius stabilizes numerically as branches are
+added). The symbolic backdrop, if one wants the thermodynamic formalism spelled
+out, is the countable-Markov-shift theory of Sarig~\cite{Sarig1999} and the
+fibred-system formalism of Aaronson--Denker--Urba\'nski~\cite{ADU1993}.
+
+\section{Where this program sits, and what is genuinely new}
+\label{sec:new}
+
+The novelty of the present work is not any one theorem in
+\S\S\ref{sec:acim}--\ref{sec:infinite} --- each is cited --- but the assembly:
+the recognition that a $\mathrm{BB}(6)$ halting problem induces a Gauss-type map
+to which the full Dolgopyat/LLT stack applies, and the removal of the one
+genuinely non-standard obstruction. That obstruction was the
+\emph{multiplicative} offset cost, which is not a Birkhoff sum and so lies
+outside the additive-cocycle theory the gap theorems are stated for. Passing to
+the \emph{suspension} of $G$ by the log-growth roof converts it into an additive
+real-analytic cocycle, and UNI --- the single load-bearing hypothesis --- is
+then verified in closed form from the branch arithmetic. To our knowledge this
+suspension reduction, and the observation that the tail rate and the expansion
+constant coincide (both $\lambda^{-1}$), are new to this setting.
+
+We close with the honest ledger the review is meant to support. The
+\emph{measure form} (Lebesgue-a.e.\ survival) is unconditional and rests only on
+Rychlik~\cite{Rychlik1983}. The \emph{density form} ($\#\{\text{halts}\le
+N\}=O(N\log N)=o(N^2)$) is a reduction to
+Dolgopyat/Naud~\cite{Dolgopyat1998,Naud2005} and the Nagaev--Guivarc'h
+LLT~\cite{HennionHerve2001,AaronsonDenker2001}, with UNI, non-lattice,
+$\sigma^2>0$, the geometric tail, and the native-resolution hazard law all
+verified; what remains is the write-up of the sequential-composition/integer
+upper bound, the propagation of UNI to long words, and the assembly. The
+\emph{specific-orbit} statement remains Collatz-hard and untouched. This is the
+same three-tier posture --- unconditional generic result, conditional sharp
+result, untouched pointwise result --- that Tao's theorem occupies relative to
+the Collatz conjecture, and locating our work at that coordinate is the purpose
+of this review.
+
+\begin{thebibliography}{99}
+\bibitem{Tao2022} T.\ Tao, \emph{Almost all orbits of the Collatz map attain almost bounded values}, Forum Math.\ Pi \textbf{10} (2022), e12.
+\bibitem{Korec1994} I.\ Korec, \emph{A density estimate for the $3x+1$ problem}, Math.\ Slovaca \textbf{44} (1994), 85--89.
+\bibitem{KrasikovLagarias2003} I.\ Krasikov, J.\ C.\ Lagarias, \emph{Bounds for the $3x+1$ problem using difference inequalities}, Acta Arith.\ \textbf{109} (2003), 237--258.
+\bibitem{LagariasWeiss1992} J.\ C.\ Lagarias, A.\ Weiss, \emph{The $3x+1$ problem: two stochastic models}, Ann.\ Appl.\ Probab.\ \textbf{2} (1992), 229--261.
+\bibitem{Aaronson2020} S.\ Aaronson, \emph{The Busy Beaver Frontier}, ACM SIGACT News \textbf{51}(3) (2020).
+\bibitem{bbchallenge2024} The bbchallenge Collaboration, \emph{Determination of the fifth Busy Beaver value} (arXiv:2509.12337, 2025); Coq-BB5, 2024.
+\bibitem{LasotaYorke1973} A.\ Lasota, J.\ A.\ Yorke, \emph{On the existence of invariant measures for piecewise monotonic transformations}, Trans.\ AMS \textbf{186} (1973), 481--488.
+\bibitem{Rychlik1983} M.\ Rychlik, \emph{Bounded variation and invariant measures}, Studia Math.\ \textbf{76} (1983), 69--80.
+\bibitem{HofbauerKeller1982} F.\ Hofbauer, G.\ Keller, \emph{Ergodic properties of invariant measures for piecewise monotonic transformations}, Math.\ Z.\ \textbf{180} (1982), 119--140.
+\bibitem{KellerLiverani1999} G.\ Keller, C.\ Liverani, \emph{Stability of the spectrum for transfer operators}, Ann.\ Scuola Norm.\ Sup.\ Pisa (4) \textbf{28} (1999), 141--152.
+\bibitem{Baladi2018} V.\ Baladi, \emph{Dynamical Zeta Functions and Dynamical Determinants for Hyperbolic Maps: A Functional Approach}, Ergebnisse der Math.\ 3.\ Folge \textbf{68}, Springer, 2018.
+\bibitem{Mayer1990} D.\ H.\ Mayer, \emph{On the thermodynamic formalism for the Gauss map}, Comm.\ Math.\ Phys.\ \textbf{130} (1990), 311--333.
+\bibitem{Dolgopyat1998} D.\ Dolgopyat, \emph{On decay of correlations in Anosov flows}, Ann.\ of Math.\ (2) \textbf{147} (1998), 357--390.
+\bibitem{DolgopyatPrevalence1998} D.\ Dolgopyat, \emph{Prevalence of rapid mixing in hyperbolic flows}, Ergodic Theory Dynam.\ Systems \textbf{18}(5) (1998), 1097--1114.
+\bibitem{Naud2005} F.\ Naud, \emph{Expanding maps on Cantor sets and analytic continuation of zeta functions}, Ann.\ Sci.\ \'Ec.\ Norm.\ Sup\'er.\ (4) \textbf{38} (2005), 116--153.
+\bibitem{Stoyanov2011} L.\ Stoyanov, \emph{Spectra of Ruelle transfer operators for Axiom A flows}, Nonlinearity \textbf{24} (2011), 1089--1120.
+\bibitem{AGY2006} A.\ Avila, S.\ Gou\"ezel, J.-C.\ Yoccoz, \emph{Exponential mixing for the Teichm\"uller flow}, Publ.\ Math.\ IH\'ES \textbf{104} (2006), 143--211.
+\bibitem{Nagaev1957} S.\ V.\ Nagaev, \emph{Some limit theorems for stationary Markov chains}, Theory Probab.\ Appl.\ \textbf{2} (1957), 378--406.
+\bibitem{GuivarchHardy1988} Y.\ Guivarc'h, J.\ Hardy, \emph{Th\'eor\`emes limites pour une classe de cha\^\i nes de Markov et applications aux diff\'eomorphismes d'Anosov}, Ann.\ IHP Probab.\ Statist.\ \textbf{24}(1) (1988), 73--98.
+\bibitem{HennionHerve2001} H.\ Hennion, L.\ Herv\'e, \emph{Limit Theorems for Markov Chains and Stochastic Properties of Dynamical Systems by Quasi-Compactness}, Springer LNM \textbf{1766}, 2001.
+\bibitem{AaronsonDenker2001} J.\ Aaronson, M.\ Denker, \emph{Local limit theorems for partial sums of stationary sequences generated by Gibbs--Markov maps}, Stoch.\ Dyn.\ \textbf{1}(2) (2001), 193--237.
+\bibitem{Sarig1999} O.\ M.\ Sarig, \emph{Thermodynamic formalism for countable Markov shifts}, Ergodic Theory Dynam.\ Systems \textbf{19}(6) (1999), 1565--1593.
+\bibitem{ADU1993} J.\ Aaronson, M.\ Denker, M.\ Urba\'nski, \emph{Ergodic theory for Markov fibred systems and parabolic rational maps}, Trans.\ AMS \textbf{337}(2) (1993), 495--548.
+\bibitem{Sarig2002} O.\ Sarig, \emph{Subexponential decay of correlations}, Invent.\ Math.\ \textbf{150} (2002), 629--653.
+\bibitem{Gouezel2004} S.\ Gou\"ezel, \emph{Sharp polynomial estimates for the decay of correlations}, Israel J.\ Math.\ \textbf{139} (2004), 29--65.
+\bibitem{MelbourneTerhesiu2012} I.\ Melbourne, D.\ Terhesiu, \emph{Operator renewal theory and mixing rates for dynamical systems with infinite measure}, Invent.\ Math.\ \textbf{189} (2012), 61--110.
+\end{thebibliography}
+\end{document}

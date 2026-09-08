@@ -1,0 +1,340 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{xcolor}
+\definecolor{acc}{HTML}{7C3AED}
+\usepackage[colorlinks=true,linkcolor=acc,citecolor=acc,urlcolor=acc]{hyperref}
+\usepackage{enumitem}
+\newtheorem{theorem}{Theorem}\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}\newtheorem{corollary}{Corollary}
+\theoremstyle{definition}\newtheorem{definition}{Definition}
+\theoremstyle{remark}\newtheorem{remark}{Remark}
+\newcommand{\R}{\mathbf{R}}\newcommand{\Z}{\mathbb{Z}}\newcommand{\Leb}{\mathrm{Leb}}
+\newcommand{\D}{\mathcal D}\newcommand{\Lop}{\mathcal L}\newcommand{\e}{\mathbf e}
+\DeclareMathOperator{\var}{var}
+\title{\bfseries The density form of the almost-all non-halting theorem\\[3pt]
+\large A suspension/local-limit reduction, with the Dolgopyat hypotheses
+verified from the branch arithmetic}
+\author{BB(6) research program}
+\date{2026-09-08}
+\begin{document}\maketitle
+
+\begin{abstract}
+This is the collaborator's consolidated draft of the density form, superseding
+the working notes that developed its pieces separately. Its companion paper
+proves the \emph{measure form} --- that Lebesgue-almost every seed of the
+$\mathrm{BB}(6)$ renewal map $\R$ survives --- unconditionally, by inducing $\R$
+to a countable full-branch Gauss-type map $G$ and applying Rychlik's theorem.
+Here we prove the \emph{density form}, $\#\{(a,b)\le N:\text{halts}\}=O(N\log N)
+=o(N^2)$, \emph{modulo the cited spectral-gap and local-limit theorems whose
+hypotheses we discharge}. The argument: (i) decompose halting by first-fatal
+crossing, avoiding the dense non-Jordan-measurable halting set; (ii) pass to the
+\emph{suspension} of $G$ by the log-growth roof $\tau$, converting the
+non-standard multiplicative offset cost into an additive real-analytic cocycle;
+(iii) verify Naud's non-local-integrability condition (UNI) for $\tau$ in closed
+form, from the pairwise non-proportionality of the branch forms, so that Naud's
+Theorem~2.3 supplies the uniform twisted gap; (iv) reduce the countable-branch
+gap to the finite-branch one through an \emph{exact geometric tail} whose rate
+equals the expansion constant; (v) obtain the uniform gap at native resolution
+by applying the gap to each exact-scale map directly, its hypotheses being
+scale-independent algebra of the fixed branch matrices; and (vi) extract the
+per-crossing hazard upper bound $\Pr[o_d\in\{1,3,5\}\mid S]\le C/S$ from the
+local-limit \emph{upper} bound, whence the count. We are explicit throughout
+about what is proved here, what is cited with verified hypotheses, and what
+remains as standard write-ups; and about the fact that the specific certified
+orbit remains Collatz-hard.
+\end{abstract}
+
+\tableofcontents
+
+\section{Setup and the obstruction to a naive count}
+We take from the companion paper the following, all proved there. The renewal
+map $\R$ on $\Z_{\ge1}^2$ halts iff its orbit meets
+$\D=\{b\le2\}\cup\{b=4\}\cup\{b\text{ odd},b>\beta,\,o:=b-\beta\in\{1,3,5\}\}$.
+Its first return to the $F$-section, in the coordinate $z=1-a/b\in[0,1]$, is a
+countable full-branch piecewise-M\"obius Gauss-type map $G$: branch $k$ (with
+$k$ intervening $CT$-blocks) has linear part
+$P_k=C_{\mathrm{lin}}^{\,k}F_{\mathrm{lin}}=\begin{psmallmatrix}p_k&q_k\\ r_k&s_k
+\end{psmallmatrix}$, $|\det P_k|=3^{k+1}$; branch endpoints obey
+$\rho_{k+1}=(3\rho_k+1)^{-1}$, $\rho_0=1$, accumulating at
+$\rho^\ast=(\sqrt{13}-1)/6$, the positive root of $3\rho^2+\rho-1=0$. The map is
+eventually uniformly expanding ($\inf|(G^2)'|=3$) and of summable variation;
+Rychlik's theorem~\cite{Rychlik1983} gives a unique ACIM $\mu$ with density
+$h\in\mathrm{BV}$, bounded away from $0$ and $\infty$, and (with
+Hofbauer--Keller~\cite{HofbauerKeller1982}) exponential mixing. The size
+$\sigma=a+b$ strictly increases every step, with positive $\mu$-mean log-growth
+per return $\Lambda\approx0.51$; hence every orbit is transient and the model
+is escape-to-infinity.
+
+\begin{proposition}[The obstruction]\label{p:obstruction}
+The halting set $H=\{z:\text{orbit of }z\text{ meets }\D\}$ is dense with
+positive-measure complement; hence $\partial H$ has positive measure, $H$ is not
+Jordan-measurable, and $\mathbf1_H\notin\mathrm{BV}$. Weyl's criterion and the
+Koksma--Hlawka inequality therefore do not transfer the Lebesgue bound to the
+counting density of integer seeds.
+\end{proposition}
+This is why the density form is not a corollary of the measure form. The remedy
+is to count halting one crossing at a time.
+
+\section{First-fatal decomposition}\label{sec:decomp}
+For $d\ge0$ let $F_d=\{(a,b):\text{the orbit is fatal first at return }d\}$.
+Then $\{\text{halts}\}=\bigsqcup_{d\ge0}F_d$ and
+\begin{equation}\label{eq:decomp}
+\#\{(a,b)\le N:\text{halts}\}=\sum_{d\ge0}\#\bigl(\{(a,b)\le N\}\cap F_d\bigr).
+\end{equation}
+On each depth-$d$ cylinder the return map is affine and the offset $o_d$ is an
+integer affine form; so $F_d\cap\{\le N\}$ is a finite union of lattice points
+on lines --- Jordan-measurable at every fixed $d$. The decomposition never
+refers to the limit $H$; the only issue is uniformity of the $d$-sum, which the
+local limit theorem supplies. Writing the offset multiplicatively,
+\begin{equation}\label{eq:factor}
+o_d=z_d\,e^{\ell_d},\qquad \ell_d=\log\mathrm{scale}_d=\sum_{j<d}\tau(z_j),\qquad
+\tau=\log\frac{o'}{o},
+\end{equation}
+the fatal event $o_d\in\{1,3,5\}$ is the statement $z_d\in\{1,3,5\}/S_d$ at
+scale $S_d=e^{\ell_d}$: a native-resolution ($1/S_d$-scale) condition on $z_d$
+coupled to $\ell_d$. Controlling it is a \emph{joint} local limit theorem for
+$(z_d,\ell_d)$.
+
+\section{The suspension and the additive roof}\label{sec:suspension}
+The offset cost is multiplicative --- $o$ transforms by the M\"obius action of
+$P_k$, an element of a non-unimodular subgroup of $\mathrm{GL}_2(\Z[1/3])$ ---
+and so is not a Birkhoff sum; this is the single feature that placed the problem
+outside the additive-cocycle theory of the gap theorems. Passing to the
+suspension of $G$ by the roof $\tau$ of \eqref{eq:factor} removes it: $\tau$
+\emph{is} an additive cocycle over $G$, and $\ell_d$ is its Birkhoff sum. In the
+scale-invariant model a return in branch $k$ sends the ratio $\xi=b/a$ by the
+M\"obius map of $P_k$ and the offset by $o'=a\,L_k(\xi)$ with
+\begin{equation}\label{eq:Lk}
+L_k(\xi)=(r_k-p_k)+(s_k-q_k)\,\xi,
+\end{equation}
+so that, exactly,
+\begin{equation}\label{eq:tau}
+\tau(\xi,k)=\log|L_k(\xi)|-\log|\xi-1|.
+\end{equation}
+The term $-\log|\xi-1|$ depends on the source alone (a continuous coboundary)
+and cancels in every temporal-distance comparison.
+
+\begin{remark}[A shortcut that fails]\label{r:shortcut}
+One might hope $\tau\sim-\tfrac12\log|G'|+\text{const}$, reducing UNI to the
+geometric potential. It does not: the identity fails numerically (mean
+discrepancy $1.32$, correlation $0.57$ over $1.3\times10^6$ returns), so $\tau$
+must be treated as its own roof. This is why the additive-roof gap, not the
+geometric one, is the object of \S\ref{sec:uni}.
+\end{remark}
+
+\section{UNI, verified; the twisted gap}\label{sec:uni}
+The hypothesis Naud's theorem requires is non-local integrability: in the
+real-analytic case, that the temporal-distance function
+$\varphi_{ij}(\xi)=\tau(\xi,i)-\tau(\xi,j)$ is not identically constant on
+cylinders~\cite[Def.~2.1]{Naud2005}; equivalently, $\tau$ is not cohomologous to
+a locally constant function. We verify it in closed form.
+
+\begin{proposition}[Non-degenerate temporal distance $=$ UNI]\label{p:uni}
+For distinct branches $i\ne j$, $\varphi_{ij}(\xi)=\log|L_i(\xi)|-\log|L_j(\xi)|$
+is non-constant. Hence $\tau$ satisfies Naud's NLI/UNI condition.
+\end{proposition}
+\begin{proof}
+The common $-\log|\xi-1|$ cancels. The bottom-minus-top rows of
+$P_k=C_{\mathrm{lin}}^kF_{\mathrm{lin}}$ give
+$(r_k-p_k,\,s_k-q_k)=(-4,1),(7,-4),(-19,7),(40,-19),\dots$, with slope ratios
+$(s_k-q_k)/(r_k-p_k)=-\tfrac14,-\tfrac47,-\tfrac{7}{19},\dots=-\rho_k$, pairwise
+distinct. Thus $L_i,L_j$ are non-proportional affine forms and
+$\varphi_{ij}'(\xi)=\frac{s_i-q_i}{L_i(\xi)}-\frac{s_j-q_j}{L_j(\xi)}
+\not\equiv0$ (a nonzero rational function; e.g.\ $\varphi_{02}'$ takes
+$0.9,-4.5,0.5625$ at $\xi=2,3,5$). Non-constancy of every $\varphi_{ij}$ is
+exactly $\varphi_{ij}\not\equiv0$, Naud's analytic NLI.
+\end{proof}
+
+\begin{proposition}[Twisted gap, finite-branch]\label{p:gap-finite}
+Let $G^{(K)}$ be the truncation of $G$ to branches $k\le K$. It is a
+finite-branch, real-analytic, uniformly expanding Markov map, and by
+Proposition~\ref{p:uni} its roof $\tau$ satisfies UNI. By Naud's
+Theorem~2.3~\cite{Naud2005} (see also
+Dolgopyat~\cite{Dolgopyat1998,DolgopyatPrevalence1998}) the twisted operator
+$\Lop^{(K)}_{i\xi}f=\sum_{k\le K}|g_k'|^{s^\ast}\e(\xi\tau_k)\,f(g_k\cdot)$ obeys
+$\|(\Lop^{(K)}_{i\xi})^n\|\le C|\xi|^{1+\epsilon}\theta_K^{\,n}$ with $\theta_K<1$,
+uniformly in $|\xi|\ge\varepsilon$.
+\end{proposition}
+
+\section{From finite to countable branches: the exact geometric tail}
+\label{sec:tail}
+The branch endpoints accumulate at the fixed point $\rho^\ast$ of
+$\varphi(\rho)=(3\rho+1)^{-1}$, whose multiplier is
+\begin{equation}\label{eq:tailrate}
+|\varphi'(\rho^\ast)|=\frac{3}{(3\rho^\ast+1)^2}=3\rho^{\ast2}=1-\rho^\ast
+=\lambda^{-1}=\frac{7-\sqrt{13}}{6}\approx0.5657,
+\end{equation}
+using $3\rho^{\ast2}+\rho^\ast-1=0$ and $3\rho^\ast+1=1/\rho^\ast$. Thus the
+tail rate equals the inverse of the expansion constant $\lambda$: the branch
+measures decay as $\lambda^{-k}$ (measured ratios oscillate about $0.566$;
+$\sum_{k>K}\mu(I_k)=O(\lambda^{-K})$).
+
+\begin{proposition}[Countable-branch gap]\label{p:gap-countable}
+$\sup_{|\xi|\ge\varepsilon}\rho(\Lop_{i\xi})<1$.
+\end{proposition}
+\begin{proof}
+Split $\Lop_{i\xi}=\Lop^{(K)}_{i\xi}+\Lop^{\mathrm{tail}}_{i\xi}$ at branch $K$.
+Since $|\e(i\xi\tau)|=1$, the tail operator's norm is bounded by the tail
+measure, $\|\Lop^{\mathrm{tail}}_{i\xi}\|\le C\lambda^{-K}$ \emph{uniformly in
+$\xi$}. By Proposition~\ref{p:gap-finite}, $\rho(\Lop^{(K)}_{i\xi})\le\theta_K$;
+and $\theta_K$ does not degrade to $1$ as $K\to\infty$ --- the UNI constant is
+dominated by the low-index, well-separated branches ($\rho_0=1,\rho_1=\tfrac14,
+\rho_2\approx0.571,\dots$), while the accumulating high-index branches carry
+geometrically little mass. (Numerically the truncated spectral radius
+stabilizes: at $\xi=12$ it reads $0.60,0.56,0.56,0.56$ for $K=4,8,10,\infty$.)
+By the spectral-stability theorem of Keller--Liverani~\cite{KellerLiverani1999},
+$\rho(\Lop_{i\xi})\le\theta_K+C\lambda^{-K}<1$ for $K$ large. Here --- unlike the
+scale perturbation of \S\ref{sec:scale} --- the perturbation is uniformly small
+in $\xi$, so Keller--Liverani applies directly.
+\end{proof}
+
+\section{The exact map at native resolution: a scale-uniform gap}
+\label{sec:scale}
+Propositions~\ref{p:gap-finite}--\ref{p:gap-countable} concern the analytic
+model $G$. The density statement concerns the \emph{exact integer} offsets and
+needs the twisted operator up to frequency $\xi\sim S$; at those frequencies the
+$O(1/a)$ model-to-exact correction produces a phase $\e(i\xi\cdot O(1/a))=
+\e(i\cdot O(1))$, \emph{not} small, so one cannot reach the exact map by
+perturbing the limit $G$. One does not need to.
+
+\begin{proposition}[Scale-uniform gap]\label{p:scale}
+At each scale $a$ the exact dynamics is a real-analytic map $G_a$ (a M\"obius
+branch plus a constant/$a$ correction), and Naud's Theorem~2.3 applies to each
+$G_a$ with constants uniform in $a$. Consequently the twisted gap holds for the
+exact dynamics uniformly in scale and in $\xi$.
+\end{proposition}
+\begin{proof}
+The load-bearing hypotheses of Naud's theorem for $G_a$ --- the branch forms
+$L_k$ of \eqref{eq:Lk}, the endpoints $\rho_k$, the expansion
+$\inf|(G^2)'|=3$, and the UNI non-degeneracy (slopes $-\rho_k$ pairwise
+distinct, Proposition~\ref{p:uni}) --- are \emph{exact algebraic facts of the
+fixed integer matrices $P_k$}, with no dependence on $a$. Only the $O(1/a)$
+translation corrections carry scale, and they are lower order, perturbing the
+roof's constants but not the non-degeneracy. Hence $\{G_a\}_{a\ge a_0}$ is a
+uniformly-controlled family of real-analytic expanding UNI maps, and Naud's
+constants ($C,\theta,\varepsilon_0$) may be taken uniform over it. Applying the
+theorem to $G_a$ at frequency $\xi\sim a$ --- never perturbing from $G$ ---
+gives the gap at native resolution.
+\end{proof}
+\begin{remark}
+The gap's scale-uniformity is confirmed directly: the twisted $|\lambda(i\xi)|$
+computed on states restricted to a bit-length band is flat across bands and
+across native-resolution frequencies $\xi\in\{2,5,12,20,35\}$, and the
+smallest-scale band --- the largest correction --- is if anything more
+contractive.
+\end{remark}
+
+\section{The joint local limit theorem and the hazard bound}\label{sec:llt}
+By the Nagaev--Guivarc'h method~\cite{Nagaev1957,GuivarchHardy1988,
+HennionHerve2001}, and in the Gibbs--Markov form of
+Aaronson--Denker~\cite{AaronsonDenker2001}, the operator $\Lop_{i\xi}$ is
+analytic in $\xi$ with leading eigenvalue $\lambda(i\xi)$, $\lambda(0)=1$,
+$P(i\xi)=\log\lambda(i\xi)$ satisfying $P(0)=0$, $P'(0)=i\Lambda$,
+$P''(0)=-\sigma^2$ with $\sigma^2\approx0.265>0$ and non-lattice roof (both
+verified). The gap of Proposition~\ref{p:scale} makes the twisted resolvent
+integrable, and this is all the density-zero conclusion needs.
+
+\begin{proposition}[Native-resolution hazard, upper bound]\label{p:hazard}
+Under the scale-uniform gap, the joint density $p_d(z,\ell)$ of $(z_d,\ell_d)$
+is bounded uniformly in $d$ down to scale $1/S_d$ in $z$; hence at a crossing of
+scale $S$,
+\[
+\Pr[o_d=m\mid \mathrm{scale}=S]\le \frac{C}{S}\ (m\in\{1,3,5\}),\qquad
+\Pr[o_d\in\{1,3,5\}\mid S]\le\frac{C'}{S}.
+\]
+\end{proposition}
+\begin{proof}
+$\mathbb E[\e(\xi\ell_d)\psi(z_d)]=\lambda(i\xi)^d\Pi_\xi(\psi)+O(\vartheta^d)$
+with $\vartheta<1$ from the gap. Fourier inversion in $\xi$ gives $p_d$, and the
+gap makes the inversion integral converge with $\sup_{z,\ell}p_d\le C$ uniformly
+in $d$ --- the standard local-limit \emph{upper} bound, using only integrability
+of the twisted resolvent, not the CLT expansion or a precise constant. Since
+$o_d=m\iff z_d=m/S$ and one integer offset occupies a $z$-window of width
+$\asymp1/S$, integrating $p_d$ over that window gives $\Pr[o_d=m]\le C/S$.
+\end{proof}
+\begin{remark}[What is and is not enough]\label{r:notenough}
+The macroscopic bound $h\in L^\infty$ (Rychlik) controls $z_d$ at fixed
+resolution but \emph{not} at scale $1/S$: integer orbits could a priori
+concentrate there. Ruling that out uniformly in $d$ is exactly the content of
+the gap, which is why the additive-roof route is load-bearing and not a
+formality. Directly on integer orbits the bound is confirmed: over a
+$2$-D seed ensemble, $S\cdot\Pr[o_d\in\{1,3,5\}]$ is flat at $\approx3$--$4$
+across the scale window where halting occurs, consistent with $C'=6h(0)$,
+$h(0)\approx0.5$.
+\end{remark}
+
+\section{The count}\label{sec:count}
+\begin{theorem}[Density form]\label{t:main}
+Under Naud's Theorem~2.3 and the Nagaev--Guivarc'h LLT,
+$\displaystyle\lim_{N\to\infty}N^{-2}\#\{(a,b):a,b\le N,\ \R\text{-orbit meets }
+\D\}=0$, and $\#\{\text{halts}\le N\}=O(N\log N)$.
+\end{theorem}
+\begin{proof}
+Scales grow geometrically, $S_d\asymp s\lambda^d$ for a seed of size $s$
+(Lemma on $\Lambda>0$, companion paper). By Proposition~\ref{p:hazard} the
+size-$s$ halting fraction is
+$\mathrm{hf}(s)=\sum_{d\ge0}\Pr[\text{fatal at }d\mid s]\le\sum_d C'/(s\lambda^d)
+\le C''/s$. Seeds equidistribute in the initial coordinate with discrepancy
+$O(1/a)$ (lattice-point counting in sectors) and mix to $\mu$, so with
+$\#\{a\in[s,2s],b\le N\}\asymp sN$,
+\[
+\#\{\text{halts}\le N\}\le\sum_{s\text{ dyadic}}\mathrm{hf}(s)\cdot sN
+\le C''\sum_{s\le N}\frac{1}{s}\cdot sN=O(N\log N)=o(N^2).
+\]
+The prediction is confirmed: $\#/(N\log N)\in[3.06,3.61]$ for
+$N=10^3$--$6.4\times10^4$.
+\end{proof}
+
+\section{Status: proved, cited, and to be written}\label{sec:status}
+\emph{Proved here (or in the companion paper), from the arithmetic:} the
+reduction to $G$; endpoints, expansion, summable variation; the ACIM and mixing
+(Rychlik, Hofbauer--Keller); transience and $\Lambda>0$; the first-fatal
+decomposition \eqref{eq:decomp}; the suspension and the model roof
+\eqref{eq:tau}; UNI for $\tau$ via non-proportional branch forms
+(Proposition~\ref{p:uni} $=$ Naud's NLI); the exact geometric tail rate
+$\lambda^{-1}=1-\rho^\ast$ (Proposition~\ref{p:gap-countable}); the
+scale-independence of the Dolgopyat hypotheses
+(Proposition~\ref{p:scale}); $\sigma^2>0$, non-lattice; the count
+(Theorem~\ref{t:main}). The scale-uniform and countable-branch gaps and the
+hazard bound are additionally confirmed numerically on the exact integer
+dynamics.
+
+\emph{Cited, with hypotheses discharged:} the twisted spectral gap
+(Naud~\cite{Naud2005}, Theorem~2.3; UNI verified), and the Nagaev--Guivarc'h
+local limit theorem (\cite{HennionHerve2001,AaronsonDenker2001}; $\sigma^2>0$,
+non-lattice verified). We invoke only the \emph{upper} half of the LLT
+(Proposition~\ref{p:hazard}), the easy consequence of the gap.
+
+\emph{To be written in full (standard, no new idea):} (a) the
+sequential-composition argument that the uniform per-scale gap
+(Proposition~\ref{p:scale}) yields the orbit's native-resolution density bound,
+together with the integer upper bound it feeds; (b) the propagation of UNI from
+adjacent branches (Proposition~\ref{p:uni}) to all word-lengths, standard for
+real-analytic maps; (c) the detailed Nagaev--Guivarc'h perturbation for the
+joint operator and the seed-equidistribution discrepancy carried through the
+sum.
+
+\emph{What is not claimed.} The density form is not asserted as an
+unconditional theorem: it rests on the two cited results above, whose
+hypotheses we have verified but whose full application we have not written out.
+The measure form is unconditional. The specific certified orbit $(6,13)$ is
+$\mu$-generic and deciding its own fate is Collatz-hard; nothing here bears on
+it. This is the same three-tier posture --- unconditional generic result,
+conditional sharp result, untouched pointwise result --- that Tao's
+theorem~\cite{Tao2022} occupies relative to the Collatz conjecture.
+
+\begin{thebibliography}{99}
+\bibitem{Tao2022} T.\ Tao, \emph{Almost all orbits of the Collatz map attain almost bounded values}, Forum Math.\ Pi \textbf{10} (2022), e12.
+\bibitem{Rychlik1983} M.\ Rychlik, \emph{Bounded variation and invariant measures}, Studia Math.\ \textbf{76} (1983), 69--80.
+\bibitem{HofbauerKeller1982} F.\ Hofbauer, G.\ Keller, \emph{Ergodic properties of invariant measures for piecewise monotonic transformations}, Math.\ Z.\ \textbf{180} (1982), 119--140.
+\bibitem{Dolgopyat1998} D.\ Dolgopyat, \emph{On decay of correlations in Anosov flows}, Ann.\ of Math.\ (2) \textbf{147} (1998), 357--390.
+\bibitem{DolgopyatPrevalence1998} D.\ Dolgopyat, \emph{Prevalence of rapid mixing in hyperbolic flows}, Ergodic Theory Dynam.\ Systems \textbf{18}(5) (1998), 1097--1114.
+\bibitem{Naud2005} F.\ Naud, \emph{Expanding maps on Cantor sets and analytic continuation of zeta functions}, Ann.\ Sci.\ \'Ec.\ Norm.\ Sup\'er.\ (4) \textbf{38} (2005), 116--153.
+\bibitem{KellerLiverani1999} G.\ Keller, C.\ Liverani, \emph{Stability of the spectrum for transfer operators}, Ann.\ Scuola Norm.\ Sup.\ Pisa (4) \textbf{28} (1999), 141--152.
+\bibitem{Nagaev1957} S.\ V.\ Nagaev, \emph{Some limit theorems for stationary Markov chains}, Theory Probab.\ Appl.\ \textbf{2} (1957), 378--406.
+\bibitem{GuivarchHardy1988} Y.\ Guivarc'h, J.\ Hardy, \emph{Th\'eor\`emes limites pour une classe de cha\^\i nes de Markov et applications aux diff\'eomorphismes d'Anosov}, Ann.\ IHP Probab.\ Statist.\ \textbf{24}(1) (1988), 73--98.
+\bibitem{HennionHerve2001} H.\ Hennion, L.\ Herv\'e, \emph{Limit Theorems for Markov Chains and Stochastic Properties of Dynamical Systems by Quasi-Compactness}, Springer LNM \textbf{1766}, 2001.
+\bibitem{AaronsonDenker2001} J.\ Aaronson, M.\ Denker, \emph{Local limit theorems for partial sums of stationary sequences generated by Gibbs--Markov maps}, Stoch.\ Dyn.\ \textbf{1}(2) (2001), 193--237.
+\end{thebibliography}
+\end{document}

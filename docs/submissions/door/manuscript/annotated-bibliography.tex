@@ -1,0 +1,237 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1.05in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=violet,urlcolor=teal]{hyperref}
+\usepackage{enumitem}
+\newcommand{\entry}[2]{\medskip\noindent\textbf{#1}\quad #2\par}
+\title{\bfseries Annotated bibliography for the almost-all non-halting theorem}
+\author{BB(6) research program}
+\date{2026-09-08}
+\begin{document}
+\maketitle
+
+\noindent This bibliography accompanies the literature review and the
+manuscript. Each entry states the reference, the precise result, and its role
+in the proof. Bibliographic details were verified against primary sources
+(publisher pages, NUMDAM, AMS, IMPAN, Mathnet, and in two cases the article
+PDFs directly); residual uncertainties are flagged in \emph{italics}. Nothing
+here is cited for an effect its source does not actually provide --- in
+particular we distinguish what supplies the ACIM from what supplies the
+\emph{rate}, and what is finite-measure from what is infinite-measure.
+
+\section{Foundations and the Collatz template}
+
+\entry{Tao (2022).}{\emph{Almost all orbits of the Collatz map attain almost
+bounded values}, Forum of Mathematics, Pi \textbf{10}, e12 (arXiv:1909.03562).
+The theorem: for any $f\to\infty$, $\mathrm{Col}_{\min}(N)<f(N)$ for almost all
+$N$ in \emph{logarithmic} density. The method passes to the Syracuse (odd-to-odd)
+map, models the $2$-adic valuations by a ``Syracuse random variable,'' and
+proves a local limit theorem controlled by a bound on the characteristic
+function of a skew random walk on $\mathbb Z/3^n\mathbb Z$. \textbf{Role:} the
+template for the entire program --- reduce the arithmetic map, model the
+increments, prove a local-limit/equidistribution estimate, conclude an
+almost-all statement. We transcribe its architecture (statistical model $+$
+quantitative rate; first-passage decomposition) while replacing its $3$-adic
+harmonic analysis by a suspension/Dolgopyat argument, since our cost is
+multiplicative rather than a Birkhoff sum on a compact group.}
+
+\entry{Korec (1994); Krasikov--Lagarias (2003).}{\emph{A density estimate for
+the $3x+1$ problem}, Math.\ Slovaca \textbf{44}, 85--89; and \emph{Bounds for
+the $3x+1$ problem using difference inequalities}, Acta Arith.\ \textbf{109},
+237--258 (arXiv:math/0205002). The natural-density predecessors: Korec bounds
+the eventual minimum below $N^{\theta}$, $\theta>\log3/\log4$, for almost all
+$N$; Krasikov--Lagarias show $\ge x^{0.84}$ of integers below $x$ provably reach
+$1$. \textbf{Role:} they calibrate ``almost all'' --- these are power-law
+partial results, and Tao's advance (which we follow) was to reach density one
+via a genuine LLT rather than a sieve. \emph{Applegate--Lagarias (Math.\ Comp.\
+64, 1995) and Lagarias's annotated $3x{+}1$ bibliography are companion pointers;
+exact pages/arXiv ids there are medium-confidence.}}
+
+\entry{Lagarias--Weiss (1992).}{\emph{The $3x+1$ problem: two stochastic
+models}, Ann.\ Appl.\ Probab.\ \textbf{2}, 229--261. The rigorous stochastic
+heuristics that the density results approximate. \textbf{Role:} the ancestor of
+the ``biased random walk'' intuition that our theorem makes rigorous for the
+renewal map. \emph{Pages high-confidence; confirm before print.}}
+
+\entry{Aaronson (2020).}{\emph{The Busy Beaver Frontier}, ACM SIGACT News
+\textbf{51}(3), 2020 (also ECCC TR20-115). A survey of $\mathrm{BB}(n)$: growth,
+independence from ZFC of $\mathrm{BB}(n)$ for explicit $n$, and small machines
+encoding open conjectures. \textbf{Role:} frames the meta-mathematical stakes
+and the bridge from $\mathrm{BB}(6)$ machines to Collatz-type dynamics.
+\emph{Pages 32--54 medium-confidence.}}
+
+\entry{The bbchallenge Collaboration (2024--2025).}{The Coq-verified proof that
+$\mathrm{BB}(5)=47{,}176{,}870$ (Coq-BB5, led by the contributor ``mxdys,''
+announced July 2024; companion paper arXiv:2509.12337), and \emph{Antihydra},
+the six-state machine whose halting is equivalent to a Collatz-type first-passage
+event for $n\mapsto\lfloor3n/2\rfloor$ from $n=8$. \textbf{Role:} the concrete
+$\mathrm{BB}(6)$ context --- Antihydra is the canonical exhibit of a machine
+whose single-orbit behaviour is Collatz-hard while its statistics are the
+natural object of an almost-all theorem. \emph{Authorship is collective/
+pseudonymous; the halting-probability figure is a heuristic, not a theorem; the
+current $\mathrm{BB}(6)$ champion value should be quoted from the bbchallenge
+wiki if used.} \emph{As of 2025, Tao (2022) stands essentially alone as a
+rigorous almost-all-log-density result for a Collatz-type map; no credible
+extension to another arithmetic system was found --- so a port to a
+$\mathrm{BB}(6)$/Antihydra-derived map would be the first.}}
+
+\section{Invariant measures, mixing, and the transfer operator}
+
+\entry{Lasota--Yorke (1973).}{\emph{On the existence of invariant measures for
+piecewise monotonic transformations}, Trans.\ AMS \textbf{186}, 481--488. The
+Lasota--Yorke inequality $\mathrm{Var}(\mathcal Lf)\le\alpha\,\mathrm{Var}(f)
++C\|f\|_1$, $\alpha<1$, giving an ACIM with BV density. \textbf{Role:}
+the ancestor of every LY estimate we use.}
+
+\entry{Rychlik (1983).}{\emph{Bounded variation and invariant measures}, Studia
+Math.\ \textbf{76}, 69--80. Extends Lasota--Yorke to \emph{countably many}
+branches under summable variation: unique ACIM, BV density, quasi-compact
+transfer operator. \textbf{Role:} this is what makes our countable-branch map's
+ACIM and untwisted spectral gap free --- the accumulation point $\rho^\ast$ is a
+point of strong expansion, so no infinite-measure machinery is needed.
+\emph{Attribution caution: Rychlik supplies the countable-branch ACIM and BV
+framework; the exponential decay \emph{rate} is classically co-attributed to
+Hofbauer--Keller (below), which we cite for the rate.}}
+
+\entry{Hofbauer--Keller (1982).}{\emph{Ergodic properties of invariant measures
+for piecewise monotonic transformations}, Math.\ Z.\ \textbf{180}, 119--140.
+Exponential decay of correlations for piecewise-expanding interval maps.
+\textbf{Role:} the mixing-\emph{rate} citation companion to Rychlik.
+\emph{Pages high-confidence; not DOI-verified in this pass.}}
+
+\entry{Keller--Liverani (1999).}{\emph{Stability of the spectrum for transfer
+operators}, Ann.\ Scuola Norm.\ Sup.\ Pisa (4) \textbf{28}, 141--152. Isolated
+spectral data are stable under a perturbation small in a weak norm (need not be
+small in the strong BV norm). \textbf{Role:} the theorem that transfers the
+finite-branch gap to the countable map via truncation, and that absorbs the
+$O(1/a)$ model-to-exact perturbation of the \emph{bulk} branches. (Not the tool
+for the native-resolution scale perturbation --- see the manuscript's item-1
+discussion --- which is handled instead by applying the gap per exact-scale
+map.)}
+
+\entry{Baladi (2018).}{\emph{Dynamical Zeta Functions and Dynamical Determinants
+for Hyperbolic Maps: A Functional Approach}, Ergebnisse der Mathematik 3.\ Folge
+\textbf{68}, Springer. The standard modern account of transfer-operator spectral
+theory via anisotropic spaces. \textbf{Role:} background reference for the
+functional-analytic framework. \emph{Note: a \emph{maps} reference; it does not
+contain the Dolgopyat oscillatory-cancellation estimate, which is separate.}}
+
+\entry{Mayer (1990).}{\emph{On the thermodynamic formalism for the Gauss map},
+Comm.\ Math.\ Phys.\ \textbf{130}, 311--333. Transfer-operator spectral theory
+of the continued-fraction Gauss map. \textbf{Role:} the Gauss-type exemplar our
+induced map is modelled on. \emph{If a continued-fraction/modular equidistribution
+statement were wanted instead, Series (JLMS 1985) is the alternative; the plain
+Gauss--Kuzmin--Wirsing spectral picture (Wirsing, Acta Arith.\ 24, 1974) is the
+lighter option.}}
+
+\section{The Dolgopyat method: uniform spectral gaps}
+
+\entry{Dolgopyat (1998).}{\emph{On decay of correlations in Anosov flows},
+Annals of Math.\ (2) \textbf{147}, 357--390 (verified from the article PDF).
+Introduces the ``Dolgopyat method'': an $L^2$ cancellation estimate on twisted
+transfer operators along the imaginary frequency, driven by uniform
+non-integrability (UNI) of the temporal-distance function, giving exponential
+mixing. \textbf{Role:} the origin of the uniform large-frequency gap we need.}
+
+\entry{Dolgopyat (1998), Prevalence of rapid mixing.}{Ergodic Theory Dynam.\
+Systems \textbf{18}(5), 1097--1114. States UNI in reusable \emph{symbolic} form
+as a checkable condition on the roof cocycle. \textbf{Role:} the precise
+citation for ``UNI as a hypothesis one verifies,'' as opposed to the Annals
+paper's flow-specific use.}
+
+\entry{Naud (2005).}{\emph{Expanding maps on Cantor sets and analytic
+continuation of zeta functions}, Ann.\ Sci.\ ENS (4) \textbf{38}, 116--153
+(verified from the article PDF). \textbf{The best-matched reference.} For
+uniformly expanding Markov maps with real-analytic roof, the non-local
+integrability condition NLI (Def.\ 2.1) is that the temporal-distance function
+$\varphi_{\xi,\eta}$ have non-vanishing derivative somewhere --- in the analytic
+case simply $\varphi_{\xi,\eta}\not\equiv0$, i.e.\ non-proportional branch roofs.
+Theorem~2.3: under NLI, $\|\mathcal L_s^n\|_{C^1}\le C|\mathrm{Im}\,s|^{1+\epsilon}
+\rho^n$, $\rho<1$, \emph{uniformly in $\mathrm{Im}\,s$}; Theorem~1.7: a zero-free
+strip for the zeta function. \textbf{Role:} our UNI verification --- branch forms
+$L_k(\xi)=(r_k-p_k)+(s_k-q_k)\xi$ pairwise non-proportional (slopes $-\rho_k$
+distinct) --- is exactly Naud's $\varphi_{\xi,\eta}\not\equiv0$ on our arithmetic,
+so Theorem~2.3 is the gap we invoke.}
+
+\entry{Stoyanov (2011).}{\emph{Spectra of Ruelle transfer operators for Axiom A
+flows}, Nonlinearity \textbf{24}, 1089--1120 (arXiv:0810.1126). The
+higher-dimensional Axiom-A-flow analogue of Naud's estimate under a UNI/Diophantine
+temporal-distance condition. \textbf{Role:} corroborating generality.
+\emph{Several closely-titled Stoyanov papers exist; pin by arXiv id.}}
+
+\entry{Avila--Gou\"ezel--Yoccoz (2006).}{\emph{Exponential mixing for the
+Teichm\"uller flow}, Publ.\ Math.\ IH\'ES \textbf{104}, 143--211. Exponential
+mixing via a Dolgopyat estimate over a \emph{countable-alphabet} (Rauzy--Veech)
+roof. \textbf{Role:} the methodological precedent that the Dolgopyat estimate
+survives countably many branches --- moral support for our \S(infinite) reduction.}
+
+\entry{Ruelle (1976); Pollicott (1985); Parry--Pollicott (1990).}{\emph{Zeta-functions
+for expanding maps and Anosov flows}, Invent.\ Math.\ \textbf{34}, 231--242;
+\emph{On the rate of mixing of Axiom A flows}, Invent.\ Math.\ \textbf{81},
+413--426; \emph{Zeta functions and the periodic orbit structure of hyperbolic
+dynamics}, Ast\'erisque \textbf{187--188}. The transfer-operator/zeta framework,
+Pollicott--Ruelle resonances, and the RPF/non-lattice theory. \textbf{Role:}
+the framework citations; Naud invokes Parry--Pollicott Thm 6.3 for the
+non-lattice continuation. \emph{Pollicott 1985 pages secondary-verified.}}
+
+\section{Local limit theorems}
+
+\entry{Nagaev (1957); Guivarc'h--Hardy (1988).}{\emph{Some limit theorems for
+stationary Markov chains}, Theory Probab.\ Appl.\ \textbf{2}, 378--406; and
+\emph{Th\'eor\`emes limites pour une classe de cha\^\i nes de Markov et
+applications aux diff\'eomorphismes d'Anosov}, Ann.\ IHP Probab.\ Statist.\
+\textbf{24}(1), 73--98. The origin of the perturbed-operator (eigenvalue)
+approach to the CLT, and its adaptation to hyperbolic dynamics with LLT and
+renewal theorems. \textbf{Role:} the ``origin'' citations for the method that
+turns our spectral gap into a local limit theorem.}
+
+\entry{Hennion--Herv\'e (2001).}{\emph{Limit Theorems for Markov Chains and
+Stochastic Properties of Dynamical Systems by Quasi-Compactness}, Springer LNM
+\textbf{1766}. The definitive treatment of the Nagaev--Guivarc'h method:
+CLT/LLT/Berry--Esseen from quasi-compactness plus analytic perturbation of the
+leading eigenvalue $\lambda(i\xi)$. \textbf{Role:} the machinery citation
+bridging our BV/Lipschitz gap to the LLT output.}
+
+\entry{Aaronson--Denker (2001).}{\emph{Local limit theorems for partial sums of
+stationary sequences generated by Gibbs--Markov maps}, Stoch.\ Dyn.\ \textbf{1}(2),
+193--237. LLT for Birkhoff sums of Lipschitz observables over Gibbs--Markov
+(countable-partition, big-image, bounded-distortion) maps, under aperiodicity
+(non-lattice) and finite variance. \textbf{Role:} the off-the-shelf LLT for our
+log-growth cocycle over the induced Gauss-type map. \emph{Cite this long
+published title, not the short-title preprint.}}
+
+\section{Countable-branch thermodynamic formalism (context, not load-bearing)}
+
+\entry{Sarig (1999).}{\emph{Thermodynamic formalism for countable Markov shifts},
+Ergodic Theory Dynam.\ Systems \textbf{19}(6), 1565--1593. Gurevich pressure,
+variational principle, and RPF theory for countable-state shifts under the BIP
+condition. \textbf{Role:} the symbolic backdrop for coding our countable-branch
+map; not load-bearing given Rychlik.}
+
+\entry{Aaronson--Denker--Urba\'nski (1993).}{\emph{Ergodic theory for Markov
+fibred systems and parabolic rational maps}, Trans.\ AMS \textbf{337}(2),
+495--548. Thermodynamic formalism for countable Markov fibred systems.
+\textbf{Role:} structural context for the fibred/countable-branch setting.}
+
+\entry{Sarig (2002); Gou\"ezel (2004); Melbourne--Terhesiu (2012).}{\emph{Subexponential
+decay of correlations}, Invent.\ Math.\ \textbf{150}, 629--653; \emph{Sharp
+polynomial estimates for the decay of correlations}, Israel J.\ Math.\ \textbf{139},
+29--65; \emph{Operator renewal theory and mixing rates for dynamical systems with
+infinite measure}, Invent.\ Math.\ \textbf{189}, 61--110. Operator-renewal theory
+for slow (polynomial/subexponential) mixing --- Sarig/Gou\"ezel finite-measure,
+Melbourne--Terhesiu infinite-measure. \textbf{Role:} cited only to say they are
+\emph{not} needed: our tail is geometric and our measure finite, so the
+truncation is elementary. Included so a reader is not left wondering whether the
+countable branches force slow-mixing machinery. \emph{They do not.}}
+
+\section*{On confidence}
+Two load-bearing items (Dolgopyat 1998; Naud 2005) were verified from the
+article PDFs, including the theorem statements used. All other primary entries
+have venue/volume/year confirmed against publisher or archive pages; italicized
+flags mark page ranges or identifiers confirmed only from consistent secondary
+metadata, and the handful of companion references not separately DOI-checked.
+The two anomalous ``post-Tao extension'' preprints surfaced during the search
+were judged unverifiable and are deliberately \emph{excluded}.
+
+\end{document}
