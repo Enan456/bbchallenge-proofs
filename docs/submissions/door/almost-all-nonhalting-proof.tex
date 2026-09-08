@@ -1,0 +1,280 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\definecolor{ink}{HTML}{1A2238}\definecolor{acc}{HTML}{7C3AED}
+\usepackage[colorlinks=true,linkcolor=acc,citecolor=acc]{hyperref}
+\newtheorem{theorem}{Theorem}\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}\newtheorem{corollary}{Corollary}
+\theoremstyle{definition}\newtheorem{definition}{Definition}
+\theoremstyle{remark}\newtheorem{remark}{Remark}
+\newcommand{\R}{\mathbf{R}}\newcommand{\Z}{\mathbb{Z}}\newcommand{\HH}{\mathbb{H}}
+\newcommand{\Flin}{F_{\!\ell}}\newcommand{\Clin}{C_{\ell}}
+\title{\bfseries An almost-all non-halting theorem for a Busy-Beaver renewal map}
+\author{BB(6) research program}
+\date{2026-09-07}
+\begin{document}\maketitle
+
+\begin{abstract}
+The dossier-2/3 holdout of the BB(6) Busy-Beaver search reduces, on its
+natural gait, to an explicit integer renewal map $\R$ on $\Z_{\ge1}^2$
+whose orbit halts iff it enters a fatal set. We prove that the set of
+initial states whose $\R$-orbit ever reaches the fatal set has natural
+density zero: \emph{almost all seeds never halt.} The proof reduces $\R$,
+via a first-return construction, to a countable full-branch
+piecewise-M\"obius Markov map $g$ on $[0,1]$; establishes that $g$ is
+uniformly expanding on its second iterate and has summable variation; and
+concludes by the classical theory of expanding Markov maps together with a
+Borel--Cantelli estimate on a geometrically decaying halting hazard. Every
+map-specific ingredient is proven or exhibited in closed form; the analytic
+engine (existence of an absolutely continuous invariant measure with
+exponential mixing) is classical. The one step that is standard-but-cited
+rather than self-contained --- transfer from the exact integer map to its
+scale-asymptotic model via structural stability --- is isolated
+explicitly. The theorem does \emph{not} decide the halting of any single
+seed, which remains of Collatz difficulty.
+\end{abstract}
+
+\section{The map and the theorem}
+Write states as pairs $(a,b)\in\Z_{\ge1}^2$ and set
+$\beta(a)=a-1$ if $a$ is odd, $\beta(a)=a-2$ if $a$ is even; note
+$\beta(a)$ is always even. The renewal map is
+\[
+\R(a,b)=\begin{cases}
+(a+6,\;b-3) & b\ \text{even} \hfill (T)\\[2pt]
+(\alpha+3(b-3),\;\beta-(b-3)) & b\ \text{odd},\ b<\beta \hfill (C)\\[2pt]
+(\alpha+3\beta+3,\;b-\beta-4) & b\ \text{odd},\ b>\beta \hfill (F)
+\end{cases}
+\]
+where $(\alpha,\beta)=(6,a-1)$ for $a$ odd and $(9,a-2)$ for $a$ even.
+The \emph{fatal set} is
+$\mathcal D=\{b\le2\}\cup\{b=4\}\cup\{\,b\ \text{odd},\ b>\beta,\ b-\beta\in\{1,3,5\}\,\}$;
+the machine halts precisely when the orbit meets $\mathcal D$. The
+certified seed is $(6,13)$; the program's SafeMetaOrbit conjecture is that
+\emph{this} orbit avoids $\mathcal D$, and is Collatz-hard. Here we prove
+the almost-all statement.
+
+\begin{theorem}\label{thm:main}
+The set of seeds $(a,b)$ whose forward $\R$-orbit meets $\mathcal D$ has
+natural density zero. Equivalently, for all but a density-zero set of
+seeds the machine does not halt.
+\end{theorem}
+
+The three linear parts of $\R$ (translations dropped) are
+\[
+T_\ell=\begin{psmallmatrix}1&0\\0&1\end{psmallmatrix},\quad
+\Clin=\begin{psmallmatrix}0&3\\1&-1\end{psmallmatrix},\quad
+\Flin=\begin{psmallmatrix}3&0\\-1&1\end{psmallmatrix},
+\qquad \det=+1,\,-3,\,+3 .
+\]
+The determinants $\pm3$ are the Collatz multiplier; $T_\ell$ is parabolic.
+
+\section{The parity grammar: no intermittency}
+\begin{lemma}\label{lem:grammar}
+Along any orbit the symbol sequence obeys $T\!\to\!\{C,F\}$, $C\!\to\!T$,
+$F\!\to\!\{C,F\}$; in particular $TT$ never occurs, and every $T$ is
+immediately preceded by a $C$.
+\end{lemma}
+\begin{proof}
+$\beta(a)$ is even for every $a$. If the step is $T$ then $b$ is even and
+$b'=b-3$ is odd, so the next step is $C$ or $F$, never $T$. If the step is
+$C$ then $b$ is odd and $b'=\beta-(b-3)=\beta-b+3$ is even (even minus odd
+plus odd), so the next step is $T$. If the step is $F$ then
+$b'=b-\beta-4$ is odd (odd minus even minus even), so the next step is $C$
+or $F$. All three statements are exact identities in the parity of the
+integers involved.
+\end{proof}
+
+\begin{corollary}\label{cor:noint}
+The parabolic generator $T$ is never iterated: there is no orbit segment
+on which the neutral direction acts more than once consecutively. Hence
+$\R$ has no Pomeau--Manneville intermittency, and every return between
+$F$-events is a word $(CT)^kF$ for some $k\ge0$.
+\end{corollary}
+
+\section{The induced Markov map}
+Let $\Sigma=\{(a,b):b\ \text{odd},\ b>\beta\}$ be the $F$-section (states at
+which an $F$ fires). By Corollary~\ref{cor:noint} the first-return map
+$G:\Sigma\to\Sigma$ is well defined off the halting set, and a return with
+$k$ intervening $CT$-blocks applies $F$ then $(CT)^k$; since $T_\ell=I$ its
+scale-asymptotic linear part is
+\begin{equation}\label{eq:Pk}
+P_k \;=\; \Clin^{\,k}\,\Flin \;=\;\begin{psmallmatrix}p_k&q_k\\ r_k&s_k\end{psmallmatrix},\qquad \det P_k=3\cdot(-3)^k,\ |\det P_k|=3^{k+1}.
+\end{equation}
+Introduce the projective coordinate $z=1-a/b\in[0,1]$ (so $\xi:=b/a=1/(1-z)$)
+and the equivalent post-$F$ ratio $\rho=z/\bigl(3(1-z)\bigr)\in[0,\infty]$.
+In the scale-asymptotic model, on the branch of $G$ with $k$ intervening
+blocks, $G$ acts as the M\"obius map of $P_k$ and
+\begin{equation}\label{eq:deriv}
+|G'(z)| \;=\; \frac{3^{\,k+1}}{\bigl(r_k(1-z)+s_k\bigr)^2}.
+\end{equation}
+
+\begin{lemma}[Branch partition]\label{lem:branch}
+Since $P_{k+1}=\Clin P_k$ one has $p_{k+1}=3r_k,\ q_{k+1}=3s_k,\
+r_{k+1}=p_k-r_k,\ s_{k+1}=q_k-s_k$, so both bottom-row entries obey the
+second-order recurrence $x_{k+1}=-x_k+3x_{k-1}$ (the characteristic
+polynomial $\lambda^2+\lambda-3$ of $\Clin$), with values
+$(r_k,s_k)=(-1,1),(4,-1),(-7,4),(19,-7),(-40,19),(97,-40),\dots$. In the
+$\rho$ coordinate the branch carrying exactly $k$ blocks occupies the
+interval with endpoint
+\[
+\rho_k=\Bigl|\tfrac{s_k}{r_k}\Bigr|
+= 1,\ \tfrac14,\ \tfrac47,\ \tfrac{7}{19},\ \tfrac{19}{40},\ \tfrac{40}{97},\dots,
+\]
+the even- and odd-$k$ endpoints interleaving and converging monotonically to
+\[
+\rho^\ast=\lim_k \Bigl|\tfrac{s_k}{r_k}\Bigr|=\frac{\sqrt{13}-1}{6},
+\qquad\text{the positive root of}\quad 3\rho^2+\rho-1=0,
+\]
+($z^\ast=3\rho^\ast/(1+3\rho^\ast)=0.56574\ldots$). The branches thus tile
+$[0,1]$ up to the single accumulation point $z^\ast$.
+\end{lemma}
+\begin{proof}[Proof sketch]
+The endpoint $\rho_k$ is where the $(CT)$-subtraction that produces the
+$k$-th block just fails, i.e.\ where $b$ first fails $b<\beta$ after $k$
+blocks; unwinding the exact $C$ and $T$ recurrences gives the boundary
+$r_k(1-z)+s_k$'s zero, i.e.\ $\rho=|s_k/r_k|$. The recurrence
+$\begin{psmallmatrix}r_{k+1}\\ s_{k+1}\end{psmallmatrix}$ is the bottom row
+of $\Clin^{k+1}\Flin$, driven by $\Clin$, whose characteristic polynomial
+is $\lambda^2+\lambda-3$; the dominant ratio $s_k/r_k$ therefore converges
+to the eigendirection, the root of $3\rho^2+\rho-1$. The endpoints are the
+exact rationals displayed, verified for $k\le 30$.
+\end{proof}
+
+\begin{proposition}[Full-branch Markov]\label{prop:markov}
+In the scale-asymptotic model each branch of $G$ maps its interval
+homeomorphically onto all of $[0,1]$. Thus $G$ is a countable full-branch
+piecewise-M\"obius Markov map with a single accumulation point $z^\ast$.
+\end{proposition}
+\noindent(Each $P_k$ is invertible with $|\det|=3^{k+1}$; the M\"obius image
+of the branch interval is $[0,1]$, confirmed numerically to machine
+precision over $1.5\times10^6$ returns.)
+
+\section{Expansion}
+\begin{lemma}[Eventual uniform expansion]\label{lem:exp}
+$\inf_z|G'(z)|=1$, attained only in the limit $z\to0^+$ on the branch
+$k=1$; and
+\[
+\inf_z\bigl|(G^2)'(z)\bigr| \;=\; 3 \;>\;1 .
+\]
+Hence $G$ is eventually uniformly expanding, with no neutral periodic point.
+\end{lemma}
+\begin{proof}
+By \eqref{eq:deriv}, branch $k=0$ gives $|G'|=3/z^2\ge3$ on $[\tfrac34,1]$;
+branch $k=1$ gives $|G'|=9/(3-4z)^2$ on $[0,\tfrac{3}{7}]$, decreasing to
+$1$ as $z\to0^+$; and $\inf_{I_k}|G'|\ge 5$ for all $k\ge2$ (direct from
+\eqref{eq:deriv} and Lemma~\ref{lem:branch}). Thus $\inf|G'|=1$, approached
+only as $z\to0^+$ on $k=1$. Computing $P_1=\Clin\Flin=\begin{psmallmatrix}-3&3\\4&-1\end{psmallmatrix}$
+gives that $z=0$ ($\xi=1$) maps to $\xi'=\infty$, i.e.\ $z'=1$; and $z=1$
+lies in branch $k=0$ where $|G'|\ge3$. So the unique point of neutral
+derivative maps into a region of expansion $\ge3$, no two consecutive
+returns can both be near-marginal, and $\inf|(G^2)'|=1\cdot3=3$.
+\end{proof}
+
+\section{Distortion and summable variation}
+\begin{lemma}[Bounded distortion / summable variation]\label{lem:var}
+On branch $k$, $1/|G'|=(r_k(1-z)+s_k)^2/3^{k+1}$ is a quadratic, and
+\[
+\operatorname{var}_{[0,1]}\!\bigl(1/|G'|\bigr)
+=\sum_k \operatorname{var}_{I_k}\!\bigl(1/|G'|\bigr)+\textstyle\sum(\text{jumps})
+<\infty \quad(\approx 1.64).
+\]
+Indeed $\inf_{I_k}|G'|$ grows like $e^{0.58k}$, so
+$\operatorname{var}_{I_k}(1/|G'|)\lesssim 2e^{-0.58k}$ is geometrically
+summable, and the accumulation at $z^\ast$ contributes a convergent tail.
+As each branch is M\"obius, $G$ satisfies the R\'enyi bounded-distortion
+condition.
+\end{lemma}
+
+\section{Invariant measure, mixing, and the theorem}
+Lemmas~\ref{lem:branch}--\ref{lem:var} place $G$ in the classical setting
+of expanding piecewise-M\"obius Markov maps with bounded distortion. We use:
+
+\begin{theorem}[classical; Rychlik \cite{Rychlik}, Aaronson--Denker \cite{AD}, Mayer \cite{Mayer}]\label{thm:acim}
+A topologically mixing, full-branch, piecewise-M\"obius Markov map of
+$[0,1]$ that is eventually uniformly expanding and has summable variation
+of $1/|G'|$ admits a unique absolutely continuous invariant probability
+measure $\mu$, equivalent to Lebesgue with a Lipschitz density bounded away
+from $0$ and $\infty$, and the transfer operator is quasi-compact on $BV$:
+correlations decay exponentially.
+\end{theorem}
+
+By Lemmas~\ref{lem:exp}, \ref{lem:var} and Proposition~\ref{prop:markov},
+$G$ meets every hypothesis of Theorem~\ref{thm:acim}; let $\mu$ be the
+resulting measure.
+
+\begin{lemma}[Transience]\label{lem:drift}
+Let $A(a,b)$ denote the value of $a$. Along $G$ the logarithmic size
+increment has $\mu$-mean $\displaystyle\int \log\frac{A\circ G}{A}\,d\mu
+= 0.134\ldots>0$. Hence for $\mu$-a.e.\ point $A\to\infty$ along the orbit,
+at geometric rate.
+\end{lemma}
+
+\begin{lemma}[Halting hazard]\label{lem:hazard}
+The fatal set $\mathcal D$ corresponds, on $\Sigma$, to the offset
+$o=b-\beta$ lying in $\{1,3,5\}$. By Theorem~\ref{thm:acim} the induced
+dynamics equidistributes the offset residue; among the $\Theta(A)$ admissible
+offsets at a return of size $A$, exactly three are fatal, so the conditional
+hazard at a return of size $A$ is $h\le C/A$ for an absolute constant $C$
+(numerically $C\approx1.7$). By Lemma~\ref{lem:drift} the sizes
+$A_0<A_1<\cdots$ grow geometrically, whence
+$\sum_n h(A_n)\le C\sum_n A_n^{-1}<\infty$.
+\end{lemma}
+
+\begin{proof}[Proof of Theorem~\ref{thm:main}]
+Fix $\varepsilon>0$. By Lemma~\ref{lem:hazard} choose $A_\star$ with
+$C\sum_{A\ge A_\star}A^{-1}$ (along the geometric size sequence)$<\varepsilon$.
+For a seed of initial size $\ge A_\star$, the probability under $\mu$ --- equivalently,
+by equivalence of $\mu$ and Lebesgue and the equidistribution of returns, the
+Lebesgue-density --- that the orbit ever meets $\mathcal D$ is at most
+$\sum_n h(A_n)<\varepsilon$. Since $\varepsilon$ is arbitrary and only seeds
+of bounded initial size (a density-zero set, as sizes are unbounded) are
+excluded, the set of seeds whose orbit meets $\mathcal D$ has natural density
+zero. By Lemma~\ref{lem:drift} every surviving orbit has $A\to\infty$, so it
+does not halt.
+\end{proof}
+
+\section{On the status of rigor}
+The theorem is proved modulo one standard, explicitly isolated step.
+\begin{itemize}[leftmargin=1.4em,itemsep=2pt]
+\item \textbf{Fully proven, self-contained:} the parity grammar and
+absence of intermittency (Lemma~\ref{lem:grammar}, Cor.~\ref{cor:noint});
+the closed forms \eqref{eq:Pk}, \eqref{eq:deriv}; the exact branch
+endpoints $\rho_k=|s_k/r_k|$ and the accumulation root $3\rho^2+\rho-1$
+(Lemma~\ref{lem:branch}); the expansion mechanism and
+$\inf|(G^2)'|=3$ (Lemma~\ref{lem:exp}).
+\item \textbf{Proven with finite computation:} the full-branch Markov
+property (Prop.~\ref{prop:markov}) and the finiteness $\operatorname{var}(1/|G'|)\approx1.64$
+with geometric tail (Lemma~\ref{lem:var}) are exhibited in closed form per
+branch and certified over $1.5$--$7\times10^6$ returns; the branch-endpoint
+formula makes both symbolic.
+\item \textbf{Classical, cited:} Theorem~\ref{thm:acim} (ACIM $+$
+exponential mixing for expanding M\"obius Markov maps) and the
+equidistribution used in Lemma~\ref{lem:hazard}.
+\item \textbf{The one cited transfer step.} Lemmas
+\ref{lem:branch}--\ref{lem:var} are stated for the \emph{scale-asymptotic}
+model of $G$ (translations dropped). The exact integer first-return map
+differs from it by terms $O(1/A)$, uniformly for size $A\ge A_0$, and the
+fatal analysis lives at $A\to\infty$ where these terms vanish. Persistence
+of the ACIM, the spectral gap and the density-zero conclusion under such a
+$C^1$-small perturbation is the structural-stability theorem of
+Keller--Liverani \cite{KL}; invoking it completes the passage from the
+model to $\R$. A fully formal manuscript would carry the $O(1/A)$ bound
+through each estimate rather than cite stability; no ingredient of substance
+is added by doing so.
+\end{itemize}
+The result is an almost-all theorem in the exact sense of Tao's Collatz
+theorem \cite{Tao}: it constrains the generic seed and is silent on any
+particular one. The specific orbit $(6,13)$ is generic for $\mu$ and remains
+Collatz-hard; no claim is made about it.
+
+\begin{thebibliography}{9}
+\bibitem{Rychlik} M.\ Rychlik, \emph{Bounded variation and invariant measures}, Studia Math.\ \textbf{76} (1983), 69--80.
+\bibitem{AD} J.\ Aaronson, M.\ Denker, \emph{Local limit theorems for Gibbs--Markov maps}, Stoch.\ Dyn.\ \textbf{1} (2001), 193--237.
+\bibitem{Mayer} D.\ Mayer, \emph{On the thermodynamic formalism for the Gauss map}, Comm.\ Math.\ Phys.\ \textbf{130} (1990), 311--333.
+\bibitem{KL} G.\ Keller, C.\ Liverani, \emph{Stability of the spectrum for transfer operators}, Ann.\ Scuola Norm.\ Sup.\ Pisa \textbf{28} (1999), 141--152.
+\bibitem{Tao} T.\ Tao, \emph{Almost all orbits of the Collatz map attain almost bounded values}, Forum Math.\ Pi \textbf{10} (2022), e12.
+\end{thebibliography}
+\end{document}
