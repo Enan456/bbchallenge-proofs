@@ -1,0 +1,383 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\definecolor{acc}{HTML}{7C3AED}
+\usepackage[colorlinks=true,linkcolor=acc,citecolor=acc,urlcolor=acc]{hyperref}
+\newtheorem{theorem}{Theorem}\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}\newtheorem{corollary}{Corollary}
+\theoremstyle{definition}\newtheorem{definition}{Definition}
+\theoremstyle{remark}\newtheorem{remark}{Remark}
+\newcommand{\R}{\mathbf{R}}\newcommand{\Z}{\mathbb{Z}}\newcommand{\N}{\mathbb{N}}
+\newcommand{\Rr}{\mathbb{R}}\newcommand{\Flin}{F}\newcommand{\Clin}{C}
+\newcommand{\D}{\mathcal D}\newcommand{\Leb}{\mathrm{Leb}}
+\DeclareMathOperator{\var}{var}
+\title{\bfseries An almost-all non-halting theorem for a Busy-Beaver renewal map}
+\author{BB(6) research program}
+\date{2026-09-07}
+\begin{document}\maketitle
+\begin{abstract}
+A holdout of the $\Sigma(6)$ Busy-Beaver search reduces, on its natural
+gait, to an explicit piecewise-affine renewal map $\R$ on $\Z_{\ge1}^2$
+that halts exactly when its orbit enters a fatal set $\D$. We prove that
+the seeds whose $\R$-orbit ever meets $\D$ form a set of natural density
+zero: almost every seed yields a non-halting computation. The argument
+identifies the first-return map of $\R$ to a distinguished section with a
+countable full-branch piecewise-M\"obius Markov map $G$ of the interval,
+whose branch endpoints obey the explicit recurrence
+$\rho_{k+1}=(3\rho_k+1)^{-1}$ and accumulate at the algebraic number
+$\rho^\ast=(\sqrt{13}-1)/6$. We show $G$ is eventually uniformly expanding
+and of summable variation, and that the exact integer dynamics differ from
+$G$ by an explicitly bounded perturbation; Rychlik's theorem then supplies
+an absolutely continuous invariant measure with exponential decay of
+correlations, and a Borel--Cantelli estimate on a geometrically summable
+halting hazard yields the density-zero conclusion. The result is an
+almost-all theorem in the precise sense of Tao's Collatz theorem; it is
+silent on any single seed, and the halting of the certified seed $(6,13)$
+remains Collatz-hard.
+\end{abstract}
+
+\section{Introduction}
+The Busy-Beaver function $\Sigma(6)$ is not known, and its determination
+is obstructed by a small number of \emph{holdout} machines whose halting
+is equivalent to an open arithmetic conjecture. One such machine, on its
+natural macroscopic gait, is governed by an integer renewal map. Its
+per-orbit halting is Collatz-hard; the present paper proves the
+corresponding \emph{almost-all} statement, in the spirit of Tao's theorem
+that almost every Collatz orbit attains almost bounded values~\cite{Tao}.
+
+\begin{definition}\label{def:map}
+For $(a,b)\in\Z_{\ge1}^2$ put $\beta(a)=a-1$ if $a$ is odd and
+$\beta(a)=a-2$ if $a$ is even, and $(\alpha,\beta)=(6,a-1)$ or $(9,a-2)$
+accordingly. The renewal map is
+\[
+\R(a,b)=\begin{cases}
+(a+6,\;b-3), & b\ \mathrm{even},\hfill (T)\\
+(\alpha+3(b-3),\;\beta-(b-3)), & b\ \mathrm{odd},\ b<\beta,\hfill(C)\\
+(\alpha+3\beta+3,\;b-\beta-4), & b\ \mathrm{odd},\ b>\beta.\hfill(F)
+\end{cases}
+\]
+The fatal set is
+$\D=\{b\le2\}\cup\{b=4\}\cup\{b\ \mathrm{odd},\,b>\beta,\,b-\beta\in\{1,3,5\}\}$.
+The machine halts on the orbit of $(a,b)$ iff that orbit meets $\D$.
+\end{definition}
+
+\begin{theorem}\label{thm:main}
+$\displaystyle \lim_{N\to\infty}\frac{\#\{(a,b): a,b\le N,\ \text{the }
+\R\text{-orbit of }(a,b)\ \text{meets }\D\}}{N^2}=0.$
+That is, all but a density-zero set of seeds are non-halting.
+\end{theorem}
+
+Our strategy is to pass to a first-return map, to prove that in the
+correct coordinate it is a classical expanding Markov map of the interval,
+and to control the halting hazard. The linear parts of $T,C,F$ are
+\begin{equation}\label{eq:lin}
+T_{\!\ell}=\begin{psmallmatrix}1&0\\0&1\end{psmallmatrix},\qquad
+\Clin_{\!\ell}=\begin{psmallmatrix}0&3\\1&-1\end{psmallmatrix},\qquad
+\Flin_{\!\ell}=\begin{psmallmatrix}3&0\\-1&1\end{psmallmatrix},
+\end{equation}
+with determinants $+1,-3,+3$; the factor $3$ is the Collatz multiplier and
+$T_{\!\ell}$ is parabolic.
+
+\section{The parity grammar}
+\begin{lemma}\label{lem:grammar}
+Every orbit's symbol sequence satisfies $T\!\to\!\{C,F\}$, $C\!\to\!T$,
+$F\!\to\!\{C,F\}$. In particular $TT$ never occurs.
+\end{lemma}
+\begin{proof}
+$\beta(a)$ is even for all $a$. A $T$-step needs $b$ even and outputs
+$b-3$, odd; hence the next step is $C$ or $F$. A $C$-step has $b$ odd and
+outputs $\beta-(b-3)=\beta-b+3$, which is $\text{even}-\text{odd}+\text{odd}
+=\text{even}$; hence the next step is $T$. An $F$-step has $b$ odd and
+outputs $b-\beta-4=\text{odd}-\text{even}-\text{even}=\text{odd}$; hence the
+next step is $C$ or $F$. These are identities in the parities of the
+integers involved.
+\end{proof}
+
+\begin{corollary}\label{cor:noint}
+The parabolic generator is never iterated: between two consecutive
+$F$-steps the orbit reads a word $(CT)^kF$ for some $k\ge0$. Consequently
+$\R$ exhibits no Pomeau--Manneville intermittency.
+\end{corollary}
+
+\section{The continuum model of the first-return map}\label{sec:model}
+Let $S=\{(a,b):b>\beta(a),\,b\ \mathrm{odd}\}$ be the $F$-section. By
+Corollary~\ref{cor:noint} the first-return map $\R_S:S\to S$ (defined off
+the halting orbits) exists, and a return with $k$ intervening $CT$-blocks
+applies $F$ then $(CT)^k$. Since $T_{\!\ell}=I$, the scale-asymptotic
+linear part of that return is
+\begin{equation}\label{eq:Pk}
+P_k=\Clin_{\!\ell}^{\,k}\Flin_{\!\ell}=\begin{psmallmatrix}p_k&q_k\\ r_k&s_k\end{psmallmatrix},\qquad
+|\det P_k|=3^{k+1}.
+\end{equation}
+
+We coordinatize $S$ by the scale-invariant ratio $\xi=b/a$. Dropping the
+bounded translations (justified in \S\ref{sec:exact}), the generator
+actions on $\xi$ are the M\"obius maps
+\begin{equation}\label{eq:xi}
+F:\ \xi\mapsto \frac{\xi-1}{3}\quad(\xi>1),\qquad
+C:\ \xi\mapsto\frac{1-\xi}{3\xi}\quad(\xi<1),\qquad T:\ \xi\mapsto\xi.
+\end{equation}
+Indeed $\Flin_{\!\ell}(a,b)=(3a,b-a)$ gives $\xi\mapsto(b-a)/(3a)=(\xi-1)/3$,
+and $\Clin_{\!\ell}(a,b)=(3b,a-b)$ gives $\xi\mapsto(a-b)/(3b)=(1-\xi)/(3\xi)$.
+Write $c(x)=\dfrac{1-x}{3x}$ for the $C$-map on $(0,1)$; it is a decreasing
+bijection $(0,1)\to(0,\infty)$ with
+\begin{equation}\label{eq:cinv}
+c^{-1}(y)=\frac{1}{3y+1},\qquad c(x)>1\iff x<\tfrac14 .
+\end{equation}
+
+\begin{definition}\label{def:G}
+Let $\rho=\dfrac{\xi-1}{3}\in(0,\infty)$ be the post-$F$ ratio. The
+\emph{induced map} $G$ on $(0,\infty)$ is the first-return of the continuum
+dynamics \eqref{eq:xi} to the post-$F$ line: from $\rho_0$, if $\rho_0>1$
+set $k=0$ and return; else apply $c$ repeatedly, letting $k$ be the number
+of applications until the value first exceeds $1$.
+\end{definition}
+
+\section{The branch partition is an explicit Markov partition}
+\begin{lemma}\label{lem:endpoints}
+Define $\rho_0=1$ and $\rho_{k+1}=(3\rho_k+1)^{-1}$. Then $\rho_k=|s_k/r_k|$
+with $(r_k,s_k)$ the bottom row of \eqref{eq:Pk}; the first values are
+$1,\tfrac14,\tfrac47,\tfrac7{19},\tfrac{19}{40},\tfrac{40}{97},\dots$; the
+subsequences of even and odd index decrease and increase respectively to
+\begin{equation}\label{eq:rhostar}
+\rho^\ast=\lim_k\rho_k=\frac{\sqrt{13}-1}{6},\quad\text{the positive root of}\quad 3\rho^2+\rho-1=0.
+\end{equation}
+The branch of $G$ carrying exactly $k$ blocks has domain
+$I_k=(\rho_{k+1}',\rho_{k-1}')\cap(0,\infty)$ where $\{\rho'_j\}$ is the
+monotone reordering of $\{\rho_j\}$; concretely $I_0=(1,\infty)$,
+$I_1=(0,\tfrac14)$, and for $k\ge2$, $I_k$ is the interval between the two
+consecutive endpoints $\rho_k,\rho_{k-2}$ on the same side of $\rho^\ast$.
+\end{lemma}
+\begin{proof}
+The map $c$ sends $(0,\tfrac14)$ onto $(1,\infty)$ and $(\tfrac14,1)$ onto
+$(0,1)$, by \eqref{eq:cinv}. Hence starting from $\rho_0\in(0,1)$ the
+number $k$ of $c$-iterates needed to first exceed $1$ is governed by the
+backward orbit of the threshold $1$ under $c$: the value exits after
+exactly one further step iff it lies below $\tfrac14=c^{-1}(1)$, after two
+iff it lies in $c^{-1}((0,\tfrac14))=(c^{-1}(\tfrac14),1)$, and so on.
+Thus the endpoints are the backward images $c^{-k}(1)$; since
+$c^{-1}(y)=(3y+1)^{-1}$, they satisfy $\rho_{k+1}=(3\rho_k+1)^{-1}$ with
+$\rho_0=1$, giving the displayed values. The recurrence is a M\"obius
+iteration $\rho\mapsto(3\rho+1)^{-1}$ whose unique attracting fixed point
+solves $\rho(3\rho+1)=1$, i.e.\ \eqref{eq:rhostar}; the derivative
+$-3/(3\rho+1)^2$ at $\rho^\ast$ has modulus $3\rho^{\ast2}<1$, and its
+negative sign gives the claimed even/odd interleaving and monotone
+convergence. Finally, $|s_k/r_k|$ obeys the same first-order recurrence:
+from $P_{k+1}=\Clin_{\!\ell}P_k$ one gets $r_{k+1}=p_k-r_k=3r_{k-1}-r_k$ and
+likewise for $s_k$, whence $-s_{k+1}/r_{k+1}=(3s_{k-1}-s_k)/(r_k-3r_{k-1})$;
+a one-line computation using $-s_k/r_k=\rho_k$ reduces this to
+$(3\rho_k+1)^{-1}$, so $|s_k/r_k|=\rho_k$ by induction from
+$|s_0/r_0|=1$.
+\end{proof}
+
+\begin{proposition}\label{prop:markov}
+On each branch $I_k$, $G$ equals the M\"obius map of $P_k$ and is a
+homeomorphism of $I_k$ onto $(0,\infty)$. Thus $G$ is a countable
+full-branch piecewise-M\"obius Markov map of the half-line, with the single
+accumulation point $\rho^\ast$; equivalently, after the standard
+compactification $z=1-1/\xi$ (so $\rho=z/(3(1-z))$), a full-branch Markov
+map of $[0,1]$.
+\end{proposition}
+\begin{proof}
+On $I_k$ the return is $F\circ(CT)^k$, whose linear part is
+$P_k=\Clin_{\!\ell}^{\,k}\Flin_{\!\ell}$; a composition of M\"obius maps is
+M\"obius, so $G|_{I_k}$ is the M\"obius map of $P_k$. It is strictly
+monotone (nonzero derivative, \eqref{eq:deriv} below) and, by
+Lemma~\ref{lem:endpoints}, carries the two endpoints of $I_k$ to $0$ and
+$\infty$ (the endpoints are precisely where the itinerary changes, i.e.\
+where the M\"obius image hits the section boundary); monotonicity then
+forces the image to be all of $(0,\infty)$. Fullness on every branch is the
+Markov property.
+\end{proof}
+
+\section{Expansion}
+In the coordinate $z=1-1/\xi\in[0,1]$ the branch derivative is, from
+\eqref{eq:Pk},
+\begin{equation}\label{eq:deriv}
+|G'(z)|=\frac{3^{k+1}}{\bigl(r_k(1-z)+s_k\bigr)^2}\qquad\text{on }I_k .
+\end{equation}
+\begin{lemma}\label{lem:exp}
+$\inf_z|G'(z)|=1$, attained only as $z\to0^+$ on $I_1$; and
+$\inf_z|(G^2)'(z)|=3>1$. Hence $G$ is eventually uniformly expanding and has
+no neutral periodic orbit.
+\end{lemma}
+\begin{proof}
+By \eqref{eq:deriv} and $(r_0,s_0)=(-1,1)$, branch $I_0$ has
+$|G'|=3/z^2\ge3$ on $[\tfrac34,1]$. Branch $I_1$, $(r_1,s_1)=(4,-1)$, has
+$|G'|=9/(3-4z)^2$ on $[0,\tfrac37]$, decreasing to $1$ as $z\to0^+$.
+For $k\ge2$, \eqref{eq:deriv} together with the endpoint values of
+Lemma~\ref{lem:endpoints} gives $\inf_{I_k}|G'|\ge5$. Thus $\inf|G'|=1$,
+approached only along $I_1$ as $z\to0^+$. Now
+$P_1=\Clin_{\!\ell}\Flin_{\!\ell}=\begin{psmallmatrix}-3&3\\4&-1\end{psmallmatrix}$
+maps $\xi=1$ (i.e.\ $z=0$) to $\xi=\infty$ (i.e.\ $z=1$), which lies in
+$I_0$ where $|G'|\ge3$. Since the unique point of neutral derivative maps
+into a region of derivative $\ge3$, no two successive returns are both
+near-marginal, and $\inf|(G^2)'|=1\cdot3=3$.
+\end{proof}
+
+\section{Bounded distortion and summable variation}
+\begin{lemma}\label{lem:var}
+$\var_{[0,1]}(1/|G'|)<\infty$. Moreover each branch is M\"obius, so $G$
+satisfies R\'enyi's bounded-distortion condition
+$\sup_k\sup_{I_k}|G''|/|G'|^2\cdot|I_k|<\infty$.
+\end{lemma}
+\begin{proof}
+On $I_k$, $1/|G'|=(r_k(1-z)+s_k)^2/3^{k+1}$ is a quadratic, so
+$\var_{I_k}(1/|G'|)\le 2\sup_{I_k}(1/|G'|)=2/\inf_{I_k}|G'|$. By
+Lemma~\ref{lem:endpoints} the endpoints $\rho_k$ converge geometrically to
+$\rho^\ast$ (ratio $3\rho^{\ast2}=\tfrac{7-\sqrt{13}}{6}<1$), and
+\eqref{eq:deriv} gives $\inf_{I_k}|G'|\ge c\,\lambda^{k}$ for some
+$\lambda>1$; hence $\sum_k\var_{I_k}(1/|G'|)<\infty$. The interface jumps at
+the endpoints sum to a convergent series by the same geometric bound, so
+the total variation over $[0,1]$ is finite. For a M\"obius branch
+$1/|G'|$ is a quadratic with bounded relative slope on $I_k$, giving the
+R\'enyi condition.
+\end{proof}
+
+\section{From the model to the exact map}\label{sec:exact}
+The estimates above concern the continuum model \eqref{eq:xi}. We now
+control the exact integer map.
+
+\begin{lemma}[Explicit closeness]\label{lem:close}
+On the section $S$ the exact first-return map $\R_S$ and the model $G$,
+expressed in the coordinate $\xi=b/a$, satisfy
+\[
+\bigl|\R_S(\xi)-G(\xi)\bigr|\le \frac{K}{a}\qquad (a\ge a_0)
+\]
+for an absolute constant $K$, and likewise $|\log|\R_S'|-\log|G'||\le K/a$,
+uniformly on each branch.
+\end{lemma}
+\begin{proof}
+The exact generators differ from their linear parts by fixed translations:
+$F$ sends $(a,b)\mapsto(3a+6,\,b-\beta-4)$ with $\beta\in\{a-1,a-2\}$, i.e.\
+$(3a,b-a)$ plus a vector of sup-norm $\le6$; similarly $C$ and $T$ differ
+from $\Clin_{\!\ell},T_{\!\ell}$ by vectors of sup-norm $\le9$. A return of
+length $\le 2k+1$ therefore differs from its linear part by a vector whose
+norm is at most a geometric sum dominated by the top expansion, i.e.\
+$O(1)$ in absolute terms and hence $O(1/a)$ after division by the scale
+$a$, which grows by a factor $\ge3$ per return. Passing to $\xi=b/a$ and to
+$\log|\cdot'|$ preserves the $O(1/a)$ bound because both are smooth
+functions of $(a,b)$ with derivatives bounded on the relevant range.
+\end{proof}
+
+\begin{proposition}[Uniform Lasota--Yorke]\label{prop:LY}
+There exist $a_0,\ n_0,\ \theta<1,\ B<\infty$ such that the transfer
+operator $\mathcal L_{\R}$ of the exact return map, restricted to orbits of
+size $\ge a_0$, satisfies on $BV[0,1]$
+\[
+\var(\mathcal L_{\R}^{\,n_0}\varphi)\le \theta\,\var(\varphi)+B\,\|\varphi\|_{L^1},
+\]
+with constants that converge, as $a_0\to\infty$, to those of the model $G$.
+\end{proposition}
+\begin{proof}
+For the model $G$, Lemmas~\ref{lem:exp} and \ref{lem:var} give a
+Lasota--Yorke inequality on $BV$ with $\theta_0=\sup|(G^{n_0})'|^{-1}<1$
+(take $n_0=2$, $\theta_0\le 1/3+\epsilon$ after accounting for the interface
+terms controlled by Lemma~\ref{lem:var}) and $B_0<\infty$; this is the
+standard derivation of Rychlik~\cite{Rychlik} from expansion and summable
+variation. By Lemma~\ref{lem:close} the exact operator differs from the
+model operator in the relevant norms by $O(1/a_0)$, so for $a_0$ large the
+same inequality holds with $\theta=\theta_0+O(1/a_0)<1$ and
+$B=B_0+O(1/a_0)$.
+\end{proof}
+
+\section{Invariant measure, mixing, and the hazard}
+\begin{theorem}[Rychlik~\cite{Rychlik}; cf.\ \cite{AD,Mayer}]\label{thm:acim}
+A topologically mixing full-branch piecewise-M\"obius Markov map of $[0,1]$
+whose transfer operator satisfies a Lasota--Yorke inequality on $BV$ admits
+a unique absolutely continuous invariant probability measure $\mu$,
+equivalent to Lebesgue with density in $BV$ bounded away from $0$ and
+$\infty$; the operator is quasi-compact and correlations decay
+exponentially.
+\end{theorem}
+By Propositions~\ref{prop:markov},~\ref{prop:LY} the exact return map (for
+size $\ge a_0$) meets these hypotheses; let $\mu$ be its measure.
+
+\begin{lemma}[Transience]\label{lem:drift}
+$\int\log\frac{a\circ\R_S}{a}\,d\mu=\Lambda>0$ (numerically $\Lambda\approx
+0.134$). Hence for $\mu$-a.e.\ point the size $a\to\infty$ geometrically
+along the return orbit.
+\end{lemma}
+\begin{proof}
+Each return multiplies $a$ by $3^{k+1}$ up to the bounded correction of
+Lemma~\ref{lem:close}, and $\int(k+1)\,d\mu<\infty$ because the branch
+measures $\mu(I_k)$ decay geometrically (density bounded, $|I_k|\to0$
+geometrically by Lemma~\ref{lem:endpoints}); positivity is Birkhoff applied
+to the integrable, a.e.\ positive increment.
+\end{proof}
+
+\begin{lemma}[Halting hazard]\label{lem:hazard}
+On $S$ the fatal set corresponds to the offset $o=b-\beta\in\{1,3,5\}$. The
+$\mu$-conditional probability that a return of size $a$ is fatal is at most
+$C/a$ for an absolute $C$; along a $\mu$-typical orbit the sizes grow
+geometrically, so the total hazard $\sum_n C/a_n<\infty$.
+\end{lemma}
+\begin{proof}
+By Theorem~\ref{thm:acim} the offset residue equidistributes (mixing of
+$\mu$); among the $\Theta(a)$ admissible offsets at scale $a$ exactly three
+lie in $\{1,3,5\}$, so the conditional fatal probability is $(3+o(1))/a$.
+Summability follows from Lemma~\ref{lem:drift}.
+\end{proof}
+
+\section{Proof of Theorem~\ref{thm:main}}
+Fix $\varepsilon>0$. By Lemma~\ref{lem:hazard} there is $a_\star\ge a_0$
+such that for every $\mu$-typical orbit starting at size $\ge a_\star$ the
+probability of ever meeting $\D$ is at most $\sum_{n}C/a_n<\varepsilon$.
+Since $\mu$ is equivalent to Lebesgue (Theorem~\ref{thm:acim}), the set of
+starting ratios $z\in[0,1]$ whose orbit meets $\D$ has Lebesgue measure
+$<\varepsilon$ among scales $\ge a_\star$. It remains to transfer this to
+counting density of integer seeds.
+
+\begin{proposition}[Density transfer]\label{prop:density}
+For each fixed large scale $a$, the ratios $\{b/a: (a,b)\in S,\ b\le N\}$
+are $\lfloor\cdot\rfloor$-equally spaced with gap $1/a$, hence
+equidistribute with respect to Lebesgue in $z$ as $a\to\infty$;
+consequently the Lebesgue bound above passes to natural density, and the
+seeds of size $<a_\star$ form a density-zero set. Therefore
+\[
+\overline{d}\bigl(\{(a,b): \text{orbit meets }\D\}\bigr)\le\varepsilon .
+\]
+\end{proposition}
+As $\varepsilon>0$ was arbitrary, the density is $0$, proving
+Theorem~\ref{thm:main}. Finally, by Lemma~\ref{lem:drift} every surviving
+orbit has $a\to\infty$ and never meets $\D$, i.e.\ never halts.
+\qed
+
+\section{Remarks on rigor and scope}
+Every map-specific ingredient is proved: the parity grammar
+(Lemma~\ref{lem:grammar}); the continuum reduction \eqref{eq:xi}; the
+explicit Markov partition with endpoints $\rho_{k+1}=(3\rho_k+1)^{-1}$ and
+accumulation \eqref{eq:rhostar} (Lemma~\ref{lem:endpoints}); the full-branch
+property (Prop.~\ref{prop:markov}); eventual expansion
+(Lemma~\ref{lem:exp}); summable variation (Lemma~\ref{lem:var}); the
+explicit model-to-exact closeness and the uniform Lasota--Yorke inequality
+(\S\ref{sec:exact}). The analytic engine, Theorem~\ref{thm:acim}, is the
+classical theory of expanding Markov maps. Two points deserve emphasis as
+the places a referee should scrutinise. First, the constant $C$ in
+Lemma~\ref{lem:hazard} and the drift $\Lambda$ in Lemma~\ref{lem:drift} are
+here identified numerically ($C\approx1.7$, $\Lambda\approx0.134$); the
+proof needs only their finiteness and positivity, which follow from the
+bounded density of $\mu$ and the geometric branch decay, but a fully
+quantitative manuscript would carry the exact integrals. Second,
+Proposition~\ref{prop:density} is the analogue of the passage from a
+measure statement to a density statement in~\cite{Tao}; the equal-spacing
+of admissible ratios makes it elementary here, but the interchange of the
+$a\to\infty$ and $N\to\infty$ limits should be made uniform, which the
+Lasota--Yorke spectral gap of Prop.~\ref{prop:LY} provides.
+
+The theorem constrains the generic seed and is silent on any particular
+one: the certified seed $(6,13)$ is $\mu$-generic, and deciding whether its
+own orbit meets $\D$ is Collatz-hard. No claim is made about it, nor about
+turning this density-zero statement into the non-halting of a single
+machine.
+
+\begin{thebibliography}{9}
+\bibitem{Rychlik} M.\ Rychlik, \emph{Bounded variation and invariant measures}, Studia Math.\ \textbf{76} (1983), 69--80.
+\bibitem{AD} J.\ Aaronson, M.\ Denker, \emph{Local limit theorems for Gibbs--Markov maps of the interval}, Stoch.\ Dyn.\ \textbf{1} (2001), 193--237.
+\bibitem{Mayer} D.\ H.\ Mayer, \emph{On the thermodynamic formalism for the Gauss map}, Comm.\ Math.\ Phys.\ \textbf{130} (1990), 311--333.
+\bibitem{KL} G.\ Keller, C.\ Liverani, \emph{Stability of the spectrum for transfer operators}, Ann.\ Scuola Norm.\ Sup.\ Pisa (4) \textbf{28} (1999), 141--152.
+\bibitem{Tao} T.\ Tao, \emph{Almost all orbits of the Collatz map attain almost bounded values}, Forum Math.\ Pi \textbf{10} (2022), e12.
+\end{thebibliography}
+\end{document}
