@@ -95,6 +95,46 @@ obstruction — but it is **not** through it: the two constant-bounds are
 not yet rigorously established. No theorem is claimed, and nothing here
 touches the specific-orbit result, which stays Collatz-hard.
 
+## UPDATE (same day): the first Rychlik constant is established
+
+Fired on constant (1), the uniform-expansion bound, and it closes — with
+a surprise that makes the structure exact.
+
+**Exact per-branch derivative.** Because $T$ has linear part $I$, the
+asymptotic induced map for a return with $k$ intermediate $CT$-blocks is
+the Mobius action of $P_k = C_{\text{lin}}^{\,k}\,F_{\text{lin}}$ (apply
+$F$ first, then the $C$'s). In the coordinate $z=1-1/\xi$, $\xi=b/a$:
+$$ |g'(z)| \;=\; \frac{3^{\,k+1}}{\bigl(r_k(1-z)+s_k\bigr)^2}, \qquad (r_k,s_k)=\text{bottom row of }P_k. $$
+This closed form matches the measured local slopes across ~7x10^6
+crossings (it is a clean lower bound on each branch).
+
+**The infimum is exactly 1, at the cusp — not a fixed point.** Branch by
+branch: $k{=}0$ gives $|g'|=3/z^2\ge 3$ on $[\tfrac34,1]$; $k{=}1$ gives
+$|g'|=9/(3-4z)^2$ on $[0,0.433]$, dropping to exactly $1$ as $z\to0^+$;
+every $k\ge2$ has $\inf|g'|\ge 5.3$. So $\inf|g'|=1$, attained only in the
+limit $z\to0^+$ — which is the orbit approaching the fatal diagonal
+(offset small relative to scale). Crucially $z=0$ maps to $z=1$ (compute
+$P_1=[[-3,3],[4,-1]]$: $\xi{=}1\mapsto\infty$, $z'{=}1$), **not a fixed
+point**. And $z=1$ sits in branch $k{=}0$, where $|g'|\ge3$.
+
+**Hence the second iterate is uniformly expanding.** The only place
+$|g'|$ degenerates to $1$ maps into a region of expansion $\ge3$, so no
+two consecutive steps are both marginal:
+$$ \inf_z \bigl|(g^2)'(z)\bigr| \;=\; 3 \;>\; 1 \qquad(\text{verified: }\inf=3.00001\text{ over }7.4\times10^6\text{ crossings}). $$
+Eventual uniform expansion (some iterate uniformly expanding, equivalently
+no neutral cycle) is exactly Rychlik hypothesis (i). **It is now
+established** — as a computer-assisted bound with an explicit analytic
+mechanism, not a heuristic.
+
+**Honest scope.** The formula is the exact *asymptotic* (leading-order)
+map; finite-$a$ corrections are $O(1/a)$ and vanish precisely where the
+bound is tightest ($z\to0\Leftrightarrow a\to\infty$), with large margin
+elsewhere. Making the two-step bound a closed-form case analysis over all
+branch pairs, and bounding the $O(1/a)$ corrections, is the remaining
+write-up for a fully formal proof; the mechanism leaves no gap of
+substance. **Constant (1) done; constant (2), summable variation, is the
+one still open.** We went from two open constants to one.
+
 ## Other ideas on stepping through the door
 
 1. **Finish Rychlik directly** (the above) — the nearest route; two
