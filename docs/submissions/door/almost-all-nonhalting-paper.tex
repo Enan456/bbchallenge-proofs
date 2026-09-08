@@ -28,14 +28,17 @@ countable full-branch piecewise-M\"obius Markov map $G$ of the interval,
 whose branch endpoints obey the explicit recurrence
 $\rho_{k+1}=(3\rho_k+1)^{-1}$ and accumulate at the algebraic number
 $\rho^\ast=(\sqrt{13}-1)/6$. We show $G$ is eventually uniformly expanding
-and of summable variation, and that the exact integer dynamics differ from
-$G$ by an explicitly bounded perturbation; Rychlik's theorem then supplies
-an absolutely continuous invariant measure with exponential decay of
-correlations, and a Borel--Cantelli estimate on a geometrically summable
-halting hazard yields the density-zero conclusion. The result is an
-almost-all theorem in the precise sense of Tao's Collatz theorem; it is
-silent on any single seed, and the halting of the certified seed $(6,13)$
-remains Collatz-hard.
+and of summable variation; Rychlik's theorem then supplies an absolutely
+continuous invariant measure with exponential decay of correlations, and a
+Borel--Cantelli estimate on a geometrically summable halting hazard yields
+the density-zero conclusion. The continuum model is treated completely, with
+each ingredient verified against the exact dynamics; the transfer to the
+integer map and to natural density is reduced to two standard estimates
+(persistence of the spectral gap under an $O(1/a)$ branch-tail truncation,
+and Jordan-measurability of the halting set), isolated explicitly in
+\S\ref{sec:exact} and \S9. The result is an almost-all theorem in the sense
+of Tao's Collatz theorem; it is silent on any single seed, and the halting
+of the certified seed $(6,13)$ remains Collatz-hard.
 \end{abstract}
 
 \section{Introduction}
@@ -192,6 +195,20 @@ forces the image to be all of $(0,\infty)$. Fullness on every branch is the
 Markov property.
 \end{proof}
 
+\begin{remark}\label{rem:model-only}
+The branch index $k$ is a genuine function of $\rho$ \emph{for the model
+$G$}, being the first-exit time of the deterministic itinerary of
+Definition~\ref{def:G}. For the exact integer map at finite scale $a$ the
+partition is only approximate: near each endpoint $\rho_k$ the assignment of
+$k$ can differ from the model on a set of $\rho$-width $O(1/a)$ (the
+translations of Definition~\ref{def:map} perturb the itinerary boundary).
+Thus the clean Markov structure is a property of the model, and the
+finite-$a$ boundary discrepancy is part of the perturbation controlled in
+\S\ref{sec:exact}; it is \emph{not} a hidden skew product, since $z=1-1/\xi$
+and $\rho=(\xi-1)/3$ are monotone reparametrisations and cannot alter
+whether the model partition is Markov.
+\end{remark}
+
 \section{Expansion}
 In the coordinate $z=1-1/\xi\in[0,1]$ the branch derivative is, from
 \eqref{eq:Pk},
@@ -237,51 +254,77 @@ R\'enyi condition.
 \end{proof}
 
 \section{From the model to the exact map}\label{sec:exact}
-The estimates above concern the continuum model \eqref{eq:xi}. We now
-control the exact integer map.
+The estimates above concern the continuum model \eqref{eq:xi}; we now control
+the exact integer map. The control is \emph{not} uniform over all branches:
+the branch widths $|I_k|$ shrink geometrically (ratio
+$3\rho^{\ast2}=\tfrac{7-\sqrt{13}}{6}\approx0.566$, Lemma~\ref{lem:endpoints}),
+so at scale $a$ every branch with
+\begin{equation}\label{eq:Ma}
+k>M(a):=\Bigl\lceil\frac{\log a}{\log(1/3\rho^{\ast2})}\Bigr\rceil
+\end{equation}
+has width $|I_k|<1/a$, smaller than the perturbation below; there the exact
+map need not even realise the branch. We therefore split off this tail.
 
-\begin{lemma}[Explicit closeness]\label{lem:close}
-On the section $S$ the exact first-return map $\R_S$ and the model $G$,
-expressed in the coordinate $\xi=b/a$, satisfy
+\begin{lemma}[Bulk closeness and tail measure]\label{lem:close}
+Let $\R_S$ be the exact first-return map in the coordinate $\xi=b/a$. There
+is an absolute $K$ such that on the \emph{bulk} $\bigcup_{k\le M(a)}I_k$,
 \[
-\bigl|\R_S(\xi)-G(\xi)\bigr|\le \frac{K}{a}\qquad (a\ge a_0)
+\bigl|\R_S(\xi)-G(\xi)\bigr|\le \frac{K}{a},\qquad
+\bigl|\log|\R_S'|-\log|G'|\bigr|\le \frac{K}{a}\qquad(a\ge a_0),
 \]
-for an absolute constant $K$, and likewise $|\log|\R_S'|-\log|G'||\le K/a$,
-uniformly on each branch.
+while the \emph{tail} $T_a:=\bigcup_{k>M(a)}I_k$ has Lebesgue (hence, since
+the model density is bounded, $\mu$-) measure $O(1/a)$.
 \end{lemma}
 \begin{proof}
-The exact generators differ from their linear parts by fixed translations:
-$F$ sends $(a,b)\mapsto(3a+6,\,b-\beta-4)$ with $\beta\in\{a-1,a-2\}$, i.e.\
-$(3a,b-a)$ plus a vector of sup-norm $\le6$; similarly $C$ and $T$ differ
-from $\Clin_{\!\ell},T_{\!\ell}$ by vectors of sup-norm $\le9$. A return of
-length $\le 2k+1$ therefore differs from its linear part by a vector whose
-norm is at most a geometric sum dominated by the top expansion, i.e.\
-$O(1)$ in absolute terms and hence $O(1/a)$ after division by the scale
-$a$, which grows by a factor $\ge3$ per return. Passing to $\xi=b/a$ and to
-$\log|\cdot'|$ preserves the $O(1/a)$ bound because both are smooth
-functions of $(a,b)$ with derivatives bounded on the relevant range.
+The exact generators differ from their linear parts by fixed translations
+of sup-norm $\le9$: $F$ sends $(a,b)\mapsto(3a,b-a)$ plus a vector of norm
+$\le6$, and similarly $C,T$. A bulk return has length $\le2M(a)+1=O(\log a)$
+and each of its steps multiplies the scale by a factor $\ge$ a constant, so
+the accumulated translation error is $O(1)$ in $(a,b)$ and $O(1/a)$ after
+dividing by the scale $a$, which increases along the return; the same bound
+in $\xi$ and $\log|\cdot'|$ follows as both are smooth with bounded
+derivatives on the bulk (where $|I_k|\ge1/a$ keeps the M\"obius denominators
+$r_k(1-z)+s_k$ bounded away from $0$). The tail measure is
+$\sum_{k>M(a)}|I_k|\le C(3\rho^{\ast2})^{M(a)}\le C/a$ by
+Lemma~\ref{lem:endpoints}.
 \end{proof}
 
-\begin{proposition}[Uniform Lasota--Yorke]\label{prop:LY}
-There exist $a_0,\ n_0,\ \theta<1,\ B<\infty$ such that the transfer
-operator $\mathcal L_{\R}$ of the exact return map, restricted to orbits of
-size $\ge a_0$, satisfies on $BV[0,1]$
+\begin{proposition}[Lasota--Yorke for the exact operator, via truncation]\label{prop:LY}
+There exist $a_0,\ n_0=2,\ \theta<1,\ B<\infty$ such that the transfer
+operator $\mathcal L_{\R}$ of the exact return map on scales $\ge a_0$
+satisfies, on $BV[0,1]$,
 \[
-\var(\mathcal L_{\R}^{\,n_0}\varphi)\le \theta\,\var(\varphi)+B\,\|\varphi\|_{L^1},
+\var(\mathcal L_{\R}^{\,n_0}\varphi)\le \theta\,\var(\varphi)+B\,\|\varphi\|_{L^1}.
 \]
-with constants that converge, as $a_0\to\infty$, to those of the model $G$.
 \end{proposition}
 \begin{proof}
-For the model $G$, Lemmas~\ref{lem:exp} and \ref{lem:var} give a
-Lasota--Yorke inequality on $BV$ with $\theta_0=\sup|(G^{n_0})'|^{-1}<1$
-(take $n_0=2$, $\theta_0\le 1/3+\epsilon$ after accounting for the interface
-terms controlled by Lemma~\ref{lem:var}) and $B_0<\infty$; this is the
-standard derivation of Rychlik~\cite{Rychlik} from expansion and summable
-variation. By Lemma~\ref{lem:close} the exact operator differs from the
-model operator in the relevant norms by $O(1/a_0)$, so for $a_0$ large the
-same inequality holds with $\theta=\theta_0+O(1/a_0)<1$ and
-$B=B_0+O(1/a_0)$.
+For the model $G$, Lemmas~\ref{lem:exp},~\ref{lem:var} give a Lasota--Yorke
+inequality with $\theta_0=\sup|(G^2)'|^{-1}\le\tfrac13$ (plus interface terms
+bounded by the finite variation of Lemma~\ref{lem:var}) and $B_0<\infty$:
+the standard derivation from eventual expansion and summable
+variation~\cite{Rychlik}. Decompose $\mathcal L_\R=\mathcal L_{\R}^{\mathrm{blk}}
++\mathcal L_{\R}^{\mathrm{tail}}$ by the partition of
+Lemma~\ref{lem:close}. On the bulk, the $O(1/a_0)$ closeness gives
+$\var(\mathcal L_{\R}^{\mathrm{blk},2}\varphi)\le(\theta_0+O(1/a_0))\var\varphi
++(B_0+O(1/a_0))\|\varphi\|_{L^1}$, a genuinely uniform bound over the
+\emph{finitely many} bulk branches. The tail operator has norm controlled by
+the tail measure and by the strong expansion there ($|G'|\ge c\,\lambda^{k}$,
+$k>M(a)$): $\var(\mathcal L_{\R}^{\mathrm{tail}}\varphi)\le
+O\!\left(\mu(T_{a_0})\right)\var\varphi+O(1)\|\varphi\|_{L^1}=O(1/a_0)\var\varphi
++O(1)\|\varphi\|_{L^1}$, because a full-branch operator over branches of total
+measure $\varepsilon$ and expansion $\ge1$ contributes $\le\varepsilon$ to the
+variation coefficient. Summing, for $a_0$ large enough that
+$\theta_0+O(1/a_0)<1$, the inequality holds with $\theta<1$, $B<\infty$.
+Persistence of the resulting spectral gap under the $O(1/a_0)$ perturbation
+is the stability theorem of Keller--Liverani~\cite{KL}.
 \end{proof}
+
+\begin{remark}[Leakage]\label{rem:leak}
+$\R_S$ is defined off the halting orbits, so a fraction of mass exits through
+$\D$ at each return and $\mathcal L_\R$ is sub-stochastic. The escaping mass
+is exactly the halting hazard quantified in Lemma~\ref{lem:hazard}; it is
+$O(1/a)$ per return and is accounted there, not lost.
+\end{remark}
 
 \section{Invariant measure, mixing, and the hazard}
 \begin{theorem}[Rychlik~\cite{Rychlik}; cf.\ \cite{AD,Mayer}]\label{thm:acim}
@@ -330,11 +373,17 @@ $z=o/(o+\beta)\in\{1,3,5\}/a+O(a^{-2})$, which fall in the interval
 $[0,6/a]$ of $z$-length $6/a$; by mixing (Theorem~\ref{thm:acim}) the
 crossing law has density $h$, so the probability of landing there is
 $h(0)\cdot 6/a\,(1+o(1))$, giving $C=6h(0)$. Finiteness is immediate from
-$h\in BV\subset L^\infty$; positivity from $h>0$. Summability follows from
-$\Lambda>0$ (Lemma~\ref{lem:drift}): the return scales grow geometrically,
-so $\sum_n a_n^{-1}<\infty$. The exact value of $h(0)$ is the transfer
-operator's fixed point and is not elementary; only $C<\infty$ enters the
-theorem.
+$h\in BV\subset L^\infty$; positivity from $h>0$. For summability: by the
+Birkhoff ergodic theorem applied to the integrable increment
+$\log(\sigma\circ\R_S/\sigma)$ under the ergodic measure $\mu$, for
+$\mu$-a.e.\ orbit $\tfrac1n\log\sigma(x_n)\to\Lambda>0$
+(Lemma~\ref{lem:drift}), so the scales satisfy $\sigma(x_n)\ge
+e^{(\Lambda-\epsilon)n}$ eventually and $\sum_n\sigma(x_n)^{-1}<\infty$; as
+$a\asymp\sigma$ on $S$ (there $b>\beta\approx a$, so $a\le\sigma\le3a$), also
+$\sum_n a_n^{-1}<\infty$. (Pointwise monotonicity of $\sigma$ alone would give
+only $\sigma\to\infty$, not summability; the geometric rate is the ergodic
+average $\Lambda$.) The exact value of $h(0)$ is the transfer operator's
+fixed point and is not elementary; only $C<\infty$ enters the theorem.
 \end{proof}
 
 \section{Proof of Theorem~\ref{thm:main}}
@@ -346,57 +395,94 @@ starting ratios $z\in[0,1]$ whose orbit meets $\D$ has Lebesgue measure
 $<\varepsilon$ among scales $\ge a_\star$. It remains to transfer this to
 counting density of integer seeds.
 
-\begin{proposition}[Density transfer, made uniform by the gap]\label{prop:density}
-For each fixed scale $a$ the admissible ratios $\{b/a:(a,b)\in S,\,b\le N\}$
-are equally spaced with gap $1/a$, hence equidistribute to Lebesgue in $z$
-as $a\to\infty$ with discrepancy $O(1/a)$. The quasi-compactness of
-Theorem~\ref{thm:acim} gives a spectral gap: for some $\theta<1$ and $M<
-\infty$, the $n$-step crossing law from any initial scale converges to
-$\mu$ in total variation at rate $M\theta^{n}$, uniformly in the initial
-point. Consequently the two limits $a\to\infty$ (equidistribution of seeds)
-and $n\to\infty$ (convergence to $\mu$) may be interchanged: choosing
-$n(a)\to\infty$ with $\theta^{\,n(a)}=o(1/a)$ makes the seed-average and the
-$\mu$-average agree up to $o(1)$. The Lebesgue bound of \S9 therefore passes
-to natural density, and the seeds of scale $<a_\star$ form a density-zero
-set (as $\sigma\to\infty$, Lemma~\ref{lem:drift}). Hence
-\[
-\overline{d}\bigl(\{(a,b): \text{orbit meets }\D\}\bigr)\le\varepsilon .
-\]
+\begin{proposition}[Density transfer]\label{prop:density}
+Let $H=\{z\in[0,1]:\text{the model orbit of }z\text{ meets }\D\}$ be the
+model halting set. Then $\overline d(\{(a,b):a,b\le N,\ \text{orbit meets }
+\D\})\le \mu\text{-}\!\liminf$ of the halting probability, which is
+$\le\varepsilon$.
 \end{proposition}
+\begin{proof}
+Three points must be checked; each is elementary but was elided above.
+\emph{(i) $H$ is Jordan-measurable.} $H$ is the increasing union of the
+finite-scale halting sets $H_n=\{z:\text{orbit meets }\D\text{ within }n
+\text{ returns}\}$; each $H_n$ is a finite union of branch cylinders (open
+intervals), and $H=\bigcup_n H_n$ is a countable union of intervals whose
+total length is $\sum_n\Leb(H_n\setminus H_{n-1})\le\sum_n\sup p(a)\cdot
+(\text{cylinders at depth }n)$. By Lemma~\ref{lem:hazard} the depth-$n$
+contribution is $O((\theta')^{n})$ for some $\theta'<1$ (geometric shrinking
+of cylinders under the expansion of Lemma~\ref{lem:exp}), so $\partial H$ has
+Lebesgue measure $0$ and $\mathbf 1_H\in BV$. Hence the Koksma--Hlawka /
+equidistribution bound applies to $\mathbf 1_H$.
+\emph{(ii) Seed equidistribution.} For each scale $a$ the admissible ratios
+$\{b/a:(a,b)\in S,\,b\le N\}$ are equally spaced with gap $1/a$, so their
+empirical measure converges to $\Leb$ in $z$ with discrepancy $O(1/a)$;
+against $\mathbf 1_H\in BV$ this gives, for each $a$, a proportion of halting
+seeds equal to $\Leb(H)+O(1/a)$. Summing over $a\le N$ with the correct
+weights---scale $a$ contributes $\Theta(N)$ admissible $b\le N$, and every
+seed reaches $S$ within a bounded number of steps that does not affect the
+density---yields $\overline d\le\Leb(H)$.
+\emph{(iii) $\Leb(H)\le\varepsilon$.} By Theorem~\ref{thm:acim}, $\mu\sim
+\Leb$ with bounded density, and by Lemma~\ref{lem:hazard} the $\mu$-measure
+of ever halting from scale $\ge a_\star$ is $\sum_n p(a_n)<\varepsilon$;
+restricting to scales $\ge a_\star$ (the rest is a density-zero set of seeds,
+$\sigma\to\infty$ by Lemma~\ref{lem:drift}) gives $\Leb(H)\le
+C_\mu\varepsilon$. The interchange of $a\to\infty$ and $N\to\infty$ implicit
+in (ii) is legitimate because the discrepancy bound $O(1/a)$ is uniform and
+$\mathbf 1_H\in BV$; no spectral input beyond the bounded density is needed.
+Combining, $\overline d\le C_\mu\varepsilon$.
+\end{proof}
 As $\varepsilon>0$ was arbitrary, the density is $0$, proving
 Theorem~\ref{thm:main}. Finally, by Lemma~\ref{lem:drift} every surviving
 orbit has $a\to\infty$ and never meets $\D$, i.e.\ never halts.
 \qed
 
-\section{Remarks on rigor and scope}
-Every map-specific ingredient is proved: the parity grammar
-(Lemma~\ref{lem:grammar}); the continuum reduction \eqref{eq:xi}; the
-explicit Markov partition with endpoints $\rho_{k+1}=(3\rho_k+1)^{-1}$ and
-accumulation \eqref{eq:rhostar} (Lemma~\ref{lem:endpoints}); the full-branch
-property (Prop.~\ref{prop:markov}); eventual expansion
-(Lemma~\ref{lem:exp}); summable variation (Lemma~\ref{lem:var}); the
-explicit model-to-exact closeness and the uniform Lasota--Yorke inequality
-(\S\ref{sec:exact}). The analytic engine, Theorem~\ref{thm:acim}, is the
-classical theory of expanding Markov maps.
+\section{Status of the proof, and scope}
+It is worth separating what is airtight from what rests on standard but
+delicate machinery, since the two halves have different characters.
 
-The two quantities that entered the argument only through a hypothesis are
-now given in closed form. Transience is \emph{elementary and
-unconditional}: $\sigma=a+b$ strictly increases at every step by the
-explicit amounts of Lemma~\ref{lem:drift}, so $\sigma\to\infty$ on every
-orbit, and $\Lambda>0$ because its integrand is pointwise $\ge0$ and
-positive on $I_0$ --- no invariant measure or numerics are needed for
-either statement. The halting constant is $C=6\,h(0)$
-(Lemma~\ref{lem:hazard}) with $0<C\le6\|h\|_\infty<\infty$; only its
-finiteness is used, and that is the $BV$ bound on the invariant density.
-The exact value $C=6h(0)$ (equivalently the per-renewal drift
-$\Lambda\approx0.134$) is a functional of the transfer operator's fixed
-point $h$, which for this map --- as for every Gauss-type map beyond the
-classical one --- is not elementary; the theorem does not require its
-evaluation. Finally the interchange of limits in
-Proposition~\ref{prop:density} is made uniform by the spectral gap of
-Prop.~\ref{prop:LY}: the total-variation convergence rate $M\theta^{n}$ is
-uniform in the initial point, so choosing $n(a)$ with $\theta^{n(a)}=o(1/a)$
-justifies the double limit. No step now rests on an unproven estimate.
+\emph{The model theorem is complete and self-contained.} For the continuum
+map $G$ of \eqref{eq:xi}, every ingredient is proved outright and has been
+checked against the exact integer dynamics: the parity grammar and absence
+of intermittency (Lemma~\ref{lem:grammar}, Cor.~\ref{cor:noint}); the
+reduction to the M\"obius model; the explicit Markov partition with
+endpoints $\rho_{k+1}=(3\rho_k+1)^{-1}=|s_k/r_k|$ and accumulation
+$\rho^\ast=(\sqrt{13}-1)/6$ (Lemma~\ref{lem:endpoints}), where $k$ is a
+genuine function of $\rho$ (Remark~\ref{rem:model-only}); the full-branch
+property (Prop.~\ref{prop:markov}); eventual expansion $\inf|(G^2)'|=3$
+(Lemma~\ref{lem:exp}); and summable variation (Lemma~\ref{lem:var}). With
+these, Rychlik's theorem~\cite{Rychlik} --- which does cover countably many
+branches, the accumulation point $\rho^\ast$ being a point of \emph{strong}
+expansion, not a neutral point --- gives a unique a.c.\ invariant measure
+and exponential mixing for $G$. Transience is elementary and unconditional
+($\sigma=a+b$ strictly increases every step, Lemma~\ref{lem:drift}), and the
+halting constant $C=6h(0)$ is finite from the $BV$ bound on the density;
+only its finiteness is used, and its exact value is the (non-elementary)
+transfer-operator fixed point, as for every Gauss-type map beyond the
+classical one.
+
+\emph{The passage to the exact integer map and to natural density is the
+delicate half, and rests on two estimates a referee should scrutinise.}
+First, the model-to-exact closeness is \emph{not} uniform over all branches:
+at scale $a$ the branches with $k>M(a)=O(\log a)$ have width $<1/a$ and are
+not resolved by the integer map. We handle this by truncation
+(Lemma~\ref{lem:close}, Prop.~\ref{prop:LY}): the closeness holds on the
+finitely many bulk branches, and the tail has measure $O(1/a)$ and strong
+expansion, so it perturbs the Lasota--Yorke constants by $O(1/a)$; the
+persistence of the spectral gap under this perturbation is Keller--Liverani
+\cite{KL}. What a complete manuscript must still spell out in full is the
+bound on the tail transfer operator's contribution to the variation
+seminorm; we give its mechanism (total measure $\times$ expansion) but not
+every constant. Second, the density transfer (Prop.~\ref{prop:density})
+requires the model halting set $H$ to be Jordan-measurable with
+$\mathbf 1_H\in BV$; we prove $\partial H$ is null from the geometric
+shrinking of cylinders, so Koksma--Hlawka applies to the equally-spaced
+integer ratios, but the summability of the cylinder boundaries at the
+accumulation point deserves the explicit check indicated. Neither step is
+believed to hide an obstruction --- both are the standard way expanding-map
+statements are transferred to arithmetic seeds --- but until they are
+written in full the honest status is: \textbf{a complete proof of the model
+theorem, and a proof of Theorem~\ref{thm:main} modulo the two transfer
+estimates just named.}
 
 The theorem constrains the generic seed and is silent on any particular
 one: the certified seed $(6,13)$ is $\mu$-generic, and deciding whether its

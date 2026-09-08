@@ -6,11 +6,14 @@ Rychlik's condition is var(1/|g'|) < infinity. On branch k,
 a quadratic in z. Sum of exact branch variations + boundary jumps ~ 1.64 < inf;
 inf|g'|_k grows ~ e^(0.58 k) so branch variations decay geometrically.
 
-Structural note: branch k is NOT a function of z alone (e.g. z~0.525 splits
-between k=3 and k=5). The induced map is a SKEW PRODUCT over the offset
-residue (which equidistributes to <0.3%); z is a factor coordinate. The
-per-transition bounds here are the correct inputs to the skew-product
-transfer operator.
+Structural note (corrected after adversarial review): the apparent
+"z~0.525 splits between k=3 and k=5" is NOT a skew product -- z~0.525 is
+exactly the branch endpoint z_3 (rho_3=7/19), and the split is O(1/a)
+finite-scale boundary fuzz that vanishes as a->inf. In the continuum model
+(post-F ratio rho, or equivalently z) the branch index k IS a deterministic
+function of the coordinate (the first-exit time), so the induced map is a
+genuine countable full-branch piecewise-Mobius MARKOV map. See
+docs/submissions/door/almost-all-nonhalting-paper.tex (Prop 1, Remark).
 """
 import numpy as np
 from collections import Counter
