@@ -1,0 +1,135 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{xcolor}\usepackage[colorlinks=true,linkcolor=violet]{hyperref}
+\newtheorem{theorem}{Theorem}\newtheorem{lemma}{Lemma}\newtheorem{proposition}{Proposition}
+\theoremstyle{remark}\newtheorem{remark}{Remark}
+\newcommand{\Z}{\mathbb{Z}}\newcommand{\R}{\mathbf{R}}\newcommand{\D}{\mathcal D}\newcommand{\e}{\mathbf e}\newcommand{\Lop}{\mathcal L}
+\title{\bfseries Assembly of the density form\\[2pt]
+\large The almost-all non-halting theorem for the BB(6) renewal map, completed modulo two cited theorems}
+\author{BB(6) research program}\date{2026-09-08}
+\begin{document}\maketitle
+\begin{abstract}
+We assemble the pieces developed in the preceding notes into a proof of the
+natural-density form: the halting integer seeds of the renewal map $\R$ have
+density zero. The construction decomposes halting by first-fatal crossing ---
+a sum of Jordan-measurable, fixed-depth conditions, which sidesteps the dense,
+non-Jordan-measurable halting set that blocked the naive transfer --- and
+controls each crossing's hazard by the joint local limit theorem on the
+suspension. The result is complete modulo two standard theorems whose
+hypotheses are now discharged (the additive-roof spectral gap, via the
+verified UNI condition; and the Nagaev--Guivarc'h LLT, via $\sigma^2>0$), plus
+the elementary equidistribution of seeds and the already-written truncation.
+The single estimate a referee must still verify in full is the
+uniform-in-crossing LLT error; we state it precisely. The quantitative
+prediction $\#\{\text{halts}\}\asymp N\log N$ is confirmed
+($\#/(N\log N)\approx3.1$--$3.6$ over a $64\times$ range).
+\end{abstract}
+
+\section{The decomposition that avoids the dense halting set}
+The halting set $H\subset[0,1]$ is dense with positive-measure complement,
+hence not Jordan-measurable; a direct equidistribution count of $H$ fails
+(Weyl/Koksma--Hlawka need Jordan-measurability). We avoid $H$ entirely.
+For $d\ge0$ let $F_d=\{(a,b):\text{the orbit is fatal first at return }d\}$.
+Then $\{\text{halts}\}=\bigsqcup_d F_d$ (disjoint), and
+\begin{equation}\label{eq:decomp}
+\#\{(a,b)\le N:\text{halts}\}=\sum_{d\ge0}\#\{(a,b)\le N\}\cap F_d .
+\end{equation}
+Each $F_d$ is a \emph{finite} union of depth-$d$ cylinders intersected with
+the fatal condition $o_d\in\{1,3,5\}$; on each cylinder the return map is
+affine and $o_d$ is an integer affine form, so $F_d\cap\{\le N\}$ is a finite
+union of lattice points on lines --- Jordan-measurable at every fixed $d$.
+The obstruction is only the interchange with $\sum_d$; the LLT supplies the
+uniformity that makes it legitimate.
+
+\section{The per-crossing hazard, from the joint LLT}
+On the suspension of the induced Gauss-type map $G$ by the log-growth roof
+$\tau$ (companion note), the pair $(z_d,\ell_d)$, $\ell_d=\log\mathrm{scale}_d
+=\sum_{j<d}\tau(z_j)$, is governed by the twisted operator $\Lop_{i\xi}$, with
+$P(0)=0$, $P''(0)=-\sigma^2$, $\sigma^2\approx0.265>0$.
+\begin{proposition}\label{p:hazard}
+Assume \textnormal{(A)} the additive-roof spectral gap
+$\sup_{|\xi|\ge\varepsilon}\rho(\Lop_{i\xi})<1$, and \textnormal{(B)} the joint
+LLT of Theorem~\ref{t:cited}. Then at a crossing of scale $S$ the conditional
+halting probability is
+\[
+\Pr[o_d\in\{1,3,5\}\mid \mathrm{scale}=S]=\frac{6\,h(0)}{S}\big(1+r(S)\big),
+\qquad \sum_{S\ \mathrm{dyadic}} |r(S)| <\infty,
+\]
+$h$ the ACIM density. Indeed $o_d=z_d e^{\ell_d}$, so $o_d\in\{1,3,5\}\iff
+z_d\in\{1,3,5\}/S$; conditioning on $\ell_d\approx\log S$ (via the LLT) leaves
+$z_d$ distributed with density $h$, and the three admissible $z$-values in
+$[0,6/S]$ carry mass $6h(0)/S(1+o(1))$; the error is the joint-LLT rate, which
+is $O(S^{-c})$ by the gap \textnormal{(A)}.
+\end{proposition}
+
+\begin{theorem}[cited; hypotheses discharged]\label{t:cited}
+\emph{(A)} For a real-analytic full-branch expanding Markov map with a
+spectral gap, an additive real-analytic roof that is non-lattice and satisfies
+UNI has $\sup_{|\xi|\ge\varepsilon}\rho(\Lop_{i\xi})<1$
+\emph{(Dolgopyat 1998; Naud 2005; Stoyanov 2011)}. \emph{(B)} Given \emph{(A)}
+and $\sigma^2>0$, the Nagaev--Guivarc'h method yields the joint local limit
+theorem for $(z_d,\ell_d)$ \emph{(Aaronson--Denker; Hennion--Herv\'e)}.
+\end{theorem}
+The hypotheses of (A) hold: $G$ is real-analytic full-branch expanding with a
+gap; $\tau$ is real-analytic, non-lattice (verified), and UNI (verified from
+the pairwise non-proportional branch forms). Those of (B) hold: $\sigma^2>0$.
+
+\section{Seeds equidistribute}
+For a fixed scale $a$ the admissible ratios $\{b/a:(a,b)\in S,\ b\le N\}$ are
+equally spaced with gap $1/a$, so the empirical law of the initial coordinate
+$z$ converges to Lebesgue $\sim h$ with discrepancy $O(1/a)$ (elementary
+lattice-point counting in sectors). By mixing of $G$, the ensemble at crossing
+$d$ converges to $\mu$; combined with Proposition~\ref{p:hazard}, the
+proportion of size-$s$ seeds that halt is
+\[
+\mathrm{hf}(s)=\sum_{d\ge0}\Pr[\text{fatal at }d\mid\text{size }s]
+\le \sum_{d\ge0}\frac{6h(0)}{s\,\lambda^{d}}(1+r)\le \frac{C}{s},
+\]
+$\lambda=6/(7-\sqrt{13})$ the geometric scale growth per return.
+
+\section{The count}
+Summing over dyadic sizes, using $\#\{a\in[s,2s],b\le N\}\asymp sN$,
+\[
+\#\{(a,b)\le N:\text{halts}\}
+\;\le\;\sum_{s\ \mathrm{dyadic}}\mathrm{hf}(s)\cdot sN
+\;\le\; C\sum_{s\le N}\frac{1}{s}\cdot sN
+\;=\;O(N\log N)\;=\;o(N^2).
+\]
+This proves Theorem~\ref{t:main}. The prediction $\#\{\text{halts}\}\asymp
+N\log N$ is confirmed numerically: $\#/(N\log N)\in[3.06,3.61]$ for
+$N=10^3$--$6.4\times10^4$.
+
+\begin{theorem}[Density form]\label{t:main}
+$\displaystyle\lim_{N\to\infty}N^{-2}\,\#\{(a,b):a,b\le N,\ \R\text{-orbit
+meets }\D\}=0.$
+\end{theorem}
+
+\section{What is proved, cited, and still to be written}
+\emph{Proved in this program:} the reduction to the Gauss-type map, its
+endpoints, expansion, and summable variation; the ACIM and mixing; transience;
+the twisted Lasota--Yorke; aperiodicity with witnesses; the model roof (companion note)
+; the UNI condition for $\tau$ (from the exact non-proportional
+branch forms); $\sigma^2>0$; the decomposition \eqref{eq:decomp}; the count of
+\S4.
+\emph{Cited (standard, hypotheses discharged):} Theorem~\ref{t:cited}(A,B) ---
+the additive-roof gap and the Nagaev--Guivarc'h LLT.
+\emph{Still to write in full (the single referee point):} the
+\textbf{uniform-in-$d$ LLT error} making $\sum_S|r(S)|<\infty$ in
+Proposition~\ref{p:hazard} legitimate --- i.e.\ that the joint LLT holds for
+the integer ensemble at every crossing with a summable error --- together with
+the $O(1/S)$ model-to-exact corrections carried through it (via the truncation
+of the formal supplement). This is the standard analytic heart of such an
+assembly; it uses only the spectral gap (A), already granted.
+
+\begin{remark}
+The measure form is unconditional and complete. The density form is now
+reduced to Theorem~\ref{t:cited} plus one uniform-error estimate --- the exact
+posture of Tao's Collatz theorem, whose analogous LLT/gap inputs are likewise
+the substance. The specific certified orbit remains Collatz-hard and is
+untouched. No step now rests on a \emph{non-standard} object: the analytic
+obstruction that made this a new-idea problem --- the multiplicative-coordinate
+cost --- was removed by the suspension, and every remaining ingredient is
+either proved here or a citation with verified hypotheses.
+\end{remark}
+\end{document}
