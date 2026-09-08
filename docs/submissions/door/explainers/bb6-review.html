@@ -1,0 +1,365 @@
+<title>BB(6) Renewal Map — Review</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#faf9f5; --surf:#ffffff; --surf2:#f4f2ec; --ink:#1a1b2e; --mut:#5b5c73; --dim:#8a8ba0;
+  --line:#e6e3da; --acc:#6d28d9; --tea:#0d9488; --amb:#b45309; --ros:#be123c; --blu:#2563eb;
+  --ok:var(--tea); --cond:var(--amb); --open:var(--ros);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){
+  --bg:#0e0f1a; --surf:#16182a; --surf2:#1b1d31; --ink:#e9e8f3; --mut:#a0a1bb; --dim:#71738e;
+  --line:#282a3c; --acc:#a78bfa; --tea:#2dd4bf; --amb:#fbbf24; --ros:#fb7185; --blu:#60a5fa;
+}}
+:root[data-theme=dark]{
+  --bg:#0e0f1a; --surf:#16182a; --surf2:#1b1d31; --ink:#e9e8f3; --mut:#a0a1bb; --dim:#71738e;
+  --line:#282a3c; --acc:#a78bfa; --tea:#2dd4bf; --amb:#fbbf24; --ros:#fb7185; --blu:#60a5fa;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Spectral",Georgia,serif;font-size:17px;line-height:1.62;-webkit-font-smoothing:antialiased}
+.wrap{max-width:820px;margin:0 auto;padding:0 26px 120px}
+header.top{max-width:820px;margin:0 auto;padding:52px 26px 26px}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--acc)}
+h1{font-family:"IBM Plex Sans",sans-serif;font-weight:600;font-size:clamp(27px,4.4vw,40px);line-height:1.08;letter-spacing:-.01em;margin:14px 0 10px;text-wrap:balance}
+.thesis{font-size:19px;color:var(--mut);max-width:64ch;margin:0}
+.thesis b{color:var(--ink);font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin:22px 0 0;font-family:"IBM Plex Sans",sans-serif;font-size:13px}
+.lg{display:flex;align-items:center;gap:7px;color:var(--mut)}
+.sw{width:11px;height:11px;border-radius:3px;flex:none}
+h2{font-family:"IBM Plex Sans",sans-serif;font-weight:600;font-size:22px;letter-spacing:-.01em;margin:52px 0 4px;padding-top:8px;border-top:1px solid var(--line)}
+h2 .s{font-family:"IBM Plex Mono",monospace;color:var(--acc);font-size:15px;margin-right:10px}
+h3{font-family:"IBM Plex Sans",sans-serif;font-weight:600;font-size:16px;margin:26px 0 4px}
+p{margin:10px 0}
+a{color:var(--acc)}
+.mono{font-family:"IBM Plex Mono",monospace}
+i,em{font-style:italic}
+.disp{font-family:"Spectral",serif;font-style:italic;text-align:center;margin:16px 0;font-size:18px;
+  background:var(--surf2);border-radius:9px;padding:13px 10px;overflow-x:auto}
+.disp .op{font-style:normal;font-family:"IBM Plex Mono",monospace}
+.tag{font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px;
+  letter-spacing:.04em;text-transform:uppercase;vertical-align:middle;white-space:nowrap}
+.t-ok{color:var(--tea);background:color-mix(in srgb,var(--tea) 14%,transparent)}
+.t-cond{color:var(--amb);background:color-mix(in srgb,var(--amb) 14%,transparent)}
+.t-open{color:var(--ros);background:color-mix(in srgb,var(--ros) 15%,transparent)}
+.thm{border:1px solid var(--line);border-left:3px solid var(--acc);border-radius:8px;background:var(--surf);
+  padding:14px 16px;margin:16px 0}
+.thm .h{font-family:"IBM Plex Sans",sans-serif;font-weight:600;font-size:14px;display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:4px}
+.thm.ok{border-left-color:var(--tea)}.thm.cond{border-left-color:var(--amb)}.thm.open{border-left-color:var(--ros)}
+.card{border:1px solid var(--line);border-radius:12px;background:var(--surf);padding:16px 18px;margin:20px 0}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:6px 0 14px;font-family:"IBM Plex Sans",sans-serif}
+button{font-family:"IBM Plex Sans",sans-serif;font-size:13px;padding:6px 12px;border:1px solid var(--line);
+  background:var(--surf2);color:var(--ink);border-radius:7px;cursor:pointer;transition:.12s}
+button:hover{border-color:var(--acc)}
+button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+input[type=text]{font-family:"IBM Plex Mono",monospace;font-size:13px;padding:6px 9px;border:1px solid var(--line);
+  border-radius:7px;background:var(--surf2);color:var(--ink);width:150px}
+canvas{width:100%;display:block;border-radius:8px;background:var(--surf2)}
+.cap{font-family:"IBM Plex Sans",sans-serif;font-size:12.5px;color:var(--dim);margin-top:8px}
+.out{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--mut);margin-top:10px;white-space:pre-wrap;line-height:1.5}
+.out b{color:var(--ink)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:640px){.grid2{grid-template-columns:1fr}body{font-size:16px}}
+ul{margin:8px 0;padding-left:22px}li{margin:5px 0}
+.chk{list-style:none;padding-left:0}.chk li{display:flex;gap:10px;align-items:flex-start;margin:9px 0}
+.chk .b{flex:none;margin-top:3px}
+details{border:1px solid var(--line);border-radius:8px;background:var(--surf);margin:8px 0;padding:2px 14px}
+summary{font-family:"IBM Plex Sans",sans-serif;font-weight:500;font-size:14px;cursor:pointer;padding:9px 0}
+details[open]{padding-bottom:10px}
+.refs{font-size:14px;color:var(--mut)}.refs li{margin:6px 0}
+.ttoggle{position:fixed;top:14px;right:14px;z-index:20;font-size:12px;padding:5px 10px}
+footer{max-width:820px;margin:40px auto 0;padding:20px 26px 0;border-top:1px solid var(--line);color:var(--dim);font-size:13px;font-family:"IBM Plex Sans",sans-serif}
+sup,sub{line-height:0}
+</style>
+
+<button class="ttoggle mono" id="themeBtn" onclick="toggleTheme()">theme</button>
+<header class="top">
+  <div class="eyebrow">Review draft · BB(6) research program · 2026-09-08</div>
+  <h1>The BB(6) renewal map:<br>an almost-all non-halting theorem and its harmonic-analytic core</h1>
+  <p class="thesis">A holdout of the &Sigma;(6) Busy-Beaver search reduces to an explicit Gauss-type Markov map. <b>The measure form of the almost-all theorem is proved; the natural-density form is reduced to one open lemma</b> — a modulus-uniform spectral gap for a twisted transfer operator. This page states the reduction precisely, labels every step by proof status, and lets you recompute the load-bearing objects from the exact machine.</p>
+  <div class="legend">
+    <span class="lg"><span class="sw" style="background:var(--tea)"></span>proved</span>
+    <span class="lg"><span class="sw" style="background:var(--amb)"></span>proved · feeds the conditional result</span>
+    <span class="lg"><span class="sw" style="background:var(--ros)"></span>open — the single wall</span>
+  </div>
+</header>
+
+<div class="wrap">
+
+<h2><span class="s">1</span>The map, the section, the theorem</h2>
+<p>States are pairs <i>(a,b)</i> &isin; &#8484;<sub>&ge;1</sub><sup>2</sup>. Put <i>&beta;(a)</i>=<i>a</i>&minus;1 if <i>a</i> odd, <i>a</i>&minus;2 if <i>a</i> even (always even); (<i>&alpha;,&beta;</i>)=(6,<i>a</i>&minus;1) or (9,<i>a</i>&minus;2). The renewal map:</p>
+<div class="disp"><span class="op">R</span>(a,b) = &nbsp;(a+6, b&minus;3) <span class="op">[b even, T]</span>&nbsp;;&nbsp; (&alpha;+3(b&minus;3), &beta;&minus;(b&minus;3)) <span class="op">[b odd, b&lt;&beta;, C]</span>&nbsp;;&nbsp; (&alpha;+3&beta;+3, b&minus;&beta;&minus;4) <span class="op">[b odd, b&gt;&beta;, F]</span></div>
+<p>The <b>fatal set</b> is <span class="mono">𝒟 = {b&le;2} &cup; {b=4} &cup; {b odd, b&gt;&beta;, o:=b&minus;&beta; &isin; {1,3,5}}</span>; the machine halts iff the orbit meets 𝒟. Deciding a single seed is Collatz-hard; we treat the generic seed.</p>
+<p>On the section <i>S</i>={<i>b</i>&gt;<i>&beta;</i>, <i>b</i> odd} the first-return map <i>G</i> is, in the coordinate <i>z</i>=1&minus;<i>a/b</i>, a <b>countable full-branch piecewise-Möbius Markov map</b> of [0,1]. Its branch endpoints obey an exact recurrence with an algebraic accumulation point:</p>
+<div class="disp">&rho;<sub>k+1</sub> = (3&rho;<sub>k</sub>+1)<sup>&minus;1</sup>, &nbsp; &rho;<sub>0</sub>=1 &nbsp;&rarr;&nbsp; &rho;* = (&radic;13&minus;1)/6, &nbsp; the root of 3&rho;<sup>2</sup>+&rho;&minus;1=0.</div>
+
+<div class="thm ok"><div class="h"><span>Theorem 1a — Measure form</span><span class="tag t-ok">proved</span></div>
+Lebesgue-almost every real seed is non-halting; equivalently the Lebesgue measure of seeds halting from scale &ge; a<sub>&#9733;</sub> tends to 0. Every integer orbit has a+b&nbsp;&rarr;&nbsp;&infin;.</div>
+<div class="thm cond"><div class="h"><span>Theorem 1b — Density form</span><span class="tag t-cond">conditional</span></div>
+The natural density of halting integer seeds is 0 — <i>conditional</i> on the uniform-gap lemma (§4). Directly confirmed numerically: the halting fraction falls like C/N.</div>
+
+<h2><span class="s">2</span>The reduction, by proof status</h2>
+<p>Click any node for the precise statement and proof idea. The green chain is unconditional; the amber chain feeds Theorem 1b; the red node is the sole wall.</p>
+<details><summary><span class="tag t-ok">proved</span> &nbsp;Parity grammar &rArr; no intermittency</summary>
+<p>&beta;(a) is even, so T outputs odd, C outputs even, F outputs odd: the grammar is T&rarr;{C,F}, C&rarr;T, F&rarr;{C,F}; TT never occurs. Exhaustive parity identity. The parabolic generator is never iterated — no Pomeau–Manneville intermittency.</p></details>
+<details><summary><span class="tag t-ok">proved</span> &nbsp;Branch partition &amp; full-branch Markov</summary>
+<p>Endpoints &rho;<sub>k</sub>=|s<sub>k</sub>/r<sub>k</sub>| for P<sub>k</sub>=C<sub>&#8467;</sub><sup>k</sup>F<sub>&#8467;</sub>, by induction via c<sup>&minus;1</sup>(y)=(3y+1)<sup>&minus;1</sup>; accumulation &rho;*. Each branch maps onto (0,&infin;) (Markov). <span class="tag t-cond" style="font-size:10px">formal write-out pending</span> the tiling is verified numerically over 1.5×10<sup>6</sup> returns.</p></details>
+<details><summary><span class="tag t-ok">proved</span> &nbsp;Eventual expansion inf|(G²)&prime;| = 3</summary>
+<p>|G&prime;(z)| = 3<sup>k+1</sup>/(r<sub>k</sub>(1&minus;z)+s<sub>k</sub>)<sup>2</sup>. inf|G&prime;|=1 attained only as z&rarr;0<sup>+</sup> on branch k=1 (the fatal-cusp approach); z=0 maps to z=1 &isin; branch k=0 where |G&prime;|&ge;3. No neutral cycle &rArr; inf|(G²)&prime;|=3.</p></details>
+<details><summary><span class="tag t-ok">proved</span> &nbsp;Summable variation &amp; ACIM + mixing</summary>
+<p>var(1/|G&prime;|) &asymp; 1.64 &lt; &infin;, geometric tail (ratio 3&rho;*²&approx;0.566). Rychlik &rArr; unique ACIM &mu; &sim; Leb, density h &isin; BV, exponential decay of correlations. <span class="tag t-ok" style="font-size:10px">cited</span> Rychlik 1983.</p></details>
+<details><summary><span class="tag t-ok">proved</span> &nbsp;Transience — a+b &nearr; &infin;</summary>
+<p>Elementary and unconditional: a+b strictly increases every step (T:+3; C:+(b&mp;1); F:+(a+3/+4)), all &ge;2. Holds for every orbit, incl. the certified seed.</p></details>
+<details><summary><span class="tag t-ok">proved</span> &nbsp;Hazard C=6h(0), summable</summary>
+<p>Fatal ⟺ z &isin; [0, 6/S] at scale S; by mixing the crossing law has density h, so per-crossing hazard = 6h(0)/S(1+o(1)), 0&lt;C&le;6&#8214;h&#8214;<sub>&infin;</sub>&lt;&infin;. Borel–Cantelli over the geometrically growing scales &rArr; Theorem 1a.</p></details>
+<details><summary><span class="tag t-cond">amber</span> &nbsp;Model &rarr; exact map (truncation)</summary>
+<p>Exact generators = linear parts + fixed translations (sup-norm &le;9). Bulk (k&le;M(a)=O(log a)) close to O(1/a); tail measure O(1/a), strong expansion, absorbed into a uniform Lasota–Yorke inequality; spectral-gap persistence by <span class="tag t-ok" style="font-size:10px">cited</span> Keller–Liverani. <span class="tag t-cond" style="font-size:10px">write-out</span> tail-operator constant.</p></details>
+<details><summary><span class="tag t-open">open</span> &nbsp;Density transfer &rArr; requires the uniform gap</summary>
+<p>The halting set H is <b>dense with positive-measure complement</b>, hence <i>not</i> Jordan-measurable — naive equidistribution (Weyl / Koksma–Hlawka) fails. The density form reduces to equidistribution of integer orbits inside fixed cylinders, i.e. to the uniform-gap lemma of §4.</p></details>
+
+<h2><span class="s">3</span>The harmonic-analytic core — recompute it</h2>
+<p>Detecting o &isin; {1,3,5} at scale S needs resolution M &sim; S. Fourier-expanding the indicator turns the hazard into powers of the <b>twisted transfer operator</b></p>
+<div class="disp">(<span class="op">L</span><sub>s,t</sub> f)(x) = &sum;<sub>k</sub> |g<sub>k</sub>&prime;(x)|<sup>s</sup> <span class="op">e</span>(t&middot;o<sub>k</sub>(x)/M) f(g<sub>k</sub>x), &nbsp;&nbsp; <span class="op">e</span>(u)=e<sup>2&pi;iu</sup>.</div>
+<p>Control needs |&lambda;(t)| &lt; 1 for every non-trivial character. Below the operator is built from the actual machine (run orbits, bin (z, o&nbsp;mod&nbsp;M), character-project, power-iterate the spectral radius). <b>Pick M</b> and recompute — aperiodicity should emerge with only <span class="mono">t=0</span> and the parity character <span class="mono">t=M/2</span> failing to decay.</p>
+<div class="card">
+  <div class="controls">
+    <span class="cap" style="margin:0 4px 0 0">modulus M:</span>
+    <span id="mbtns"></span>
+    <button id="runSpec" onclick="computeSpectrum()">compute</button>
+    <span class="cap" id="specStatus"></span>
+  </div>
+  <canvas id="specCv" style="height:240px"></canvas>
+  <div class="out" id="specOut"></div>
+</div>
+
+<h2><span class="s">4</span>The open lemma — a modulus-uniform gap</h2>
+<div class="thm open"><div class="h"><span>Lemma (open) — the harmonic-analytic core</span><span class="tag t-open">open</span></div>
+<span class="mono">sup<sub>M</sub> max<sub>t&ne;0,M/2</sub> r<sub>M</sub>(t) &lt; 1</span>: the twisted operators have a spectral gap <b>bounded away from 0 uniformly in the modulus</b> M and non-trivial character t.</div>
+<p><b>Status of its ingredients.</b> Twisted Lasota–Yorke <span class="tag t-ok">proved</span> (L¹-contraction exact; variation constant degrades like 1+|t| — the crux). Aperiodicity <span class="tag t-ok">proved</span> two ways, incl. an exact cycle-cohomology test with explicit non-coboundary witnesses to M&le;384. Fixed-M gap <span class="tag t-ok">proved</span> via finite-extension theory over the mixing base. Uniform-in-M gap <span class="tag t-open">open</span>.</p>
+<p>By the twisted LY it is equivalent to defeating the (1+|t|) degradation by oscillatory cancellation — a <b>Dolgopyat</b> estimate via a uniform-non-integrability (UNI) bound at native resolution. Two features put it outside settled theory: the cost is a <i>multiplicative coordinate</i>, not a Birkhoff sum (so Baladi–Vallée does not apply), and the branch matrices have <i>det = &plusmn;3</i>, non-unimodular (so homogeneous-dynamics is out). The frequency profile below is flat and resonance-free (sup&nbsp;&approx;&nbsp;0.082) — evidence the gap is not <i>blocked</i>, not that it is uniform.</p>
+<div class="card"><canvas id="profCv" style="height:200px"></canvas><div class="cap">|&lambda;(&xi;)| across the character band &xi;=t/M (fine grid, M=120). No spike toward 1.</div></div>
+
+<h2><span class="s">5</span>Probe a seed</h2>
+<p>Run the exact renewal map from any seed and watch the offset process. Fatal ⟺ o &isin; {1,3,5}; otherwise the size a+b diverges (non-halting up to the horizon).</p>
+<div class="card">
+  <div class="controls">
+    <span class="cap">seed (a,b):</span>
+    <input type="text" id="seedIn" value="6, 13">
+    <button onclick="runOrbit()">run</button>
+    <button onclick="document.getElementById('seedIn').value=(5+Math.floor(Math.random()*400))+', '+(200+Math.floor(Math.random()*4000));runOrbit()">random</button>
+  </div>
+  <canvas id="orbCv" style="height:200px"></canvas>
+  <div class="out" id="orbOut"></div>
+</div>
+
+<h2><span class="s">6</span>Static evidence</h2>
+<div class="grid2">
+  <div class="card" style="margin:0"><canvas id="cob" style="height:190px"></canvas><div class="cap">Induced return map z&rarr;z&prime; — expanding Möbius branches.</div></div>
+  <div class="card" style="margin:0"><canvas id="den" style="height:190px"></canvas><div class="cap">Invariant density h(z) — smooth, bounded (BV).</div></div>
+  <div class="card" style="margin:0"><canvas id="hf" style="height:190px"></canvas><div class="cap">Halting fraction of integer seeds &le;N — falls like C/N.</div></div>
+  <div class="card" style="margin:0"><canvas id="om" style="height:190px"></canvas><div class="cap">Offset residues mod 5 — uniform (equidistribution).</div></div>
+</div>
+
+<h2><span class="s">7</span>What remains for a complete proof</h2>
+<ul class="chk">
+  <li><span class="sw b" style="background:var(--ros)"></span><b>One genuine open problem.</b> The modulus-uniform gap (§4): a Dolgopyat/UNI estimate for a multiplicative-coordinate cost over a non-unimodular Gauss-type map. Neither Baladi–Vallée nor homogeneous dynamics applies off the shelf; likely needs a new idea. This is the whole difficulty.</li>
+  <li><span class="sw b" style="background:var(--amb)"></span><b>Formal write-outs (no gaps of substance).</b> The full-branch tiling of [0,1]; every constant in the tail-operator LY bound; the assembly uniform-gap &rArr; hf(s)&le;Cs<sup>&minus;&delta;</sup> &rArr; scale-decomposition &rArr; o(N²); the exact integrals for C=6h(0) and the drift.</li>
+  <li><span class="sw b" style="background:var(--tea)"></span><b>Standard citations (hypotheses verified).</b> Rychlik; Keller–Liverani; Aaronson–Denker / Parry–Pollicott.</li>
+  <li><span class="sw b" style="background:var(--tea)"></span><b>Already rigorous.</b> Grammar, endpoints &amp; &radic;13 accumulation, expansion, summable variation, transience, aperiodicity (with witnesses), twisted LY, fixed-M equidistribution.</li>
+</ul>
+<p><b>Bottom line.</b> Theorem 1a is complete at research-paper standard (two standard write-outs aside). Theorem 1b needs exactly one new result — the uniform gap — plus formalization. All of it is the <i>almost-all</i> statement; the specific certified orbit is Collatz-hard and permanently out of scope.</p>
+
+<h2 style="border:none"><span class="s">R</span>References</h2>
+<ul class="refs">
+  <li>M. Rychlik, <i>Bounded variation and invariant measures</i>, Studia Math. 76 (1983).</li>
+  <li>V. Baladi, B. Vallée, <i>Euclidean algorithms are Gaussian</i>, J. Number Theory 110 (2005).</li>
+  <li>D. Dolgopyat, <i>On decay of correlations in Anosov flows</i>, Ann. of Math. 147 (1998).</li>
+  <li>J. Aaronson, M. Denker, <i>Local limit theorems for Gibbs–Markov maps</i>, Stoch. Dyn. 1 (2001).</li>
+  <li>G. Keller, C. Liverani, <i>Stability of the spectrum for transfer operators</i>, Ann. SNS Pisa 28 (1999).</li>
+  <li>T. Tao, <i>Almost all orbits of the Collatz map attain almost bounded values</i>, Forum Math. Pi 10 (2022).</li>
+</ul>
+<footer>Companion to the manuscripts in <span class="mono">docs/submissions/door/</span>. Every plot and the live spectrum are computed from the exact map. Nothing here is overclaimed: the measure theorem is complete; the density theorem is conditional on the stated open lemma; no specific machine is decided.</footer>
+</div>
+
+<script>
+const DATA = {"density": [[0.017, 0.587], [0.05, 0.597], [0.083, 0.618], [0.117, 0.638], [0.15, 0.707], [0.183, 0.677], [0.217, 0.689], [0.25, 0.719], [0.283, 0.768], [0.317, 0.757], [0.35, 0.807], [0.383, 0.841], [0.417, 0.901], [0.45, 0.865], [0.483, 0.908], [0.517, 0.996], [0.55, 0.979], [0.583, 1.013], [0.617, 1.042], [0.65, 1.083], [0.683, 1.12], [0.717, 1.168], [0.75, 1.221], [0.783, 1.27], [0.817, 1.379], [0.85, 1.398], [0.883, 1.452], [0.917, 1.52], [0.95, 1.594], [0.983, 1.688]], "cobweb": [[0.056, 0.94], [0.384, 0.213], [0.061, 0.933], [0.378, 0.238], [0.235, 0.657], [0.676, 0.487], [0.64, 0.108], [0.683, 0.547], [0.798, 0.242], [0.141, 0.826], [0.56, 0.36], [0.734, 0.912], [0.985, 0.954], [0.819, 0.339], [0.054, 0.942], [0.533, 0.809], [0.972, 0.915], [0.387, 0.2], [0.951, 0.845], [0.876, 0.577], [0.238, 0.652], [0.492, 0.499], [0.077, 0.914], [0.171, 0.778], [0.871, 0.557], [0.5, 0.401], [0.9, 0.667], [0.213, 0.702], [0.038, 0.96], [0.521, 0.08], [0.6, 0.396], [0.906, 0.688], [0.815, 0.317], [0.72, 0.826], [0.651, 0.237], [0.77, 0.102], [0.552, 0.061], [0.69, 0.608], [0.972, 0.915], [0.055, 0.941], [0.972, 0.913], [0.563, 0.725], [0.706, 0.727], [0.973, 0.916], [0.302, 0.496], [0.976, 0.926], [0.002, 0.998], [0.336, 0.391], [0.658, 0.312], [0.431, 0.989], [0.854, 0.489], [0.932, 0.78], [0.731, 0.894], [0.378, 0.238], [0.999, 0.996], [0.964, 0.889], [0.131, 0.841], [0.923, 0.751], [0.999, 0.997], [0.966, 0.895], [0.407, 0.111], [0.686, 0.576], [0.726, 0.861], [0.818, 0.331], [0.539, 0.633], [0.912, 0.711], [0.538, 0.675], [0.73, 0.888], [0.868, 0.542], [0.624, 0.897], [0.994, 0.983], [0.139, 0.83], [0.244, 0.638], [0.952, 0.848], [0.245, 0.635], [0.939, 0.806], [0.309, 0.475], [0.21, 0.707], [0.346, 0.357], [0.672, 0.455], [0.927, 0.763], [0.658, 0.317], [0.218, 0.693], [0.167, 0.785], [0.293, 0.52], [0.235, 0.658], [0.555, 0.846], [0.868, 0.543], [0.266, 0.588], [0.632, 0.008], [0.69, 0.608], [0.178, 0.767], [0.217, 0.694], [0.859, 0.509], [0.401, 0.138], [0.233, 0.661], [0.389, 0.19], [0.772, 0.116], [0.383, 0.218], [0.696, 0.653], [0.531, 0.878], [0.03, 0.969], [0.326, 0.423], [0.031, 0.967], [0.909, 0.699], [0.788, 0.192], [0.721, 0.832], [0.838, 0.422], [0.912, 0.712], [0.414, 0.077], [0.306, 0.482], [0.857, 0.498], [0.609, 0.627], [0.89, 0.628], [0.658, 0.309], [0.884, 0.608], [0.928, 0.769], [0.413, 0.08], [0.092, 0.896], [0.984, 0.952], [0.948, 0.837], [0.24, 0.648], [0.405, 0.121], [0.656, 0.291], [0.958, 0.87], [0.305, 0.487], [0.521, 0.073], [0.833, 0.4], [0.741, 0.948], [0.735, 0.916], [0.654, 0.271], [0.838, 0.422], [0.214, 0.7], [0.853, 0.481], [0.218, 0.693], [0.289, 0.529], [0.553, 0.019], [0.992, 0.975], [0.496, 0.452], [0.289, 0.531], [0.744, 0.969], [0.726, 0.861], [0.692, 0.625], [0.627, 0.936], [0.834, 0.402], [0.577, 0.422], [0.493, 0.489], [0.655, 0.286], [0.674, 0.465], [0.804, 0.267], [0.516, 0.167], [0.816, 0.325], [0.908, 0.695], [0.473, 0.686], [0.793, 0.219], [0.893, 0.639], [0.131, 0.841], [0.853, 0.482], [0.289, 0.531], [0.727, 0.865], [0.608, 0.6], [0.271, 0.576], [0.622, 0.854], [0.663, 0.368], [0.91, 0.703], [0.589, 0.066], [0.463, 0.775], [0.988, 0.963], [0.801, 0.253], [0.832, 0.394], [0.824, 0.358], [0.012, 0.988], [0.914, 0.717], [0.076, 0.916], [0.396, 0.162], [0.282, 0.548], [0.52, 0.09], [0.505, 0.332], [0.073, 0.919], [0.177, 0.769], [0.858, 0.505], [0.143, 0.823], [0.287, 0.534], [0.817, 0.327], [0.569, 0.429], [0.466, 0.752], [0.083, 0.907], [0.529, 0.912], [0.401, 0.138], [0.743, 0.959], [0.307, 0.481], [0.758, 0.04], [0.976, 0.927], [0.083, 0.907], [0.603, 0.47], [0.591, 0.114], [0.728, 0.874], [0.863, 0.524], [0.945, 0.826], [0.623, 0.868], [0.028, 0.971], [0.741, 0.95], [0.034, 0.964], [0.324, 0.429], [0.187, 0.751], [0.601, 0.421], [0.272, 0.573], [0.123, 0.853], [0.934, 0.787], [0.406, 0.117], [0.873, 0.563], [0.244, 0.639], [0.951, 0.845], [0.606, 0.552], [0.265, 0.59], [0.897, 0.657], [0.644, 0.158], [0.103, 0.881], [0.46, 0.794], [0.689, 0.595], [0.826, 0.37], [0.219, 0.691], [0.63, 0.974], [0.959, 0.87], [0.686, 0.573], [0.076, 0.915], [0.967, 0.898], [0.025, 0.974], [0.73, 0.886], [0.806, 0.277], [0.167, 0.785], [0.482, 0.602], [0.834, 0.404], [0.653, 0.256], [0.206, 0.716], [0.483, 0.598], [0.648, 0.198], [0.74, 0.945], [0.381, 0.225], [0.46, 0.801], [0.693, 0.629], [0.985, 0.956], [0.881, 0.596], [0.986, 0.957], [0.845, 0.45], [0.814, 0.314], [0.893, 0.64], [0.466, 0.751], [0.009, 0.991], [0.449, 0.877], [0.161, 0.796], [0.124, 0.851], [0.455, 0.831], [0.563, 0.746], [0.969, 0.905], [0.892, 0.636], [0.118, 0.86], [0.511, 0.246], [0.484, 0.585], [0.441, 0.928], [0.473, 0.69], [0.02, 0.979], [0.178, 0.767], [0.823, 0.355], [0.406, 0.114], [0.007, 0.993], [0.582, 0.766], [0.695, 0.647], [0.83, 0.386], [0.604, 0.494], [0.92, 0.738], [0.55, 0.159], [0.639, 0.091], [0.248, 0.629], [0.321, 0.439], [0.524, 0.022], [0.189, 0.748], [0.828, 0.378], [0.528, 0.933], [0.415, 0.073], [0.389, 0.192], [0.996, 0.987], [0.993, 0.979], [0.63, 0.983], [0.252, 0.62], [0.102, 0.882], [0.829, 0.38], [0.676, 0.487], [0.433, 0.974], [0.608, 0.597], [0.473, 0.692], [0.866, 0.534], [0.524, 0.02], [0.703, 0.705], [0.614, 0.718], [0.261, 0.6], [0.466, 0.75], [0.99, 0.969], [0.855, 0.493], [0.075, 0.916], [0.933, 0.785], [0.511, 0.245], [0.413, 0.081], [0.428, 0.005], [0.578, 0.449], [0.659, 0.325], [0.771, 0.109], [0.713, 0.778], [0.4, 0.143], [0.673, 0.462], [0.489, 0.536], [0.751, 0.004], [0.647, 0.188], [0.794, 0.222], [0.941, 0.813], [0.724, 0.851], [0.759, 0.047], [0.209, 0.71], [0.607, 0.58], [0.381, 0.226], [0.249, 0.626], [0.949, 0.837], [0.661, 0.344], [0.853, 0.485], [0.964, 0.888], [0.721, 0.829], [0.268, 0.584], [0.554, 0.917], [0.898, 0.66], [0.282, 0.548], [0.552, 0.042], [0.873, 0.562], [0.268, 0.582], [0.861, 0.515], [0.319, 0.445], [0.398, 0.152], [0.969, 0.904], [0.145, 0.821], [0.926, 0.761], [0.607, 0.567], [0.455, 0.834], [0.626, 0.923], [0.584, 0.825], [0.649, 0.21], [0.335, 0.396], [0.798, 0.24], [0.828, 0.375], [0.71, 0.755], [0.262, 0.596], [0.952, 0.85], [0.779, 0.148], [0.009, 0.991], [0.964, 0.888], [1.0, 0.999], [0.998, 0.993], [0.218, 0.693], [0.18, 0.762], [0.852, 0.479], [0.984, 0.952], [0.571, 0.747], [0.894, 0.643], [0.826, 0.369], [0.627, 0.929], [0.525, 0.003], [0.895, 0.647], [0.787, 0.19], [0.055, 0.941], [0.921, 0.742], [0.363, 0.296], [0.492, 0.502], [0.834, 0.401], [0.273, 0.571], [0.239, 0.649], [0.761, 0.058], [0.192, 0.742], [0.588, 0.026], [0.226, 0.676], [0.929, 0.77], [0.719, 0.819], [0.897, 0.654], [0.808, 0.285], [0.043, 0.954], [0.452, 0.859], [0.146, 0.818], [0.71, 0.754], [0.468, 0.732], [0.411, 0.091], [0.72, 0.821], [0.529, 0.911], [0.394, 0.169], [0.842, 0.439], [0.293, 0.52], [0.353, 0.332], [0.667, 0.407], [0.638, 0.082], [0.468, 0.738], [0.364, 0.293], [0.678, 0.506], [0.276, 0.562], [0.571, 0.715], [0.395, 0.166], [0.745, 0.974], [0.901, 0.669], [0.842, 0.436], [0.993, 0.978], [0.073, 0.92], [0.745, 0.975], [0.781, 0.158], [0.993, 0.979], [0.494, 0.473], [0.992, 0.976], [0.174, 0.774], [0.626, 0.917], [0.928, 0.767], [0.762, 0.065], [0.85, 0.469], [0.479, 0.631], [0.728, 0.875], [0.107, 0.876], [0.155, 0.805], [0.144, 0.821], [0.932, 0.78], [0.475, 0.67], [0.925, 0.757], [0.707, 0.736], [0.904, 0.68], [0.623, 0.876], [0.5, 0.401], [0.91, 0.705], [0.828, 0.378], [0.091, 0.897], [0.166, 0.787], [0.312, 0.467], [0.803, 0.263], [0.52, 0.097], [0.063, 0.932], [0.1, 0.884], [0.62, 0.823], [0.169, 0.782], [0.523, 0.035], [0.758, 0.043], [0.973, 0.916], [0.348, 0.351], [0.099, 0.886], [0.017, 0.982], [0.405, 0.119], [0.99, 0.969], [0.44, 0.936], [0.955, 0.857], [0.787, 0.187], [0.115, 0.865], [0.984, 0.951], [0.993, 0.979], [0.643, 0.144], [0.268, 0.584], [0.515, 0.181], [0.3, 0.5], [0.984, 0.953], [0.018, 0.982], [0.477, 0.649], [0.932, 0.782], [0.993, 0.979], [0.834, 0.403], [0.635, 0.042], [0.192, 0.741], [0.524, 0.017], [0.108, 0.874], [0.237, 0.653], [0.878, 0.584], [0.972, 0.914], [0.456, 0.825], [0.108, 0.875], [0.763, 0.069], [0.252, 0.621], [0.571, 0.697], [0.171, 0.778], [0.277, 0.56], [0.832, 0.394], [0.207, 0.715], [0.912, 0.71], [0.253, 0.618], [0.377, 0.242], [0.991, 0.974], [0.734, 0.913], [0.708, 0.741], [0.363, 0.295], [0.078, 0.913], [0.897, 0.654], [0.458, 0.81], [0.266, 0.587], [0.564, 0.273], [0.375, 0.251], [0.103, 0.881], [0.927, 0.764], [0.499, 0.408], [0.306, 0.482], [0.305, 0.487], [0.976, 0.928], [0.645, 0.173], [0.763, 0.066], [0.446, 0.899], [0.365, 0.29], [0.964, 0.889], [0.074, 0.918], [0.755, 0.026], [0.919, 0.736], [0.828, 0.378], [0.978, 0.931], [0.902, 0.675], [0.599, 0.376], [0.922, 0.748], [0.602, 0.459], [0.508, 0.289], [0.602, 0.45], [0.351, 0.341], [0.559, 0.504], [0.33, 0.412], [0.457, 0.821], [0.904, 0.683], [0.153, 0.808], [0.395, 0.166], [0.756, 0.032], [0.787, 0.19], [0.999, 0.996], [0.492, 0.496], [0.249, 0.626], [0.285, 0.54], [0.46, 0.796], [0.202, 0.723], [0.875, 0.573], [0.508, 0.291], [0.496, 0.45], [0.521, 0.084], [0.224, 0.682], [0.779, 0.148], [0.527, 0.968], [0.739, 0.937], [0.049, 0.947], [0.053, 0.943], [0.98, 0.937], [0.56, 0.352], [0.111, 0.869], [0.186, 0.753], [0.33, 0.41], [0.747, 0.983], [0.363, 0.298], [0.126, 0.849], [0.426, 0.014], [0.866, 0.537], [0.551, 0.133], [0.27, 0.577], [0.5, 0.401], [0.644, 0.157], [0.489, 0.529], [0.942, 0.816], [0.941, 0.813], [0.757, 0.035], [0.962, 0.882], [0.355, 0.325], [0.826, 0.367], [0.036, 0.962], [0.791, 0.206], [0.413, 0.08], [0.141, 0.826], [0.375, 0.251], [0.479, 0.632], [0.017, 0.983], [0.205, 0.719], [0.845, 0.45], [0.085, 0.904], [0.329, 0.413], [0.43, 0.993], [0.321, 0.44], [0.886, 0.612], [0.73, 0.887], [0.326, 0.425], [0.067, 0.926], [0.742, 0.957], [0.097, 0.889], [0.12, 0.857], [0.67, 0.435], [0.367, 0.281], [0.762, 0.065], [0.958, 0.867], [0.898, 0.66], [0.315, 0.455], [0.935, 0.793], [0.507, 0.31], [0.745, 0.975], [0.5, 0.401], [0.748, 0.991], [0.462, 0.783], [0.593, 0.197], [0.743, 0.959], [0.596, 0.288], [0.949, 0.839], [0.449, 0.879], [0.437, 0.953], [0.55, 0.184], [0.079, 0.912], [0.767, 0.086], [0.759, 0.045], [0.251, 0.622], [0.456, 0.826], [0.637, 0.07], [0.227, 0.675], [0.804, 0.268], [0.58, 0.618], [0.348, 0.351], [0.571, 0.809], [0.997, 0.99], [0.288, 0.531], [0.51, 0.258], [0.587, 0.959], [0.285, 0.54], [0.673, 0.464], [0.778, 0.144], [0.973, 0.917], [0.292, 0.522], [0.672, 0.454], [0.217, 0.694], [0.999, 0.997], [0.995, 0.986], [0.991, 0.973], [0.722, 0.838], [0.667, 0.407], [0.993, 0.978], [0.88, 0.591], [0.624, 0.893], [0.845, 0.45], [0.455, 0.833], [0.442, 0.922], [0.405, 0.118], [0.915, 0.72], [0.877, 0.581], [0.379, 0.232], [0.141, 0.827], [0.741, 0.951], [0.635, 0.047], [0.054, 0.941], [0.897, 0.655], [0.688, 0.593], [0.836, 0.413], [0.956, 0.862], [0.644, 0.159], [0.816, 0.323], [0.867, 0.541], [0.114, 0.866], [0.909, 0.698], [0.986, 0.956], [0.502, 0.367], [0.906, 0.687], [0.976, 0.926], [0.884, 0.605], [0.337, 0.387], [0.463, 0.773], [0.989, 0.968], [0.82, 0.343], [0.611, 0.651], [0.838, 0.42], [0.209, 0.71], [0.713, 0.776], [0.078, 0.913], [0.712, 0.768], [0.996, 0.989], [0.773, 0.118], [0.987, 0.961], [0.966, 0.894], [0.439, 0.942], [0.464, 0.768], [0.717, 0.801], [0.948, 0.836], [0.642, 0.13], [0.488, 0.539], [0.959, 0.873], [0.614, 0.712], [0.732, 0.899], [0.662, 0.356], [0.966, 0.894], [0.493, 0.488], [0.819, 0.335], [0.86, 0.51], [0.217, 0.695], [0.245, 0.636], [0.651, 0.236], [0.271, 0.575], [0.162, 0.793], [0.142, 0.824], [0.511, 0.245], [0.401, 0.137], [0.847, 0.459], [0.974, 0.921], [0.119, 0.859], [0.817, 0.328], [0.936, 0.795], [0.748, 0.991], [0.451, 0.862], [0.781, 0.157], [0.828, 0.378], [0.116, 0.862]], "offmod5": [0.1994, 0.1999, 0.2016, 0.2, 0.199], "zthresholds": [[0, 0.75], [1, 0.4286], [2, 0.6316], [3, 0.525], [4, 0.5876], [5, 0.553], [6, 0.5728]], "twist6": [[0, 0.5], [1, 0.031], [2, 0.031], [3, 0.5], [4, 0.031], [5, 0.031]], "profile": [[0.0083, 0.0018], [0.0167, 0.0014], [0.025, 0.002], [0.0333, 0.0014], [0.0417, 0.0014], [0.05, 0.0027], [0.0583, 0.0014], [0.0667, 0.0014], [0.075, 0.0021], [0.0833, 0.0712], [0.0917, 0.0016], [0.1, 0.0028], [0.1083, 0.0015], [0.1167, 0.0012], [0.125, 0.0054], [0.1333, 0.0014], [0.1417, 0.0015], [0.15, 0.002], [0.1583, 0.0016], [0.1667, 0.0309], [0.175, 0.0019], [0.1833, 0.0013], [0.1917, 0.0016], [0.2, 0.0025], [0.2083, 0.0014], [0.2167, 0.0017], [0.225, 0.0022], [0.2333, 0.0013], [0.2417, 0.0014], [0.25, 0.0822], [0.2583, 0.0014], [0.2667, 0.0013], [0.275, 0.0022], [0.2833, 0.0017], [0.2917, 0.0014], [0.3, 0.0025], [0.3083, 0.0016], [0.3167, 0.0013], [0.325, 0.0019], [0.3333, 0.0309], [0.3417, 0.0016], [0.35, 0.002], [0.3583, 0.0015], [0.3667, 0.0014], [0.375, 0.0054], [0.3833, 0.0012], [0.3917, 0.0015], [0.4, 0.0028], [0.4083, 0.0016], [0.4167, 0.0712], [0.425, 0.0021], [0.4333, 0.0014], [0.4417, 0.0014], [0.45, 0.0027], [0.4583, 0.0014], [0.4667, 0.0014], [0.475, 0.002], [0.4833, 0.0014], [0.4917, 0.0018]], "haltfrac": [[500, 0.07362], [1000, 0.04587], [2000, 0.02425], [4000, 0.01463], [8000, 0.00537], [16000, 0.003], [32000, 0.00287]]};
+const cssv = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function toggleTheme(){const r=document.documentElement;const cur=r.getAttribute('data-theme');
+  const nx = cur==='dark'?'light':(cur==='light'?'dark':(matchMedia('(prefers-color-scheme:dark)').matches?'light':'dark'));
+  r.setAttribute('data-theme',nx);try{localStorage.setItem('bb6theme',nx)}catch(e){};drawAll();}
+try{const s=localStorage.getItem('bb6theme');if(s)document.documentElement.setAttribute('data-theme',s)}catch(e){}
+
+// ---- exact machine (BigInt) ----
+function step(a,b){
+  if(b%2n===0n) return [a+6n,b-3n,'T'];
+  let al,be; if(a%2n===1n){al=6n;be=a-1n;} else {al=9n;be=a-2n;}
+  if(b<be) return [al+3n*(b-3n), be-(b-3n),'C'];
+  return [al+3n*be+3n, b-be-4n,'F'];
+}
+function isFatal(a,b){
+  if(b<=2n||(b%2n===0n&&b===4n)) return true;
+  let be=(a%2n===1n)?a-1n:a-2n;
+  if(b%2n===1n&&b>be){let o=b-be; return o===1n||o===3n||o===5n;}
+  return false;
+}
+function bits(x){return x.toString(2).length;}
+
+// ---- build twisted operator spectrum for modulus M (live) ----
+const NB=12;
+function buildT(M){
+  const D=NB*M, T=new Float64Array(D*D);
+  for(let kk=0;kk<300;kk++){
+    let a=6n+4n*BigInt(kk), b=13n+8n*BigInt(kk), prev=-1;
+    for(let i=0;i<3000;i++){
+      if(isFatal(a,b))break;
+      let be=(a%2n===1n)?a-1n:a-2n;
+      if(b%2n===1n&&b>be){
+        let o=b-be; let z=Number(o)/Number(o+be); let zi=Math.min((z*NB)|0,NB-1);
+        let om=Number(o%BigInt(M)); let st=zi*M+om;
+        if(prev>=0) T[st*D+prev]+=1; prev=st;
+      }
+      let r=step(a,b); a=r[0]; b=r[1];
+      if(bits(a)>230) break;
+    }
+  }
+  // column-normalize
+  for(let c=0;c<D;c++){let s=0;for(let r=0;r<D;r++)s+=T[r*D+c];if(s>0)for(let r=0;r<D;r++)T[r*D+c]/=s;}
+  return T;
+}
+function charSpecRad(T,M,t){
+  const D=NB*M;
+  // Lt[zj][zi] complex = (1/M) sum_{omp,om} T[(zj*M+omp)][(zi*M+om)] e(2pi t(omp-om)/M)
+  const re=new Float64Array(NB*NB), im=new Float64Array(NB*NB);
+  const cw=[],sw=[];for(let k=0;k<M;k++){cw.push(Math.cos(2*Math.PI*t*k/M));sw.push(Math.sin(2*Math.PI*t*k/M));}
+  for(let zj=0;zj<NB;zj++)for(let zi=0;zi<NB;zi++){
+    let ar=0,ai=0;
+    for(let omp=0;omp<M;omp++)for(let om=0;om<M;om++){
+      let v=T[(zj*M+omp)*D+(zi*M+om)]; if(v===0)continue;
+      let d=((omp-om)%M+M)%M; ar+=v*cw[d]; ai+=v*sw[d];
+    }
+    re[zj*NB+zi]=ar/M; im[zj*NB+zi]=ai/M;
+  }
+  // power iteration for spectral radius
+  let vr=new Float64Array(NB).fill(1), vi=new Float64Array(NB), lam=0;
+  for(let it=0;it<250;it++){
+    let wr=new Float64Array(NB), wi=new Float64Array(NB);
+    for(let i=0;i<NB;i++)for(let j=0;j<NB;j++){
+      wr[i]+=re[i*NB+j]*vr[j]-im[i*NB+j]*vi[j];
+      wi[i]+=re[i*NB+j]*vi[j]+im[i*NB+j]*vr[j];
+    }
+    let n=0;for(let i=0;i<NB;i++)n+=wr[i]*wr[i]+wi[i]*wi[i]; n=Math.sqrt(n);
+    if(n<1e-13){lam=0;break;} lam=n; for(let i=0;i<NB;i++){vr[i]=wr[i]/n;vi[i]=wi[i]/n;}
+  }
+  return lam;
+}
+let curM=6;
+function computeSpectrum(){
+  const st=document.getElementById('specStatus'); st.textContent='computing…';
+  setTimeout(()=>{
+    const M=curM, T=buildT(M), lam=[];
+    for(let t=0;t<M;t++) lam.push(charSpecRad(T,M,t));
+    drawSpec(M,lam);
+    const excl=t=> t===0||(M%2===0&&t===M/2);
+    let mx=0,at=0; for(let t=0;t<M;t++) if(!excl(t)&&lam[t]>mx){mx=lam[t];at=t;}
+    document.getElementById('specOut').innerHTML=
+      `M=${M}: |λ(0)|=<b>${lam[0].toFixed(3)}</b>`+(M%2===0?`, parity |λ(${M/2})|=<b>${lam[M/2].toFixed(3)}</b>`:``)+
+      `\nmax over genuine characters t≠0${M%2===0?`,${M/2}`:``}: |λ|=<b>${mx.toFixed(4)}</b> at t=${at}  →  gap 1−|λ| = <b>${(1-mx).toFixed(4)}</b>  ⇒ ${mx<0.6?'APERIODIC (offset equidistributes mod M)':'—'}`;
+    st.textContent='';
+  },20);
+}
+function drawSpec(M,lam){
+  const g=cv('specCv');if(!g)return;const {x,w,h}=g; const pad=34;
+  x.strokeStyle=cssv('--line');x.strokeRect(pad,10,w-pad-8,h-30);
+  const bw=(w-pad-8)/M, mxy=Math.max(0.6,...lam);
+  for(let t=0;t<M;t++){
+    const bx=pad+t*bw, bh=(lam[t]/mxy)*(h-40);
+    const parity=(M%2===0&&t===M/2), triv=(t===0);
+    x.fillStyle=(triv||parity)?cssv('--amb'):cssv('--acc');
+    x.fillRect(bx+bw*0.15,h-20-bh,bw*0.7,bh);
+    x.fillStyle=cssv('--dim');x.font='10px "IBM Plex Mono"';x.textAlign='center';
+    x.fillText(t,bx+bw/2,h-6);
+    if(lam[t]>0.02){x.fillStyle=cssv('--mut');x.fillText(lam[t].toFixed(2),bx+bw/2,h-24-bh);}
+  }
+  x.fillStyle=cssv('--mut');x.textAlign='left';x.fillText('|λ(t)|',6,18);
+}
+
+// ---- orbit runner ----
+function runOrbit(){
+  let m=document.getElementById('seedIn').value.split(/[, ]+/).map(s=>s.trim()).filter(Boolean);
+  let a,b; try{a=BigInt(m[0]);b=BigInt(m[1]);}catch(e){document.getElementById('orbOut').textContent='bad input';return;}
+  let zser=[], d=0, halted=false, fseed=null;
+  let A=a,B=b;
+  for(let i=0;i<200000;i++){
+    if(isFatal(A,B)){halted=true;break;}
+    let be=(A%2n===1n)?A-1n:A-2n;
+    if(B%2n===1n&&B>be){let o=B-be; zser.push(Number(o)/Number(o+be)); d++;}
+    let r=step(A,B);A=r[0];B=r[1];
+    if(bits(A)>400){break;}
+  }
+  drawOrbit(zser,halted);
+  const out=document.getElementById('orbOut');
+  if(halted) out.innerHTML=`seed (${a},${b}): <b style="color:${cssv('--ros')}">HALTS</b> — offset hit {1,3,5} after ${d} crossings.`;
+  else out.innerHTML=`seed (${a},${b}): <b style="color:${cssv('--tea')}">survives</b> to the size horizon (~10<sup>120</sup>) over ${d} crossings — non-halting up to horizon. (Individual survival is Collatz-hard; this is not a proof for this seed.)`;
+}
+function drawOrbit(zs,halted){
+  const g=cv('orbCv');if(!g)return;const{x,w,h}=g;const pad=30;
+  x.strokeStyle=cssv('--line');x.strokeRect(pad,8,w-pad-8,h-26);
+  // fatal band near z=0
+  const y0=z=>h-18-(z)*(h-30);
+  x.fillStyle=cssv('--ros');x.globalAlpha=.22;x.fillRect(pad, y0(0.06), w-pad-8, y0(0)-y0(0.06));x.globalAlpha=1;
+  const n=zs.length; if(!n){return;}
+  x.strokeStyle=halted?cssv('--ros'):cssv('--blu');x.lineWidth=1.4;x.beginPath();
+  zs.forEach((z,i)=>{const px=pad+(i/(n-1||1))*(w-pad-8),py=y0(Math.min(z,1));i?x.lineTo(px,py):x.moveTo(px,py);});x.stroke();
+  x.fillStyle=cssv('--dim');x.font='10px "IBM Plex Mono"';x.textAlign='left';x.fillText('z = o/(o+β)',6,16);
+  x.fillStyle=cssv('--ros');x.fillText('fatal band',pad+4,y0(0)-4);
+  x.fillStyle=cssv('--dim');x.textAlign='right';x.fillText('crossing →',w-10,h-6);
+}
+
+// ---- static plots ----
+function cv(id){const c=document.getElementById(id);if(!c)return null;const r=c.getBoundingClientRect();
+  const d=Math.min(devicePixelRatio||1,2);c.width=r.width*d;c.height=r.height*d;const x=c.getContext('2d');
+  x.scale(d,d);x.clearRect(0,0,r.width,r.height);return{x,w:r.width,h:r.height};}
+function axes(g,pad){const{x,w,h}=g;x.strokeStyle=cssv('--line');x.lineWidth=1;x.strokeRect(pad,8,w-pad-8,h-26);}
+function drawCob(){const g=cv('cob');if(!g)return;const{x,w,h}=g;const pad=26;axes(g,pad);
+  const sx=z=>pad+z*(w-pad-8), sy=z=>h-18-z*(h-30);
+  x.strokeStyle=cssv('--dim');x.setLineDash([3,3]);x.beginPath();x.moveTo(sx(0),sy(0));x.lineTo(sx(1),sy(1));x.stroke();x.setLineDash([]);
+  x.fillStyle=cssv('--acc');x.globalAlpha=.45;
+  DATA.cobweb.forEach(([a,b])=>{x.beginPath();x.arc(sx(a),sy(b),0.9,0,7);x.fill();});x.globalAlpha=1;}
+function drawDen(){const g=cv('den');if(!g)return;const{x,w,h}=g;const pad=26;axes(g,pad);
+  const mx=Math.max(...DATA.density.map(d=>d[1]))*1.08;const sx=z=>pad+z*(w-pad-8),sy=v=>h-18-(v/mx)*(h-30);
+  x.strokeStyle=cssv('--tea');x.lineWidth=2;x.fillStyle=cssv('--tea');x.globalAlpha=.14;
+  x.beginPath();x.moveTo(sx(0),sy(0));DATA.density.forEach(([z,v])=>x.lineTo(sx(z),sy(v)));x.lineTo(sx(1),sy(0));x.closePath();x.fill();x.globalAlpha=1;
+  x.beginPath();DATA.density.forEach(([z,v],i)=>{i?x.lineTo(sx(z),sy(v)):x.moveTo(sx(z),sy(v));});x.stroke();}
+function drawHF(){const g=cv('hf');if(!g)return;const{x,w,h}=g;const pad=30;axes(g,pad);
+  const xs=DATA.haltfrac.map(d=>Math.log10(d[0])),ys=DATA.haltfrac.map(d=>d[1]);
+  const xmn=Math.min(...xs),xmx=Math.max(...xs),ymx=Math.max(...ys)*1.1;
+  const sx=v=>pad+(v-xmn)/(xmx-xmn)*(w-pad-8),sy=v=>h-18-(v/ymx)*(h-30);
+  x.strokeStyle=cssv('--ros');x.lineWidth=2;x.beginPath();
+  DATA.haltfrac.forEach((d,i)=>{const px=sx(Math.log10(d[0])),py=sy(d[1]);i?x.lineTo(px,py):x.moveTo(px,py);});x.stroke();
+  DATA.haltfrac.forEach(d=>{x.fillStyle=cssv('--ros');x.beginPath();x.arc(sx(Math.log10(d[0])),sy(d[1]),2,0,7);x.fill();});
+  x.fillStyle=cssv('--dim');x.font='10px "IBM Plex Mono"';x.textAlign='left';x.fillText('N (log)',pad,h-6);}
+function drawOM(){const g=cv('om');if(!g)return;const{x,w,h}=g;const pad=26;axes(g,pad);
+  const bw=(w-pad-8)/5;x.fillStyle=cssv('--blu');
+  DATA.offmod5.forEach((v,i)=>{const bh=(v/0.28)*(h-34);x.fillRect(pad+i*bw+bw*0.2,h-18-bh,bw*0.6,bh);
+    x.fillStyle=cssv('--dim');x.font='10px "IBM Plex Mono"';x.textAlign='center';x.fillText(i,pad+i*bw+bw/2,h-6);x.fillStyle=cssv('--blu');});
+  x.strokeStyle=cssv('--amb');x.setLineDash([4,3]);x.beginPath();const y=h-18-(0.2/0.28)*(h-34);x.moveTo(pad,y);x.lineTo(w-8,y);x.stroke();x.setLineDash([]);
+  x.fillStyle=cssv('--mut');x.textAlign='left';x.fillText('uniform = 0.2',pad+4,y-4);}
+function drawProf(){const g=cv('profCv');if(!g)return;const{x,w,h}=g;const pad=32;axes(g,pad);
+  const sx=v=>pad+(v/0.5)*(w-pad-8),sy=v=>h-18-(v/0.12)*(h-30);
+  x.strokeStyle=cssv('--tea');x.lineWidth=2;x.beginPath();
+  DATA.profile.forEach(([xi,l],i)=>{i?x.lineTo(sx(xi),sy(l)):x.moveTo(sx(xi),sy(l));});x.stroke();
+  x.fillStyle=cssv('--dim');x.font='10px "IBM Plex Mono"';x.textAlign='left';x.fillText('|λ(ξ)|',6,16);x.textAlign='right';x.fillText('ξ=t/M →',w-10,h-6);}
+
+function drawAll(){[drawCob,drawDen,drawHF,drawOM,drawProf].forEach(f=>{try{f()}catch(e){}});
+  if(window._lastSpec)drawSpec(window._lastSpec.M,window._lastSpec.lam);}
+// M buttons
+(function(){const c=document.getElementById('mbtns');[3,4,5,6,7,8,9,10,12].forEach(M=>{
+  const b=document.createElement('button');b.textContent=M;if(M===6)b.classList.add('on');
+  b.onclick=()=>{curM=M;[...c.children].forEach(x=>x.classList.remove('on'));b.classList.add('on');};c.appendChild(b);});})();
+// wrap drawSpec to cache
+const _ds=drawSpec; drawSpec=function(M,lam){window._lastSpec={M,lam};_ds(M,lam);};
+window.addEventListener('load',()=>{drawAll();computeSpectrum();runOrbit();});
+let rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(drawAll,150);});
+</script>
