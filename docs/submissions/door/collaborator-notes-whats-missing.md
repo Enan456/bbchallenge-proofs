@@ -118,7 +118,7 @@ through so the $o(N^2)$ is uniform. A week, no risk.
 | 3. full UNI over long words | lemma | low |
 | 4. joint LLT upper bound | write-out | low (given 2--3) |
 | 5. seed equidistribution + sum | routine | negligible |
-| 1a. sequential composition + integer upper bound (from item 1) | standard write-up | low |
+| 1a. sequential composition + integer upper bound (from item 1) | standard write-up; **conclusion directly confirmed on integers** ($S\cdot P\approx3$–$4\approx6h(0)$, flat) | low |
 
 ## Honest verdict, revised
 
