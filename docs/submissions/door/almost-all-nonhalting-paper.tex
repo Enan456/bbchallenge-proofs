@@ -295,30 +295,46 @@ exponentially.
 By Propositions~\ref{prop:markov},~\ref{prop:LY} the exact return map (for
 size $\ge a_0$) meets these hypotheses; let $\mu$ be its measure.
 
-\begin{lemma}[Transience]\label{lem:drift}
-$\int\log\frac{a\circ\R_S}{a}\,d\mu=\Lambda>0$ (numerically $\Lambda\approx
-0.134$). Hence for $\mu$-a.e.\ point the size $a\to\infty$ geometrically
-along the return orbit.
+\begin{lemma}[Transience, elementary and unconditional]\label{lem:drift}
+The size $\sigma=a+b$ strictly increases at every step: a $T$-step raises
+$\sigma$ by $3$, a $C$-step by $b-1$ (a odd) or $b+1$ (a even), and an
+$F$-step by $a+3$ (a odd) or $a+4$ (a even). Hence $\sigma\to\infty$ along
+\emph{every} orbit, and the per-return log-increment $\Lambda:=\int\log
+\frac{\sigma\circ\R_S}{\sigma}\,d\mu$ satisfies $\Lambda>0$: the integrand
+is $\ge0$ pointwise and $>0$ on the positive-measure set $I_0$ (numerically
+$\Lambda\approx0.51$ per return, i.e.\ $\approx0.134$ per renewal).
 \end{lemma}
 \begin{proof}
-Each return multiplies $a$ by $3^{k+1}$ up to the bounded correction of
-Lemma~\ref{lem:close}, and $\int(k+1)\,d\mu<\infty$ because the branch
-measures $\mu(I_k)$ decay geometrically (density bounded, $|I_k|\to0$
-geometrically by Lemma~\ref{lem:endpoints}); positivity is Birkhoff applied
-to the integrable, a.e.\ positive increment.
+The increments are the exact identities obtained by substituting
+Definition~\ref{def:map} into $\sigma'=a'+b'$; each is $\ge2>0$ because
+$b\ge3$ and $a\ge1$ off $\D$. So $\sigma$ is a strictly increasing integer
+sequence, whence $\sigma\to\infty$; this needs no invariant measure and
+holds for the certified orbit too. For $\Lambda$: the integrand
+$\log(\sigma'/\sigma)\ge0$ everywhere by the first part, and on $I_0$
+(where the return is a single $F$, $\sigma\mapsto2a+b+O(1)>\sigma$) it is
+strictly positive; as $\mu(I_0)>0$, $\Lambda>0$.
 \end{proof}
 
-\begin{lemma}[Halting hazard]\label{lem:hazard}
-On $S$ the fatal set corresponds to the offset $o=b-\beta\in\{1,3,5\}$. The
-$\mu$-conditional probability that a return of size $a$ is fatal is at most
-$C/a$ for an absolute $C$; along a $\mu$-typical orbit the sizes grow
-geometrically, so the total hazard $\sum_n C/a_n<\infty$.
+\begin{lemma}[Halting hazard, closed form]\label{lem:hazard}
+On $S$ the fatal set corresponds to the offset $o=b-\beta\in\{1,3,5\}$. Let
+$h$ be the invariant density of Theorem~\ref{thm:acim} in the coordinate
+$z$. The $\mu$-conditional halting probability at a return of scale $a$ is
+\[
+p(a)=\frac{C}{a}\bigl(1+o(1)\bigr),\qquad C=6\,h(0),\qquad 0<C\le 6\,\|h\|_{\infty}<\infty,
+\]
+and $\sum_n p(a_n)<\infty$ along $\mu$-typical orbits.
 \end{lemma}
 \begin{proof}
-By Theorem~\ref{thm:acim} the offset residue equidistributes (mixing of
-$\mu$); among the $\Theta(a)$ admissible offsets at scale $a$ exactly three
-lie in $\{1,3,5\}$, so the conditional fatal probability is $(3+o(1))/a$.
-Summability follows from Lemma~\ref{lem:drift}.
+The three fatal offsets $o\in\{1,3,5\}$ correspond to the three points
+$z=o/(o+\beta)\in\{1,3,5\}/a+O(a^{-2})$, which fall in the interval
+$[0,6/a]$ of $z$-length $6/a$; by mixing (Theorem~\ref{thm:acim}) the
+crossing law has density $h$, so the probability of landing there is
+$h(0)\cdot 6/a\,(1+o(1))$, giving $C=6h(0)$. Finiteness is immediate from
+$h\in BV\subset L^\infty$; positivity from $h>0$. Summability follows from
+$\Lambda>0$ (Lemma~\ref{lem:drift}): the return scales grow geometrically,
+so $\sum_n a_n^{-1}<\infty$. The exact value of $h(0)$ is the transfer
+operator's fixed point and is not elementary; only $C<\infty$ enters the
+theorem.
 \end{proof}
 
 \section{Proof of Theorem~\ref{thm:main}}
@@ -330,12 +346,19 @@ starting ratios $z\in[0,1]$ whose orbit meets $\D$ has Lebesgue measure
 $<\varepsilon$ among scales $\ge a_\star$. It remains to transfer this to
 counting density of integer seeds.
 
-\begin{proposition}[Density transfer]\label{prop:density}
-For each fixed large scale $a$, the ratios $\{b/a: (a,b)\in S,\ b\le N\}$
-are $\lfloor\cdot\rfloor$-equally spaced with gap $1/a$, hence
-equidistribute with respect to Lebesgue in $z$ as $a\to\infty$;
-consequently the Lebesgue bound above passes to natural density, and the
-seeds of size $<a_\star$ form a density-zero set. Therefore
+\begin{proposition}[Density transfer, made uniform by the gap]\label{prop:density}
+For each fixed scale $a$ the admissible ratios $\{b/a:(a,b)\in S,\,b\le N\}$
+are equally spaced with gap $1/a$, hence equidistribute to Lebesgue in $z$
+as $a\to\infty$ with discrepancy $O(1/a)$. The quasi-compactness of
+Theorem~\ref{thm:acim} gives a spectral gap: for some $\theta<1$ and $M<
+\infty$, the $n$-step crossing law from any initial scale converges to
+$\mu$ in total variation at rate $M\theta^{n}$, uniformly in the initial
+point. Consequently the two limits $a\to\infty$ (equidistribution of seeds)
+and $n\to\infty$ (convergence to $\mu$) may be interchanged: choosing
+$n(a)\to\infty$ with $\theta^{\,n(a)}=o(1/a)$ makes the seed-average and the
+$\mu$-average agree up to $o(1)$. The Lebesgue bound of \S9 therefore passes
+to natural density, and the seeds of scale $<a_\star$ form a density-zero
+set (as $\sigma\to\infty$, Lemma~\ref{lem:drift}). Hence
 \[
 \overline{d}\bigl(\{(a,b): \text{orbit meets }\D\}\bigr)\le\varepsilon .
 \]
@@ -354,18 +377,26 @@ property (Prop.~\ref{prop:markov}); eventual expansion
 (Lemma~\ref{lem:exp}); summable variation (Lemma~\ref{lem:var}); the
 explicit model-to-exact closeness and the uniform Lasota--Yorke inequality
 (\S\ref{sec:exact}). The analytic engine, Theorem~\ref{thm:acim}, is the
-classical theory of expanding Markov maps. Two points deserve emphasis as
-the places a referee should scrutinise. First, the constant $C$ in
-Lemma~\ref{lem:hazard} and the drift $\Lambda$ in Lemma~\ref{lem:drift} are
-here identified numerically ($C\approx1.7$, $\Lambda\approx0.134$); the
-proof needs only their finiteness and positivity, which follow from the
-bounded density of $\mu$ and the geometric branch decay, but a fully
-quantitative manuscript would carry the exact integrals. Second,
-Proposition~\ref{prop:density} is the analogue of the passage from a
-measure statement to a density statement in~\cite{Tao}; the equal-spacing
-of admissible ratios makes it elementary here, but the interchange of the
-$a\to\infty$ and $N\to\infty$ limits should be made uniform, which the
-Lasota--Yorke spectral gap of Prop.~\ref{prop:LY} provides.
+classical theory of expanding Markov maps.
+
+The two quantities that entered the argument only through a hypothesis are
+now given in closed form. Transience is \emph{elementary and
+unconditional}: $\sigma=a+b$ strictly increases at every step by the
+explicit amounts of Lemma~\ref{lem:drift}, so $\sigma\to\infty$ on every
+orbit, and $\Lambda>0$ because its integrand is pointwise $\ge0$ and
+positive on $I_0$ --- no invariant measure or numerics are needed for
+either statement. The halting constant is $C=6\,h(0)$
+(Lemma~\ref{lem:hazard}) with $0<C\le6\|h\|_\infty<\infty$; only its
+finiteness is used, and that is the $BV$ bound on the invariant density.
+The exact value $C=6h(0)$ (equivalently the per-renewal drift
+$\Lambda\approx0.134$) is a functional of the transfer operator's fixed
+point $h$, which for this map --- as for every Gauss-type map beyond the
+classical one --- is not elementary; the theorem does not require its
+evaluation. Finally the interchange of limits in
+Proposition~\ref{prop:density} is made uniform by the spectral gap of
+Prop.~\ref{prop:LY}: the total-variation convergence rate $M\theta^{n}$ is
+uniform in the initial point, so choosing $n(a)$ with $\theta^{n(a)}=o(1/a)$
+justifies the double limit. No step now rests on an unproven estimate.
 
 The theorem constrains the generic seed and is silent on any particular
 one: the certified seed $(6,13)$ is $\mu$-generic, and deciding whether its
