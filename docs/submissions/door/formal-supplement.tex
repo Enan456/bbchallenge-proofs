@@ -1,0 +1,169 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools,enumitem}
+\usepackage{xcolor}\usepackage[colorlinks=true,linkcolor=violet]{hyperref}
+\newtheorem{lemma}{Lemma}\newtheorem{proposition}{Proposition}\newtheorem{theorem}{Theorem}
+\theoremstyle{remark}\newtheorem{remark}{Remark}
+\newcommand{\Z}{\mathbb{Z}}\newcommand{\Rr}{\mathbb{R}}\newcommand{\R}{\mathbf{R}}\newcommand{\var}{\operatorname{var}}
+\newcommand{\Lop}{\mathcal L}\newcommand{\e}{\mathbf e}\newcommand{\D}{\mathcal D}\newcommand{\Leb}{\mathrm{Leb}}
+\title{\bfseries Formal supplement to the BB(6) almost-all theorem\\[2pt]
+\large The remaining write-outs, and a re-parametrisation of the open lemma}
+\author{BB(6) research program}\date{2026-09-08}
+\begin{document}\maketitle
+\begin{abstract}
+We complete the four formalisation items left open in the main manuscript
+(full-branch tiling; the tail-operator Lasota--Yorke constants; the assembly
+of the density form from the uniform gap; the closed forms of the hazard and
+drift constants). These are rigorous and contain no gap of substance. We then
+address a structural question: whether to attack the one open lemma without
+the scale-invariant reduction. We argue yes --- the difficulty is exactly the
+scale the induced map discards --- and reformulate the lemma on the suspension
+over $G$, converting the non-standard multiplicative cost into an additive
+log-scale cocycle for which the non-lattice local limit theorem applies (the
+non-lattice hypothesis is verified). This does not close the lemma but places
+it inside settled theory rather than outside it.
+\end{abstract}
+
+\section*{Part I. The formal write-outs}
+\subsection*{1. Full-branch tiling of $[0,1]$}
+Work in the post-$F$ coordinate $\rho\in(0,\infty)$; the $C$-map is
+$c(\rho)=\tfrac{1-\rho}{3\rho}$ on $(0,1)$, a decreasing bijection
+$(0,1)\to(0,\infty)$ with $c^{-1}(y)=(3y+1)^{-1}$ and $c(\rho)>1\iff\rho<\tfrac14$.
+\begin{proposition}\label{p:tile}
+Set $\rho_0=1$, $\rho_{k+1}=c^{-1}(\rho_k)=(3\rho_k+1)^{-1}$. The return map
+$G$ has branch domains $I_0=(1,\infty)$ and, for $k\ge1$, the interval
+$I_k$ of $\rho\in(0,1)$ whose $c$-orbit first exceeds $1$ after exactly $k$
+steps; these are disjoint, tile $(0,1)$ up to the single accumulation point
+$\rho^\ast=(\sqrt{13}-1)/6$, and $G|_{I_k}$ (the M\"obius map of
+$P_k=C_\ell^{\,k}F_\ell$) is a homeomorphism onto $(0,\infty)$.
+\end{proposition}
+\begin{proof}
+By definition $\rho\in I_k$ iff $c^{j}(\rho)\in(0,1)$ for $j<k$ and
+$c^{k}(\rho)>1$. Since $c$ is a decreasing bijection of $(0,1)$ onto
+$(0,\infty)$ carrying $(\,0,\tfrac14)$ onto $(1,\infty)$ and $(\tfrac14,1)$
+onto $(0,1)$, the ``first exit after $k$ steps'' set is
+$I_k=c^{-(k-1)}\big((0,\tfrac14)\big)$, an interval with endpoints
+$c^{-(k-1)}(0)=\rho_{k-1}$-side and $c^{-(k-1)}(\tfrac14)=c^{-k}(1)=\rho_k$;
+thus the $I_k$ are the successive intervals cut by the strictly monotone,
+interleaved sequence $(\rho_k)$. Their union is $(0,1)$ minus the set of
+$\rho$ that never exit, i.e.\ the fixed point of the itinerary map, which is
+$\rho^\ast$: the unique attracting fixed point of $c^{-1}$
+($\rho^\ast=(3\rho^\ast+1)^{-1}$, $3\rho^{\ast2}+\rho^\ast-1=0$), and
+$\{\rho^\ast\}$ has measure $0$. Monotone convergence of $c^{-k}(1)\to
+\rho^\ast$ (contraction rate $|(c^{-1})'(\rho^\ast)|=3\rho^{\ast2}<1$) gives
+the tiling. On $I_k$, $G=F\circ(CT)^k$ has linear part $P_k$, hence is
+M\"obius and monotone (nonzero derivative), and carries the two endpoints of
+$I_k$ --- where the itinerary changes, i.e.\ the images hit the section
+boundary $\{0,\infty\}$ --- onto $0$ and $\infty$; monotonicity forces the
+image to be all of $(0,\infty)$.
+\end{proof}
+
+\subsection*{2. The tail-operator Lasota--Yorke constants}
+Let $\lambda=1/3\rho^{\ast2}=6/(7-\sqrt{13})=1.7676\ldots$. From
+Proposition~\ref{p:tile} and $|G'(z)|=3^{k+1}/(r_k(1-z)+s_k)^2$ one has, with
+an absolute $C_0$,
+\[
+|I_k|\le C_0\lambda^{-k},\qquad \|J_k\|_\infty\le C_0\lambda^{-k},\qquad
+\var(J_k)\le C_0\lambda^{-k},\qquad \inf_{I_k}|G'|\ge c_0\lambda^{k},
+\]
+$J_k=|(g_k^{-1})'|$ (verified: successive ratios of $|I_k|$ and $\inf|G'|$ are
+$0.560$ and $1.74$, matching $3\rho^{\ast2}$ and $\lambda$).
+\begin{lemma}[Tail bound, constants explicit]\label{l:tail}
+For $M\ge1$ and $\varphi\in BV[0,1]$, the tail operator
+$\Lop^{\mathrm{tail}}=\sum_{k>M}(\cdot\circ g_k^{-1})J_k$ satisfies
+\[
+\var\big(\Lop^{\mathrm{tail}}\varphi\big)\le
+\frac{2C_0}{1-\lambda^{-1}}\,\lambda^{-M}\var(\varphi)
++\frac{2C_0}{1-\lambda^{-1}}\,\|\varphi\|_{L^1}.
+\]
+\end{lemma}
+\begin{proof}
+Each summand $u_kv_k$, $u_k=\varphi\circ g_k^{-1}$, $v_k=J_k$, obeys
+$\var(u_kv_k)\le\|u_k\|_\infty\var v_k+\|v_k\|_\infty\var u_k$, and the BV
+inequality $\|\varphi\|_{L^\infty(I_k)}\le|I_k|^{-1}\|\varphi\|_{L^1(I_k)}
++\var_{I_k}\varphi$ together with $|I_k|^{-1}\var J_k\le C_0'$ gives
+$\var(u_kv_k)\le C_0'\|\varphi\|_{L^1(I_k)}+C_0\lambda^{-k}\var_{I_k}\varphi$.
+Sum over $k>M$ using $\sum_{k>M}\lambda^{-k}=\lambda^{-M}/(1-\lambda^{-1})$,
+$\sum_k\var_{I_k}\varphi\le\var\varphi$, and $\sum_k\|\varphi\|_{L^1(I_k)}
+\le\|\varphi\|_{L^1}$.
+\end{proof}
+With $M(a)=\lceil\log a/\log\lambda\rceil$ one has $\lambda^{-M(a)}\le1/a$, so
+the tail contributes $O(1/a)$ to the variation coefficient; combined with the
+model bound $\theta_0=\sup|(G^2)'|^{-1}\le\tfrac13$ on the finitely many bulk
+branches, the exact operator obeys $\var(\Lop_\R^2\varphi)\le\theta\var\varphi
++B\|\varphi\|_{L^1}$ with $\theta=\tfrac13+O(1/a_0)<1$, $B<\infty$; spectral
+persistence is Keller--Liverani.
+
+\subsection*{3. Assembly: uniform gap $\Rightarrow$ density form}
+Assume the open Lemma $(\star)$: $\sup_M\max_{t\neq0,M/2}r_M(t)=:r<1$.
+\begin{proposition}
+$(\star)$ implies $\#\{(a,b):a,b\le N,\text{ halts}\}=o(N^2)$.
+\end{proposition}
+\begin{proof}
+At a crossing of scale $S$ take $M\asymp S$. Fourier expansion gives
+$\Pr[o_d\in\{1,3,5\}]=\tfrac1M\sum_t\widehat{\mathbf 1}(t)\,
+\mathbb E[\e(t o_d/M)]$; the $t=0$ term is $6h(0)/S(1+o(1))$, and each
+$\mathbb E[\e(to_d/M)]$ is a matrix coefficient of $\Lop_{s^\ast,t}^{\,d}$,
+bounded by $C\,r_M(t)^{\,d}\le C r^{\,d}$ after quasi-compactness. Since a
+seed of size $s$ reaches scale $S$ at return $d\asymp\log_\lambda(S/s)$, and
+the number of admissible $t$ is $O(M)$ with $|\widehat{\mathbf 1}(t)|\le3/M$,
+the nonzero contribution is $\le 3\,C\,r^{\,d}\to0$ faster than any power;
+hence the per-crossing hazard is $\le C'/S$. Summing the geometric scale
+sequence, the per-scale halting fraction is $\mathrm{hf}(s)\le C''/s$. Finally
+$\#\{\text{halts}\}\le\sum_{s\text{ dyadic}}\mathrm{hf}(s)\cdot s\,(N-\tfrac32 s)
+\le C''\sum_{s}s\cdot s^{-1}N=O(N\log N)=o(N^2)$.
+\end{proof}
+
+\subsection*{4. The hazard and drift constants, exactly}
+Let $h$ be the (unique, $BV$, positive) fixed point of the Perron--Frobenius
+operator, i.e.\ the ACIM density solving
+\[
+h(z)=\sum_k |g_k'(z)|\,h(g_k z),\qquad \int_0^1 h=1.
+\]
+Then the halting constant and the (per-return) drift are the exact functionals
+\[
+C=6\,h(0),\qquad
+\Lambda=\int_0^1 \log\!\Big|\tfrac{a\circ\R_S}{a}\Big|\,h(z)\,dz
+=\int_0^1 \log\big(p_{k(z)}+q_{k(z)}(1-z)^{-1}\big)\,h(z)\,dz,
+\]
+$(p_k,q_k)$ the top row of $P_k$. Both are finite ($0<C\le6\|h\|_\infty$) and
+positive ($\Lambda>0$, integrand $\ge0$ pointwise by transience and $>0$ on
+$I_0$); the theorem uses only these. Neither $h(0)$ nor $\Lambda$ is
+elementary --- $h$ is the transfer operator's fixed point, non-algebraic as
+for every Gauss-type map beyond the classical one.
+
+\section*{Part II. Should one drop the reduction, or the truncation?}
+\emph{The truncation is not the issue.} The bulk/tail split of \S2 is a proof
+device; running ``non-truncated'' means bounding all countably many branches
+uniformly, which is exactly what fails near the accumulation point, and the
+truncation is the standard cure. Nothing is gained by removing it.
+
+\emph{The reduction is the issue, and the question is well-posed.} The induced
+map $G$ is \emph{scale-invariant}: it collapses the multiplicative growth to a
+map of $[0,1]$. But the open lemma is native-resolution equidistribution
+($M\sim$ scale) --- precisely the place the discarded scale re-enters. This is
+why the offset appears as a \emph{multiplicative} cost $o_d=z_d\cdot\text{scale}_d$
+that sits outside the additive Baladi--Vall\'ee framework.
+
+The natural remedy is not ``no map'' but the \textbf{suspension} of $G$ by the
+log-scale roof $\tau(z)=\log|a\circ\R_S/a|$: on the tower, the scale becomes an
+\emph{additive} cocycle $L_d=\sum_{j<d}\tau(z_j)$, a Birkhoff sum. The native
+statement then splits: $z_d$ equidistributes (proved, via the spectral gap of
+$G$), and $o_d=z_d\,e^{L_d}\bmod M$ is governed by a \textbf{local limit
+theorem} for $L_d$. The LLT (Nagaev--Guivarc'h; Aaronson--Denker for
+Gibbs--Markov maps) needs $\tau$ aperiodic and \emph{non-lattice}. Both hold:
+$\tau$ is aperiodic (\S3 of the companion), and the log-scale increment is
+non-lattice --- its characteristic function $|\mathbb E[e^{i\xi\tau}]|$ decays
+from $1$ (at $\xi=0$) to $<0.05$ by $\xi=20$ with no return to $1$, in
+particular only $0.12$ at the log-$3$ lattice frequency $2\pi/\log3=5.72$
+(mean increment $0.51$, s.d.\ $1.68$, $1.5\times10^4$ distinct values).
+
+Thus the reformulation replaces the non-standard multiplicative-cost operator
+by a \emph{mixed local limit theorem}: equidistribution of $z$ (in hand) times
+an LLT for a non-lattice additive cocycle (settled theory). The remaining work
+is the joint statement --- that $z_d$ and $L_d\bmod\log M$ equidistribute
+\emph{jointly} at native resolution --- which is a Nagaev--Guivarc'h operator
+perturbation, not a new Dolgopyat estimate. \textbf{This does not close the
+lemma, but it moves it from ``outside the settled theory'' to ``a mixed LLT
+inside it,'' and is the recommended line of attack.} No closure is claimed.
+\end{document}
