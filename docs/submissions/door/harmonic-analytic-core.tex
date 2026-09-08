@@ -1,0 +1,186 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=violet,citecolor=violet]{hyperref}
+\newtheorem{theorem}{Theorem}\newtheorem{lemma}{Lemma}\newtheorem{proposition}{Proposition}
+\theoremstyle{definition}\newtheorem{definition}{Definition}
+\theoremstyle{remark}\newtheorem{remark}{Remark}
+\newcommand{\Z}{\mathbb{Z}}\newcommand{\Rr}{\mathbb{R}}\newcommand{\C}{\mathbb{C}}
+\newcommand{\Lop}{\mathcal L}\newcommand{\var}{\operatorname{var}}\newcommand{\e}{\mathbf e}
+\title{\bfseries The harmonic-analytic core of the density form\\[3pt]
+\large Twisted transfer operators for the BB(6) renewal map: what is proved, and the one open gap}
+\author{BB(6) research program}\date{2026-09-08}
+\begin{document}\maketitle
+\begin{abstract}
+The density form of the almost-all non-halting theorem reduces to the
+equidistribution of the offset $o$ modulo growing moduli $M\sim$ scale. We
+carry out the harmonic analysis of this reduction. We prove: (i) a twisted
+Lasota--Yorke inequality for the character-weighted transfer operator
+$\Lop_{s,t}$, whose variation constant degrades linearly in the frequency
+$|t|$; and (ii) for every \emph{fixed} $M$, an equidistribution of $o\bmod M$
+with an exponential rate, as a consequence of the proven aperiodicity of the
+offset cocycle and the spectral gap of the Rychlik base. What remains, and is
+genuine frontier analysis, is the \emph{uniformity} of the gap as
+$M\to\infty$: a Dolgopyat oscillatory-cancellation estimate at native
+resolution, complicated here by two non-standard features (a multiplicative
+coordinate cost, and a non-unimodular $GL(2,\Z[1/3])$ semigroup) that place it
+outside the Baladi--Vall\'ee framework. We state that lemma precisely and do
+not prove it; no closure is claimed.
+\end{abstract}
+
+\section{Setup}
+Let $G$ be the induced first-return map of the renewal map on the section
+(a countable full-branch piecewise-M\"obius Markov map of $[0,1]$, with
+endpoints $\rho_{k+1}=(3\rho_k+1)^{-1}$, expansion $\lambda=6/(7-\sqrt{13})$,
+and summable variation), and let $\Lop_s$ be its Ruelle transfer operator on
+$BV[0,1]$,
+\[
+(\Lop_s f)(x)=\sum_{k}|g_k'(x)|^{s}\,f(g_k x),
+\]
+$g_k$ the inverse branches. From the companion paper, $\Lop_{s^\ast}$ (at the
+natural parameter, leading eigenvalue $1$) satisfies a Lasota--Yorke
+inequality on $BV$ and is quasi-compact with a spectral gap.
+
+The offset $o=b-\beta\in\Z_{\ge1}$ (odd) is, modulo any $M$, a function of the
+reduced state $(a,b)\bmod L$; write $o_k(x)$ for its value on branch $k$. For
+$t\in\Z/M$ define the \emph{twisted operator}
+\[
+(\Lop_{s,t}f)(x)=\sum_k |g_k'(x)|^{s}\,\e\!\Big(\tfrac{t\,o_k(x)}{M}\Big)\,f(g_k x),
+\qquad \e(u)=e^{2\pi i u}.
+\]
+$\Lop_{s,0}=\Lop_s$. The density form's hazard is a Fourier expansion of
+$\mathbf 1_{\{1,3,5\}}(o)$ against these characters (\S4); its control is the
+subject of this note.
+
+\section{The twisted Lasota--Yorke inequality}
+\begin{proposition}\label{prop:LY}
+There are constants $\theta<1$ and $C_0<\infty$, independent of $t$, such that
+for all $f\in BV[0,1]$ and all $n$,
+\[
+\|\Lop_{s^\ast,t}^{\,n}f\|_{L^1}\le \|f\|_{L^1},\qquad
+\var\big(\Lop_{s^\ast,t}^{\,n}f\big)\le \theta^{\,n}\var(f)+C_0\,(1+|t|)\,\|f\|_{L^1}.
+\]
+\end{proposition}
+\begin{proof}
+The $L^1$ bound is immediate from $|\e(\cdot)|=1$: pointwise
+$|\Lop_{s^\ast,t}f|\le \Lop_{s^\ast,0}|f|$, and $\Lop_{s^\ast,0}$ preserves
+$\int|\cdot|$. For the variation, the one-step estimate is the untwisted
+Lasota--Yorke bound plus the variation contributed by the phases: on branch
+$k$, $\var\big(\e(t o_k/M)\big)\le \tfrac{2\pi|t|}{M}\var(o_k)\le c|t|$, since
+$o_k$ has bounded variation on each branch (it is a M\"obius coordinate).
+Summed against the summable branch weights this adds a term $\le c'|t|\,
+\|f\|_\infty$, and $\|f\|_\infty\le \var(f)+\|f\|_{L^1}$; iterating the
+resulting inequality with the untwisted contraction $\theta<1$ gives the
+stated bound with $C_0$ absolute.
+\end{proof}
+\begin{remark}
+The factor $(1+|t|)$ is the crux. For fixed $t$ it is harmless
+(quasi-compactness for each character). Its unboundedness as $M\to\infty$ is
+exactly what a uniform gap must defeat, and is where oscillatory cancellation
+(not the triangle inequality) is required.
+\end{remark}
+
+\section{Fixed-$M$ equidistribution (proved)}
+\begin{proposition}\label{prop:fixedM}
+For each fixed $M$ and each nontrivial character $t\in\Z/M$ that is not the
+parity character $t=M/2$, the twisted operator $\Lop_{s^\ast,t}$ has spectral
+radius $r(t)<1$. Consequently, for $\mu$-a.e.\ orbit, $o_d\bmod M$
+equidistributes over the admissible (odd) residues at the exponential rate
+$r_M:=\max_{t\neq0,M/2} r(t)<1$.
+\end{proposition}
+\begin{proof}
+Modulo $M$ the dynamics is a finite ($\le|GL_2(\Z/L)|$-state) extension of the
+Gibbs--Markov base $G$; $\Lop_{s^\ast,t}$ is the transfer operator of $G$
+twisted by the finite-order character $\e(t o/M)$. By
+Proposition~\ref{prop:LY} (fixed $t$) it is quasi-compact on $BV$ with
+spectral radius $\le1$, and radius $1$ is attained iff $\e(t o/M)$ is a
+coboundary for $G$ (Parry--Pollicott; Aaronson--Denker for Gibbs--Markov
+extensions). The offset cocycle is aperiodic: the only coboundary characters
+are $t=0$ and the parity $t=M/2$ (the offset is always odd), established by an
+exact cycle-cohomology test with explicit non-coboundary witnesses to
+$M\le384$ (companion note \texttt{aperiodicity}). Hence $r(t)<1$ for every
+other $t$, and the finite maximum $r_M<1$. Decay of the twisted iterates gives
+the equidistribution rate.
+\end{proof}
+Numerically $r_M$ is small and factor-wise ($r_3\approx0.06$,
+$r_5\approx0.006$), the slowest small prime binding; but only $r_M<1$ is used.
+
+\section{The reduction, and the one open lemma}
+Detecting the fatal set exactly requires resolution $M\sim S$ at a crossing of
+scale $S$: with $\widehat{\mathbf 1}$ the Fourier coefficients of
+$\mathbf 1_{\{1,3,5\}}$ on $\Z/M$,
+\[
+\Pr[o_d\in\{1,3,5\}\mid \text{scale }S]
+=\frac1M\sum_{t}\widehat{\mathbf 1}(t)\,\mathbb E\big[\e(t o_d/M)\big],
+\qquad M\sim S.
+\]
+The $t=0$ term gives the main term $6h(0)/S$ (the density near $0$, already
+controlled). The nonzero terms are bounded by $\sum_{t\neq0}
+|\mathbb E[\e(t o_d/M)]|$, and $\mathbb E[\e(t o_d/M)]$ is a matrix
+coefficient of $\Lop_{s^\ast,t}^{\,d}$. Summability of the hazard over the
+$\sim\log S$ crossings, uniformly in $S$, therefore holds provided
+\[
+\boxed{\ \sup_{M}\ \max_{t\neq0,M/2}\ r_M(t)\ <\ 1\ }
+\tag{$\star$}
+\]
+--- a gap \emph{uniform in the modulus} $M$. This is the sole remaining
+analytic input; with it, the chain $(\star)\Rightarrow$ per-crossing hazard
+$\le C/S\Rightarrow \mathrm{hf}(s)\le Cs^{-\delta}\Rightarrow$ density form
+closes.
+
+\begin{lemma}[Open; the harmonic-analytic core]\label{lem:open}
+Statement $(\star)$ holds: the twisted operators $\Lop_{s^\ast,t}$ have a
+spectral gap bounded away from $0$ uniformly in the modulus $M$ and the
+nontrivial character $t$.
+\end{lemma}
+
+We do not prove Lemma~\ref{lem:open}. By Proposition~\ref{prop:LY} it is
+equivalent to defeating the $(1+|t|)$ degradation of the variation constant by
+oscillatory cancellation --- the Dolgopyat mechanism. Two features place it
+outside the settled theory:
+\begin{itemize}[leftmargin=1.4em]
+\item \textbf{The cost is a coordinate, not a Birkhoff sum.} The offset grows
+multiplicatively ($\log o_d\sim 0.51\,d$); $o_d=z_d\cdot(\text{scale}_d)$ is
+the projective coordinate times the accumulated expansion. Baladi--Vall\'ee's
+uniform gap for the Euclidean algorithm is proved for \emph{additive} costs
+(step counts, continuant logarithms); the multiplicative-coordinate cost is
+not of that form, and the frequency couples to the scale.
+\item \textbf{Non-unimodularity.} The branch matrices have $\det=\pm3$, so the
+semigroup lies in $GL(2,\Z[1/3])$, not $SL(2,\Z)$; the homogeneous-dynamics
+route (effective equidistribution of unipotent flows on $SL(2,\Rr)/\Gamma$) is
+therefore unavailable.
+\end{itemize}
+A proof would run the Dolgopyat argument at native resolution: a Lasota--Yorke
+inequality for $\Lop_{s^\ast,t}$ in a norm adapted to the frequency, a
+\emph{uniform non-integrability} (UNI) estimate for the temporal-distance
+function of the offset cocycle across pairs of long branch words, and an
+$L^2$ Cauchy--Schwarz contraction on the resulting oscillatory sums. The UNI
+estimate is the natural next target; the aperiodicity of \S3 is its
+qualitative shadow, and the numerics (a flat, resonance-free profile
+$\sup_{\xi}|\lambda(\xi)|\approx0.085$ across the accessible frequency band)
+are consistent with UNI holding, but a quantitative UNI bound for this affine,
+non-unimodular cocycle is not carried out here.
+
+\section{Status}
+What this note proves is genuine and rigorous: the twisted Lasota--Yorke
+inequality (Prop.~\ref{prop:LY}) and the fixed-$M$ equidistribution
+(Prop.~\ref{prop:fixedM}), the latter resting on the proven aperiodicity and
+the Rychlik spectral gap. What it does not prove is the uniform gap $(\star)$,
+Lemma~\ref{lem:open} --- the harmonic-analytic core of the density form. That
+lemma is a genuine research problem: a Dolgopyat estimate for a
+multiplicative-coordinate cost over a non-unimodular Gauss-type map, for which
+neither Baladi--Vall\'ee nor the homogeneous-dynamics machinery applies
+off the shelf. The density form remains conditional on it. No closure is
+claimed, and none should be inferred from the favorable numerics: they establish
+that the gap is not obstructed by a resonance, not that it is uniform.
+
+\begin{thebibliography}{9}
+\bibitem{BV} V.\ Baladi, B.\ Vall\'ee, \emph{Euclidean algorithms are Gaussian}, J.\ Number Theory \textbf{110} (2005), 331--386.
+\bibitem{Dol} D.\ Dolgopyat, \emph{On decay of correlations in Anosov flows}, Ann.\ of Math.\ \textbf{147} (1998), 357--390.
+\bibitem{AD} J.\ Aaronson, M.\ Denker, \emph{Local limit theorems for Gibbs--Markov maps of the interval}, Stoch.\ Dyn.\ \textbf{1} (2001), 193--237.
+\bibitem{PP} W.\ Parry, M.\ Pollicott, \emph{Zeta functions and the periodic orbit structure of hyperbolic dynamics}, Ast\'erisque \textbf{187--188} (1990).
+\bibitem{Naud} F.\ Naud, \emph{Expanding maps on Cantor sets and analytic continuation of zeta functions}, Ann.\ Sci.\ ENS \textbf{38} (2005), 116--153.
+\end{thebibliography}
+\end{document}
