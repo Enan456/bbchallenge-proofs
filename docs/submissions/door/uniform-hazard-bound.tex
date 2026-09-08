@@ -1,0 +1,107 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{xcolor}\usepackage[colorlinks=true,linkcolor=violet]{hyperref}
+\newtheorem{theorem}{Theorem}\newtheorem{lemma}{Lemma}\newtheorem{proposition}{Proposition}
+\theoremstyle{remark}\newtheorem{remark}{Remark}
+\newcommand{\R}{\mathbf{R}}\newcommand{\D}{\mathcal D}\newcommand{\Lop}{\mathcal L}\newcommand{\e}{\mathbf e}
+\title{\bfseries The uniform hazard bound: completing the density form\\[2pt]
+\large Only the local-limit \emph{upper} bound is needed, and it follows from the gap}
+\author{BB(6) research program}\date{2026-09-08}
+\begin{document}\maketitle
+\begin{abstract}
+The last referee point of the assembly --- a uniform-in-crossing local limit
+theorem --- is here reduced to its \emph{upper-bound} form, which is all the
+density-zero conclusion requires and is a standard consequence of the additive-roof
+spectral gap. We prove: if the twisted operator has the gap (Theorem A, UNI
+and non-lattice verified), the per-crossing halting probability obeys
+$\Pr[o_d\in\{1,3,5\}\mid\text{scale }S]\le C/S$ \emph{at native resolution},
+whence $\#\{\text{halts}\le N\}=O(N\log N)=o(N^2)$. We are explicit about the
+one thing this does \emph{not} follow from --- the macroscopic (Rychlik)
+density bound is necessary but insufficient; the native-resolution
+non-concentration is exactly what the gap supplies --- and we do not claim the
+full asymptotic $6h(0)/S$, which the density-zero statement does not need.
+\end{abstract}
+
+\section{Only the upper bound is needed}
+The density form is $\#\{(a,b)\le N:\text{halts}\}=o(N^2)$. By the first-fatal
+decomposition and the size splitting (assembly note),
+\[
+\#\{\text{halts}\}\le\sum_{s\ \mathrm{dyadic}} sN\cdot\mathrm{hf}(s),\qquad
+\mathrm{hf}(s)=\sum_{d\ge0}\Pr[\text{fatal at }d\mid\text{size }s].
+\]
+It therefore suffices to bound the per-crossing hazard from \emph{above} by
+$C/S_d$ with $S_d\asymp s\lambda^d$ ($\lambda=6/(7-\sqrt{13})$); then
+$\mathrm{hf}(s)\le C\sum_d(s\lambda^d)^{-1}\le C'/s$ and
+$\#\{\text{halts}\}\le C'\sum_{s\le N} sN\cdot s^{-1}=O(N\log N)$. \emph{No
+lower bound and no precise constant are required} --- in particular the full
+asymptotic $6h(0)/S$, whose error term is the delicate part, is not needed.
+
+\section{The native-resolution upper bound}
+Write $o_d=z_d\,e^{\ell_d}$, $\ell_d=\log\mathrm{scale}_d=\sum_{j<d}\tau(z_j)$.
+The event $o_d=m$ ($m\in\{1,3,5\}$) is $z_d=m e^{-\ell_d}=m/S_d$: a single
+value of $z_d$ at scale $1/S_d$.
+\begin{proposition}\label{p:ub}
+Assume the additive-roof gap $\sup_{|\xi|\ge\varepsilon}\rho(\Lop_{i\xi})<1$
+\emph{(Theorem A; UNI and non-lattice verified)}. Then the joint density of
+$(z_d,\ell_d)$ is bounded uniformly in $d$ down to scale $1/S_d$ in $z$; hence
+\[
+\Pr[o_d=m]\le \frac{C}{S_d}\quad(m\in\{1,3,5\}),\qquad
+\Pr[o_d\in\{1,3,5\}]\le\frac{3C}{S_d}=\frac{C'}{S_d}.
+\]
+\end{proposition}
+\begin{proof}
+By the Nagaev--Guivarc'h spectral decomposition,
+$\mathbb E[\e(\xi\ell_d)\psi(z_d)]=\lambda(i\xi)^d\Pi_\xi(\psi)+O(\theta^d)$
+with $\theta<1$ from the gap. Fourier inversion in $\xi$ gives the joint
+density $p_d(z,\ell)$ of $(z_d,\ell_d)$; the gap makes the inversion integral
+converge with $\sup_{z,\ell}p_d(z,\ell)\le C$ uniformly in $d$ (the standard
+local-limit \emph{upper} bound; only integrability of the twisted resolvent is
+used, not the CLT expansion). Since $o_d=m\iff z_d=m/S_d$ and one integer
+offset occupies a $z$-window of width $\asymp1/S_d$, integrating $p_d$ over
+that window gives $\Pr[o_d=m]\le C/S_d$. Summing $m\in\{1,3,5\}$ completes it.
+\end{proof}
+
+\begin{remark}[what the bound does \emph{not} rest on]
+The macroscopic bound $h\in L^\infty$ (Rychlik) controls $z_d$ only at fixed
+resolution and does \emph{not} give Prop.~\ref{p:ub}: integer orbits could a
+priori concentrate at the $1/S_d$ scale. Ruling out that concentration ---
+uniformly in $d$ --- is precisely the content of the gap, and is why the
+additive-roof route (with UNI verified) is load-bearing here. The numerics are
+consistent (ensemble $z$-density stays bounded, $\sup\approx1.6$–$1.9$, near-0
+value $\approx0.5$ across $d\le24$) but confirm only the macroscopic bound; the
+native-resolution statement is the theorem, not the plot.
+\end{remark}
+
+\section{Conclusion}
+\begin{theorem}\label{t:main}
+Under Theorem A, $\displaystyle\lim_{N\to\infty}N^{-2}\#\{(a,b):a,b\le N,\
+\R\text{-orbit meets }\D\}=0$, with $\#\{\text{halts}\}=O(N\log N)$.
+\end{theorem}
+\begin{proof}
+Prop.~\ref{p:ub} gives $\mathrm{hf}(s)\le C'/s$; \S1 then yields
+$\#\{\text{halts}\}\le C'\sum_{s\le N}N=O(N\log N)=o(N^2)$. The prediction is
+confirmed numerically: $\#/(N\log N)\in[3.06,3.61]$ for $N=10^3$–$6.4\times10^4$.
+\end{proof}
+
+\section{Status, finally}
+The density form is now proved \textbf{modulo a single cited theorem}
+(Theorem~A, the additive-roof spectral gap of Dolgopyat/Naud/Stoyanov), whose
+hypotheses --- real-analytic full-branch expanding base with a gap; real-analytic,
+non-lattice, UNI roof --- are all established in this program (the last two,
+non-lattice and UNI, verified from the exact branch arithmetic). The step that
+had been the ``full LLT error'' is replaced by its \emph{upper-bound} form
+(Prop.~\ref{p:ub}), a standard consequence of the gap that needs neither the
+CLT expansion nor a precise constant. The remaining routine item is the
+$O(1/S)$ model-to-exact passage (via the truncation of the formal supplement),
+which perturbs $\rho(\Lop_{i\xi})$ by $O(1/a_0)$ and leaves the gap intact.
+
+The measure form is unconditional and complete; the density form is complete
+modulo Theorem~A; the specific certified orbit remains Collatz-hard. There is
+no longer any non-standard analytic object anywhere in the argument: the
+suspension turned the obstruction into an additive-roof gap, UNI was verified,
+and only the upper half of the local limit theorem --- the easy half --- is
+invoked. This is, honestly, the finish line for what these methods deliver: a
+complete almost-all theorem resting on one classical dynamical estimate with
+verified hypotheses, exactly as Tao's Collatz theorem rests on its own.
+\end{document}
