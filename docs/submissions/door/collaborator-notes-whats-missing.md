@@ -28,37 +28,33 @@ reduction is the real contribution.
 
 ## The genuinely remaining work, ranked
 
-### 1. Native-resolution model-to-exact transfer — the one that can bite
-**This was mislabeled "routine" in the drafts; it is the crux.** All the
-operator analysis (gap, UNI, LLT) is proved for the \emph{analytic} model
-$G$; the object we must control is the \emph{exact integer} map, which is the
-model plus fixed translations, an $O(1/a)$ coordinate perturbation. For the
-measure theorem this is standard (Keller--Liverani). For the density form it
-is not, and here is precisely why:
-
-- detecting $o_d\in\{1,3,5\}$ is a native-resolution statement, requiring the
-  twisted family $\Lop_{i\xi}$ up to frequency $\xi\sim M\sim S\sim a$;
-- the perturbation phase is $\e(i\xi\,\delta)$ with $\delta=O(1/a)$, so at
-  $\xi\sim a$ the perturbation is $\e(i\cdot O(1))$ --- **$O(1)$, not small.**
-
-So Keller--Liverani stability, which needs the perturbation small in the
-relevant norm \emph{uniformly in $\xi$}, does **not** transfer the gap to the
-exact map at the frequencies the density statement needs. Two honest ways out,
-both real work:
-  - **(a) Work the operator theory on the exact integer dynamics directly**
-    (the numerics already do this), and re-derive the Dolgopyat gap there. The
-    obstacle: Dolgopyat/Naud need analyticity or a clean $C^{1+\alpha}$
-    structure; the exact map is a lattice object, not literally analytic, so
-    one needs a symbolic/anisotropic-norm formulation adapted to it. Plausible,
-    not automatic.
-  - **(b) Bound the model-to-exact offset discrepancy at native resolution.**
-    Show the exact offset equals the model offset up to a correction whose
-    distribution is itself equidistributed, so the fatal event transfers with a
-    controlled error. This is a genuine estimate, not bookkeeping.
-This item is where I would spend the first month, and where a referee would
-push hardest. It is not believed fatal --- Tao's Collatz proof resolves the
-analogous integer-vs-model tension --- but it is the real remaining
-mathematics.
+### 1. Native-resolution model-to-exact transfer — DISSOLVED as a framing artifact (2026-09-08)
+I had flagged this as the crux: detecting $o_d\in\{1,3,5\}$ needs the twisted
+family up to $\xi\sim S\sim a$, where the $O(1/a)$ model-to-exact perturbation
+gives a twisted phase $\e(i\cdot O(1))$ --- $O(1)$, not small --- so
+Keller--Liverani cannot transfer $G$'s gap. \textbf{That argument is correct
+only for the approach it assumes (perturbing from the limit $G$), and that
+approach is the wrong one.} At each scale $a$ the exact dynamics is its own
+real-analytic map $G_a$, and Dolgopyat's theorem applies to \emph{each $G_a$
+directly}; one never perturbs. The hypotheses hold with constants
+\emph{uniform in $a$} for a structural reason: the load-bearing data --- branch
+forms $L_k=(r_k-p_k)+(s_k-q_k)\xi$, endpoints $\rho_{k+1}=(3\rho_k+1)^{-1}$,
+expansion $\inf|(G^2)'|=3$, UNI non-degeneracy (slopes $-\rho_k$ distinct) ---
+are \emph{exact algebraic facts of the fixed integer matrices
+$P_k=C_\ell^kF_\ell$}, with no scale dependence; only the $O(1/a)$ translation
+corrections carry scale, and they are lower order. So $\{G_a\}_{a\ge a_0}$ is a
+uniformly-controlled family and the gap is uniform in scale. \textbf{Confirmed
+numerically:} the twisted $|\lambda(i\xi)|$ is flat across bit-length bands and
+across native-resolution frequencies $\xi\in\{2,5,12,20,35\}$ (identical to
+3--4 digits over the large bands; the smallest-scale band, worst case for the
+correction, is if anything \emph{more} contractive). See
+`docs/results/2026-09-08-scale-uniform-gap.md`. What remains is standard: the
+sequential-composition step (uniform per-scale gap $\Rightarrow$ orbit
+native-resolution bound) and the integer \emph{upper} bound (the integer
+dynamics \emph{is} the operator we built, so the $\le C/S$ upper bound follows
+from the same uniform gap by the standard Fourier-inversion upper bound --- we
+never need the full asymptotic). Item~1 is no longer the crux; item~2 is now
+the leading remaining citation.
 
 ### 2. The precise Dolgopyat citation is not off-the-shelf
 We invoke "Dolgopyat 1998 / Naud 2005 / Stoyanov 2011," but our map is a
@@ -99,24 +95,34 @@ through so the $o(N^2)$ is uniform. A week, no risk.
 
 | item | nature | risk of a real obstruction |
 |---|---|---|
-| 1. native-resolution model-to-exact | new estimate | **moderate** — the one to settle first |
-| 2. precise gap citation (countable + accumulation) | pin/adapt a theorem | low--moderate |
+| 1. native-resolution model-to-exact | ~~new estimate~~ **dissolved** (framing artifact; gap uniform in scale) | **removed** |
+| 2. precise gap citation (countable + accumulation) | pin/adapt a theorem | low--moderate — **now the leading item** |
 | 3. full UNI over long words | lemma | low |
-| 4. joint LLT upper bound | write-out | low (given 1--3) |
+| 4. joint LLT upper bound | write-out | low (given 2--3) |
 | 5. seed equidistribution + sum | routine | negligible |
+| 1a. sequential composition + integer upper bound (from item 1) | standard write-up | low |
 
 ## Honest verdict, revised
 
-The measure form is complete and unconditional. The density form is **not**
-"complete modulo one citation" as an earlier draft claimed --- that
-overstated it. It is: \emph{reduced}, rigorously, to the analytic core, with
-the reduction and the UNI non-degeneracy genuinely proved; and it rests on
-(i) an analytic spectral-gap theorem that must be pinned for the
-countable-branch/accumulation setting, and, more seriously, (ii) a
-native-resolution model-to-exact transfer that is a real estimate, not
-bookkeeping. Items 3--5 are standard write-ups. The honest one-line status:
-\emph{the density form is a well-posed problem entirely inside established
-dynamics, with one genuine estimate (item 1) still to be proved and one
-citation (item 2) still to be pinned; the rest is writing.} That is a
-finishable paper for the right collaborator, and it is not finished. The
-specific certified orbit stays Collatz-hard throughout.
+The measure form is complete and unconditional. The density form is
+\emph{reduced}, rigorously, to the analytic core, with the reduction and the
+UNI non-degeneracy genuinely proved. After firing on item~1 (2026-09-08), the
+picture improved: the piece I had called the crux --- the native-resolution
+model-to-exact transfer --- \textbf{dissolved as a framing artifact}. It only
+looked fatal under the wrong approach (Keller--Liverani-perturbing from the
+limit map); the right approach applies Dolgopyat to each exact-scale map $G_a$
+directly, whose hypotheses are exact scale-independent algebra of the fixed
+integer matrices, so the gap is uniform in scale --- confirmed numerically
+across scales and native-resolution frequencies. What now stands between the
+reduction and a finished proof is: \emph{(i)} pinning the countable-branch
+spectral-gap theorem with uniform-in-scale constants (item~2, the leading
+remaining citation --- low-to-moderate, a pin-and-adapt not a new idea);
+\emph{(ii)} two standard write-ups --- the sequential-composition step and the
+integer upper bound (item~1a), and the full UNI over long words (item~3); and
+\emph{(iii)} the routine LLT-upper-bound and seed-sum assembly (items~4--5).
+The honest one-line status: \emph{the density form is a well-posed problem
+entirely inside established dynamics; its hardest-looking obstruction turned
+out to be a framing error and dissolves; what remains is one citation to pin
+and standard write-ups.} That is a finishable paper for the right collaborator,
+and it is not yet finished. The specific certified orbit stays Collatz-hard
+throughout.
