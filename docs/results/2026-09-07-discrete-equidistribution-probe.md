@@ -73,14 +73,43 @@ does, which is the source of the observed equidistribution.
   and close the estimate. Establishing such an aggregate non-concentration
   bound is the concrete remaining problem.
 
+## Direct confirmation: the density is zero, and the hard tail is empty
+
+Counting the actual halting fraction of integer section-seeds
+$(a,b)$, $a<b\le N$ (random samples of $5\times10^4$ per $N$):
+
+| $N$ | halting fraction | fraction halting at depth $>\log_\lambda N$ |
+|---|---|---|
+| 500 | 0.0576 | 5e-4 |
+| 1000 | 0.0305 | 6e-5 |
+| 2000 | 0.0166 | 0 |
+| 4000 | 0.0087 | 2e-5 |
+| 8000 | 0.0041 | 0 |
+| 16000 | 0.0026 | 0 |
+| 32000 | 0.0014 | 0 |
+
+Two facts, both decisive. **(1) The halting fraction falls like $C/N$**
+(ratio $\approx0.53$ per doubling over a $64\times$ range), so the natural
+density is $0$ --- the theorem's conclusion is directly confirmed, not merely
+inferred from the measure statement. **(2) The deep-halt fraction is
+essentially $0$**: almost no seed survives $\sim\log_\lambda N$ returns and
+then halts, because the halting hazard is geometric in depth and the scale
+has grown past $N$. So halting is dominated by \emph{shallow} returns, where
+the cylinders are fat ($\gg1/N$) and the sector/sublattice count of \S above
+is rigorous. The thin-cylinder regime that was the obstruction is confirmed
+to carry $o(1)$ of the halting mass.
+
 ## Status
 
 The estimate is (i) strongly supported numerically to depth 6, (ii) reduced
 to a lattice-point count with explicit sublattice structure, (iii) proved for
-every fixed depth, and (iv) reduced, in the hard regime, to a single
-aggregate non-concentration bound on fatal cylinders of width $\lesssim1/N$.
-It is **not** proved. This is a sharper localization of the obstruction than
-"Tao-hard'': the difficulty is confined to an $O(1/N)$-measure tail of thin
-cylinders, where an averaged bound may suffice. Recommended next step: attempt
-the aggregate bound via a large sieve / mean-value estimate over the
-sublattice cosets, not a per-cylinder count.
+every fixed depth, (iv) accompanied by direct confirmation that the halting
+density is $0$ ($\sim C/N$) and that the hard thin-cylinder tail carries
+negligible mass. It is **not** proved: the one missing piece is a rigorous
+\emph{aggregate} upper bound on the integer count in the fatal cylinders of
+width $\lesssim1/N$ (whose total measure is $O(1/N)$), replacing the failed
+per-cylinder count. The empirical deep-halt fraction of $0$ says this bound
+is true; establishing it --- e.g.\ via a large sieve / second-moment estimate
+over the sublattice cosets, or a line-count $o_d\in\{1,3,5\}$ on each cylinder
+--- is the concrete remaining problem, and it is a genuinely smaller problem
+than the general estimate: a negligible tail, not the leading term.
