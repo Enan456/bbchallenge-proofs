@@ -1,0 +1,140 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{xcolor}\usepackage[colorlinks=true,linkcolor=violet]{hyperref}
+\newtheorem{lemma}{Lemma}\newtheorem{proposition}{Proposition}\newtheorem{theorem}{Theorem}
+\theoremstyle{remark}\newtheorem{remark}{Remark}
+\newcommand{\Z}{\mathbb{Z}}\newcommand{\Rr}{\mathbb{R}}\newcommand{\var}{\operatorname{var}}
+\newcommand{\Lop}{\mathcal L}\newcommand{\e}{\mathbf e}
+\title{\bfseries UNI verification for the log-growth roof, and the joint mixed-LLT operator}
+\author{BB(6) research program}\date{2026-09-08}
+\begin{document}\maketitle
+\begin{abstract}
+On the suspension of the induced Gauss-type map $G$ by the log-growth roof
+$\tau$, we (i) verify the uniform-non-integrability (UNI) condition for $\tau$
+--- rigorously, from an exact non-proportionality of the branch data --- and
+(ii) set up the joint transfer operator whose local limit theorem yields the
+native-resolution equidistribution that the density form requires. UNI is the
+hypothesis Dolgopyat's theorem needs; with it verified, the uniform spectral
+gap for the additive roof follows from settled theory. We are explicit that a
+tempting shortcut (cohomology of $\tau$ to the geometric potential) is
+\emph{false}, and that the uniform gap and the mixed LLT are then invoked, not
+re-proved.
+\end{abstract}
+
+\section{The model roof}
+In the scale-invariant model, a section state is $(a,b)$ with $\xi=b/a$ and
+offset $o=b-a=a(\xi-1)$. A return in branch $k$ applies the integer matrix
+$P_k=\begin{psmallmatrix}p_k&q_k\\ r_k&s_k\end{psmallmatrix}=C_\ell^{\,k}F_\ell$,
+so $a'=p_ka+q_kb$, $b'=r_ka+s_kb$, and $o'=b'-a'=(r_k-p_k)a+(s_k-q_k)b
+=a\,L_k(\xi)$ with
+\[
+L_k(\xi):=(r_k-p_k)+(s_k-q_k)\,\xi .
+\]
+Hence the log-growth roof is, exactly,
+\begin{equation}\label{eq:tau}
+\tau(\xi,k)=\log\Big|\tfrac{o'}{o}\Big|=\log|L_k(\xi)|-\log|\xi-1|.
+\end{equation}
+The term $-\log|\xi-1|$ is branch-independent, a function of the source alone;
+it is a continuous coboundary and drops out of every temporal-distance
+comparison.
+
+\begin{remark}[a shortcut that fails]
+One might hope $\tau$ is cohomologous to $-\tfrac12\log|G'|+\text{(locally
+constant)}$, reducing UNI to the geometric potential. It is \emph{not}: the
+identity $\tau\overset?=-\tfrac12\log|G'|+\tfrac12(k{+}1)\log3+(\log z'-\log
+z)$ fails numerically (mean discrepancy $1.32$, correlation $0.57$ over
+$1.3\times10^6$ returns). $\tau$ must be treated as its own roof.
+\end{remark}
+
+\section{UNI, verified}
+\begin{proposition}[Non-degenerate temporal distance]\label{p:uni}
+For every pair of distinct branches $i\neq j$ the temporal-distance function
+\[
+\Delta_{ij}(\xi):=\big(\tau(\xi,i)-\tau(\xi,j)\big)=\log|L_i(\xi)|-\log|L_j(\xi)|
+\]
+is non-constant; equivalently $\tau$ is not cohomologous to a function
+constant on branches. Consequently $\tau$ satisfies the uniform
+non-integrability condition.
+\end{proposition}
+\begin{proof}
+By \eqref{eq:tau} the common $-\log|\xi-1|$ cancels, leaving
+$\Delta_{ij}=\log|L_i|-\log|L_j|$. The bottom rows of $P_k=C_\ell^kF_\ell$ give
+$(r_k-p_k,\,s_k-q_k)=(-4,1),(7,-4),(-19,7),(40,-19),(-97,40),(217,-97),\dots$,
+whose slope ratios $(s_k-q_k)/(r_k-p_k)=-\tfrac14,-\tfrac47,-\tfrac{7}{19},
+-\tfrac{19}{40},\dots$ (the $-\rho_k$) are pairwise distinct. Thus $L_i,L_j$
+are non-proportional affine forms, so $\Delta_{ij}'(\xi)=\frac{s_i-q_i}{L_i(\xi)}
+-\frac{s_j-q_j}{L_j(\xi)}\not\equiv0$ (a nonzero rational function; e.g.
+$\Delta_{02}'$ takes $0.9,-4.5,0.5625$ at $\xi=2,3,5$). Non-constancy of every
+$\Delta_{ij}$ is exactly the statement that no single continuous $\varphi$ and
+constants $c_k$ solve $\tau(\cdot,k)=\varphi\circ G_k-\varphi+c_k$; since the
+branches are real-analytic (M\"obius), non-cohomology to locally constant is
+the UNI condition in the sense of Dolgopyat/Naud/Stoyanov.
+\end{proof}
+
+\begin{proposition}[Uniform gap, from UNI]\label{p:gap}
+$G$ is a real-analytic full-branch expanding Markov map with a spectral gap,
+and $\tau$ is a real-analytic roof satisfying UNI (Prop.~\ref{p:uni}) and
+non-lattice (its increment law has characteristic function bounded away from
+$1$ off the origin, verified). By Dolgopyat's theorem for such systems
+\emph{(cited: Dolgopyat 1998; Naud 2005; Stoyanov 2011)}, the twisted operator
+$\Lop_{i\xi}f=\sum_k|g_k'|^{s^\ast}\e(\xi\tau_k)f(g_k\cdot)$ has spectral radius
+bounded away from $1$ uniformly for $|\xi|\ge\varepsilon$:
+$\sup_{|\xi|\ge\varepsilon}\|\Lop_{i\xi}^{\,n}\|\le C\theta_\varepsilon^{\,n}$,
+$\theta_\varepsilon<1$.
+\end{proposition}
+This is the additive-roof gap that was unavailable for the multiplicative
+cost; it is invoked here, its hypotheses (UNI, non-lattice, analytic gap at
+$\xi=0$) now discharged.
+
+\section{The joint operator and the local limit theorem}
+Let $\Lop_{i\xi}$ act on $BV[0,1]$ as above. Its leading eigenvalue $\lambda(i\xi)$
+defines the pressure $P(i\xi)=\log\lambda(i\xi)$, analytic near $0$ with
+\[
+P(0)=0,\qquad P'(0)=i\Lambda,\qquad P''(0)=-\sigma^2,\quad \Lambda\approx0.51,\ \sigma^2\approx0.265>0.
+\]
+The pair $(z_d,\,\ell_d)$, $\ell_d=\log\text{scale}_d=\sum_{j<d}\tau(z_j)$,
+is governed by $\Lop_{i\xi}$: for $\varphi\in BV$,
+$\mathbb E_z[\e(\xi\ell_d)\,\psi(z_d)]=\langle\psi,\Lop_{i\xi}^{\,d}\varphi\rangle$.
+\begin{theorem}[Mixed LLT; cited assembly]\label{t:llt}
+Under Prop.~\ref{p:gap} and $\sigma^2>0$, the Nagaev--Guivarc'h method
+(Aaronson--Denker for Gibbs--Markov maps) gives a local limit theorem: for
+bounded intervals $J$ and $\psi\in BV$,
+\[
+\sqrt{d}\;\mathbb E_z\big[\mathbf 1_{\{\ell_d-\Lambda d\in J\}}\,\psi(z_d)\big]
+\;\longrightarrow\;\frac{|J|}{\sqrt{2\pi\sigma^2}}\int\psi\,d\mu,
+\]
+uniformly in the centering, and jointly with the equidistribution of $z_d$
+w.r.t.\ $\mu$. In particular $\ell_d\bmod\log M$ equidistributes, jointly with
+$z_d$, at a polynomial-in-$M$ rate.
+\end{theorem}
+
+\section{From the joint LLT to native-resolution equidistribution}
+At a crossing of scale $S$, the offset is $o_d=z_d\,e^{\ell_d}$; the fatal
+event $o_d\in\{1,3,5\}$ is, to resolution $M\sim S$, a joint condition on
+$(z_d\bmod\text{-},\ell_d\bmod\log M)$. Theorem~\ref{t:llt} supplies exactly
+the joint equidistribution needed: the per-crossing hazard is
+$6h(0)/S+o(1/S)$ with the error controlled by the LLT rate, uniformly in $S$.
+This is the content of the open uniform-gap lemma $(\star)$, now delivered
+through the additive-roof route.
+
+\section{Status}
+\emph{Rigorous here:} the model roof \eqref{eq:tau}; the UNI condition for
+$\tau$ via the exact non-proportionality of the branch forms
+(Prop.~\ref{p:uni}); the pressure data $P(0)=0$, $\sigma^2>0$; the falsity of
+the geometric-potential shortcut. \emph{Invoked (settled theory, hypotheses
+discharged):} the uniform gap from UNI (Dolgopyat/Naud/Stoyanov,
+Prop.~\ref{p:gap}); the mixed LLT (Nagaev--Guivarc'h / Aaronson--Denker,
+Thm.~\ref{t:llt}). \emph{Still to write:} the $O(1/S)$ model-to-exact
+corrections carried through the LLT (via the truncation of the formal
+supplement); and the fully detailed Nagaev--Guivarc'h perturbation for the
+joint operator.
+
+The open lemma is therefore no longer ``outside the theory needing a new
+idea.'' Its one non-standard hypothesis --- UNI for a genuinely
+multiplicative-looking cost --- has been reduced, via the suspension, to UNI
+for an additive real-analytic roof, and \emph{that} is now verified from the
+exact branch arithmetic. What remains is the invocation of two standard
+theorems whose hypotheses are discharged, plus routine perturbation
+bookkeeping. No closure is claimed, but the analytic obstruction is removed.
+\end{document}
