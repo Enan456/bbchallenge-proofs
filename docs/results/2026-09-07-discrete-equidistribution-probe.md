@@ -120,6 +120,38 @@ $o(1)$, which follows from bounded distortion plus the boundedness of the
 backward branching, modulo a counting error that the weakness of the required
 decay leaves ample room for.
 
+## Attempt to prove the weak decay bound, and why it does not close
+
+Aiming for $\mathrm{hf}(s)\le Cs^{-\delta}$, the natural hope is that halting
+is dominated by the first crossing, where the count is elementary: for fixed
+$a$ the fatal offsets $o_0=b-\beta\in\{1,3,5\}$ pin $b$ to three values, an
+$O(1/\text{range})$ fraction. That hope is **false**. Locating the halting
+mass by crossing index (which return the seed dies at):
+
+| $s$ | crossing 0 | crossings 1--4 | crossings 5+ |
+|---|---|---|---|
+| 64 | 0.04 | 0.71 | 0.25 |
+| 512 | 0.08 | 0.71 | 0.21 |
+| 4096 | 0.25 | 0.75 | 0.13 |
+
+Only a small fraction of halts occur at the first crossing (for wide-$b$
+seeds the first-crossing offset is $\sim N$, so that fraction is $\sim3/N$,
+negligible). The halting mass sits at crossings $1$--$10$: a seed halts when
+the deterministic \emph{offset process} is driven into $\{1,3,5\}$ several
+returns in. Bounding $\mathrm{hf}(s)$ therefore requires controlling the
+distribution of the offset along the orbit --- exactly the equidistribution
+estimate, with no elementary shortcut. The affine/bounded-to-one structure
+constrains it but does not remove the need for an equidistribution input at
+the resolution of the fatal window.
+
+**Honest conclusion of this attempt.** $\mathrm{hf}(s)\le Cs^{-\delta}$ is
+\emph{not} proved here, and I do not have a rigorous proof of it. The
+reduction to a weak decay bound is genuine and the target is softer than the
+original estimate, but the residual is still an equidistribution statement
+for the offset process --- the same arithmetic core as Tao's Collatz estimate
+--- and it is not closed by the elementary/lattice arguments available. The
+density form of the theorem remains conditional. No proof should be claimed.
+
 ## Status
 
 The estimate is (i) strongly supported numerically to depth 6, (ii) reduced
