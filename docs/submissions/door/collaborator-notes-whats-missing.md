@@ -56,17 +56,35 @@ from the same uniform gap by the standard Fourier-inversion upper bound --- we
 never need the full asymptotic). Item~1 is no longer the crux; item~2 is now
 the leading remaining citation.
 
-### 2. The precise Dolgopyat citation is not off-the-shelf
-We invoke "Dolgopyat 1998 / Naud 2005 / Stoyanov 2011," but our map is a
-\emph{countable}-branch Gauss-type map with an accumulation point $\rho^\ast$.
-Dolgopyat's original theorem is for finitely many branches / Axiom A flows;
-Naud's is for specific analytic families (Gauss map, Schottky). The countable
-branches plus the accumulation point are a real technical wrinkle: one must
-either cite the infinite-branch extension (Aaronson--Denker--Urba\'nski;
-Melbourne--Terhesiu for the operator-renewal side) or verify the tail estimate
-that lets the finite-branch machinery apply. The summable-variation control we
-have is the right input, but the exact theorem to cite (or adapt) must be
-pinned; I would not hand-wave "settled theory" here in the manuscript.
+### 2. The countable-branch gap — REDUCED to finite-branch Dolgopyat + an exact geometric tail (2026-09-08)
+Our map is a \emph{countable}-branch Gauss-type map accumulating at
+$\rho^\ast$, whereas the off-the-shelf Dolgopyat/Naud theorems are
+finite-branch. \textbf{This reduces cleanly, and the tail rate is exact.} The
+branch endpoints $\rho_{k+1}=1/(3\rho_k+1)$ accumulate at the fixed point
+$\rho^\ast$ of $\varphi(\rho)=1/(3\rho+1)$ with multiplier
+\[
+|\varphi'(\rho^\ast)|=3/(3\rho^\ast+1)^2=3\rho^{\ast2}=1-\rho^\ast=\lambda^{-1}=(7-\sqrt{13})/6\approx0.5657,
+\]
+(using $3\rho^{\ast2}+\rho^\ast-1=0$): \emph{the geometric tail rate equals the
+inverse expansion} --- the same algebraic number. So branch-$k$ mass decays
+like $\lambda^{-k}$ (measured ratios oscillate around $0.566$; $P[k\ge8]\approx
+0.011$), and the tail operator has norm $O(\lambda^{-K})$ \emph{uniformly in
+$\xi$} (as $|\e(i\xi\tau)|=1$). Crucially the accumulation is \textbf{benign}:
+the truncated-operator gap $\theta_K$ \emph{stabilizes} as $K$ grows
+($K=8,10,\infty$ agree to 2--3 digits, all $<1$; the UNI constant is dominated
+by the low-$k$ well-separated branches, not the crowding high-$k$ ones), so it
+does not degrade to $1$. Hence
+$\rho(\Lop_{i\xi})\le\theta_K+C\lambda^{-K}<1$ for large $K$, with $\theta_K$
+the \emph{finite-branch} Dolgopyat gap (genuinely off-the-shelf: Dolgopyat
+1998, Naud 2005) and $C\lambda^{-K}$ the proved tail. Here --- unlike item~1's
+scale perturbation --- the tail perturbation \textbf{is} uniformly small in
+$\xi$, so Keller--Liverani in the branch-count genuinely applies. See
+`docs/results/2026-09-08-countable-branch-reduction.md`. What remains to write:
+the standard truncation lemma and pinning $\theta_K$'s reference. No exotic
+countable-branch theorem is needed. \emph{(One numerical artifact noted there:
+hard-truncating at exactly $K=3$ on the fixed 40-bin grid gives a spurious
+$|\lambda|=1$ --- a rank/binning artifact, isolated between $K=2,4$ both
+$\approx0.71$, gone under rebinning.)}
 
 ### 3. UNI: from 2-cylinder non-degeneracy to the full uniform condition
 The verified statement is that adjacent branch forms are non-proportional, so
@@ -96,7 +114,7 @@ through so the $o(N^2)$ is uniform. A week, no risk.
 | item | nature | risk of a real obstruction |
 |---|---|---|
 | 1. native-resolution model-to-exact | ~~new estimate~~ **dissolved** (framing artifact; gap uniform in scale) | **removed** |
-| 2. precise gap citation (countable + accumulation) | pin/adapt a theorem | low--moderate — **now the leading item** |
+| 2. countable-branch gap | **reduced** to finite-branch Dolgopyat + exact geometric tail ($\lambda^{-1}=1-\rho^*$); accumulation benign | low — standard citation + written tail lemma |
 | 3. full UNI over long words | lemma | low |
 | 4. joint LLT upper bound | write-out | low (given 2--3) |
 | 5. seed equidistribution + sum | routine | negligible |
