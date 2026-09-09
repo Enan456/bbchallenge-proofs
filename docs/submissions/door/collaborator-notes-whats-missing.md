@@ -119,7 +119,7 @@ through so the $o(N^2)$ is uniform. A week, no risk.
 | 4. joint LLT upper bound | write-out | low (given 2--3) |
 | 5. seed equidistribution + sum | routine | negligible |
 | 1a-macro. sequential composition (macroscopic density bound) | **DONE** — proved in full (iterate uniform LY) | none |
-| 1a-arith. integer upper bound at native resolution | **re-elevated: NOT a write-up.** Erdős–Turán reduces it to cross-cylinder cancellation of $E_h=\frac1M\sum\e(h o_d/S)$; BV gives only $O(1)$ discrepancy (insufficient). This is the arithmetic heart = Tao's hardest step. Confirmed numerically, open | **the real remaining core** |
+| 1a-arith. integer upper bound at native resolution | **the arithmetic heart** (= Tao's hardest step), but **PROBED FRIENDLY (2026-09-09):** FFT of $E_h$ over 1.7M offsets shows high-freq sum at the $1/\sqrt M$ noise floor, no resonance growth, 3-adic spikes only at $h=3,9$ — cylinders do NOT conspire. Raw Erdős–Turán is lossy (low-freq density shape ≠ fine equidist); smoothed count + incoherent-cross-cylinder-addition is the route. Reframed adversarial→friendly, plausibly provable by standard exp-sum methods, still open | **the real remaining core, now looks tractable** |
 
 ## Honest verdict, revised
 

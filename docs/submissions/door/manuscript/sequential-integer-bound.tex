@@ -202,6 +202,33 @@ cylinders. We record that Lemma~\ref{l:B} is confirmed numerically: over a
 $\approx3$--$4\approx6h(0)$ across the halting window, exactly the $C/S$ law
 Lemma~\ref{l:B} asserts, with no drift in $d$.
 
+\begin{remark}[The coherence is friendly, and Erd\H os--Tur\'an is lossy]\label{r:friendly}
+A direct FFT of the empirical sum $E_h$ over $1.7\times10^6$ offsets in a fixed
+scale band settles the qualitative question of whether the cylinders conspire.
+They do not: $|E_h|$ follows the density's $\sim1/h$ shape at low frequency,
+then flattens by $h\approx100$ to the pure-noise floor $\sim1/\sqrt M$ and stays
+there --- no growth --- through $h\approx6.5\times10^4$; the octave-envelope max
+is $3$--$4\times$ noise uniformly. The $3$-adic frequencies (the natural
+suspects, as $\det P_k=\pm3^{k+1}$) spike only at $h=3,9$ and are unremarkable
+by $h=81$. Varying $M$, the high-frequency floor scales essentially as
+$1/\sqrt M$, so the true high-frequency $E_h$ is at or near zero: cross-cylinder
+cancellation is essentially complete. Two consequences. First,
+Proposition~\ref{p:insufficient}'s $O(1)$ is an artifact of raw Erd\H
+os--Tur\'an, whose $\sum(1/h)|E_h|$ is dominated by the low-frequency terms
+that merely record the non-flatness of $h(z)$ --- harmless for the small-offset
+count; the fine equidistribution lives at high $h$, where cancellation holds. A
+\emph{smoothed} count (test against a bump of width $6/S$) separates the two and
+weights the high-frequency floor, giving the $C/S$ bound. Second, this reframes
+Lemma~\ref{l:B} from ``possibly adversarial'' to friendly: the offset forms
+$(u_{\mathcal C},v_{\mathcal C})$ are pairwise incommensurable (entries of
+distinct matrix products), so the per-cylinder sums of Lemma~\ref{l:cyl} add
+\emph{incoherently}, a square-root accumulation. Turning that into a theorem
+uniform in the $\asymp\lambda^d$ cylinders and in scale remains the content of
+Lemma~\ref{l:B}, but it now looks like a hard-but-standard exponential-sum
+estimate rather than a fight against conspiracy. See
+`docs/results/2026-09-09-lemma-B-coherence.md`.
+\end{remark}
+
 \section{Honest status, and a correction to the ranking}
 Two clean results are proved here in full: the uniform macroscopic density
 bound (Lemma~\ref{l:seq}) and the reduction of the offset count to an empirical
