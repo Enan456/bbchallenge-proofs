@@ -118,7 +118,8 @@ through so the $o(N^2)$ is uniform. A week, no risk.
 | 3. full UNI over long words | lemma | low |
 | 4. joint LLT upper bound | write-out | low (given 2--3) |
 | 5. seed equidistribution + sum | routine | negligible |
-| 1a. sequential composition + integer upper bound (from item 1) | standard write-up; **conclusion directly confirmed on integers** ($S\cdot P\approx3$–$4\approx6h(0)$, flat) | low |
+| 1a-macro. sequential composition (macroscopic density bound) | **DONE** — proved in full (iterate uniform LY) | none |
+| 1a-arith. integer upper bound at native resolution | **re-elevated: NOT a write-up.** Erdős–Turán reduces it to cross-cylinder cancellation of $E_h=\frac1M\sum\e(h o_d/S)$; BV gives only $O(1)$ discrepancy (insufficient). This is the arithmetic heart = Tao's hardest step. Confirmed numerically, open | **the real remaining core** |
 
 ## Honest verdict, revised
 

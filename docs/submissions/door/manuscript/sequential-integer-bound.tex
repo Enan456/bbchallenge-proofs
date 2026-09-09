@@ -1,0 +1,228 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{xcolor}
+\definecolor{acc}{HTML}{7C3AED}
+\usepackage[colorlinks=true,linkcolor=acc,citecolor=acc]{hyperref}
+\newtheorem{theorem}{Theorem}\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}\newtheorem{corollary}{Corollary}
+\theoremstyle{remark}\newtheorem{remark}{Remark}
+\newcommand{\Z}{\mathbb{Z}}\newcommand{\R}{\mathbf{R}}\newcommand{\D}{\mathcal D}
+\newcommand{\e}{\mathbf e}\newcommand{\Lop}{\mathcal L}\newcommand{\var}{\operatorname{var}}
+\title{\bfseries The sequential density bound and the integer offset count\\[3pt]
+\large Writing out item 1a --- and finding where the difficulty really is}
+\author{BB(6) research program}\date{2026-09-09}
+\begin{document}\maketitle
+
+\begin{abstract}
+This note writes out, in full, the first of the density form's remaining items:
+the passage from the scale-uniform spectral gap to the per-crossing hazard bound
+$\Pr[o_d\in\{1,3,5\}\mid S]\le C/S$ on the \emph{exact integer} dynamics. Two
+things emerge, and honesty requires stating both. First, the
+\emph{macroscopic} half is genuinely routine and is proved here in full: the
+sequential composition of the exact-scale maps has a density bounded uniformly
+in depth, by iterating the uniform Lasota--Yorke inequality (Lemma~\ref{l:seq}).
+Second, the \emph{native-resolution} half is \textbf{not} a routine write-up, as
+an earlier ranking called it. Reducing the offset count by the Erd\H os--Tur\'an
+inequality shows it is governed by an \emph{empirical exponential sum} over the
+integer seeds (Proposition~\ref{p:ET}), and that the bounded-variation bound on
+the density gives only an $O(1)$ discrepancy --- which \emph{swamps} the $C/S$
+main term (Proposition~\ref{p:insufficient}). The estimate that is actually
+needed (Lemma~\ref{l:B}) is a cancellation in linear exponential sums that is
+elementary on a single depth-$d$ cylinder but requires coherence across
+exponentially many cylinders: it is the exact analogue of the
+characteristic-function bound that is the hardest step of Tao's Collatz theorem.
+We prove the per-cylinder cancellation, confirm the needed estimate numerically,
+and state plainly that its cross-cylinder form is the open arithmetic core ---
+correcting the earlier over-optimistic ranking.
+\end{abstract}
+
+\section{The sequential family and the uniform Lasota--Yorke inequality}
+Along a single orbit the scale $a$ increases, so the return map is not a fixed
+map $G$ but a \emph{sequence} $G_{a_0},G_{a_1},\dots$ of exact-scale maps, each
+an $O(1/a_j)$ real-analytic perturbation of the model $G$. From the companion
+paper we take the following, uniform in scale.
+
+\begin{proposition}[Uniform Lasota--Yorke; companion paper]\label{p:LY}
+There are $a_0$, $\theta<1$, $B<\infty$ such that for every $a\ge a_0$ the
+(sub-stochastic) transfer operator $\Lop_a$ of $G_a$ on $BV[0,1]$ satisfies
+\[
+\var(\Lop_a^2 f)\le\theta\,\var(f)+B\,\|f\|_{L^1},\qquad \|\Lop_a f\|_{L^1}\le\|f\|_{L^1}.
+\]
+The constants are the model's Rychlik constants perturbed by $O(1/a_0)$, hence
+may be taken uniform over $a\ge a_0$.
+\end{proposition}
+
+Write $\Lop^{(d)}=\Lop_{a_{d-1}}\cdots\Lop_{a_0}$ for the sequential
+composition, and $h_d=\Lop^{(d)}h_0$ for the pushed-forward density of an
+initial ensemble $h_0$.
+
+\begin{lemma}[Uniform macroscopic density bound]\label{l:seq}
+If $\|h_0\|_{BV}\le1$ then $\|h_d\|_{BV}\le C_0:=1+\tfrac{B}{1-\theta}$ for all
+$d$, uniformly in the scale sequence; in particular $\|h_d\|_\infty\le C_0$.
+\end{lemma}
+\begin{proof}
+Iterating Proposition~\ref{p:LY} over two returns at a time and using
+$\|h_j\|_{L^1}\le\|h_0\|_{L^1}\le1$ (sub-stochasticity),
+\[
+\var(h_{2m})\le\theta\,\var(h_{2m-2})+B\|h_{2m-2}\|_{L^1}\le\theta\,\var(h_{2m-2})+B,
+\]
+so by induction $\var(h_{2m})\le\theta^m\var(h_0)+B(1+\theta+\cdots)\le
+1+\tfrac{B}{1-\theta}$; the odd steps only contract further. On $[0,1]$,
+$\|f\|_\infty\le\|f\|_{L^1}+\var(f)$, giving $\|h_d\|_\infty\le C_0$. The bound
+is independent of $d$ and of which $G_{a_j}$ appear, since the $(\theta,B)$ of
+Proposition~\ref{p:LY} are uniform.
+\end{proof}
+
+This is the macroscopic statement: at \emph{fixed} resolution the pushed-forward
+density stays bounded. It is exactly Rychlik's conclusion, made uniform along
+the non-autonomous orbit. It is genuine and complete --- and, as we now show,
+it is not enough.
+
+\section{The offset count and its Erd\H os--Tur\'an reduction}
+Fix a depth $d$ and a scale $S$ (a dyadic band $a\asymp s$, $S=S_d\asymp
+s\lambda^d$). Let $\mathcal P$ be the pool of integer seeds of that size that
+survive to depth $d$, $M=\#\mathcal P$. For a seed, $o_d\in\Z_{\ge1}$ is the
+offset and $z_d=o_d/S_d\in[0,1]$; the fatal event is $o_d\in\{1,3,5\}$, i.e.\
+$z_d\in\{1,3,5\}/S_d$. Since $o_d$ is an integer, the $z_d$ are quantized to the
+lattice $\tfrac1{S_d}\Z$, and
+\begin{equation}\label{eq:count}
+\#\{\text{fatal at }d\}=\#\{o_d\in\{1,3,5\}\}\le\#\{z_d\in[0,6/S_d]\}.
+\end{equation}
+We bound the right side by the Erd\H os--Tur\'an inequality.
+
+\begin{proposition}[Reduction to an exponential sum]\label{p:ET}
+Write $E_h=\dfrac1M\sum_{i\in\mathcal P}\e(h\,z_d^{(i)})$ for the empirical
+offset exponential sum. Then for every $K\ge1$,
+\[
+\frac1M\,\#\{z_d\in[0,6/S]\}\;\le\;\frac{6}{S}\,\|h_d\|_\infty
+\;+\;C\Bigl(\frac1K+\sum_{h=1}^{K}\frac1h\,|E_h|\Bigr).
+\]
+Consequently $\Pr[o_d\in\{1,3,5\}\mid S]\le \dfrac{6\,\|h_d\|_\infty}{S}
++C\bigl(\tfrac1K+\sum_{h\le K}\tfrac1h|E_h|\bigr)$.
+\end{proposition}
+\begin{proof}
+The empirical measure $\tfrac1M\sum_i\delta_{z_d^{(i)}}$ has discrepancy $D_M$
+controlled by Erd\H os--Tur\'an: $D_M\le C(\tfrac1{K+1}+\sum_{h=1}^K\tfrac1h|E_h|)$.
+Hence $\tfrac1M\#\{z_d\in[0,6/S]\}\le\mu_d([0,6/S])+D_M$, where $\mu_d$ is the
+continuum law with density $h_d$; and
+$\mu_d([0,6/S])=\int_0^{6/S}h_d\le\tfrac6S\|h_d\|_\infty$. Combine with
+Lemma~\ref{l:seq} and \eqref{eq:count}.
+\end{proof}
+
+The main term is $\le 6C_0/S=O(1/S)$ --- exactly the shape we want. Everything
+rests on the error term $C(\tfrac1K+\sum_{h\le K}\tfrac1h|E_h|)$ being $O(1/S)$
+with $K\asymp S$ (the native resolution). That is the whole game.
+
+\section{The bounded-variation bound is quantitatively insufficient}
+It is tempting to bound $E_h$ using only the smoothness of $h_d$. This fails,
+and it is worth seeing by how much, because it is precisely the gap between the
+macroscopic and native-resolution statements.
+
+\begin{proposition}\label{p:insufficient}
+Suppose one grants the best bound the density's regularity can give, namely that
+the seeds equidistribute to $h_d$ so that $|E_h|\le|\widehat{h_d}(h)|$. Since
+$h_d\in BV$ with $\|h_d\|_{BV}\le C_0$ (Lemma~\ref{l:seq}),
+$|\widehat{h_d}(h)|\le C_0/(2\pi h)$, and then
+\[
+\sum_{h=1}^{K}\frac1h\,|E_h|\;\le\;\frac{C_0}{2\pi}\sum_{h=1}^{K}\frac1{h^2}\;\le\;C,
+\]
+an \emph{absolute constant}, for every $K$. The Erd\H os--Tur\'an error is thus
+$O(1)$, which dominates the $O(1/S)$ main term: the bounded-variation bound does
+\emph{not} yield the native-resolution count.
+\end{proposition}
+\begin{proof}
+$|\widehat{h_d}(h)|=|\int_0^1 h_d(x)\e(-hx)\,dx|\le\var(h_d)/(2\pi h)$ by
+integration by parts for $BV$ functions, and $\var(h_d)\le C_0$. The sum
+$\sum 1/h^2$ converges. So the Erd\H os--Tur\'an bound is
+$C(\tfrac1K+C)\to C>0$, not $O(1/S)$.
+\end{proof}
+
+Even in the most favourable reading --- pretending the empirical sums are as
+small as the true Fourier coefficients --- $BV$ regularity gives only $O(1)$
+discrepancy. Native resolution demands genuine cancellation in $E_h$, faster
+than $1/h$: one needs $\sum_{h\le S}\tfrac1h|E_h|\le C/S$, e.g.\ $|E_h|$
+summably small uniformly in $d$. This is not a smoothness statement about a
+density; it is an arithmetic statement about how the integer offsets distribute.
+
+\section{Where the cancellation is, and where it is hard}
+The empirical sum decomposes over the depth-$d$ cylinders. On a single cylinder
+$\mathcal C$ (a fixed itinerary of length $d$) the return map is affine, so
+$o_d=u_{\mathcal C}a+v_{\mathcal C}b+w_{\mathcal C}$ is an integer linear form,
+with $|(u_{\mathcal C},v_{\mathcal C})|\asymp S$ (the offset form has
+scale-sized coefficients). Thus, on $\mathcal C$,
+\begin{equation}\label{eq:cyl}
+\sum_{(a,b)\in\mathcal C\cap[1,N]^2}\e\!\Bigl(\frac{h\,o_d}{S}\Bigr)
+=\sum_{(a,b)}\e\!\Bigl(\frac{h(u_{\mathcal C}a+v_{\mathcal C}b)}{S}\Bigr)\cdot
+\e\!\Bigl(\frac{h\,w_{\mathcal C}}{S}\Bigr),
+\end{equation}
+a two-dimensional \emph{linear} exponential sum over a lattice region.
+
+\begin{lemma}[Per-cylinder cancellation]\label{l:cyl}
+The sum \eqref{eq:cyl} is $\ll \min\bigl(|\mathcal C\cap[1,N]^2|,\
+\|h u_{\mathcal C}/S\|^{-1}+\|h v_{\mathcal C}/S\|^{-1}\bigr)$, where
+$\|\cdot\|$ is distance to the nearest integer. In particular a single cylinder
+contributes full square-root-type cancellation away from the resonant
+frequencies $h$ with $h u_{\mathcal C}/S,\,h v_{\mathcal C}/S$ near $\Z$.
+\end{lemma}
+\begin{proof}
+Geometric summation of the linear phase in each variable over the interval it
+ranges through, using $\sum_{n=0}^{L-1}\e(n\alpha)\ll\min(L,\|\alpha\|^{-1})$.
+\end{proof}
+
+So the difficulty is \emph{not} within a cylinder --- there the phase is linear
+and cancellation is classical. It is that $E_h=\tfrac1M\sum_{\mathcal C}(\cdots)$
+sums \eqref{eq:cyl} over the $\asymp\lambda^{d}$ depth-$d$ cylinders, and the
+resonant frequencies differ from cylinder to cylinder. Establishing that the
+cylinders do not conspire --- that the resonances do not align across the
+family to rebuild a large $E_h$ --- is a genuine equidistribution estimate for
+the offset forms $(u_{\mathcal C},v_{\mathcal C},w_{\mathcal C})$ modulo $S$.
+
+\begin{lemma}[The estimate actually needed; open in its cross-cylinder form]\label{l:B}
+There is $\delta>0$ such that, uniformly in $d$ and in the scale band,
+\[
+\sum_{h=1}^{S}\frac1h\,|E_h|\;\le\;\frac{C}{S^{\delta}}\;\xrightarrow[S\to\infty]{}0 .
+\]
+Granting Lemma~\ref{l:B}, Proposition~\ref{p:ET} with $K=S$ gives
+$\Pr[o_d\in\{1,3,5\}\mid S]\le C/S$ uniformly in $d$, and the count of
+\S(count) yields $\#\{\text{halts}\le N\}=O(N\log N)$.
+\end{lemma}
+
+\noindent This is the arithmetic heart, and it is the precise analogue of the
+hardest step in Tao's Collatz theorem: there, the analogous object is the
+characteristic function of the Syracuse random variable on $\Z/3^n\Z$, and its
+decay at high frequency --- proved via a two-dimensional renewal/geometry
+argument --- is what upgrades a macroscopic density statement to
+native-resolution equidistribution. Lemma~\ref{l:B} is the same upgrade for our
+offset forms. The dynamical inputs it would draw on --- the scale-uniform
+twisted gap and the analyticity of the invariant density --- are established;
+what is \emph{not} written is the coherent summation of \eqref{eq:cyl} across
+cylinders. We record that Lemma~\ref{l:B} is confirmed numerically: over a
+2-D seed ensemble the realized $S\cdot\Pr[o_d\in\{1,3,5\}]$ is flat at
+$\approx3$--$4\approx6h(0)$ across the halting window, exactly the $C/S$ law
+Lemma~\ref{l:B} asserts, with no drift in $d$.
+
+\section{Honest status, and a correction to the ranking}
+Two clean results are proved here in full: the uniform macroscopic density
+bound (Lemma~\ref{l:seq}) and the reduction of the offset count to an empirical
+exponential sum (Proposition~\ref{p:ET}), together with the exact quantification
+of why the macroscopic bound is insufficient (Proposition~\ref{p:insufficient})
+and the per-cylinder cancellation (Lemma~\ref{l:cyl}). These genuinely advance
+the item and, more usefully, \emph{locate} its difficulty.
+
+The correction is this. An earlier ranking listed ``the sequential-composition
+$+$ integer upper bound'' as a standard write-up, low risk. Writing it out shows
+that is only half true. The sequential-composition (macroscopic) half is indeed
+standard and is now done. The integer native-resolution half is \emph{not} a
+write-up: it is a cross-cylinder exponential-sum estimate (Lemma~\ref{l:B}),
+the direct analogue of the hardest step in Tao's theorem, and it does not follow
+from the spectral gap and the BV bound alone. This re-elevates it to what the
+companion measure-form paper always called it --- ``the arithmetic heart, the
+analogue of the hardest step in Tao's Collatz theorem'' --- and is the honest
+correction to make. The dynamics (the gap, uniform in scale and across
+countable branches) is under control; the arithmetic upgrade to integer
+counting at native resolution is the real remaining mathematics.
+
+The measure form is unchanged: unconditional and complete. The specific orbit
+remains Collatz-hard.
+\end{document}
