@@ -21,64 +21,64 @@ and the Busy Beaver Problem}
 The busy beaver value $BB(n)$ is the longest finite runtime of any
 $n$-state Turing machine started on a blank tape. $BB(5)$ was settled
 in 2024 with a computer-checked proof. $BB(6)$ is blocked by a handful
-of machines whose tapes secretly run Collatz-style arithmetic; nobody
-can prove whether they stop. This paper studies two of these
+of machines whose tapes secretly run Collatz-style arithmetic. This paper studies two of these
 machines and surveys the rest. The approach is empirical first: the
-machine's behavior is logged as a
-sequence of events, the event data embedded in logarithmic, simplex, and
-hyperbolic coordinates, and the dynamics found to be piecewise
-affine in a five-integer state. The description is then proven
-correct in the Lean proof assistant, down to the machine's individual steps and
-with a minimal axiom footprint. The result is a machine-checked
+machine's event log, embedded in logarithmic, simplex, and hyperbolic
+coordinates, reveals dynamics piecewise affine in a five-integer
+state. This description is then proven correct in the Lean proof
+assistant, down to individual steps, with a minimal axiom footprint. The result is a machine-checked
 theorem: if a simple five-integer recurrence never enters an explicit
 finite set of bad configurations, the machine never halts. The
 converse pressure is also proven: entering a bad configuration forces the
 machine to halt. The open problem is thereby moved, without loss, from
-a Turing machine to a short arithmetic recurrence. The renewal map of the recurrence is then derived in closed form and shown
-to have a width-five fatal window around the diagonal, and the two mechanical
-proof routes with computational evidence: no congruence invariant up to
-modulus 384 excludes the window, and the branch dynamics has
-exponential factor complexity, so it is not conjugate to a rotation.
+a Turing machine to a short arithmetic recurrence. The renewal map is derived in closed form with a width-five fatal
+window around the diagonal; computational evidence closes two
+mechanical routes (no congruence invariant up to modulus 384 excludes
+the window; exponential factor complexity, so no conjugacy to a
+rotation).
 Measuring the recurrence over its whole seed space shows the set of
 dying seeds has natural density zero at the Borel--Cantelli rate
 ($\approx 12/X$), so the studied machines' seeds are typical
-survivors.
-Surveying the entire holdout set with a two-ended harness (forward
-orbit against backward halt cone, regimes fitted in between)
-classifies all $1{,}094$ open six-state machines: zero halts, zero
-alignments; four fixed-dimension machines, exactly the certified
-ones; an eleven-machine \emph{array class} whose state spaces grow in
-dimension, for whose leading member an exact word-rewrite calculus
-is constructed (a two-phase odometer with a block-trisection boundary rule)
-validated against $2 \times 10^{8}$ raw steps; and $307$ single-law
-machines among $346$ with regime structure. The program is framed
-on a verification spectrum whose proven endpoint is
-$\mathsf{MIP}^{*} = \mathsf{RE}$: kernel checking at the bottom,
-certified predictive emulation (this paper) in the middle, and
-entangled-prover verification of halting-type claims as the goal. Every
-empirical claim is validated against $10^{9}$ raw machine steps, and
-the recurrence is tested for $10^{8}$ iterations. For the theory of
+survivors. This density-zero is not merely measured: the Gauss-type
+inducing map admits a transfer-operator proof route (a.c.\ invariant
+measure~\cite{rychlik}; a uniform spectral gap with non-integrability
+verified from the branch data~\cite{naud,dolgopyat}; a local limit
+theorem~\cite{hennion-herve,aaronson-denker}), reducing the density
+form to one arithmetic exponential-sum estimate---Tao's hardest step.
+A two-ended harness (forward orbit against backward halt cone)
+classifies all $1{,}094$ open six-state machines: zero halts; four
+fixed-dimension (exactly the certified ones); an eleven-machine
+\emph{array class} with a validated word-rewrite calculus; and $307$
+single-law machines with regime structure. Certified predictive emulation
+(this paper) sits between kernel checking and the
+$\mathsf{MIP}^{*}=\mathsf{RE}$ verification endpoint; every empirical
+claim carries a horizon ($10^{9}$ steps). For the theory of
 learning, the pipeline is representation learning carried to a
 proof, and it is offered as a benchmark: unbounded, exactly labeled,
 law-governed sequence data on which a learned representation has a
 provable ground truth, with a two-prover game that verifies the
-forecasts of any learned emulator at constant cost per check.
+forecasts of any learned emulator at constant cost per check. A
+from-scratch network bears this out: it learns the grammar
+($C\!\to\!T$ at $0.99$, $TT$ forbidden) yet its $20$-step accuracy
+falls to the base rate across a width/depth/context sweep while the
+certified emulator stays exact---the long-horizon wall is arithmetic,
+not capacity, exactly as the density result predicts.
 
 \medskip
 \noindent The central certified statement, one per machine:
 
 \begin{theorem}
-Checked by the Lean kernel at axioms
-$\{\mathrm{propext},\mathrm{Quot.sound}\}$:
-$\ \Safe \rightarrow \lnot\Halts(\mathsf{blankStart})$,
-and configurations outside the guarded region halt within about
-fifty steps, so $\Safe$ is the halting problem restated as
-arithmetic.
+At Lean-kernel axioms $\{\mathrm{propext},\mathrm{Quot.sound}\}$:
+$\ \Safe \rightarrow \lnot\Halts(\mathsf{blankStart})$; configurations
+outside the guarded region halt within $\sim\!50$ steps, so $\Safe$ is
+the halting problem restated as arithmetic.
 \end{theorem}
 
-\newpage
-
-\begin{thebibliography}{99}\small
+\medskip
+{\footnotesize
+\setlength{\parskip}{0pt}
+\begin{thebibliography}{99}\footnotesize
+\setlength{\itemsep}{0pt}\setlength{\parsep}{0pt}
 \bibitem{coqbb5} The bbchallenge Collaboration.
 Determination of the fifth Busy Beaver value. arXiv:2509.12337.
 \bibitem{deciders} The bbchallenge Collaboration.
@@ -88,7 +88,21 @@ historical survey. arXiv:0906.3749.
 \bibitem{aaronson} S.~Aaronson. The Busy Beaver Frontier.
 \emph{SIGACT News} 51(3), 2020.
 \bibitem{tao-collatz} T.~Tao. Almost all orbits of the Collatz map
-attain almost bounded values. arXiv:1909.03562.
+attain almost bounded values. \emph{Forum Math.\ Pi} 10 (2022), e12;
+arXiv:1909.03562.
+\bibitem{rychlik} M.~Rychlik. Bounded variation and invariant
+measures. \emph{Studia Math.} 76 (1983), 69--80.
+\bibitem{dolgopyat} D.~Dolgopyat. On decay of correlations in Anosov
+flows. \emph{Ann.\ of Math.} 147 (1998), 357--390.
+\bibitem{naud} F.~Naud. Expanding maps on Cantor sets and analytic
+continuation of zeta functions. \emph{Ann.\ Sci.\ \'ENS} 38 (2005),
+116--153.
+\bibitem{hennion-herve} H.~Hennion and L.~Herv\'e. Limit Theorems
+for Markov Chains \ldots by Quasi-Compactness. Springer LNM 1766
+(2001).
+\bibitem{aaronson-denker} J.~Aaronson and M.~Denker. Local limit
+theorems for \ldots Gibbs--Markov maps. \emph{Stoch.\ Dyn.} 1(2)
+(2001), 193--237.
 \bibitem{moore} C.~Moore. Generalized shifts: unpredictability and
 undecidability in dynamical systems. \emph{Nonlinearity} 4 (1991).
 \bibitem{kurka} P.~K\r{u}rka. On topological dynamics of Turing
@@ -112,5 +126,6 @@ arXiv:2512.07087.
 \bibitem{palomar} Palomar: a registry of Lean-verified
 mathematics, 2026. \texttt{palomar-registry.org}.
 \end{thebibliography}
+}
 
 \end{document}
