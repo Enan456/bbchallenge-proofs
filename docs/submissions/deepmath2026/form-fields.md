@@ -1,7 +1,9 @@
 # DeepMath 2026 — OpenReview form fields
 
 **Title**
-Orbital Dragons to Hunt Cryptids: Neural Networks, Quantum-Inspired Data Science, and the Busy Beaver Problem
+Certified Emulation at the Busy Beaver Frontier: A Non-Euclidean Benchmark Where Learning Meets a Provable Wall
+
+(Prior title, retired: "Orbital Dragons to Hunt Cryptids: Neural Networks, Quantum-Inspired Data Science, and the Busy Beaver Problem" — changed to lead with the contribution (certified benchmark) rather than a method list; "non-Euclidean" replaces the less defensible "quantum-inspired"; the neural net is now a baseline, not the lead.)
 
 **Authors**
 Enan Srivastava (OpenReview profile required before submitting)
