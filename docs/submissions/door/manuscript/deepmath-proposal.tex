@@ -1,0 +1,94 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.7in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\definecolor{acc}{HTML}{7C3AED}
+\usepackage[colorlinks=true,linkcolor=acc,citecolor=acc,urlcolor=acc]{hyperref}
+\usepackage{enumitem}
+\setlist{nosep,leftmargin=1.2em}
+\linespread{0.97}
+\pagestyle{empty}
+\newcommand{\R}{\mathbf{R}}
+\begin{document}
+\begin{center}
+{\large\bfseries Almost-all non-halting for Busy-Beaver renewal maps}\\[2pt]
+{\small A transfer-operator attack on the BB(6) cryptid cohort, in the style of Tao's Collatz theorem}\\[2pt]
+{\footnotesize BB(6) research program \quad\textbullet\quad 2026-09-12}
+\end{center}
+\vspace{-2pt}
+
+\noindent\textbf{Problem.} The determination of $\mathrm{BB}(6)$ is obstructed
+by a cohort of $\sim\!122$ ``cryptid'' holdout machines---Antihydra the
+flagship---whose halting is equivalent to a Collatz-type first-passage event for
+an explicit integer map~\cite{Aaronson2020,bbchallenge2024}. Deciding any single
+such orbit is Collatz-hard. We pursue the statistical question instead, exactly
+as Tao did for Collatz~\cite{Tao2022}: among all $N^2$ integer seeds, what
+fraction halt?
+
+\noindent\textbf{Approach.} Each machine's hurler/catcher macro-dynamics reduces
+to a piecewise-affine \emph{renewal map} $\R$ on $\mathbb Z_{\ge1}^2$ whose
+first return to a section is a countable full-branch \emph{Gauss-type expanding
+Markov map} $G$ (branch endpoints $\rho_{k+1}=(3\rho_k+1)^{-1}$, accumulation
+$\rho^\ast=(\sqrt{13}-1)/6$). Halting $\iff$ the orbit meets a fatal set $\mathcal D$.
+To this object we apply the modern transfer-operator stack: Lasota--Yorke/Rychlik
+for the invariant measure~\cite{LasotaYorke1973,Rychlik1983}, a Dolgopyat-type
+uniform spectral gap for the twisted operator~\cite{Dolgopyat1998,Naud2005}, and
+the Nagaev--Guivarc'h local limit theorem~\cite{HennionHerve2001,AaronsonDenker2001},
+with Keller--Liverani stability for the model-to-exact and countable-branch
+truncations~\cite{KellerLiverani1999}.
+
+\noindent\textbf{Results.}
+\begin{itemize}
+\item \emph{Measure form (unconditional).} Lebesgue-almost every real seed is
+non-halting; every orbit has $a+b\to\infty$. Proved via Rychlik's
+theorem~\cite{Rychlik1983}, all hypotheses (full branches, eventual expansion
+$\inf|(G^2)'|=3$, summable variation) verified from the exact branch arithmetic.
+\item \emph{Density form (reduced).} $\#\{\text{halts}\le N\}=O(N\log N)=o(N^2)$,
+conditional on the spectral gap of Naud's Theorem~2.3~\cite{Naud2005}---whose
+non-local-integrability hypothesis we \emph{verify in closed form} (the branch
+roofs $L_k(\xi)=(r_k-p_k)+(s_k-q_k)\xi$ are pairwise non-proportional,
+slopes $-\rho_k$ distinct)---and the Nagaev--Guivarc'h LLT ($\sigma^2\approx0.265>0$,
+non-lattice, both verified). The countable-branch gap reduces to the finite-branch
+one via an \emph{exact} geometric tail (rate $\lambda^{-1}=1-\rho^\ast=3\rho^{\ast2}$);
+the gap holds uniformly in scale because the Dolgopyat hypotheses are
+scale-independent algebra of the branch matrices.
+\item \emph{Remaining core.} The density form rests, finally, on one arithmetic
+exponential-sum estimate---the direct analogue of Tao's
+characteristic-function bound on $\mathbb Z/3^n\mathbb Z$~\cite{Tao2022}. A direct
+probe shows the relevant cross-cylinder cancellation is \emph{friendly} (empirical
+sum at the sampling-noise floor, resonances only at low 3-adic frequencies),
+reframing the estimate from adversarial to hard-but-standard.
+\item \emph{Mechanization.} A fail-closed \emph{grammar extractor} recovers each
+machine's symbolic catch-grammar and its forcing parity invariant with a
+Lean-checkable completeness obligation (validated on the renewal map: it
+re-derives the proven grammar and the non-intermittency that certifies the
+quadratic fuel bound). This scales the $18$ existing kernel-checked conditional
+closures (\,$\mathrm{Safe}\to\neg\mathrm{Halt}$, axioms $\{$propext, Quot.sound$\}$\,)
+toward the full cohort.
+\end{itemize}
+
+\noindent\textbf{Honest status \& what we seek.} The measure form is complete
+and unconditional; the density form is a rigorous reduction to cited theorems
+with every dynamical hypothesis discharged, open only at the one arithmetic
+estimate above; single-machine halting remains Collatz-hard and untouched. This
+is the three-tier posture of Tao's theorem relative to Collatz. We seek feedback
+on (i) closing the cross-cylinder exponential-sum estimate, and (ii) the
+grammar-certified decider as a route to cohort-scale conditional closure.
+
+{\footnotesize
+\vspace{2pt}\hrule\vspace{3pt}
+\begin{thebibliography}{99}\small
+\itemsep=0pt
+\bibitem{Tao2022} T.~Tao, \emph{Almost all orbits of the Collatz map attain almost bounded values}, Forum Math.\ Pi \textbf{10} (2022), e12.
+\bibitem{Aaronson2020} S.~Aaronson, \emph{The Busy Beaver Frontier}, ACM SIGACT News \textbf{51}(3) (2020).
+\bibitem{bbchallenge2024} The bbchallenge Collaboration, \emph{Determination of the fifth Busy Beaver value}, arXiv:2509.12337 (2025).
+\bibitem{LasotaYorke1973} A.~Lasota, J.~A.~Yorke, Trans.\ AMS \textbf{186} (1973), 481--488.
+\bibitem{Rychlik1983} M.~Rychlik, \emph{Bounded variation and invariant measures}, Studia Math.\ \textbf{76} (1983), 69--80.
+\bibitem{Dolgopyat1998} D.~Dolgopyat, \emph{On decay of correlations in Anosov flows}, Ann.\ of Math.\ \textbf{147} (1998), 357--390.
+\bibitem{Naud2005} F.~Naud, \emph{Expanding maps on Cantor sets and analytic continuation of zeta functions}, Ann.\ Sci.\ \'ENS \textbf{38} (2005), 116--153.
+\bibitem{HennionHerve2001} H.~Hennion, L.~Herv\'e, \emph{Limit Theorems \ldots by Quasi-Compactness}, Springer LNM \textbf{1766} (2001).
+\bibitem{AaronsonDenker2001} J.~Aaronson, M.~Denker, \emph{Local limit theorems for \ldots Gibbs--Markov maps}, Stoch.\ Dyn.\ \textbf{1}(2) (2001), 193--237.
+\bibitem{KellerLiverani1999} G.~Keller, C.~Liverani, \emph{Stability of the spectrum for transfer operators}, Ann.\ Sc.\ Norm.\ Sup.\ Pisa \textbf{28} (1999), 141--152.
+\end{thebibliography}
+}
+\end{document}
