@@ -9,99 +9,96 @@ community lacks a word for "characterized into a set of dynamic equations
 "cryptid"; Dennis and slugbird end posts with AI-assistance disclosures.
 
 Message 1 is now ~4,500 chars: send it as three consecutive messages split
-at the paragraph breaks before "Why I think that matters" and before "In
-Shawn's words". Message 2 goes as a reply in Tom's thread, message 3 as a
+at the paragraph breaks before "Here's why I care" and before "Three of the 11". Message 2 goes as a reply in Tom's thread, message 3 as a
 thread reply under your own first message. 2,000-char limit per message.
 
 ---
 
 ## Message 1 (main post)
 
-**Re: the 11 DeepMind machines — independent Lean characterizations of 3 of them (+1 from their 10-20 batch), and a replay of their accelerations**
+**I characterized 3 of the 11 DeepMind machines in Lean back in August. Repo is public now. Here's what it is and what it isn't.**
 
-Repo: https://github.com/Enan456/bbchallenge-proofs
+https://github.com/Enan456/bbchallenge-proofs
 
-Shawn's invitation yesterday to dig into the 11 new machines is a good
-moment to put this out. Since July I've been reducing BB(6) holdouts to
-explicit, executable orbit conjectures in Lean 4, as a way of relearning
-mathematics on a hard problem. I kept it private on purpose. The bar I
-held myself to is the one in cosmo's 2022 deciders' validation process
-(discuss.bbchallenge.org/t/85): decide at least 10% of the remaining
-undecided machines, be reproduced independently, and carry a proof of
-correctness that someone else validates. My 115 closures are 10.5% of the
-1,094 snapshot, but they decide nothing, and the proof-of-correctness
-clause only means something if a second person can follow *why* the
-machine behaves that way. Being honest, I can explain to another person
-roughly a third of what the pipeline found, and that is a generous count.
-I think that gap is the real state of the art for every automated
-characterization right now, including the ones in the paper, and that the
-bar should go up as the certification step gets cheaper. Why I think that matters here specifically: BB is interesting because it
-is the cheapest place where a concrete, finite object runs into
-undecidability, and deciders are how this community has made progress on
-it. A decider is worth something because it is an *argument*: a class of
-machines, a reason they cannot halt, a proof that the reason is sound, and
-a human who can check it. That is why the 2022 process asks for a proof
-someone else validates. A certified reduction found by a pipeline is a
-different object. It says: this machine has followed these rules for as
-long as we looked, and the kernel agrees the rules are consistent with the
-transition table. The rules can be exactly right and still carry no reason
-the orbit must avoid the fatal set, which is the only question left. Without
-that reason it is symbolic induction with a type-checker attached: the
-pattern held, so we certified the pattern. The mirror pair's map is a
-clean example: 10⁹ raw steps, 10⁶ renewals, a margin of 4 from death the
-whole way, every rule proven for all block values, and not one sentence
-that explains why the margin never closes. I don't say that to diminish
-the certification step, which is real work and which I also automated;
-I say it because as that step gets cheaper the remaining value is entirely
-in the explanation, and the community's standards should move to where
-the value is. So read what follows as a reference artifact and a
-cross-check, not as understanding. Three of the 11 are machines I'd
-already characterized:
+Shawn asked yesterday for people to dig into the 11 new machines, so this is
+the moment. I started on BB(6) in July to get back into math and try some
+odd approaches on a hard problem. Since then I've been reducing holdouts to
+explicit executable orbit conjectures in Lean 4. 115 of them from mxdys's
+1,094 list. I sat on it.
 
+Why I sat on it. The bar I held myself to is cosmo's 2022 validation process
+for deciders (discuss.bbchallenge.org/t/85): decide 10% of what's left, get
+reproduced by someone else, carry a proof someone else validates. 115/1094
+is 10.5%, so I clear the number. But these decide nothing. And "proof of
+correctness" only means something if another person can follow *why* the
+machine does what it does. Straight up: I can explain about a third of what
+my pipeline found, and that's me being generous with myself. I think that's
+the honest state of every automated characterization right now, the paper's
+included. The bar should go up as the certification step gets cheaper, not
+down.
+
+Here's why I care about that here specifically. BB is popular because it's
+the cheapest place where a concrete finite object hits undecidability, and
+deciders are how this community actually moved on it. A decider is an
+argument: a class of machines, a reason they can't halt, a proof the reason
+is sound, a person who can check it. That's what the 2022 rules are asking
+for. A pipeline-found reduction is a different thing. It says: the machine
+followed these rules as long as we watched, and the kernel agrees the rules
+match the transition table. The rules can be exactly right and still carry
+zero reason the orbit avoids the fatal set, which is the only question that
+matters. Without that reason it's symbolic induction with a type checker
+bolted on. The pattern held, so we certified the pattern. My mirror pair is
+the clean example: 10^9 raw steps, 10^6 renewals, margin of 4 from death
+the whole way, every rule proven for all block values, and not one sentence
+that says why the margin never closes. I automated that step too, I'm not
+knocking it. I'm saying the value is moving to the explanation and the
+standards should follow it.
+
+So treat what follows as a reference artifact and a cross-check. Not
+understanding.
+
+Three of the 11 are machines I already had:
 - `1RB1RC_1LC1LC_1RE0LD_1LB1RF_---1RA_0RD1RD` and its mirror
   `1RB1RB_1LC0RE_---1LD_0RA1LB_1RA1LF_0LE1LE` (closed 2026-08-25)
 - `1RB1LA_1LC0RE_1LF1LD_1RE0LC_1LB1RA_---0LA` (2026-09-03)
-- plus `1RB1LC_1RC0RF_1RD0LB_1RE0LD_1LF---_0RA1LA` from their 10-20 batch
+- and `1RB1LC_1RC0RF_1RD0LB_1RE0LD_1LF---_0RA1LA` from their Oct 20 batch
   (2026-09-04)
 
-In Shawn's words these are machines "characterized into a set of dynamic
-equations", not claims of hardness. In the repo each is a theorem
-`Safe_X → ¬RawHalts blankStart` where `Safe_X` is a fail-closed executable
-orbit (five integers for the mirror pair, `(state, word)` records for the
-left-growers); halt localization, every episode transition for all block
-values, and the transport to the raw tape are proven, and the assumption is
-the open problem. Same shape for 111 other holdouts from mxdys's 1,094 list,
-all building `lake build` with axioms propext/Quot.sound, no sorry, no
-Mathlib. Parser parity against the standard format and a bisimulation with
-the Coq-BB5 zipper tape are included so the formal object is provably the
-community's machine. Nothing is decided.
+Shawn's phrase is the right one: "characterized into a set of dynamic
+equations." Not cryptids, not hardness claims. Each is a theorem
+`Safe_X → ¬RawHalts blankStart`. `Safe_X` is a fail-closed executable orbit
+(five integers for the mirror pair, `(state, word)` records for the
+left-growers). Halt localization, every episode transition for all block
+values, and the transport to the raw tape are proven. The assumption is the
+open problem. All 115 build with `lake build`, axioms propext/Quot.sound, no
+sorry, no Mathlib. Parser parity against the standard format and a
+bisimulation with the Coq-BB5 zipper tape are in there so the formal object
+is provably your machine and not my transcription of it. Nothing is decided.
 
-Cross-check: I ported DeepMind's `start/encode/next` for those four
-literally from their Lean and replayed both their acceleration and my orbit
-against one raw simulation per machine (2×10⁷ steps each, 10⁸ for the
-fourth). All four agree with the machine and with each other; neither
-fail-closed system dies. Their reductions hold up. Report and harness:
-`docs/results/2026-10-22-gdm-cross-verification.md`. Two things I'd flag
-for @Marco / @tomzahavy: (1) the fourth machine's docstring says `S6 1` is
-reached in 66 steps; it's 169 (66 is your `step_drain_odd_end` lemma), proof
-unaffected; (2) `next` isn't a first-return map — on the mirror's second
-machine the trace passes 2,317 other canonical configurations before the
-stated successor. Fine under `IsValidAcceleration`, just worth a note in the
-rule tables.
+Cross-check, done today: I ported DeepMind's `start/encode/next` for those
+four straight from their Lean and replayed their acceleration and my orbit
+against one raw simulation per machine, 2×10^7 steps each, 10^8 for the
+fourth. All four agree with the machine and with each other. Neither
+fail-closed system dies. Their reductions hold. Report and harness:
+`docs/results/2026-10-22-gdm-cross-verification.md`. Two things for
+@Marco / @tomzahavy: (1) the fourth machine's docstring says `S6 1` at step
+66. It's 169. 66 is your `step_drain_odd_end` lemma. Proof unaffected.
+(2) `next` isn't a first-return map. On the mirror's second machine the
+trace passes 2,317 other canonical configs before the stated successor.
+Fine under `IsValidAcceleration`, but say so in the rule tables.
 
-I'll add a "formalization" section to each of the three wiki pages this week
-unless someone objects. Their `IsHalt ↔ CollatzHalts` is stronger than my
-one-directional statement; a Lean bridge from my orbit conjecture to their
-`CollatzHalts` is in progress. What I'd most like from this channel is the
+I'll add a formalization section to each of the three wiki pages this week
+unless someone objects. Your `IsHalt ↔ CollatzHalts` is stronger than my
+one-way statement; a Lean bridge from my orbit conjecture to your
+`CollatzHalts` is in progress. What I actually want from this channel is the
 part neither pipeline produced: someone who can see why these counter maps
-avoid their fatal set. The mirror pair's map provably has no congruence
-invariant to modulus 384 and no rotation rigidity, which is as far as I
-got, and I'd rather hear that explained than add another certified
-reduction to the pile.
+avoid their fatal set. The mirror pair's map has no congruence invariant to
+mod 384 and no rotation rigidity, proven. That's as far as I got. I'd rather
+hear that explained than stack another certified reduction on the pile.
 
 AI assistance disclosure: the Lean proofs, the harness and this post were
-produced with Claude (Anthropic) and Codex (OpenAI); I ran every build and
-check myself and the mathematical framing is mine, including its gaps.
+produced with Claude (Anthropic) and Codex (OpenAI). I ran every build and
+check myself. The framing is mine, including its gaps.
 
 ---
 
