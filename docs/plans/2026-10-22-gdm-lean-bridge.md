@@ -33,7 +33,7 @@ every doc that mentions the bridge.
 ## Tasks
 
 ### Phase 0 — toolchain spike
-- [ ] **T1.** Install `leanprover/lean4:v4.35.0-rc4` via elan. Copy
+- [x] **T1.** Install `leanprover/lean4:v4.35.0-rc4` via elan. Copy
   `busy-beaver-core/` to a scratch dir, set its `lean-toolchain` to 4.35.0-rc4,
   run `lake build`. Record in "Spike log" whether the 119-job core build
   passes unchanged on 4.35 and, if not, the first error. Do not modify the
@@ -106,7 +106,21 @@ every doc that mentions the bridge.
 
 ## Spike log
 
-(filled by T1/T2)
+- **T1 (2026-10-22).** Toolchain `leanprover/lean4:v4.35.0-rc4` (exact
+  version exists; installed via elan alongside 4.30.0). Copied
+  `busy-beaver-core/` (minus `.lake/`) to a scratch dir, set
+  `lean-toolchain` to 4.35.0-rc4, ran `lake build` from cold. **Passed
+  unchanged**: `Build completed successfully (119 jobs)`, exit 0, wall time
+  741 s (~12.4 min; the three big `Dossier{1,2,3}RawTM` files dominate).
+  Zero errors. 121 deprecation warnings, all of one kind: `if_pos` (68) and
+  `if_neg` (53) are deprecated in 4.35 in favour of `ite_eq_left` /
+  `ite_eq_right`, across `Dossier2RawTM.lean` (47), `Dossier3RawTM.lean`
+  (47), `Dossier1RawTM.lean` (17), `AntihydraRawTM.lean` (10). Every
+  `#print axioms` still reports `[propext, Quot.sound]`. Consequence for T2:
+  the core can be required by path from a 4.35 package with no source
+  changes; the `if_pos`/`if_neg` rename is cosmetic and can be done later
+  (or left, since 4.30 compatibility is wanted). Real `busy-beaver-core/`
+  untouched.
 
 ## Blockers
 
