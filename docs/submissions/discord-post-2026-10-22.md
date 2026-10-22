@@ -23,13 +23,16 @@ Repo: https://github.com/Enan456/bbchallenge-proofs
 Shawn's invitation yesterday to dig into the 11 new machines is a good
 moment to put this out. Since July I've been reducing BB(6) holdouts to
 explicit, executable orbit conjectures in Lean 4, as a way of relearning
-mathematics on a hard problem. I kept it private on purpose. The bar I set
-myself before posting was the one I understood this community to want:
-cover a meaningful fraction of the holdouts, and be able to say *why* each
-machine does what it does, not just certify that it does. I cleared the
-first part and not the second. Being honest, I can explain to another
-person roughly a third of what the pipeline found, and that is a generous
-count. I think that gap is the real state of the art for every automated
+mathematics on a hard problem. I kept it private on purpose. The bar I
+held myself to is the one in cosmo's 2022 deciders' validation process
+(discuss.bbchallenge.org/t/85): decide at least 10% of the remaining
+undecided machines, be reproduced independently, and carry a proof of
+correctness that someone else validates. My 115 closures are 10.5% of the
+1,094 snapshot, but they decide nothing, and the proof-of-correctness
+clause only means something if a second person can follow *why* the
+machine behaves that way. Being honest, I can explain to another person
+roughly a third of what the pipeline found, and that is a generous count.
+I think that gap is the real state of the art for every automated
 characterization right now, including the ones in the paper, and that the
 bar should go up as the certification step gets cheaper. So read what
 follows as a reference artifact and a cross-check, not as understanding.
