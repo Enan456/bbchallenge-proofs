@@ -11,6 +11,54 @@ and axiom-clean; the macro systems and obligation discharges are exact,
 fail-closed statements about bounded observed traces — empirical evidence, not
 proofs of non-halting.
 
+## October 2026 update: what is proven, and the overlap with Google DeepMind
+
+This repository was private from its creation (2026-08-03) until 2026-10-22.
+It is published now because Google DeepMind's *At the Limits of Computability*
+(arXiv:2610.22603, 2026-10-15) and its companion repo
+[`google-deepmind/cryptids`](https://github.com/google-deepmind/cryptids)
+formalize Collatz-like reductions for 53 BB(6) holdouts, seven of which are
+machines this repo had already closed conditionally in Lean — including three
+of the eleven the paper presents as novel (our dossier-2, dossier-3 and
+dossier-7, committed 2026-08-25 and 2026-09-03). Neither side saw the other's
+work. Full comparison and a 2×10⁷-step cross-verification of both
+formalizations on the four shared new machines:
+[`docs/results/2026-10-22-gdm-cross-verification.md`](docs/results/2026-10-22-gdm-cross-verification.md)
+(harness `qgkit/bb6/gdm_cross/`, tests `tests/bb6/test_gdm_cross.py`).
+
+**What is kernel-checked here** (`cd busy-beaver-core && lake build`, 119 jobs,
+every theorem reports axioms `[propext, Quot.sound]`, no `sorry`, no Mathlib —
+verified 2026-10-21 on Lean `v4.30.0`):
+
+- **115 conditional closures** of BB(6) holdouts from the 1,094-machine
+  snapshot, each of the form `Safe_X → ¬ RawHalts blankStart`
+  (`busy-beaver-core/BusyBeaverCore/*RawTM.lean`). `Safe_X` is an explicit,
+  executable, fail-closed abstract orbit (five integers for dossier-2/3, a
+  hydra triple for Antihydra, a `(state, word)` record orbit for the
+  left-growing ladder machines); every dynamical fact about the machine —
+  halt localization, the episode/record transitions for all block values,
+  startup anchors, the transport from abstract orbit to raw tape — is proven.
+  Eighteen of these are the hand-built, named closures of
+  `docs/submissions/cryptid-names.md`; the other 97 were generated on
+  2026-09-04 by `qgkit/bb6/rawstep_generator.py` from the same certified
+  template and are individually differential-tested (`tests/bb6/test_d*_theorems.py`).
+- **Bridges to the community's statements**: the standard-format machine
+  code parses to our transition tables (`packages/dossier1/Bridge/Format.lean`),
+  the Rocq-style zipper tape is bisimilar to our functional tape
+  (`Bridge/Bisimulation.lean`), and Antihydra's orbit conjecture is proven
+  equivalent to the wiki's 1-D hydra statement (`hydraSafe_iff_safeOrbitA`).
+- **Unconditional negatives** (bounded, stated as such): no congruence
+  invariant to modulus 384 and no rotation rigidity for the dossier-2/3
+  renewal map; zero invariant-decidable machines across the cohort
+  (`docs/results/2026-09-03-state-and-gaps.md`).
+
+**What is not proven**: every `Safe_X` conjecture is open, so no machine is
+decided. The converse direction (`¬Halts → Safe_X`) is established only
+empirically (the halting game, `docs/results/2026-08-30-halting-game.md`);
+Google's reductions carry it as a theorem (`IsHalt ↔ CollatzHalts`), ours
+carry halt-localization and parser parity that theirs do not. Upgrading our
+four shared closures to an `iff` is the next Lean step.
+
 ## Headline results
 
 - **Full official open-set classification (1,158 machines, 0 errors):**

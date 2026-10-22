@@ -1,7 +1,7 @@
 """Differential tests for the dossier-27 certified layer
 (busy-beaver-core/BusyBeaverCore/Dossier27RawTM.lean).
 
-Machine: 1RB1RC_1LC0RC_0RA0LD_0LE---_0LF1LD_1LC1LE (dossier-27,
+Machine: 1RB1LC_1RC0RF_1RD0LB_1RE0LD_1LF---_0RA1LA (dossier-27,
 machine B of the architecture-variant pair of 2026-08-31; grows left,
 records at fresh left extremes, sparse-turn glider).
 

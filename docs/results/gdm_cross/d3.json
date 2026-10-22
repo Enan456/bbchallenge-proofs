@@ -1,0 +1,63 @@
+[
+ {
+  "machine": "d3",
+  "code": "1RB1RB_1LC0RE_---1LD_0RA1LB_1RA1LF_0LE1LE",
+  "horizon": 20000000,
+  "raw_steps": 20000000,
+  "halted_at": null,
+  "seconds": 7.7,
+  "gdm": {
+   "start": [
+    "C",
+    2,
+    0,
+    1
+   ],
+   "start_step_documented": 76,
+   "start_step_docstring": 76,
+   "start_step_observed": 76,
+   "hits": 49,
+   "last_hit_at": 18869705,
+   "dead_at": null,
+   "max_gap": 6723300,
+   "skipped_intermediate": 2317,
+   "skipped_example": [
+    1181,
+    [
+     "C",
+     5,
+     7,
+     10
+    ],
+    [
+     "C",
+     0,
+     2,
+     40
+    ]
+   ],
+   "final_expected": [
+    "C",
+    1722,
+    0,
+    1960
+   ]
+  },
+  "ours": {
+   "kind": "metaOrbit",
+   "realized": 4718,
+   "anchor_expected": 2044,
+   "anchor_observed": 2044,
+   "last_realized_at": 19995349,
+   "max_gap": 28513,
+   "dead": false,
+   "final_state": [
+    false,
+    64,
+    -191,
+    -761,
+    -4778
+   ]
+  }
+ }
+]

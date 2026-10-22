@@ -1,0 +1,37 @@
+[
+ {
+  "machine": "d27",
+  "code": "1RB1LC_1RC0RF_1RD0LB_1RE0LD_1LF---_0RA1LA",
+  "horizon": 100000000,
+  "raw_steps": 100000000,
+  "halted_at": null,
+  "seconds": 71.4,
+  "gdm": {
+   "start": [
+    "S6",
+    1
+   ],
+   "start_step_documented": 169,
+   "start_step_docstring": 66,
+   "start_step_observed": 169,
+   "hits": 6,
+   "last_hit_at": 38979318,
+   "dead_at": null,
+   "max_gap": 34913651,
+   "skipped_intermediate": 0,
+   "skipped_example": null,
+   "final_expected": [
+    "Q",
+    6808
+   ]
+  },
+  "ours": {
+   "kind": "worbit",
+   "records": 16613,
+   "dead": false,
+   "mismatch": null,
+   "max_gap": 120867,
+   "max_word": 16656
+  }
+ }
+]

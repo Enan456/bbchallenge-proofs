@@ -1,0 +1,49 @@
+[
+ {
+  "machine": "d2",
+  "code": "1RB1RC_1LC1LC_1RE0LD_1LB1RF_---1RA_0RD1RD",
+  "horizon": 20000000,
+  "raw_steps": 20000000,
+  "halted_at": null,
+  "seconds": 7.4,
+  "gdm": {
+   "start": [
+    "C1",
+    2,
+    2,
+    0
+   ],
+   "start_step_documented": 100,
+   "start_step_docstring": 100,
+   "start_step_observed": 100,
+   "hits": 2214,
+   "last_hit_at": 19992485,
+   "dead_at": null,
+   "max_gap": 23178,
+   "skipped_intermediate": 0,
+   "skipped_example": null,
+   "final_expected": [
+    "C1",
+    941,
+    505,
+    800
+   ]
+  },
+  "ours": {
+   "kind": "metaOrbit",
+   "realized": 4412,
+   "anchor_expected": 235,
+   "anchor_observed": 235,
+   "last_realized_at": 19995113,
+   "max_gap": 23197,
+   "dead": false,
+   "final_state": [
+    false,
+    -54,
+    1833,
+    2843,
+    4446
+   ]
+  }
+ }
+]
