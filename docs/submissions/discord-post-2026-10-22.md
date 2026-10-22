@@ -8,9 +8,10 @@ community lacks a word for "characterized into a set of dynamic equations
 (regardless of difficulty)"; Andrew Ducharme is pushing back on loose use of
 "cryptid"; Dennis and slugbird end posts with AI-assistance disclosures.
 
-Post the first block as the message in #bb6, the second as a reply in Tom's
-thread, the third as a thread reply under your own message. 2,000-char limit
-per message.
+Message 1 is now ~4,500 chars: send it as three consecutive messages split
+at the paragraph breaks before "Why I think that matters" and before "In
+Shawn's words". Message 2 goes as a reply in Tom's thread, message 3 as a
+thread reply under your own first message. 2,000-char limit per message.
 
 ---
 
@@ -34,9 +35,28 @@ machine behaves that way. Being honest, I can explain to another person
 roughly a third of what the pipeline found, and that is a generous count.
 I think that gap is the real state of the art for every automated
 characterization right now, including the ones in the paper, and that the
-bar should go up as the certification step gets cheaper. So read what
-follows as a reference artifact and a cross-check, not as understanding.
-Three of the 11 are machines I'd already characterized:
+bar should go up as the certification step gets cheaper. Why I think that matters here specifically: BB is interesting because it
+is the cheapest place where a concrete, finite object runs into
+undecidability, and deciders are how this community has made progress on
+it. A decider is worth something because it is an *argument*: a class of
+machines, a reason they cannot halt, a proof that the reason is sound, and
+a human who can check it. That is why the 2022 process asks for a proof
+someone else validates. A certified reduction found by a pipeline is a
+different object. It says: this machine has followed these rules for as
+long as we looked, and the kernel agrees the rules are consistent with the
+transition table. The rules can be exactly right and still carry no reason
+the orbit must avoid the fatal set, which is the only question left. Without
+that reason it is symbolic induction with a type-checker attached: the
+pattern held, so we certified the pattern. The mirror pair's map is a
+clean example: 10⁹ raw steps, 10⁶ renewals, a margin of 4 from death the
+whole way, every rule proven for all block values, and not one sentence
+that explains why the margin never closes. I don't say that to diminish
+the certification step, which is real work and which I also automated;
+I say it because as that step gets cheaper the remaining value is entirely
+in the explanation, and the community's standards should move to where
+the value is. So read what follows as a reference artifact and a
+cross-check, not as understanding. Three of the 11 are machines I'd
+already characterized:
 
 - `1RB1RC_1LC1LC_1RE0LD_1LB1RF_---1RA_0RD1RD` and its mirror
   `1RB1RB_1LC0RE_---1LD_0RA1LB_1RA1LF_0LE1LE` (closed 2026-08-25)
