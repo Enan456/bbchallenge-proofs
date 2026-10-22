@@ -23,11 +23,17 @@ Repo: https://github.com/Enan456/bbchallenge-proofs
 Shawn's invitation yesterday to dig into the 11 new machines is a good
 moment to put this out. Since July I've been reducing BB(6) holdouts to
 explicit, executable orbit conjectures in Lean 4, as a way of relearning
-mathematics on a hard problem, and I kept it private because I wasn't
-comfortable with the gap between "kernel-checked" and "I can explain why
-this machine does this". I still think that explanation is owed, mine
-included. But three of the 11 are machines I'd already characterized, so
-the artifacts are useful now as an independent check:
+mathematics on a hard problem. I kept it private on purpose. The bar I set
+myself before posting was the one I understood this community to want:
+cover a meaningful fraction of the holdouts, and be able to say *why* each
+machine does what it does, not just certify that it does. I cleared the
+first part and not the second. Being honest, I can explain to another
+person roughly a third of what the pipeline found, and that is a generous
+count. I think that gap is the real state of the art for every automated
+characterization right now, including the ones in the paper, and that the
+bar should go up as the certification step gets cheaper. So read what
+follows as a reference artifact and a cross-check, not as understanding.
+Three of the 11 are machines I'd already characterized:
 
 - `1RB1RC_1LC1LC_1RE0LD_1LB1RF_---1RA_0RD1RD` and its mirror
   `1RB1RB_1LC0RE_---1LD_0RA1LB_1RA1LF_0LE1LE` (closed 2026-08-25)
@@ -64,9 +70,11 @@ I'll add a "formalization" section to each of the three wiki pages this week
 unless someone objects. Their `IsHalt ↔ CollatzHalts` is stronger than my
 one-directional statement; a Lean bridge from my orbit conjecture to their
 `CollatzHalts` is in progress. What I'd most like from this channel is the
-other direction: someone who can see why these counter maps avoid their
-fatal set. The mirror pair's map provably has no congruence invariant to
-modulus 384 and no rotation rigidity, which is as far as I got.
+part neither pipeline produced: someone who can see why these counter maps
+avoid their fatal set. The mirror pair's map provably has no congruence
+invariant to modulus 384 and no rotation rigidity, which is as far as I
+got, and I'd rather hear that explained than add another certified
+reduction to the pile.
 
 AI assistance disclosure: the Lean proofs, the harness and this post were
 produced with Claude (Anthropic) and Codex (OpenAI); I ran every build and
