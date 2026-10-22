@@ -7,18 +7,27 @@ and the rest as thread replies. Repo link at the top. Be ready to answer
 
 ---
 
-**Independent Lean closures for 115 BB(6) holdouts — including 4 of the cryptids in DeepMind's new repo — plus a replay of their reductions against mine**
+**Lean closures for 115 BB(6) holdouts, held back for explainability reasons, published now because they overlap DeepMind's cryptids repo and might be useful**
 
 Repo: https://github.com/Enan456/bbchallenge-proofs
 
-Hi all. I've been quietly working on BB(6) holdouts since July and I'm making
-the repo public today. Everything in it builds on this community's work: the
-holdout list is mxdys's 1,094-machine snapshot, the machine format and the
-Antihydra statement are the wiki's, the Rocq zipper tape I bisimulate against
-is Coq-BB5's, and the whole idea of "formalize the reduction even if you can't
-close the conjecture" is what BusyLean and busycoq already showed was the
-right move. Thank you for all of that. I wouldn't have known where to start
-otherwise.
+Hi all. Some context first, because it affects how you should read this. I
+started on BB(6) in July as a way to get reacquainted with mathematics and to
+try some less conventional approaches on a hard problem. Everything in the repo
+builds on this community's work: mxdys's 1,094-machine holdout snapshot, the
+wiki's machine format and Antihydra statement, Coq-BB5's zipper tape, and the
+BusyLean and busycoq idea of formalizing a reduction even when the conjecture
+stays open. Thank you for all of that.
+
+I chose not to publish over the summer. The reason is that the method is close
+to what DeepMind's pipeline does, in that an automated layer finds the rules and
+the Lean layer certifies them, and I was not comfortable with the distance
+between "kernel-checked" and "I can explain to you why this machine behaves this
+way". I still think there is a lot of explanation owed on these machines, mine
+included, and if anything the bar for that should go up rather than down as more
+of us automate the certification step. I'm dropping this now because the overlap
+with DeepMind's repo makes the artifacts useful as an independent check, and
+holding them back no longer serves anyone.
 
 What's in the repo, all kernel-checked (`lake build`, axioms propext and
 Quot.sound only, no sorry, no Mathlib):
@@ -76,12 +85,12 @@ bridge) and the format-parity layer.
 
 Nothing here decides a machine. The mirror pair's conjecture provably has no
 congruence invariant to modulus 384 and no rotation rigidity, which is as far
-as I got on the arithmetic; if that rings a bell for anyone, I'd love to hear
-it. More formal reductions of the same open question, from any pipeline, don't
-move it on their own. What moves it is someone understanding why these
-particular counter maps avoid their fatal set, and that is the part I'm still
-hoping to learn from people here. Happy to walk anyone through a file, and
-corrections are very welcome.
+as I got on the arithmetic. More formal reductions of the same open question,
+from any pipeline, don't move it on their own. What moves it is someone
+understanding why these particular counter maps avoid their fatal set, and
+that is the part I haven't managed and would like to learn from people here.
+Treat the repo as raw material for that, not as a result. Corrections very
+welcome, and I'm happy to walk anyone through a file.
 
 Reproduce:
 
