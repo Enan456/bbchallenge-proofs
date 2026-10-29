@@ -114,6 +114,32 @@ granularity diagnostics: `docs/results/gdm_cross/{d2,d3,d7,d27}.md`
    to have no congruence invariant to modulus 384 and no rotation
    rigidity, which is why neither side could close it.
 
+## Validation horizons (added 2026-10-29)
+
+The Lean theorems on both sides are horizon-free; step counts bear only on
+the evidence behind the open orbit conjectures. Sources: the paper's text
+(arXiv:2610.22603, Section on pattern detection and Appendix A) and this
+repository's results documents.
+
+| what was run | DeepMind (as reported in the paper) | this repository |
+|---|---|---|
+| raw steps per machine used to find the rules | 5×10⁶ (pattern-detection pass) | 2×10⁷ to 10⁸ (stage751 exact-replay fits at 10⁸; `2026-08-27-d4-fullset-certification.md`) |
+| raw steps the rules were checked against | 128,000 per synthetic transition during refinement | dossier-2/3: 10⁹ raw steps each (`closure-report.tex`); dossier-7/8: 2×10⁷ with 5,251/5,251 and 3,879/3,879 record transitions exact (`2026-08-31-dossier7-dossier8-laws.md`); dossier-27: 2×10⁷ with 10,909/10,909 exact (`tests/bb6/test_d27_theorems.py`) |
+| abstract-system iterations | not reported | dossier-2/3 renewal map: 10⁸ iterations ≈ 10¹⁵ raw steps, minimum margin 4 from the fatal set (`2026-08-26-renewal-map-analysis.md`) |
+| synthetic fresh-value replays of proof obligations | none reported | 10⁸ raw steps per obligation; Antihydra 13/13, dossier-1 33/33 (stage753) |
+| whole-holdout census | 1,094 machines analysed for rule discovery | all 1,094 at 1.2×10⁵ steps with depth-18 halt cones: 0 halts, 0 alignments (`2026-09-03-state-and-gaps.md`) |
+| cross-verification of the other side's reduction | none | 2×10⁷ raw steps per shared machine, 10⁸ for dossier-27, both abstract systems on one trace (this document) |
+
+Reading: the paper's confidence that a machine is a cryptid rests on the
+Lean proof that its rules are sound, which is legitimate and horizon-free;
+the paper reports no run longer than the detection pass. This repository's
+conjectures for the mirror pair were watched about 10³ times longer in raw
+steps and about 10⁹ times longer through the renewal map. Neither is
+understanding, and the community's own simulation of every BB(6) holdout to
+10¹³ steps (BusyBeaverWiki, BB(6) page) exceeds both; the table is a
+statement about validation effort behind the same open conjecture, nothing
+more.
+
 ## Non-claims
 
 - No claim of priority is made beyond the commit dates above; both

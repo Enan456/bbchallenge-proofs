@@ -24,7 +24,11 @@ dossier-7, committed 2026-08-25 and 2026-09-03). Neither side saw the other's
 work. Full comparison and a 2×10⁷-step cross-verification of both
 formalizations on the four shared new machines:
 [`docs/results/2026-10-22-gdm-cross-verification.md`](docs/results/2026-10-22-gdm-cross-verification.md)
-(harness `qgkit/bb6/gdm_cross/`, tests `tests/bb6/test_gdm_cross.py`).
+(harness `qgkit/bb6/gdm_cross/`, tests `tests/bb6/test_gdm_cross.py`). That
+document also tabulates validation horizons side by side: the paper reports a
+5×10⁶-step detection pass and 128k-step transition checks; the mirror-pair
+conjectures here were validated against 10⁹ raw steps and 10⁸ renewal-map
+iterations, the left-growers against 2×10⁷ raw steps with every record exact.
 
 **What is kernel-checked here** (`cd busy-beaver-core && lake build`, 119 jobs,
 every theorem reports axioms `[propext, Quot.sound]`, no `sorry`, no Mathlib —
