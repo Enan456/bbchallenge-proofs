@@ -80,7 +80,18 @@ four straight from their Lean and replayed their acceleration and my orbit
 against one raw simulation per machine, 2×10^7 steps each, 10^8 for the
 fourth. All four agree with the machine and with each other. Neither
 fail-closed system dies. Their reductions hold. Report and harness:
-`docs/results/2026-10-22-gdm-cross-verification.md`. Two things for
+`docs/results/2026-10-22-gdm-cross-verification.md`.
+
+On validation horizons, since the Lean on both sides is horizon-free and
+the horizon only matters for the conjecture: the paper's rules come from a
+5×10^6-step detection pass and 128k-step checks per synthetic transition,
+and it reports no longer run. The mirror pair's orbit conjecture here was
+validated against 10^9 raw steps per machine and 10^8 iterations of the
+renewal map (about 10^15 raw steps equivalent), minimum margin 4 from the
+fatal set throughout; the left-growers against 2×10^7 raw steps with every
+record transition exact. That's more validation behind the same open
+conjecture, not more understanding of it, and mxdys's 10^13 sweep of every
+holdout is the real yardstick for both of us. Two things for
 @Marco / @tomzahavy: (1) the fourth machine's docstring says `S6 1` at step
 66. It's 169. 66 is your `step_drain_odd_end` lemma. Proof unaffected.
 (2) `next` isn't a first-return map. On the mirror's second machine the
